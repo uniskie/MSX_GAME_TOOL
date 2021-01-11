@@ -2,11 +2,14 @@
  ハイドライド３、ガリウスの迷宮、パロディウスなどに使うツール
 
 ■ 変更履歴
-2020/08/21 ・HYDLIDE3.BASをFMPAC/PACに対応 セーブデータセーブロード時、
-             FMPAC/PACがあればそちらのSRAMを読み書きするように対応。
-           ・HYD3CHAR.BASのバグ修正（アイテム選択で左カーソルが反応しない問題）
-2020/08/19 ・HYD3CHAR.BASのバグ修正（マシン後書き込みアドレス計算がずれる問題）
-2020/08/10 ・初版
+- 2020/08/21 
+    - HYDLIDE3.BASをFMPAC/PACに対応 セーブデータセーブロード時、
+      FMPAC/PACがあればそちらのSRAMを読み書きするように対応。
+    - HYD3CHAR.BASのバグ修正（アイテム選択で左カーソルが反応しない問題）
+- 2020/08/19
+    - HYD3CHAR.BASのバグ修正（マシン後書き込みアドレス計算がずれる問題）
+- 2020/08/10
+    - 初版
 
 ■ ツールについて
 
@@ -40,7 +43,7 @@
                     「パロディウス」ミュージックボックス
                     ※SAVE-MUS.BASでROMイメージからの吸出しファイルを作成する必要がある
     ◆ SAVE-MUS.BAS
-                    GAR-MUS.BAS/PARO-MUS.BAS用イメージファイル作成ツール
+                    GAR-MUS.BAS / PARO-MUS.BAS用イメージファイル作成ツール
 
 ■ 再配布等
 
@@ -76,7 +79,7 @@
 ● HYDLIDE3.BAS
 
     ここでは概要のみ。
-    詳細は README_HYDLIDE3.TXT 参照。
+    詳細は ./README_HYDLIDE3.TXT 参照。
 
     MSX1版/MSX2版両対応
     MSX1/2/2+/turboR対応
@@ -100,10 +103,10 @@
 ● PARODIUS.BAS & GARIOUS.BAS
 
     ここでは概要のみ。
-    詳細は README_PARODIUS_GARIOUS.TXT 参照。
+    詳細は ./README_PARODIUS_GARIOUS.TXT 参照。
 
     MSX2/2+/turboR対応
-    要：RAM64KB/VRAM128KB
+    要：RAM64KB / VRAM128KB
     MSX1/2/2+/turboR対応
     MSX-DOS1/MSX-DOS2対応
 
