@@ -1,6 +1,6 @@
-;***************************
-;   SET TRAP for M-GARIOUS
-;***************************
+;**********************************
+;   SET TRAP for Maze of GALIOUS
+;**********************************
 ; A=USR( TIME-TRAP É ±ÄÞÚ½ )
 ;
 	FNAME	"GARSTART.BOF"	;*BINHEAD*
@@ -24,7 +24,7 @@ GETCPU:	EQU	0183H
 ORGADR:	EQU	0C000H
 	ORG	ORGADR
 ;
-	JP	GARIOUS_
+	JP	GALIOUS_
 	JP	GAR_CHK
 GAR_REF:	;
 	DB	0
@@ -66,7 +66,7 @@ CPURES:	LD	A,(GETCPU)
 	CALL	CHGCPU
 	RET
 ;
-GARIOUS_:	;
+GALIOUS_:	;
 	CALL CPUZ80
 	DI			;F3
 	LD	(SVW_SP),SP
@@ -255,7 +255,7 @@ NWRVRM:	EQU	0177H	;HL=VRAM ADDRESS(16bit), A=DATA
 BIGFIL:	EQU	016BH	;HL=VRAM ADDRESS(16bit), BC=SIZE, A=DATA
 ;
 ;
-;---:	GARIOUS ROM RUTINE
+;---:	GALIOUS ROM RUTINE
 SETMUSIC:	EQU	4E34H
 SETFONT0:	EQU	5C46H
 SETFONT1:	EQU	5AB3H

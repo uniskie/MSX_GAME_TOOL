@@ -1,4 +1,4 @@
-;**:	THE MAZE OF GARIOUS **
+;**:	THE MAZE OF GALIOUS **
 ;**:	MUSIC TITTLE DATAS **
 ;
 MUS_TIT:	;
@@ -9,9 +9,9 @@ MUS_TIT:	;
 	DB	'        - è¡  ñ≈ - (SE)       | ';*DM*
 	DB	'  -GET A KEY TO NEXT STAGE!-  | ';*DM*
 	DB	'     - èò  èÕ (PROLOGUE)-     | ';*DM*
-	DB	'GAMESTARTÅ`The MAZE of GARIOUS| ';*DM*
-	DB	'-The MAZE of GARIOUS-(CASTLE) | ';*DM*
-	DB	'  å∂òf Å` The MAZE ofGARIOUS  | ';*DM*
+	DB	'GAMESTARTÅ`The MAZE of GALIOUS| ';*DM*
+	DB	'-The MAZE of GALIOUS-(CASTLE) | ';*DM*
+	DB	'  å∂òf Å` The MAZE ofGALIOUS  | ';*DM*
 	DB	' -The WORLD of DEMON-  (ñÇäE) | ';*DM*
 	DB	' êVÇΩÇ»ó∑Ç÷ÇÃåÆ(WORLD CLEARED)| ';*DM*
 	DB	'      -THE SPELL SEEKER-      | ';*DM*

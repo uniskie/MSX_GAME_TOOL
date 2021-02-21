@@ -1,5 +1,5 @@
 ■ PARODIUS.BAS 
-        & GARIOUS.BAS 説明書
+        & GALIOUS.BAS 説明書
 
     MSX2/2+/turboR対応
     要：RAM64KB/VRAM128KB
@@ -130,7 +130,7 @@
     ・MSX1用のゲームをMSX2で実行する場合、VRAM 4000H以降は未使用
     ・BANK番号のワークが共通？（おそらく）
 
-    GARIOUS.BASやPARODIUS.BASをもう少し工夫すれば汎用にもできるかもしれません。
+    GALIOUS.BASやPARODIUS.BASをもう少し工夫すれば汎用にもできるかもしれません。
     （インターネットを検索すれば既にありそうな気もします）
 
 

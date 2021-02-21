@@ -1,4 +1,4 @@
-;**:	THE MAZE OF GARIOUS **
+;**:	THE MAZE OF GALIOUS **
 ;**:	MUSIC TITTLE DATAS **
 ;
 MUS_TIT:	;
@@ -10,7 +10,7 @@ MUS_TIT:	;
 	DB	'///GET/A/KEY///¡';*DM*
 	DB	'///PROROGUE``//¡';*DM*
 	DB	'//GAME/START]//¡';*DM*
-	DB	'MAZE/OF/GARIOUS¡';*DM*
+	DB	'MAZE/OF/GALIOUS¡';*DM*
 	DB	'////WHAT/__////¡';*DM*
 	DB	'WORLD/OF/DEMON`¡';*DM*
 	DB	'//WORLD/CLEAR//¡';*DM*
