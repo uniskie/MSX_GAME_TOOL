@@ -21,7 +21,7 @@
 - PARODIUS.BAS  
 ...「パロディウス」補助ツール  
   
-- GARIOUS.BAS  
+- GALIOUS.BAS  
 ...「ガリウスの迷宮」補助ツール  
   
   
@@ -105,10 +105,10 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 - MSX2版は1chipMSXのクロックアップ状態でしばらく動かしていると暴走します。  
     （このツールを使用していない場合でも同様です）  
   
-### PARODIUS.BAS & GARIOUS.BAS  
+### PARODIUS.BAS & GALIOUS.BAS  
   
 ここでは概要のみ。  
-詳細は [README_PARODIUS_GARIOUS.TXT](./README_PARODIUS_GARIOUS.TXT) 参照。  
+詳細は [README_PARODIUS_GALIOUS.TXT](./README_PARODIUS_GALIOUS.TXT) 参照。  
   
 - MSX2/2+/turboR対応  
 - 要：RAM64KB/VRAM128KB  
@@ -170,7 +170,7 @@ makeall.batで一括ビルド可能です。
 #### 共用  
         EX-BIOS.ASM  
   
-#### GARIOUS.BAS用  
+#### GALIOUS.BAS用  
         GAR-EXPS.ASM  
         GAR-TITL.ASM  
         GARSTART.ASM  
