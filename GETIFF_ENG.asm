@@ -1,14 +1,14 @@
 ;================================================================
 ; from "Zilog Z80 FAMILY DATA BOOK jANUARY 1989" page 413
 ;
-;	bugfix for LD A.I (or LD A,R) IFF2 flag
+;	bugfix for LD A,I (or LD A,R) IFF2 flag
 ;
 ;Caution, these routines presume that the service routine 
 ;for any acceptable interrupt will re-enable interrupts 
 ;before it terminates. This is almost always the case. 
 ;They may not return the correct result if an interrupt 
 ;service routine, which does not re-enable interrupts, 
-;is entered after the execution of LD A, 1 (or LD A,R).
+;is entered after the execution of LD A,I (or LD A,R).
 ;================================================================
 ;
 ;================================================================
@@ -19,7 +19,7 @@ GETIFF:
 	XOR A		;C flag, acc. := 0
 	PUSH AF		;stack bottom := 00xxh
 	POP AF		;Restore SP
-	LD A, I		;P flag := IFF2
+	LD A,I		;P flag := IFF2
 	RET PE		;Exit if enabled
 	DEC SP		;May be disabled.
 	DEC SP		;Has stack bottom been
