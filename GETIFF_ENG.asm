@@ -1,5 +1,5 @@
 ;================================================================
-; from "Zilog Z80 FAMILY DATA BOOK jANUARY 1989" page 413
+; from "Zilog Z80 FAMILY DATA BOOK JANUARY 1989" page 413
 ;
 ;	bugfix for LD A,I (or LD A,R) IFF2 flag
 ;

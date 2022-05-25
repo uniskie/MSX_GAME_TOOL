@@ -1,5 +1,5 @@
 ;================================================================
-; "Zilog Z80 FAMILY DATA BOOK jANUARY 1989" page 413 より、
+; "Zilog Z80 FAMILY DATA BOOK JANUARY 1989" page 413 より、
 ;
 ; LD A,I (or LD A,R) IFF2 flag のバグ対策
 ;
