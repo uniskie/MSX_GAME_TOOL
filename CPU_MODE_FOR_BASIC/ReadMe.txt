@@ -1,7 +1,7 @@
 ## 概要
 
 BASICからCHGCPU/GETCPUを呼び出すサンプルです。
-
+  
 CHGCPU.BAS ... 選択してCPU切り替え
 GETCPU.BAS ... 現在のCPU表示
 Z80.BAS    ... Z80モードに切り替え
