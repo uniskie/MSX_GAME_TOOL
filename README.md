@@ -160,7 +160,7 @@ NextorのIDEドライバははMegaSDのものが使用できます。
 ## ソースファイルについて  
   
 srcフォルダにマシン後プログラムのソースが入っています。  
-tnimsxを使用してpc上でクロスアセンブルしています。  
+[TNIASM][TNIASM]を使用してpc上でクロスアセンブルしています。  
 makeall.batで一括ビルド可能です。  
   
 #### HYDLIDE3.BAS用  
@@ -209,4 +209,5 @@ makeall.batで一括ビルド可能です。
         TFROM.BOF  
         TFROM.ASM  
   
-  
+
+[TNIASM]: http://www.tni.nl/products/tniasm.html
