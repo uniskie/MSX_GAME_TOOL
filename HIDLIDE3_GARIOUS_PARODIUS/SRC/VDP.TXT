@@ -1,0 +1,45 @@
+REG0SV:		EQU	0F3DFH	;VDP REG#0-#7	MSX
+RG8SAV:		EQU	0FFE7H	;VDP REG#8-#23	MSX2
+RG25SAV:	EQU	0FFF8H	;VDP REG#25-#27	MSX2+
+
+R#0	VDP(0)	0F3DFH	モードレジスタ#0	
+R#1	VDP(1)	0F3E0H	モードレジスタ#1	
+R#2	VDP(2)	0F3E1H	パターンネームテーブル	
+R#3	VDP(3)	0F3E2H	カラーテーブル(LOW)	
+R#4	VDP(4)	0F3E3H	パターンジェネレータテーブル
+R#5	VDP(5)	0F3E4H	スプライトアトリビュートテーブル(LOW)	
+R#6	VDP(6)	0F3E5H	スプライトパターンジェネレータテーブル	
+R#7	VDP(7)	0F3E6H	周辺色/テキストモード時の文学色	
+
+R#8	VDP(9)	0FFE7H	モードレジスタ#2	
+R#9	VDP(10)	0FFE8H	モードレジスタ#3	
+R#10	VDP(11)	0FFE9H	カラーテーブル(HIGH)	
+R#11	VDP(12)	0FFEAH	スプライトアトリビュートテーブル(HIGH)	
+R#12	VDP(13)	0FFEBH	テキストブリンク時の文字色	
+R#13	VDP(14)	0FFECH	ブリンク周期	
+R#14	VDP(15)	0FFEDH	VRAMアクセスアドレス(HIGH)	
+R#15	VDP(16)	0FFEEH	S#nの間接指定	
+R#16	VDP(17)	0FFEFH	P#nの間接指定	
+R#17	VDP(18)	0FFF0H	R#nの間接指定	
+R#18	VDP(19)	0FFF1H	画面位置の補正(ADJUST)	
+R#19	VDP(20)	0FFF2H	割り込み発生の走査線番号	
+R#20	VDP(21)	0FFF3H	カラーバースト信号1
+R#21	VDP(22)	0FFF4H	カラーバースト信号2
+R#22	VDP(23)	0FFF5H	カラーバースト信号3
+R#23	VDP(24)	0FFF6H	画面のハードスクロール
+
+R#32	VDP(33)	SX:転送元X座標(LOW)
+R#33	VDP(34)	SX:転送元X座標(HIGH)
+R#34	VDP(35)	SY:転送元Y座標(LOW)
+R#35	VDP(36)	SY:転送元Y座標(HIGH)
+R#36	VDP(37)	DX:転送先X座標(LOW)
+R#37	VDP(38)	DX:転送先X座標(HIGH)
+R#38	VDP(39)	DY:転送先Y座標(LOW)
+R#39	VDP(40)	DY:転送先Y座標(HIGH)
+R#40	VDP(41)	NX:X方向転送ドット数(LOW)
+R#41	VDP(42)	NX:X方向転送ドット数(HIGH)
+R#42	VDP(43)	NY:Y方向転送ドット数(LOW)
+R#43	VDP(44)	NY:Y方向転送ドット数(HIGH)
+R#44	VDP(45)	CLR:対CPUデータ転送用
+R#45	VDP(46)	ARG:転送方向/VRAM・拡張RAM指定
+R#46	VDP(47)	CMR:VDPコマンドを発行
