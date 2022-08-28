@@ -1,17 +1,17 @@
-Bitmap Palette fot Bz Editor 
+Bitmap Palette for Bz Editor 
  
---Bz Editor�̓o�C�i���G�f�B�^�ł��B 
+--Bz Editorはバイナリエディタです。 
 https://devil-tamachan.github.io/BZDoc/ 
  
-�\���̕\���@�\�╪����ʂƔ�r�A
-�������̃r�b�g�}�b�v�\���@�\������܂��B 
+構造体表示機能や分割画面と比較、
+メモリのビットマップ表示機能があります。 
 
-�c�O�Ȃ���4bit�J���[�ɂ͑Ή����Ă��܂��񂪁A
-8�r�b�g256�s�N�Z���\�����ƒ��xSCREEN8�ɂȂ�܂��B 
-�f�B�X�N�C���[�W������Ŏ�y�ɂ̂����Ă݂�̂�
-�ʔ�����������܂���B 
-MSX�p���b�g��`�����܂����B 
+残念ながら4bitカラーには対応していませんが、
+8ビット256ピクセル表示だと丁度SCREEN8になります。 
+ディスクイメージをこれで手軽にのぞいてみるのも
+面白いかもしれません。 
+MSXパレット定義を作りました。 
 
-Bz Editor�̃��j���[�� 
-�c�[�����J�X�^���p���b�g�̕ҏW 
-�ŊJ���t�H���_�[�ɓ���čċN�����Ă݂Ă��������B 
+Bz Editorのメニューの 
+ツール→カスタムパレットの編集 
+で開くフォルダーに入れて再起動してみてください。 
