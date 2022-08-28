@@ -1,4 +1,4 @@
-﻿# HIDLIDE3_GARIOUS_PARODIUS
+﻿# HIDLIDE3_GALIOUS_PARODIUS
  ハイドライド３、ガリウスの迷宮、パロディウスなどに使うツール  
   
 ## 変更履歴  
