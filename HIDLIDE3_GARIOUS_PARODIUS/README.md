@@ -1,4 +1,4 @@
-﻿# MSX_GAME_TOOL  
+﻿# HIDLIDE3_GARIOUS_PARODIUS
  ハイドライド３、ガリウスの迷宮、パロディウスなどに使うツール  
   
 ## 変更履歴  
