@@ -1,0 +1,4 @@
+[submodule "RType_MSXROM_To_Ascii16"]
+	path = RType_MSXROM_To_Ascii16
+	url = https://github.com/uniskie/RType_MSXROM_To_Ascii16.git
+	branch = main
