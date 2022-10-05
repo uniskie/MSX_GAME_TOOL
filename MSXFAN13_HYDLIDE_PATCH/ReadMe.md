@@ -27,7 +27,7 @@ MSXFAN 1992年10月号 付録ディスク#13 から
 1. VRAM-2MD.SC8
 
 SC8保存&パッチ当てプログラム
-1. MAKESC8.XN
+1. MAKESC8.XB
 
 ### 実行手順
 
