@@ -2,3 +2,7 @@
 	path = RType_MSXROM_To_Ascii16
 	url = https://github.com/uniskie/RType_MSXROM_To_Ascii16.git
 	branch = main
+[submodule "SLAYDOCK_SCC"]
+	path = SLAYDOCK_SCC
+	url = https://github.com/uniskie/SLAYDOCK_SCC.git
+	branch = main
