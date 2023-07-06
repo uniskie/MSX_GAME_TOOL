@@ -12,4 +12,4 @@ retail: [SuperLaydock_NoDamage.txt](SuperLaydock_NoDamage.txt)
 eg.) winIPS [http://smblabo.web.fc2.com/](http://smblabo.web.fc2.com/)
 
 ## use openMSX
-![image](https://github.com/uniskie/SLAYDOCK_SCC/assets/11275674/a448892a-0c86-4cae-bffe-e621629ce3a3)
+![image](OpenMSX_use_ips.png
