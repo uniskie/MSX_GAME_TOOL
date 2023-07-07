@@ -3,8 +3,8 @@ Super LAYDOCK No-damage ips patch
 ================================================================
 No-Damage patch
 
-424e    05 -> 00        ;dec b  -> nop   ; 1p
-4296    05 -> 00        ;dec b  -> nop   ; 2p
+424e    05 -> 00        ;dec b  -> nop   ; 1p life
+4296    05 -> 00        ;dec b  -> nop   ; 2p life
 432c    02 -> 00        ;jr nz,+2 -> +0  ; docking power up
 43be    92 -> 00        ;sub    -> nop   ; docking power down
 43c1    af -> 00        ;xor a  -> nop   ; docking power down
@@ -97,7 +97,7 @@ DOCKING POWER UP (TIMER):
 ================
 DOCKING POWER DOWN (DAMAGE):
 
-83b6    3a f2 e4        ld      a,($e4f2)       ; docking muteki? ステージ開始時にクリア
+83b6    3a f2 e4        ld      a,($e4f2)       ; docking muteki? 繧ｹ繝�繝ｼ繧ｸ髢句ｧ区凾縺ｫ繧ｯ繝ｪ繧｢
 83b9    b7              or      a
 83ba    c0              ret     nz
 83bb    3a 7c e3        ld      a,($e37c)       ;read docking power 
