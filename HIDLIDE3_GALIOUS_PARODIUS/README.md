@@ -1,7 +1,7 @@
 ﻿# HIDLIDE3_GALIOUS_PARODIUS
  ハイドライド３、ガリウスの迷宮、パロディウスなどに使うツール  
 
-DISK IMAGE -> [UNKOTOOL.dsk](../UNKOTOOL.dsk)
+DISK IMAGE -> [HIDLIDE3_GALIOUS_PARODIUS.dsk](../HIDLIDE3_GALIOUS_PARODIUS.dsk)
 
 
 ## 変更履歴  
