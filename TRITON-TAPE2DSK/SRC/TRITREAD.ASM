@@ -1,0 +1,227 @@
+; for tniASM	Local Label= .LABEL
+; (asMSX	Local Label= @LABEL)
+;
+	CPU	Z80
+	FNAME	"TritRead.bin"
+;
+;*********************************
+;	INCLUDE	"symbols.asm"
+	ENASLT:	equ $0024 ; Enable any slot permanently
+	RDSLT:	equ $000c ; Read RAM in any slot
+	WRSLT:	equ $0014 ; Write to RAM in any slot
+	BEEP:	equ $00c0 ; Go beep
+;
+	EXPTBL:	equ $fcc1 ; Set to $80 during power-up if Primary Slot is expanded (4b)
+	MNROM:	equ $fcc1 ; The first EXPTBL variable is also the Main ROM (BIOS) slot ID
+	SLTTBL:	equ $fcc5 ; Mirror of the four possible Secondary Slot Registers (4b)
+;*********************************
+;
+RAMAD0:	EQU	0F341H		; PAGE0 RAM SLOT
+RAMAD1:	EQU	0F342H		; PAGE1 RAM SLOT
+RAMAD2:	EQU	0F343H		; PAGE2 RAM SLOT
+RAMAD3:	EQU	0F344H		; PAGE3 RAM SLOT
+;
+; FOR TRITON DATA
+DATBUF:		EQU	0A000H	;0A000H-0CFFFH: DATA READ BUFFER
+DATRAMBUF:	EQU	02000H	;02000H-7FFFFH; DATA BUFFER
+TRITDAT:	EQU	8800H	;TRANFER TARGET & EXEC ADDRESS
+;
+;	BSAVE HEADER
+	ORG	0
+	DB	0FEH
+	DW	.START
+	DW	ENDFL
+	DW	.START
+;
+	ORG	8500H
+;
+;*********************************
+;USAGE:
+; BLOAD"TRITREAD.BIN"
+; DEFUSR=&H8500
+; A%=USR(0)
+; BLOAD"TRITON.BIN"
+; POKE &HA30D,&HC3
+; POKE &HA30E,&H03
+; POKE &HA30F,&H85
+; DEFUSR=&HA000
+; A%=USR(0)
+;
+;
+.START:
+	JP	.READDAT
+	JP	.TRNSDAT
+;
+;--------------------------------------
+;****	02000H-07FFFH -> 8800H-0E7FFH
+;
+.TRNSDAT:
+	; COPY from 2000H-3FFFH
+	DI
+	LD	A,(RAMAD0)		;RAM P0 SLOT
+	LD	HL,DATRAMBUF+0000H	;SRC
+	PUSH	HL		;->SRC
+	PUSH	HL		;->SRC
+	CALL	CHGSLT		;ENASLT
+	POP	HL		;<-SRC
+	LD	DE,TRITDAT	;DEST: TRITON EXEC
+	LD	BC,2000H	;SIZE
+	LDIR
+	LD	A,(MNROM)		;MAIN ROM SLOT
+	POP	HL		;<-DEST
+	CALL	CHGSLT		;ENASLT
+	EI
+;
+	; COPY from 4000H-7FFFH
+	DI
+	LD	A,(RAMAD1)		;RAM P1 SLOT
+	LD	HL,DATRAMBUF+2000H	;SRC
+	PUSH	HL		;->SRC
+	PUSH	HL		;->SRC
+	CALL	CHGSLT		;ENASLT
+	POP	HL		;<-SRC
+	LD	DE,TRITDAT+2000H	;DEST: TRITON EXEC
+	LD	BC,4000H	;SIZE
+	LDIR
+	LD	A,(MNROM)		;MAIN ROM SLOT
+	POP	HL		;<-DEST
+	CALL	CHGSLT		;ENASLT
+	EI
+;
+	JP	TRITDAT		; TRITON EXEC
+;
+;--------------------------------------
+;****	READ 'GAMEDATA.DAT' -> 02000H-07FFFH
+;
+.READDAT:
+	; VARTYPE CHECK (INT)
+;	CP	2
+;	JP	NZ,EREND2	; NOT INT
+;	PUSH	HL		; SAVE VAR ADDR
+;	INC	HL
+;	INC	HL
+;	XOR	A
+;	LD	(HL),A
+;	INC	HL
+;	LD	(HL),A		; SET 0
+;
+	; FILE OPEN
+	LD	HL,DATNAME	; FNAME
+	LD	DE,DATBUF	; DMA
+	CALL	F_OPEN
+	JP	NZ,EREND	; ERROR END
+;
+	; FILE READ	- HEADER 
+	LD	HL,6
+	CALL	F_READ
+	; CHECK
+	LD	HL,CHKDATA
+	LD	DE,DATBUF
+	LD	B,6
+.CHKLOOP:
+	LD	A,(DE)
+	CP	(HL)
+	JP	NZ,EREND	; ERROR
+	INC	DE
+	INC	HL
+	DEC	B
+	LD	A,B
+	OR	A
+	JR	NZ,.CHKLOOP
+;
+	; FILE READ	- 1 of 3 : 0000H-1FFFFH
+	LD	HL,2000H
+	CALL	F_READ
+	; COPY to 2000H-3FFFH
+	DI
+	LD	A,(RAMAD0)		;RAM P0 SLOT
+	LD	HL,DATRAMBUF+0000H	;DEST
+	PUSH	HL		;->DEST
+	PUSH	HL		;->DEST
+	CALL	CHGSLT		;ENASLT
+	LD	HL,DATBUF	;SRC
+	POP	DE		;<-DEST
+	LD	BC,2000H	;SIZE
+	LDIR
+	LD	A,(MNROM)		;MAIN ROM SLOT
+	POP	HL		;<-DEST
+	CALL	CHGSLT		;ENASLT
+	EI
+;
+	; FILE READ	- 2 of 3 : 2000H-3FFFFH
+	LD	HL,2000H
+	CALL	F_READ
+	; COPY to 4000H-5FFFH
+	DI
+	LD	A,(RAMAD1)		;RAM P1 SLOT
+	LD	HL,DATRAMBUF+2000H	;DEST
+	PUSH	HL		;->DEST
+	PUSH	HL		;->DEST
+	CALL	CHGSLT		;ENASLT
+	LD	HL,DATBUF	;SRC
+	POP	DE		;<-DEST
+	LD	BC,2000H	;SIZE
+	LDIR
+	LD	A,(MNROM)		;MAIN ROM SLOT
+	POP	HL		;<-DEST
+	CALL	CHGSLT		;ENASLT
+	EI
+;
+	; FILE READ	- 3 of 3 : 4000H-5FFFFH
+	LD	HL,2000H
+	CALL	F_READ
+	; COPY to 6000H-7FFFH
+	DI
+	LD	A,(RAMAD1)		;RAM P1 SLOT
+	LD	HL,DATRAMBUF+4000H	;DEST
+	PUSH	HL		;->DEST
+	PUSH	HL		;->DEST
+	CALL	CHGSLT		;ENASLT
+	LD	HL,DATBUF	;SRC
+	POP	DE		;<-DEST
+	LD	BC,2000H	;SIZE
+	LDIR
+	LD	A,(MNROM)		;MAIN ROM SLOT
+	POP	HL		;<-DEST
+	CALL	CHGSLT		;ENASLT
+	EI
+; 
+	; FILE CLOSE END
+	CALL	F_CLOSE
+;
+;	POP	HL		; LOAD VAR ADDR
+	RET
+;
+;--------------------------------------
+	; ENASLT CLONE (FOR PAGE 0 SLOT CHANGE)
+	INCLUDE "CHGSLT.ASM"
+;--------------------------------------
+;
+;--------------------------------------
+;*** ERROR
+EREND:
+;	POP	HL		; LOAD VAR ADDR
+;	INC	HL
+;	INC	HL
+;	LD	A,255
+;	LD	(HL),A
+;	INC	HL
+;	LD	(HL),A		; RET -1
+;	
+EREND2:	CALL	BEEP
+	RET
+;
+;--------------------------------------
+DATNAME:
+	;	 NNNNNNNN . XXX
+	DB	'GAMEDATA','DAT'
+CHKDATA:				; FILE CHECK HEADER 6bytes
+	DB	4BH,41H,4AH,49H,2EH,2EH	; 'KAJI..'
+;
+;*********************************
+;** FILE I/O
+	INCLUDE "fileio.asm"
+;*********************************
+;
+ENDFL:
+	DB	0

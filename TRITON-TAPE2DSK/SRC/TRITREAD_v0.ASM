@@ -1,0 +1,223 @@
+; for tniASM	Local Label= .LABEL
+; (asMSX	Local Label= @LABEL)
+;
+	CPU	Z80
+	FNAME	"TRIOLD.BIN"
+;
+;*********************************
+;	INCLUDE	"symbols.asm"
+	ENASLT:	equ $0024 ; Enable any slot permanently
+	RDSLT:	equ $000c ; Read RAM in any slot
+	WRSLT:	equ $0014 ; Write to RAM in any slot
+	BEEP:	equ $00c0 ; Go beep
+;*********************************
+;
+RAMAD0:	EQU	0F341H		; PAGE0 RAM SLOT
+RAMAD1:	EQU	0F342H		; PAGE1 RAM SLOT
+RAMAD2:	EQU	0F343H		; PAGE2 RAM SLOT
+RAMAD3:	EQU	0F344H		; PAGE3 RAM SLOT
+;
+DATBUF:	EQU	0A000H	;0A000H-0CFFFH: DATA READ BUFFER
+DATRAMBUF: EQU	02000H	;02000H-7FFFFH; DATA BUFFER
+;
+;	BSAVE HEADER
+	ORG	0
+	DB	0FEH
+	DW	.START
+	DW	ENDFL
+	DW	.START
+;
+	ORG	8500H
+;
+;*********************************
+;USAGE:
+; BLOAD"TRITREAD.BIN"
+; DEFUSR=&H8500
+; A%=USR(0)
+; BLOAD"TRITON.BIN"
+; POKE &HA30D,&HC3
+; POKE &HA30E,&H03
+; POKE &HA30F,&H85
+; DEFUSR=&HA000
+; A%=USR(0)
+;
+;
+.START:
+	JP	.READDAT
+	JP	.TRNSDAT
+;
+;--------------------------------------
+;****	02000H-07FFFH -> 8800H-0E7FFH
+;
+.TRNSDAT:
+	; COPY to 2000H-4FFFH
+	LD	HL,DATRAMBUF
+	LD	DE,8800H	; TRITON EXEC
+	LD	BC,6000H
+	CALL	.LDIRDSLT
+	EI			; NEED EI AFTER WRSLT
+	JP	8800H		; TRITON EXEC
+;
+;--------------------------------------
+;****	READ 'GAMEDATA.DAT' -> 02000H-07FFFH
+;
+.READDAT:
+	; VARTYPE CHECK (INT)
+;	CP	2
+;	JP	NZ,EREND2	; NOT INT
+;	PUSH	HL		; SAVE VAR ADDR
+;	INC	HL
+;	INC	HL
+;	XOR	A
+;	LD	(HL),A
+;	INC	HL
+;	LD	(HL),A		; SET 0
+;
+	; FILE OPEN
+	LD	HL,DATNAME	; FNAME
+	LD	DE,DATBUF	; DMA
+	CALL	F_OPEN
+	JP	NZ,EREND	; ERROR END
+;
+	; FILE READ	- HEADER 
+	LD	HL,6
+	CALL	F_READ
+	; CHECK
+	LD	HL,CHKDATA
+	LD	DE,DATBUF
+	LD	B,6
+.CHKLOOP:
+	LD	A,(DE)
+	CP	(HL)
+	JP	NZ,EREND	; ERROR
+	INC	DE
+	INC	HL
+	DEC	B
+	LD	A,B
+	OR	A
+	JR	NZ,.CHKLOOP
+;
+	; FILE READ	- 1 of 2 : 0000H-2FFFFH
+	LD	HL,3000H
+	CALL	F_READ
+	; COPY to 2000H-4FFFH
+	LD	HL,DATRAMBUF
+	LD	DE,DATBUF
+	LD	BC,3000H
+	CALL	.LDIWRSLT
+	EI			; NEED EI AFTER WRSLT
+;
+	; FILE READ	- 2 of 2 : 3000H-5FFFFH
+	LD	HL,3000H
+	CALL	F_READ
+	; COPY to 2000H-4FFFH
+	LD	HL,DATRAMBUF+3000H
+	LD	DE,DATBUF
+	LD	BC,3000H
+	CALL	.LDIWRSLT
+	EI			; NEED EI AFTER WRSLT
+	; 
+	; FILE CLOSE END
+	CALL	F_CLOSE
+	;
+;	POP	HL		; LOAD VAR ADDR
+	RET
+;
+;--------------------------------------
+;*** INTER-SLOT COPY
+;IN:	DE=DESTINATION(PAGE 2-3)
+;	HL=SOURCE(PAGE 0-1)
+;	BC=SIZE
+.LDIRDSLT:
+	PUSH	BC
+	PUSH	DE
+	PUSH	HL
+	LD	E,A		;E=DATA
+	LD	A,H		;ADRS HI
+	RLCA
+	RLCA
+	AND	3		;ADRS bit7-6 -> bit1-0
+	LD	HL,RAMAD0
+	ADD	A,L
+	LD	L,A
+	LD	A,H
+	ADC	A,0
+	LD	H,A
+	LD	A,(HL)		;A=RAM SLOT (RAMAD0-3 AUTO SWITCHED)
+	POP	HL
+	CALL	RDSLT
+	POP	DE
+	POP	BC
+	LD	(DE),A
+	DEC	BC
+	LD	A,C
+	OR	B
+;	EI			; NEED EI AFTER WRSLT
+	RET	Z		;BC=0 ->END
+	INC	HL
+	INC	DE
+	JR	.LDIRDSLT
+;
+;--------------------------------------
+;*** INTER-SLOT COPY
+;IN:	HL=DESTINATION(PAGE 0-1)
+;	DE=SOURCE(PAGE 2-3)
+;	BC=SIZE
+.LDIWRSLT:
+	LD	A,(DE)
+	PUSH	BC
+	PUSH	DE
+	PUSH	HL
+	LD	E,A		;E=DATA
+	LD	A,H		;ADRS HI
+	RLCA
+	RLCA
+	AND	3		;ADRS bit7-6 -> bit1-0
+	LD	HL,RAMAD0
+	ADD	A,L
+	LD	L,A
+	LD	A,H
+	ADC	A,0
+	LD	H,A
+	LD	A,(HL)		;A=RAM SLOT (RAMAD0-3 AUTO SWITCHED)
+	POP	HL
+	CALL	WRSLT
+	POP	DE
+	POP	BC
+	DEC	BC
+	LD	A,C
+	OR	B
+;	EI			; NEED EI AFTER WRSLT
+	RET	Z		;BC=0 ->END
+	INC	HL
+	INC	DE
+	JR	.LDIWRSLT
+;
+;--------------------------------------
+;*** ERROR
+EREND:
+;	POP	HL		; LOAD VAR ADDR
+;	INC	HL
+;	INC	HL
+;	LD	A,255
+;	LD	(HL),A
+;	INC	HL
+;	LD	(HL),A		; RET -1
+;	
+EREND2:	CALL	BEEP
+	RET
+;
+;--------------------------------------
+DATNAME:
+	;	 NNNNNNNN . XXX
+	DB	'GAMEDATA','DAT'
+CHKDATA:				; FILE CHECK HEADER 6bytes
+	DB	4BH,41H,4AH,49H,2EH,2EH	; 'KAJI..'
+;
+;*********************************
+;** FILE I/O
+	INCLUDE "fileio.asm"
+;*********************************
+;
+ENDFL:
+	DB	0
