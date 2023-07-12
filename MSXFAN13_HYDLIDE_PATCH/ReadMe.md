@@ -17,12 +17,15 @@ DISK IMAGE -> [UNKOTOOL.dsk](../UNKOTOOL.dsk)
 ### 必要なファイル
 
 MSXFAN 1992年10月号 付録ディスク#13 から
-1. INIT.XB
-3. LOADER.BIN
-2. MSXFAN.BIN
-3. DEMODATA.BIN
-4. TITLE.XV8
-5. VRAM-2.XV8
+1. DEMODATA.BIN
+2. GAME.XB (※ オリジナル：使わない）
+3. INIT.XB
+4. LOADER.BIN
+5. MSXFAN.BIN
+6. PREPROG.BIN
+7. PROG.OBJ
+8. TITLE.XV8
+9. VRAM-2.XV8
 
 パッチ差分画像
 1. TITLEMD.SC8
@@ -37,12 +40,15 @@ SC8保存&パッチ当てプログラム
 2. ```RUN"INIT.XB"```を実行してBASIC拡張する
 3. ```RUN"SAVESC8.XB"```を実行する
 
+ファイルが作成されたら、MSXをリセットし、
+ ```RUN"HYDLIDE.BAS```でゲームが実行できるようになります。
+
 ### 生成されるファイル
 
 1. TITLE.SC8 ... オリジナルのタイトル画像BSAVEファイル
-1. VRAM-2.SC8 ... オリジナルのゲーム用画像BSAVEファイル
-1. TITLEM.SC8 ... 妖精がまるわたろうに変更されたタイトル画像BSAVEファイル
-1. VRAM-2M.SC8 ... フォントが変更されたゲーム用画像BSAVEファイル
+2. VRAM-2.SC8 ... オリジナルのゲーム用画像BSAVEファイル
+3. TITLEM.SC8 ... 妖精がまるわたろうに変更されたタイトル画像BSAVEファイル
+4. VRAM-2M.SC8 ... フォントが変更されたゲーム用画像BSAVEファイル
 
 ### MAKESC8.XB
 
