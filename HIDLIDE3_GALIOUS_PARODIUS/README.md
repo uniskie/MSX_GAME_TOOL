@@ -1,6 +1,9 @@
 ﻿# HIDLIDE3_GALIOUS_PARODIUS
  ハイドライド３、ガリウスの迷宮、パロディウスなどに使うツール  
-  
+
+DISK IMAGE -> [UNKOTOOL.dsk](../UNKOTOOL.dsk)
+
+
 ## 変更履歴  
 - 2020/08/21  
     - HYDLIDE3.BASをFMPAC/PACに対応 セーブデータセーブロード時、  
