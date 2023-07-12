@@ -3,7 +3,7 @@
 MSXFAN 1992年10月号 付録ディスク#13収録 の  
 MSX2用イドライド用置き換え画像作成＆実行セット
 
-DISK IMAGE -> [UNKOTOOL.dsk](../UNKOTOOL.dsk)
+DISK IMAGE -> [MSXFAN13_HYDLIDE_PATCH.dsk](../MSXFAN13_HYDLIDE_PATCH.dsk)
 
 1. フォントをHYDLIDE3のエンディングフォントに置き換えものを作成
 2. MSXFANの拡張ベーシックを使用せずに起動できるようにします。
