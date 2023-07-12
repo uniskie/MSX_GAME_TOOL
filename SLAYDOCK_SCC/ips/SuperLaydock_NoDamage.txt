@@ -1,0 +1,108 @@
+Super LAYDOCK No-damage ips patch
+
+================================================================
+No-Damage patch
+
+424e    05 -> 00        ;dec b  -> nop   ; 1p life
+4296    05 -> 00        ;dec b  -> nop   ; 2p life
+432c    02 -> 00        ;jr nz,+2 -> +0  ; docking power up
+43be    92 -> 00        ;sub    -> nop   ; docking power down
+43c1    af -> 00        ;xor a  -> nop   ; docking power down
+
+================================================================
+RAM work area
+  LIFE(1P)      $e2f3   max 255
+  LIFE(2P)      $e2fb   max 255
+  Docking power $e37c   max 18
+
+================================================================
+may be..
+  Damage check timer    $e338   (00 ~ 03)
+  Docking recover timer $e37f   (00 ~ $7f)
+
+================================================================
+Program: (Bank2 - ROM $4000)
+
+================
+CHANGE LIFE 1p and 2p:
+8231    3a 38 e3        ld      a,($e338)       ; damage check timer (00-03)
+8234    b7              or      a
+8235    c0              ret     nz
+
+================
+LIFE 1p UP/DOWN:
+8236    3a f3 e2        ld      a,($e2f3)       ;read life 1p
+8239    b7              or      a
+823a    28 44           jr      z,$8280
+823c    47              ld      b,a
+823d    3a 86 e3        ld      a,($e386)       ;read additional value to life 1p
+8240    b7              or      a
+8241    28 3d           jr      z,$8280         ; no change
+8243    fa 4d 82        jp      m,$824d         ; minus value -> $824d
+8246    3d              dec     a
+8247    04              inc     b               ;life+1
+8248    20 08           jr      nz,$8252
+824a    05              dec     b
+824b    18 05           jr      $8252
+824d    3c              inc     a
+824e    05              dec     b               ;life -1
+824f    20 01           jr      nz,$8252
+8251    af              xor     a
+8252    32 86 e3        ld      ($e386),a       ;write additional value to life 1p
+8255    78              ld      a,b
+8256    32 f3 e2        ld      ($e2f3),a       ;write life 1p
+8259    b7              or      a
+825a    20 21           jr      nz,$827d        ; 1p alive
+
+================
+LIFE 2p UP/DOWN:
+
+8280    3a fb e2        ld      a,($e2fb)       ;read life 2p
+8283    b7              or      a
+8284    c8              ret     z
+8285    47              ld      b,a
+8286    3a 87 e3        ld      a,($e387)       ;read additional value to life 2p
+8289    b7              or      a
+828a    c8              ret     z               ; no change
+828b    fa 95 82        jp      m,$8295         ; minus value ->$8295
+828e    3d              dec     a
+828f    04              inc     b               ;life+1
+8290    20 08           jr      nz,$829a
+8292    05              dec     b
+8293    18 05           jr      $829a
+8295    3c              inc     a
+8296    05              dec     b               ;life-1
+8297    20 01           jr      nz,$829a
+8299    af              xor     a
+829a    32 87 e3        ld      ($e387),a       ; write additional value to life 2p
+829d    78              ld      a,b
+829e    32 fb e2        ld      ($e2fb),a       ; write life 2p
+82a1    b7              or      a
+82a2    b7              or      a               ; ?
+82a3    20 4f           jr      nz,$82f4        ; 2p alive
+
+================
+DOCKING POWER UP (TIMER):
+
+8320    3a 7f e3        ld      a,($e37f)       ;dp recovery timer (00-$7f)
+8323    b7              or      a
+8324    c0              ret     nz
+8325    3a 7c e3        ld      a,($e37c)       ;read docking power
+8328    3c              inc     a               ;dp = dp + 1
+8329    fe 13           cp      $13             ;if (dp < 19)
+832b    20 02           jr      nz,$832f        ; then $832f
+832d    3e 12           ld      a,$12           ; else dp = 18
+832f    32 7c e3        ld      ($e37c),a       ;write docking power
+
+================
+DOCKING POWER DOWN (DAMAGE):
+
+83b6    3a f2 e4        ld      a,($e4f2)       ; docking muteki? ステージ開始時にクリア
+83b9    b7              or      a
+83ba    c0              ret     nz
+83bb    3a 7c e3        ld      a,($e37c)       ;read docking power 
+83be    92              sub     d               ;dp = dp -1
+83bf    30 01           jr      nc,$83c2        ;if (dp < 0)
+83c1    af              xor     a               ; then dp = 0
+83c2    32 7c e3        ld      ($e37c),a       ;write docking power
+
