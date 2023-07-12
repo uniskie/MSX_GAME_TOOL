@@ -7,6 +7,6 @@
 |[RType_MSXROM_To_Ascii16  ](RType_MSXROM_To_Ascii16   )|RTypeをASCII16用ROMイメージに変換|
 |[SLAYDOCK_SCC             ](SLAYDOCK_SCC              )|スーパーレイドック（MSX)をSCC音源対応させるツール|
 |[THE_HOBBIT_TO_DSK        ](THE_HOBBIT_TO_DSK         )|MSX版THE HOBBITをディスクで実行するツールセット|
-|[TRITON-TAPE2DSK          ](TRITON-TAPE2DSK           )|トリトーン テープ版をディスクから実行するツールセット|
+|[TRITON_TAPE2DSK          ](TRITON_TAPE2DSK           )|トリトーン テープ版をディスクから実行するツールセット|
 |[YS2EDIT_MSX2             ](YS2EDIT_MSX2              )|イース２のディスクの中にあるメッセージデータを表示したり編集するツール|
 
