@@ -1,0 +1,67 @@
+     CHKMUS:                   ;# MSX-MUSIC検索
+42A2:        xor    a          ; スロット0から
+42A3:        ld     (#f007),a  ; 発見したフラグクリア
+     BASCLP:                   ;# 基本スロットチェック先頭
+42A6:        ld     e,a        
+42A7:        ld     hl,#fcc1   
+42AA:        ld     c,a        
+42AB:        ld     b,#00      
+42AD:        add    hl,bc      
+42AE:        ld     a,(hl)     ;（EXPTBL+基本スロット番号）のチェック
+42AF:        cp     #80        ; 拡張されているか？
+42B1:        ld     a,e        
+42B2:        jr     nz,CMPOPL  ; 拡張されていなければ、スロット番号のbit7を立てない
+42B4:        set    7,a        ; 拡張されていれば、スロット番号のbit7を立てる
+     CMPOPL:                   ;# 文字一致チェック
+42B6:        push   af         
+42B7:        ld     hl,#401c   ; 文字チェック開始アドレス
+42BA:        call   #000c      ; RDSLT（Aレジスタで指定したスロットから一文字読み込み）
+42BD:        cp     'O'        
+42BF:        jr     nz,NXTSLT  ; 一致しなかったら次のスロットへ
+42C1:        inc    hl         
+42C2:        pop    af         
+42C3:        push   af         
+42C4:        call   #000c      ; RDSLT（Aレジスタで指定したスロットから一文字読み込み）
+42C7:        cp     'P'        
+42C9:        jr     nz,NXTSLT  ; 一致しなかったら次のスロットへ
+42CB:        inc    hl         
+42CC:        pop    af         
+42CD:        push   af         
+42CE:        call   #000c      ; RDSLT（Aレジスタで指定したスロットから一文字読み込み）
+42D1:        cp     'L'        
+42D3:        jr     nz,NXTSLT  ; 一致しなかったら次のスロットへ
+42D5:        inc    hl         
+42D6:        pop    af         
+42D7:        push   af         
+42D8:        call   #000c      ; RDSLT（Aレジスタで指定したスロットから一文字読み込み）
+42DB:        cp     'L'        
+42DD:        jr     nz,NXTSLT  ; 一致しなかったら次のスロットへ
+                               ;# すべて一致
+42DF:        pop    af         
+42E0:        ld     hl,#f009   
+42E3:        ld     (hl),a     
+42E4:        xor    a          
+42E5:        dec    hl         
+42E6:        ld     (hl),a     
+42E7:        inc    a          
+42E8:        ld     (#f007),a  ; 発見したフラグセット
+42EB:        ret               ; 発見したEND
+     NXTSLT:                   ;# 次のスロットへ（基本/拡張共通）
+42EC:        pop    af         
+42ED:        bit    7,a        ; 拡張スロットフラグ検査
+42EF:        jr     z,NXTBAS   ; 拡張スロットではない→基本スロット番号加算へ
+42F1:        add    a,#04      ; 拡張スロット番号+=1
+42F3:        bit    4,a        
+42F5:        jr     z,CMPOPL   ; 拡張スロット番号が4未満なら文字チェック先頭へ（ループ）
+42F7:        res    7,a        
+42F9:        res    4,a        
+     NXTBAS:		       ;# 次の基本スロットへ
+42FB:        inc    a          
+42FC:        bit    2,a        
+42FE:        jr     z,BASCLP   ; 基本スロット番号が4未満なら文字チェック先頭へ（ループ）
+4300:        xor    a          
+4301:        ret               ;# 一つも見つからなかったEND
+4302:        nop               ; 以下、余ったので埋めておく
+4303:        nop               
+4304:        nop               
+4305:        nop               

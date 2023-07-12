@@ -1,0 +1,67 @@
+     CHKMUS:                   ;# MSX-MUSIC検索
+42A2:        xor    a          ; スロット0から
+42A3:        ld     (#f007),a  ; 発見したフラグクリア
+42A6:        ld     e,a        
+42A7:        ld     hl,#fcc1   
+42AA:        ld     c,a        
+42AB:        ld     b,#00      
+42AD:        add    hl,bc      
+42AE:        ld     a,(hl)     ;（EXPTBL+基本スロット番号）のチェック
+42AF:        cp     #80        ; 拡張されているか？
+42B1:        ld     a,e        
+42B2:        jr     nz,NOTEXP  ; 拡張されていなければ基本スロットチェックへ
+42B4:        set    7,a        ; スロット番号のbit7（拡張スロットフラグ）をON
+     EXPCLP:                   ;# 拡張スロットチェックループ先頭
+42B6:        push   af         
+42B7:        call   CMPSLT     ; 文字一致テスト
+42BA:        jr     z,MATCHD   ; マッチしたらMATCHDへ
+42BC:        pop    af         
+42BD:        add    a,#04      ; 拡張スロット番号+=1
+42BF:        bit    4,a        ;
+42C1:        jr     z,EXPCLP   ; 次の拡張スロット番号が4未満ならチェックループ
+42C3:        res    7,a        ;
+42C5:        res    4,a        ; スロット番号から拡張スロット部分を除去
+42C7:        jr     NXTBAS     ; 次の基本スロットへ
+     NOTEXP:                   ;# 基本スロットチェック（拡張スロットではない場合）
+42C9:        push   af         
+42CA:        call   CMPSLT     ; 文字一致テスト
+42CD:        jr     z,MATCHD   ; マッチしたらMATCHDへ
+42CF:        pop    af         
+     NXTBAS:                   ;# 次の基本スロット
+42D0:        inc    a          ; 基本スロット番号+=1
+42D1:        bit    2,a        
+42D3:        jr     z,#42a6    ; 次の基本スロット番号が4未満ならチェックループ
+42D5:        xor    a          
+42D6:        ret               ;# 一つも見つからなかったEND
+     MATCHD:                   ;# 一致した。MSX-MUSIC発見。
+42D7:        pop    af         
+42D8:        ld     hl,#f009   
+42DB:        ld     (hl),a     ; 結果を格納
+42DC:        xor    a          
+42DD:        dec    hl         
+42DE:        ld     (hl),a     
+42DF:        inc    a          
+42E0:        ld     (#f007),a  ; 発見したフラグセット
+42E3:        ret               ;# 発見したEND
+     CMPSLT:                   ;# 文字一致チェック
+42E4:        ld     hl,#401c   ; 文字チェック開始アドレス
+42E7:        call   #000c      ; RDSLT（Aレジスタで指定したスロットから一文字読み込み）
+42EA:        cp     'O'        
+42EC:        ret    nz         
+42ED:        inc    hl         
+42EE:        pop    af         
+42EF:        push   af         
+42F0:        call   #000c      ; RDSLT（Aレジスタで指定したスロットから一文字読み込み）
+42F3:        cp     'P'        
+42F5:        ret    nz         
+42F6:        inc    hl         
+42F7:        pop    af         
+42F8:        push   af         
+42F9:        call   #000c      ; RDSLT（Aレジスタで指定したスロットから一文字読み込み）
+42FC:        cp     'L'        
+42FE:        ret               
+                               
+42FF:        inc    hl         ; 省略されている？ 未使用コード
+4300:        call   #000c      
+4303:        cp     'L'        
+4305:        ret               
