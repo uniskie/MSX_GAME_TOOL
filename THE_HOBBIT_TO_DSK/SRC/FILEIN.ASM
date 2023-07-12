@@ -1,0 +1,123 @@
+;*** FILE I/O
+SYSCAL:		EQU		0F37DH
+FCBADR:		EQU		0F353H
+DMAADR:		EQU		0F34FH
+
+_FOPEN:		EQU			0FH
+_SETDMA:	EQU			1AH
+_RDRND:		EQU			27H
+_WRRND:		EQU			26H
+_FCLOSE:	EQU			10H
+_FMAKE:		EQU			16H
+_SFIRST:	EQU			11H
+_SNEXT:		EQU			12H
+
+
+;** FILE SEARCH FIRST
+; HL=FILENAME ADDRESS
+
+;USE:ALL
+
+F_FOND:		CALL		F_NAME
+			LD			DE,(FCBADR)
+			LD			C,_SFIRST
+			CALL		SYSCAL
+			DI
+			OR			A
+			RET
+
+;** FILE OPEN
+;USE:ALL  (Call F_FOND befor call this rutine)
+
+F_OPEN:		CALL		F_NAME
+			LD			DE,(FCBADR)
+			LD			C,_FOPEN
+			CALL		SYSCAL
+			DI
+
+			LD			IX,(FCBADR)
+
+			LD			(IX+14),1
+			LD			(IX+15),0			;RECORD SIZE= 1byte
+
+			LD			(IX+33),0
+			LD			(IX+34),0
+			LD			(IX+35),0
+			LD			(IX+36),0			;RANDOM RECORD No.= 0
+
+			OR			A
+			RET
+
+;** SET FILE NAME
+; HL=FILE NAME ADDRESS
+
+;USE:HL,DE,BC
+
+F_NAME:		LD			DE,(FCBADR)
+			XOR			A
+			LD			(DE),A
+			INC			DE
+			LD			BC,11
+			LDIR
+			LD			(DE),A
+			LD			L,E
+			LD			H,D
+			INC			DE
+			LD			BC,25
+			LDIR
+			RET
+
+;** FILE READ
+;INPUT
+; HL=RECORD É ¶½Þ
+
+;OUTPUT
+; HL=¼Þ¯»²Æ ÖÝÀÞ ¶½Þ
+
+;USE:ALL
+
+F_READ:		LD			DE,(FCBADR)
+			LD			C,_RDRND
+			CALL		SYSCAL
+			DI
+			OR			A
+			RET
+
+;** DMA SET
+; DE=DMA ADDRESS
+
+F_DMA:		LD			C,_SETDMA
+			CALL		SYSCAL
+			RET
+
+;** RAND. REC. SET
+; DEHL=RANDOM REC. No.
+;  (000000-FFFFFFH)
+
+;USE:IX
+
+F_RREC:		LD			IX,(FCBADR)
+			LD			(IX+33),L
+			LD			(IX+34),H
+			LD			(IX+35),A
+			LD			(IX+36),0
+			RET
+
+;** REC.SIZE SET
+; HL=REC.SIZE
+F_SIZE:		LD			IX,(FCBADR)
+			LD			(IX+14),L
+			LD			(IX+15),H
+			RET
+
+;** SET FCB ADDRESS
+; HL=FCB ADDRESS
+;  (FCB= HL+0 ~ HL+37 = 38bytes)
+
+F_FCB:		LD			(FCBADR),HL
+			RET
+
+;FCBADR:		DW			FCB_DF
+;FCB_DF:		DS			37
+;FCB_AD:		DW			0
+
