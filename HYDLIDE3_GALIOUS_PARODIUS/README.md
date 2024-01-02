@@ -105,7 +105,17 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 - 対応ROMロット: 光の剣、銀の剣両方で確認  
   
 - MSX2版は1chipMSXのクロックアップ状態でしばらく動かしていると暴走します。  
-    （このツールを使用していない場合でも同様です）  
+    （このツールを使用していない場合でも同様です）
+
+#### 操作例：キャラデータを改造して実行
+1. RUN"HYDLIDE3.BAS
+2. カートリッジ後挿し
+3. LOAD CHARACTERSまたはPLAY→STOP→CTRL+@
+4. CHARA DATA EDIT → CTRL+BREAK→RUN"HYDLIDE3.BAS
+5. SAVE CHARACTERS
+6. LOAD CHARACTERS
+
+※ SAVEした改造データはLOADで反映・PACにも保存
   
 ### PARODIUS.BAS & GALIOUS.BAS  
   
