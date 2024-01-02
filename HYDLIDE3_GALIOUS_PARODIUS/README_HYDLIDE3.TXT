@@ -116,7 +116,7 @@ HYD3-EXP.BOF    ...マシン語ファイル $FA75にロードされる
     2. カートリッジ後挿し
     3. LOAD CHARACTERSまたはPLAY→STOP→CTRL+@
        (ゲームを中断してツールに復帰)
-    4. CHARA DATA EDIT → CTRL+BREAK→RUN"HYDLIDE3.BAS
+    4. CHARA DATA EDIT → CTRL+STOP→RUN"HYDLIDE3.BAS
     5. SAVE CHARACTERS
     6. LOAD CHARACTERS
       （データをゲーム用領域に読み込んでゲームを実行）
