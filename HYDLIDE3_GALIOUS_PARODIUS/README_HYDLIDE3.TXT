@@ -110,7 +110,20 @@ HYD3-EXP.BOF    ...マシン語ファイル $FA75にロードされる
         ・タイトルデモ/エンディングへの復帰は画面がおかしくなり、暴走の可能性もある
         その他詳細は後述します。
 
-●暴走？
+● キャラデータ改造について 
+
+    1. RUN"HYDLIDE3.BAS
+    2. カートリッジ後挿し
+    3. LOAD CHARACTERSまたはPLAY→STOP→CTRL+@
+       (ゲームを中断してツールに復帰)
+    4. CHARA DATA EDIT → CTRL+BREAK→RUN"HYDLIDE3.BAS
+    5. SAVE CHARACTERS
+    6. LOAD CHARACTERS
+      （データをゲーム用領域に読み込んでゲームを実行）
+
+    ※ SAVEした改造データはLOADで反映・PACにも保存
+
+● 暴走？
 
     ●1chipMSXのクロックアップモードでMSX2版を動かしていると、
       しばらくすると暴走する模様。
