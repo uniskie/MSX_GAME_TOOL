@@ -1,12 +1,23 @@
 ####################################################################
 #
 # Rune Worth
+#
 # (C)1990/1/11 T&E SOFT
 #    Sound : AY-3-8910 / YM-2413
 #    Specific : PSGx3, OPLLx9
 #    Artist : Shigeru Tomita/Kazunori Hasegawa (富田茂/長谷川和伯)
+#
 ####################################################################
 
+#
+# kbMediaplayer推奨
+#
+# * WinAMPでは日本語が文字化けするので、m3u8を推奨 *
+#   （m3u8はコメントが使えないので、こちらで説明）
+
+#
+# MSX2版は（サントラの 21）「危険がアブナイ」が入っていない様子
+#
 
 Rune Worth (MSX).kss::KSS, 0,[MSX] Rune Worth [FM]  01. サリスの滅亡
 Rune Worth (MSX).kss::KSS, 1,[MSX] Rune Worth [PSG] 01. サリスの滅亡
