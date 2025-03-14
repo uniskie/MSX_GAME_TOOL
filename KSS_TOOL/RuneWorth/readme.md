@@ -42,25 +42,50 @@
 
 そのままだと楽曲情報がなくて扱いづらいので、プレイリストを用意しました。
 
-### kbMediaPlayer/WINAMP & MSXPlug用 プレイリスト
+### kbMediaPlayer / WINAMP / foobar2000 プレイリスト
 
-#### サントラに近い順番かつ、FM音源全曲→PSG音源全曲
-- Rune Worth (MSX) FM-PSG.m3u
-- Rune Worth (MSX) FM-PSG.m3u8
+プレイリスト
 
-#### データの出現順（FM音源とPSG音源が交互に並んでいる）
-- Rune Worth (MSX).m3u
-- Rune Worth (MSX).m3u8
+- サントラに近い順番 / FM音源全曲→PSG音源全曲の順
+  - Rune Worth (MSX).m3u
+  - Rune Worth (MSX).m3u8
 
-#### 使用法
+- データの出現順のもの（FM音源とPSG音源が交互に並んでいる）
+  - Rune Worth (MSX) RAW.m3u
+  - Rune Worth (MSX) RAW.m3u8
+
+#### 試聴法
+
 `Rune Worth (MSX).kss`と同じフォルダに置いてください。
 
-kbMediaPlayerはm3uファイルでもm3u8ファイルでもどちらでも使用できます。
 
-WINAMPはm3u8ファイルを使用してください。
-(m3uだと文字化けします)
+- kbMediaPlayer
 
-foobar2000はKSS拡張プレイリスト形式に対応していません。
+  - kss対応のMSXPlugは最初から入っています。
+  - m3uファイルでもm3u8ファイルでもどちらでも使用できます。
+
+- WINAMP
+
+  - kss対応のMSXPlug(in_msx)が必要です。  
+    https://github.com/digital-sound-antiques/in_msx  
+  - m3u8ファイルを使用してください。 (m3uだと文字化けします)
+
+- foobar2000
+
+  - GameEmuPlayer(foo_gep)プラグインかNPNEZ(foo_npnez)プラグインが必要です。  
+  
+    - GameEmuPlayer(foo_gep)
+      https://www.foobar2000.org/components/view/foo_gep  
+    - NPNEZ(foo_npnez)
+      https://ux.getuploader.com/foobar2000/
+      別途nezplug++同梱のnpnez.dllが必要。  
+      foo_npnez.dllと同じ場所に置く。
+      詳細は付属のドキュメント参照。
+    
+  - プレイリストではなく`Rune Worth (MSX).kss`を開いてください。  
+    自動で同じフォルダにある同じ名前のm3uプレイリストを読み込むようです。  
+    KSSのプレイ番号順に勝手に並び替えられてしまうので、  
+    プレイリストの側でタイトル名でソートするとサントラ順かつ、FM音源→PSG音源の順番になります。
 
 ### その他
 
