@@ -2,25 +2,28 @@
 
 ;https://github.com/AILight/AILZ80ASM
 
-KSS_BANK_IO:   equ 0xfe
+KSS_BANK_IO:	equ 0xfe
 
-data_addr:  equ 0x2000
+data_addr:	equ 0x2000
+driver_size:	equ 0x1100
+driver_szb:	equ (driver_size / 0x100)
+driver_base:	equ 0x0100	;driver address (Z80)
 
-BASE: equ 0x7000
+BASE:	equ 0x7000
 
 	org	BASE-0x10
 
-	db	'KSCC'		; +0: マジックコード
-	dw	LOAD		; +4: ロードアドレス    （Z80アドレス空間）
-	dw	TERM-BASE	; +6: 初期データの長さ
-	dw	INIT		; +8: 初期化処理アドレス（Z80アドレス空間）
-	dw	PLAY		; +a: 再生処理アドレス  （Z80アドレス空間）
-	db	0x00		; +c: 開始バンク番号
-	db	6		; +d: b7=0:16k bank / 6 block
+	db	'KSCC'		; +0: KSS Magic code
+	dw	LOAD		; +4: Initial_load z80 address
+	dw	TERM-BASE	; +6: Initial_load size
+	dw	INIT		; +8: Play_init call z80 address (set track number)
+	dw	PLAY		; +a: Play_loop call z80 address (1/60sec. vsync)
+	db	0x00		; +c: initial memory bank no.
+	db	6		; +d: b7=0:16k bank, 6 block
 	db	0x00		; +e: (reserve)
 	db	0x05		; +f: 00001001
-				;         xx: ------01 = FMPACを使う
-				;       x  x: ----1-0- = MSX-AUDIOを使う
+				;         xx: ------01 = FMPAC
+				;       x  x: ----1-0- = MSX-AUDIO
 
 LOAD:
 	ret
@@ -33,7 +36,7 @@ PLAY_ADDR:
 INIT:
 	ld	ix,TABLE
 	ld	h,0x00
-	ld	l,0x1e+0x1e	;driver size(opll+psg) / 256
+	ld	l,driver_szb+driver_szb	;driver size(opll+psg) / 256
 LP:
 	bit	7,(ix+0)
 	jr	NZ,ERR
@@ -74,42 +77,42 @@ GO:
 	jr	z,USE_OPLLDRV
 
 USE_PSGDRV:
-	ld	hl,0x001e	;hl = address / 256
-	ld	de,0x0100
-	ld	bc,0x1e00
+	ld	hl,driver_szb	;hl = address / 256
+	ld	de,driver_base
+	ld	bc,driver_size
 	call	COPY
 	;remap ram
 	ld	a,0x7f
 	out	(KSS_BANK_IO),a
-	ld	hl,0x0100
+	ld	hl,driver_base
 	ld	(PLAY_ADDR),hl
-	call	0x0103
+	call	driver_base + 0x0003
 
 	ld	a,(ix+1)	;a = loop count / 0=infinite loop
 	ld	b,0		;b = fade-in wait-time for each one volume (in 1/60 second units)
-	ld	hl,0x2000
-	jp	0x0106
+	ld	hl,data_addr
+	jp	driver_base + 0x0006
 
 USE_OPLLDRV:
 
 	ld	hl,0x0000	;hl = address / 256
-	ld	de,0x0100
-	ld	bc,0x1e00
+	ld	de,driver_base
+	ld	bc,driver_size
 	call	COPY
 	;remap ram
 	ld	a,0x7f
 	out	(KSS_BANK_IO),a
-	ld	hl,0x020c
+	ld	hl,driver_base
 	ld	(PLAY_ADDR),hl
 	;ld	a,0x80
 	;ld	(0xfcc1),a
 	ld	a,0x00
 	ld	(0x0426),a
-	call	0x0200
+	call	driver_base + 0x0003
 	ld	a,(ix+1)	;a = loop count / 0=infinite loop
 	ld	b,0		;b = fade-in wait-time for each one volume (in 1/60 second units)
-	ld	hl,0x2000
-	jp	0x0106
+	ld	hl,data_addr
+	jp	driver_base + 0x0006
 
 COPY:	
 ;hl = src address / 256
@@ -139,98 +142,98 @@ COPY:
 	ret
 
 TABLE:
-;psgdrv4 (RAM:0100-1EFF)  +7EBD size:1E00
-;oplldrv4 (RAM:0100-1EFF) +6E00 size:1E00
+;psgdrv4 (RAM:0100-11FF)  +7EBD size:1100
+;oplldrv4 (RAM:0100-11FF) +6E00 size:1100
 
 ;+08c00-0a400 (01800 bytes) START DISK OPENING MUSIC
-	db	0x02, 0	;S 08c00 #00 (00) [F] 01. サリスの滅亡
-	db	0x04, 0	;S 08e00 #01 (01) [P] 01. サリスの滅亡
-	db	0x0A, 0	;S 09200 #02 (02) [F] 02. ルーンワースのテーマ
-	db	0x08, 0	;S 09C00 #03 (03) [P] 02. ルーンワースのテーマ
+	db	0x02, 0	;S 08c00 #00 [F] 01. サリスの滅亡
+	db	0x04, 0	;S 08e00 #01 [P] 01. サリスの滅亡
+	db	0x0A, 0	;S 09200 #02 [F] 02. ルーンワースのテーマ
+	db	0x08, 0	;S 09C00 #03 [P] 02. ルーンワースのテーマ
 
 ;+3B800-42800 (07000 bytes) GAME DISK A/B COMMON MUSIC
-	db	0x02, 0	;A 3b800 #04 (04) [F] 03. 旅立ち
-	db	0x02, 0	;A 3ba00 #05 (05) [P] 03. 旅立ち
-	db	0x04, 0	;A 3bc00 #06 (06) [F] 14. 死んでしまった
-	db	0x04, 0	;A 3c000 #07 (07) [P] 14. 死んでしまった
-	db	0x08, 0	;A 3c400 #08 (08) [F] 06. ウェイデニッツ公国
-	db	0x06, 0	;A 3cc00 #09 (09) [P] 06. ウェイデニッツ公国
-	db	0x04, 0	;A 3d200 #0A (10) [F] 12. もったいない
-	db	0x04, 0	;A 3d600 #0B (11) [P] 12. もったいない
-	db	0x06, 0	;A 3da00 #0C (12) [F] 11. 祈り
-	db	0x04, 0	;A 3e000 #0D (13) [P] 11. 祈り
-	db	0x06, 0	;A 3e400 #0E (14) [F] 13. 5時からの男のために
-	db	0x04, 0	;A 3ea00 #0F (15) [P] 13. 5時からの男のために
-	db	0x06, 0	;A 3ee00 #10 (16) [F] 17. URE-P
-	db	0x06, 0	;A 3f400 #11 (17) [P] 17. URE-P
-	db	0x04, 0	;A 3fa00 #12 (18) [F] 15. KANA-P
-	db	0x02, 0	;A 3fe00 #13 (19) [P] 15. KANA-P
-	db	0x02, 1	;A 40000 #14 (20) [F] 36. * GAME OVER
-	db	0x02, 1	;A 40200 #15 (21) [P] 36. * GAME OVER
-	db	0x02, 0	;A 40400 #16 (22) [F] 16. もっと KANA-P
-	db	0x02, 0	;A 40600 #17 (23) [P] 16. もっと KANA-P
-	db	0x04, 0	;A 40800 #18 (24) [F] 19. うろわば！
-	db	0x04, 0	;A 40c00 #19 (25) [P] 19. うろわば！
-	db	0x04, 0	;A 41000 #1A (26) [F] 20. 神々のガミガミ
-	db	0x04, 0	;A 41400 #1B (27) [P] 20. 神々のガミガミ
-	db	0x04, 0	;A 41800 #1C (28) [F] 32. 限りなき戦い
-	db	0x04, 0	;A 41c00 #1D (29) [P] 32. 限りなき戦い
-	db	0x02, 0	;A 42000 #1E (30) [F] 38. * ファンファーレ(終わり際がおかしいのでループさせた方が安全)
-	db	0x02, 1	;A 42200 #1F (31) [P] 38. * ファンファーレ
-	db	0x02, 1	;A 42400 #20 (32) [F] 39. * リカルトの竪琴
-	db	0x02, 1	;A 42600 #21 (33) [P] 39. * リカルトの竪琴
+	db	0x02, 0	;A 3b800 #04 [F] 03. 旅立ち
+	db	0x02, 0	;A 3ba00 #05 [P] 03. 旅立ち
+	db	0x04, 0	;A 3bc00 #06 [F] 14. 死んでしまった
+	db	0x04, 0	;A 3c000 #07 [P] 14. 死んでしまった
+	db	0x08, 0	;A 3c400 #08 [F] 06. ウェイデニッツ公国
+	db	0x06, 0	;A 3cc00 #09 [P] 06. ウェイデニッツ公国
+	db	0x04, 0	;A 3d200 #10 [F] 12. もったいない
+	db	0x04, 0	;A 3d600 #11 [P] 12. もったいない
+	db	0x06, 0	;A 3da00 #12 [F] 11. 祈り
+	db	0x04, 0	;A 3e000 #13 [P] 11. 祈り
+	db	0x06, 0	;A 3e400 #14 [F] 13. 5時からの男のために
+	db	0x04, 0	;A 3ea00 #15 [P] 13. 5時からの男のために
+	db	0x06, 0	;A 3ee00 #16 [F] 17. URE-P
+	db	0x06, 0	;A 3f400 #17 [P] 17. URE-P
+	db	0x04, 0	;A 3fa00 #18 [F] 15. KANA-P
+	db	0x02, 0	;A 3fe00 #19 [P] 15. KANA-P
+	db	0x02, 1	;A 40000 #20 [F] 36. * GAME OVER
+	db	0x02, 1	;A 40200 #21 [P] 36. * GAME OVER
+	db	0x02, 0	;A 40400 #22 [F] 16. もっと KANA-P
+	db	0x02, 0	;A 40600 #23 [P] 16. もっと KANA-P
+	db	0x04, 0	;A 40800 #24 [F] 19. うろわば！
+	db	0x04, 0	;A 40c00 #25 [P] 19. うろわば！
+	db	0x04, 0	;A 41000 #26 [F] 20. 神々のガミガミ
+	db	0x04, 0	;A 41400 #27 [P] 20. 神々のガミガミ
+	db	0x04, 0	;A 41800 #28 [F] 32. 限りなき戦い
+	db	0x04, 0	;A 41c00 #29 [P] 32. 限りなき戦い
+	db	0x02, 0	;A 42000 #30 [F] 38. * ファンファーレ(終わり際がおかしいのでループさせた方が安全)
+	db	0x02, 1	;A 42200 #31 [P] 38. * ファンファーレ
+	db	0x02, 1	;A 42400 #32 [F] 39. * リカルトの竪琴
+	db	0x02, 1	;A 42600 #33 [P] 39. * リカルトの竪琴
 
 ;+00200-00500 (00300 bytes) GAME DISK A/B COMMON MUSIC 2
-	db	0x01, 0	;A 00400 #22 (34) [F] 37. * 宝箱ゲット(終わり際がおかしいのでループさせた方が安全)
-	db	0x01, 0	;A 00500 #23 (35) [F] 21. 危険がアブナイ
-	db	0x01, 1	;A 00600 #24 (36) [P] 37. * 宝箱ゲット
-	db	0x01, 0	;A 00700 #25 (37) [P] 21. 危険がアブナイ
+	db	0x01, 0	;A 00400 #34 [F] 37. * 宝箱ゲット(終わり際がおかしいのでループさせた方が安全)
+	db	0x01, 0	;A 00500 #35 [F] 21. 危険がアブナイ
+	db	0x01, 1	;A 00600 #36 [P] 37. * 宝箱ゲット
+	db	0x01, 0	;A 00700 #37 [P] 21. 危険がアブナイ
 
 ;+55A00-5A000 (04600 bytes) GAME DISK A MUSIC
-	db	0x08, 0	;A 55a00 #26 (38) [F] 04. ザノバ砦
-	db	0x06, 0	;A 56200 #27 (39) [P] 04. ザノバ砦
-	db	0x06, 0	;A 56800 #28 (40) [F] 05. 神聖サイア王国
-	db	0x04, 0	;A 56e00 #29 (41) [P] 05. 神聖サイア王国
-	db	0x02, 0	;A 57200 #2A (42) [F] 08. シャタパーサ連邦
-	db	0x02, 0	;A 57400 #2B (43) [P] 08. シャタパーサ連邦
-	db	0x04, 0	;A 57600 #2C (44) [F] 18. ミリムはオ・ト・ナ
-	db	0x04, 0	;A 57a00 #2D (45) [P] 18. ミリムはオ・ト・ナ
-	db	0x04, 0	;A 57e00 #2E (46) [F] 10. おーたま
-	db	0x02, 0	;A 58200 #2F (47) [P] 10. おーたま
-	db	0x04, 0	;A 58400 #30 (48) [F] 26. サータルスの導き
-	db	0x04, 0	;A 58800 #31 (49) [P] 26. サータルスの導き
-	db	0x04, 0	;A 58c00 #32 (50) [F] 27. 無法都市
-	db	0x04, 0	;A 59000 #33 (51) [P] 27. 無法都市
-	db	0x04, 0	;A 59400 #34 (52) [F] 28. ラマスカエル燃ゆ
-	db	0x04, 0	;A 59800 #35 (53) [P] 28. ラマスカエル燃ゆ
+	db	0x08, 0	;A 55a00 #38 [F] 04. ザノバ砦
+	db	0x06, 0	;A 56200 #39 [P] 04. ザノバ砦
+	db	0x06, 0	;A 56800 #40 [F] 05. 神聖サイア王国
+	db	0x04, 0	;A 56e00 #41 [P] 05. 神聖サイア王国
+	db	0x02, 0	;A 57200 #42 [F] 08. シャタパーサ連邦
+	db	0x02, 0	;A 57400 #43 [P] 08. シャタパーサ連邦
+	db	0x04, 0	;A 57600 #44 [F] 18. ミリムはオ・ト・ナ
+	db	0x04, 0	;A 57a00 #45 [P] 18. ミリムはオ・ト・ナ
+	db	0x04, 0	;A 57e00 #46 [F] 10. おーたま
+	db	0x02, 0	;A 58200 #47 [P] 10. おーたま
+	db	0x04, 0	;A 58400 #48 [F] 26. サータルスの導き
+	db	0x04, 0	;A 58800 #49 [P] 26. サータルスの導き
+	db	0x04, 0	;A 58c00 #50 [F] 27. 無法都市
+	db	0x04, 0	;A 59000 #51 [P] 27. 無法都市
+	db	0x04, 0	;A 59400 #52 [F] 28. ラマスカエル燃ゆ
+	db	0x04, 0	;A 59800 #53 [P] 28. ラマスカエル燃ゆ
 
 ;+4CA00-52000 (05600 bytes) GAME DISK B MUSIC
-	db	0x04, 0	;B 4ca00 #36 (54) [F] 07. バハマーン神国
-	db	0x04, 0	;B 4ce00 #37 (55) [P] 07. バハマーン神国
-	db	0x02, 0	;B 4d200 #38 (56) [F] 09. ウェーデル山脈
-	db	0x02, 0	;B 4d400 #39 (57) [P] 09. ウェーデル山脈
-	db	0x04, 0	;B 4d600 #3A (58) [F] 22. 永久凍土
-	db	0x04, 0	;B 4da00 #3B (59) [P] 22. 永久凍土
-	db	0x04, 0	;B 4de00 #3C (60) [F] 23. オールマムの野望
-	db	0x04, 0	;B 4e200 #3D (61) [P] 23. オールマムの野望
-	db	0x06, 0	;B 4e600 #3E (62) [F] 24. 戦慄の魔導士
-	db	0x04, 0	;B 4ec00 #3F (63) [P] 24. 戦慄の魔導士
-	db	0x04, 0	;B 4f000 #40 (64) [F] 25. あやかしの塔
-	db	0x04, 0	;B 4f400 #41 (65) [P] 25. あやかしの塔
-	db	0x04, 0	;B 4f800 #42 (66) [F] 29. エリースの涙
-	db	0x04, 0	;B 4fc00 #43 (67) [P] 29. エリースの涙
-	db	0x06, 0	;B 50000 #44 (68) [F] 30. 暗殺魔術団ヴィーフォ
-	db	0x04, 0	;B 50600 #45 (69) [P] 30. 暗殺魔術団ヴィーフォ
-	db	0x06, 0	;B 50a00 #46 (70) [F] 31. 暗黒からの脱出
-	db	0x06, 0	;B 51000 #47 (71) [P] 31. 暗黒からの脱出
-	db	0x06, 0	;B 51600 #48 (72) [F] 33. 邪神復活
-	db	0x04, 0	;B 51c00 #49 (73) [P] 33. 邪神復活
+	db	0x04, 0	;B 4ca00 #54 [F] 07. バハマーン神国
+	db	0x04, 0	;B 4ce00 #55 [P] 07. バハマーン神国
+	db	0x02, 0	;B 4d200 #56 [F] 09. ウェーデル山脈
+	db	0x02, 0	;B 4d400 #57 [P] 09. ウェーデル山脈
+	db	0x04, 0	;B 4d600 #58 [F] 22. 永久凍土
+	db	0x04, 0	;B 4da00 #59 [P] 22. 永久凍土
+	db	0x04, 0	;B 4de00 #60 [F] 23. オールマムの野望
+	db	0x04, 0	;B 4e200 #61 [P] 23. オールマムの野望
+	db	0x06, 0	;B 4e600 #62 [F] 24. 戦慄の魔導士
+	db	0x04, 0	;B 4ec00 #63 [P] 24. 戦慄の魔導士
+	db	0x04, 0	;B 4f000 #64 [F] 25. あやかしの塔
+	db	0x04, 0	;B 4f400 #65 [P] 25. あやかしの塔
+	db	0x04, 0	;B 4f800 #66 [F] 29. エリースの涙
+	db	0x04, 0	;B 4fc00 #67 [P] 29. エリースの涙
+	db	0x06, 0	;B 50000 #68 [F] 30. 暗殺魔術団ヴィーフォ
+	db	0x04, 0	;B 50600 #69 [P] 30. 暗殺魔術団ヴィーフォ
+	db	0x06, 0	;B 50a00 #70 [F] 31. 暗黒からの脱出
+	db	0x06, 0	;B 51000 #71 [P] 31. 暗黒からの脱出
+	db	0x06, 0	;B 51600 #72 [F] 33. 邪神復活
+	db	0x04, 0	;B 51c00 #73 [P] 33. 邪神復活
 
 ;+22000-23800 (01800 bytes) START DISK ENDING MUSIC
-	db	0x08,0	;S 22000 #4A (74) [F] 34. やすらぎ
-	db	0x06,0	;S 22800 #4B (75) [P] 34. やすらぎ
-	db	0x06,0	;S 22E00 #4C (76) [F] 35. 明日がふり返る
-	db	0x04,0	;S 23400 #4D (77) [P] 35. 明日がふり返る
+	db	0x08, 0	;S 22000 #74 [F] 34. やすらぎ
+	db	0x06, 0	;S 22800 #75 [P] 34. やすらぎ
+	db	0x06, 0	;S 22E00 #76 [F] 35. 明日がふり返る
+	db	0x04, 0	;S 23400 #77 [P] 35. 明日がふり返る
 
 	db	0x80
 

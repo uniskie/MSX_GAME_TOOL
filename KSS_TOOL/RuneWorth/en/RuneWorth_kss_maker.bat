@@ -17,18 +17,18 @@ SET KSSPLAYER=RuneWorth_kss_head
 
 ECHO ***** for Rune Worth (MSX2) ****************************************
 ECHO.
-ECHO ** "%KSSFILE%" を作成 します
+ECHO ** Create the "%KSSFILE%"
 ECHO.
-ECHO 準備：
-ECHO    RuneWorth_S.dsk ... スタートディスク ディスクイメージ
-ECHO    RuneWorth_A.dsk ... ゲームディスク A ディスクイメージ
-ECHO    RuneWorth_B.dsk ... ゲームディスク B ディスクイメージ
+ECHO Required:
+ECHO    RuneWorth_S.dsk ... Start Disk Disk-image
+ECHO    RuneWorth_A.dsk ... Game Disk A Disk-image
+ECHO    RuneWorth_B.dsk ... Game Disk B Disk-image
 ECHO.
-ECHO    bincut2.exe     ... バイナリーカッター
+ECHO    bincut2.exe     ... Binary Cutter
 ECHO      https://nezplug.sourceforge.net/
 ECHO      https://www.purose.net/befis/download/nezplug/oldsite.shtml
 ECHO.
-ECHO    AILZ80ASM.exe   ... Z80アセンブラ―
+ECHO    AILZ80ASM.exe   ... Z80 Assembler
 ECHO      https://github.com/AILight/AILZ80ASM
 ECHO.
 ECHO ********************************************************************
@@ -47,40 +47,40 @@ REM  Display Error
 REM ************************************************
 :NO_DISK_S
 SET ER=1
-ECHO [ERROR] RuneWorth_S.dsk ... スタートディスク ディスクイメージ がありません。
+ECHO [ERROR] RuneWorth_S.dsk ... Start Disk Disk-image is not Found.
 GOTO :EXIT_B
 
 :NO_DISK_A
 SET ER=1
-ECHO [ERROR] RuneWorth_A.dsk ... ゲームディスク A ディスクイメージ がありません。
+ECHO [ERROR] RuneWorth_A.dsk ... Game Disk A Disk-image is not Found.
 GOTO :EXIT_B
 
 :NO_DISK_B
 SET ER=1
-ECHO [ERROR] RuneWorth_B.dsk ... ゲームディスク B ディスクイメージ がありません。
+ECHO [ERROR] RuneWorth_B.dsk ... Game Disk B Disk-image is not Found.
 GOTO :EXIT_B
 
 :NO_BINCUT2
 SET ER=1
-ECHO [ERROR] bincut2.exe がありません。
+ECHO [ERROR] bincut2.exe is not Found.
 GOTO :EXIT_B
 
 :NO_ASM
 SET ER=1
-ECHO [ERROR] AILZ80ASM.exe がありません。
+ECHO [ERROR] AILZ80ASM.exe is not Found.
 GOTO :err_end
 
 REM ************************************************
 :check_ok
 
 REM ************************************************
-REM KSSヘッダ（コールエントリ）のアセンブル
+REM Assemble KSS Header (Call Entry)
 REM ************************************************
 IF "%FORCE_ASM%"=="1" GOTO :exec_assemble
 IF EXIST "%KSSPLAYER%.bin" GOTO skip_asm_player
 
 :exec_assemble
-ECHO * "%KSSPLAYER%.bin" をアセンブルします。
+ECHO * Assemble "%KSSPLAYER%.bin".
 IF NOT EXIST AILZ80ASM.exe GOTO :no_asm
 AILZ80ASM %KSSPLAYER%.asm -f -bin "%KSSPLAYER%.bin" -sm minimal-equ -sym "%KSSPLAYER%.sym" -lst "%KSSPLAYER%.lst" -err "%KSSPLAYER%.err" -gap 0
 REM AILZ80ASM %KSSPLAYER%.asm -f -bin "%KSSPLAYER%.bin" -gap 0
@@ -89,7 +89,7 @@ IF ERRORLEVEL 1 GOTO :err_end
 :skip_asm_player
 
 REM ************************************************
-ECHO * バイナリデータを切り出します。
+ECHO * Extracts binary data.
 REM ************************************************
 
 REM *** OPLLDRV (RAM:0100-11FF)
@@ -120,7 +120,7 @@ REM +3B800-427FF size:07000
 BINCUT2 -s 3B800 -l 07000 -o %W%_C.MUS RuneWorth_A.DSK
 IF ERRORLEVEL 1 GOTO :err_end
 
-REM *** COMMON MUSIC 2 (GAME DISK A/B) #宝箱 #危険がアブナイ
+REM *** COMMON MUSIC 2 (GAME DISK A/B) #Tresure Box #Look out, it's Dangerous
 REM SECTOR 2-4
 REM +00400-00800 size:0400
 BINCUT2 -s 00400 -l 00400 -o %W%_C2.MUS RuneWorth_A.DSK
@@ -139,13 +139,13 @@ BINCUT2 -s 4CA00 -l 05600 -o %W%_B.MUS RuneWorth_B.DSK
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM ********************************
-ECHO * バイナリデータを結合します。
+ECHO * Concat binary data.
 REM ********************************
 COPY /B %KSSPLAYER%.BIN+%W%.OPL+%W%.PSG+%W%_OP.MUS+%W%_C.MUS+%W%_C2.MUS+%W%_A.MUS+%W%_B.MUS+%W%_ED.MUS "%KSSFILE%">nul
 
 IF "%NO_TRASH%"=="1" GOTO :no_trash
 REM ********************************
-ECHO * 作業ファイルを片付けます。
+ECHO * Clean up working files.
 REM ********************************
 DEL %W%.PSG>nul
 DEL %W%.OPL>nul
@@ -158,7 +158,7 @@ DEL %W%_B.MUS>nul
 :no_trash
 
 REM ********************************
-ECHO * 終了ました。
+ECHO * Finished.
 REM ********************************
 :WAIT
 PAUSE
@@ -166,7 +166,7 @@ GOTO :EXIT_B
 
 :err_end
 REM ********************************
-ECHO *** 処理を中断します。
+ECHO *** Aborted.
 REM ********************************
 GOTO :WAIT
 
