@@ -260,3 +260,18 @@ pict.com        01B4 0000 39CE       036800 - 03A1CD
 008090 00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................ 
 0080A0 00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  ................ 
 0080B0 00 00 00 00 00 00 00 00-00 00 00 00 00           .............    
+
+; T&E BGM Driver X (for PSG/OPLL *mdt file)
+; PSY-O-BLADE / LAYDOCK2 / UNDEADLINE / Rune Worth
+; ( ** Gratest Driver is different driver)
+
+0100H: INTR (call from vsync interrupt)
+0103H: INIT DRIVER
+	(0x0426) == 0 : skip OPLL check (check and swap OPLL/PSG driver)
+0106H: start play
+			; in: hl = data address
+			;     a = loop count (0=infinite loop)
+			;     b = fade-in wait (unit: 1/60 sec) (each one volume)
+driver_stop:	equ driver_base + 0x09 ; stop play
+driver_fadeout:	equ driver_base + 0x0C ; fade-out
+			; in: b = fade-out wait (unit: 1/60 sec) (each one volume)

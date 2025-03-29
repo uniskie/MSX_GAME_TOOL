@@ -5,7 +5,7 @@
 KSS_BANK_IO:	equ 0xfe
 
 data_addr:	equ 0x2000
-driver_size:	equ 0x1100
+driver_size:	equ 0x1e00
 driver_szb:	equ (driver_size / 0x100)
 
 ; T&E BGM Driver X (for PSG/OPLL *mdt file)
@@ -22,7 +22,10 @@ driver_play:	equ driver_base + 0x06 ; start play
 driver_stop:	equ driver_base + 0x09 ; stop play
 driver_fadeout:	equ driver_base + 0x0C ; fade-out
 			; in: b = fade-out wait (unit: 1/60 sec) (each one volume)
+driver_chkfade: equ driver_base + 0x0F ; fade-in/out check
+;driver_chkloop: equ driver_base + 0x15 ; loop count check
 
+;************************************************
 BASE:	equ 0x7000
 
 	org	BASE-0x10
@@ -39,18 +42,19 @@ BASE:	equ 0x7000
 				;         xx: ------01 = FMPAC
 				;       x  x: ----1-0- = MSX-AUDIO
 
+;************************************************
 LOAD:
-	ret
 
-PLAY:
-	db	0xc3
-PLAY_ADDR:
-	dw	LOAD
+PLAY:	ret	;self overwrite
+	call	driver_intr
+
+PCHECK:	ret	;self overwrite
+	jp	OPLL_PLAY_CHECK
 
 INIT:
 	ld	ix,TABLE
 	ld	h,0x00
-	ld	l,driver_szb+driver_szb	;driver size(opll+psg) / 256
+	ld	l,driver_szb	;driver size / 0x100
 LP:
 	bit	7,(ix+0)
 	jr	NZ,ERR
@@ -60,7 +64,7 @@ LP:
 
 	push	af
 	ld	a,l
-	add	a,(ix+0)		;add offset
+	add	a,(ix+0)	;add offset
 	ld	l,a
 	jr	nc,FF0
 	inc	h
@@ -76,7 +80,6 @@ ERR:
 	ret
 
 GO:
-
 ;copy data
 					;hl = address / 256
 	ld	de,data_addr
@@ -91,15 +94,15 @@ GO:
 	jr	z,USE_OPLLDRV
 
 USE_PSGDRV:
-	ld	hl,driver_szb		;hl = address / 256
-	ld	de,driver_base
-	ld	bc,driver_size
-	call	COPY
+	call COPY_DRV
 	;remap ram
 	ld	a,0x7f
 	out	(KSS_BANK_IO),a
-	ld	hl,driver_intr
-	ld	(PLAY_ADDR),hl
+	ld	a,0x00 ;write self: nop
+	ld	(PLAY),a
+	ld	a,0xC9	;write self: ret
+	ld	(PCHECK),a
+
 	call	driver_init
 
 	ld	a,(ix+1)		;a = loop count (0=infinite loop)
@@ -108,25 +111,26 @@ USE_PSGDRV:
 	jp	driver_play
 
 USE_OPLLDRV:
-
-	ld	hl,0x0000		;hl = address / 256
-	ld	de,driver_base
-	ld	bc,driver_size
-	call	COPY
+	call COPY_DRV
 	;remap ram
 	ld	a,0x7f
 	out	(KSS_BANK_IO),a
-	ld	hl,driver_intr
-	ld	(PLAY_ADDR),hl
-	;ld	a,0x80
-	;ld	(0xfcc1),a
+	ld	a,0x00 ;write self: nop
+	ld	(PLAY),a
+	ld	a,0x00 ;write self: nop
+	ld	(PCHECK),a
 	ld	a,0x00
-	ld	(0x0426),a		;skip OPLL check
+	ld	(0x0426),a		;force OPLL mode
 	call	driver_init
 	ld	a,(ix+1)		;a = loop count (0=infinite loop)
 	ld	b,0			;b = fade-in wait (unit: 1/60 sec) (each one volume)
 	ld	hl,data_addr
 	jp	driver_play
+
+COPY_DRV:
+	ld	hl,0x0000		;hl = address / 256
+	ld	de,driver_base
+	ld	bc,driver_size
 
 COPY:	
 ;hl = src address / 256
@@ -155,9 +159,71 @@ COPY:
 	jr	nz,COPY
 	ret
 
+;************************************************
+; need mute when OPLL MUSIC end.
+; (There is a bug where the sound keeps ringing.)
+;
+OPLL_PLAY_CHECK:
+	ld	a,(0x027B);	driver_chkloop
+	or	a
+	ret	nz
+
+	ld	a,0xC9 ;write self: ret
+	ld	(PLAY),a
+
+	; opll volme
+	ld	a,0x30
+	ld	e,0xff
+	ld	b,9
+RST_OPLL_v:
+	call	SETOPLL
+	call	WRTOPLL
+	inc	a
+	djnz	RST_OPLL_v
+
+	; reset user voice
+	ld	a,0x02
+	ld	e,0xff
+	ld	b,6
+RST_OPLL_u:
+	call	SETOPLL
+	call	WRTOPLL
+	inc	a
+	djnz	RST_OPLL_u
+
+	; opll key
+	ld	a,0x20
+	ld	e,0x00
+	ld	b,9
+RST_OPLL_k:
+	call	SETOPLL
+	call	WRTOPLL
+	inc	a
+	djnz	RST_OPLL_k
+
+	RET
+
+SETOPLL:
+; a= opll reg no
+	out	(0x7c),a
+	ret
+
+WRTOPLL:
+; e = opll reg value
+	push	af
+	ld	a,e
+	out	(0x7d),a
+	push	af	;wait
+	pop	af	;wait
+	push	af	;wait
+	pop	af	;wait
+	pop	af
+	ret
+
+;************************************************
+
 TABLE:
-;psgdrv4 (RAM:0100-11FF)  +7EBD size:1100
-;oplldrv4 (RAM:0100-11FF) +6E00 size:1100
+;opll/psg drv +6E00 size:1e00 (RAM:0100-1FFF)
 
 ;+08c00-0a400 (01800 bytes) START DISK OPENING MUSIC
 	db	0x02, 0	;S 08c00 #00 [F] 01. The Downfall of Saris
@@ -192,13 +258,13 @@ TABLE:
 	db	0x04, 0	;A 41400 #27 [P] 20. Griping of the Gods
 	db	0x04, 0	;A 41800 #28 [F] 32. The never ending battle
 	db	0x04, 0	;A 41c00 #29 [P] 32. The never ending battle
-	db	0x02, 0	;A 42000 #30 [F] 38. (Jingle) Fanfare(Loop it. The sound will remain at the end, so)
+	db	0x02, 1	;A 42000 #30 [F] 38. (Jingle) Fanfare
 	db	0x02, 1	;A 42200 #31 [P] 38. (Jingle) Fanfare
 	db	0x02, 1	;A 42400 #32 [F] 39. (Jingle) Ricart's Lyre
 	db	0x02, 1	;A 42600 #33 [P] 39. (Jingle) Ricart's Lyre
 
 ;+00200-00500 (00300 bytes) GAME DISK A/B COMMON MUSIC 2
-	db	0x01, 0	;A 00400 #34 [F] 37. (Jingle) Get Treasure(Loop it. The sound will remain at the end, so)
+	db	0x01, 1	;A 00400 #34 [F] 37. (Jingle) Get Treasure
 	db	0x01, 0	;A 00500 #35 [F] 21. Look out, it's Dangerous
 	db	0x01, 1	;A 00600 #36 [P] 37. (Jingle) Get Treasure
 	db	0x01, 0	;A 00700 #37 [P] 21. Look out, it's Dangerous

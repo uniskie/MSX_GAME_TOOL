@@ -1,9 +1,6 @@
 @ECHO OFF
 
 set BAT=%0
-SET NO_TRASH=0
-SET FORCE_ASM=0
-
 :arg_loop
 IF "%1"=="" GOTO :arg_end
 IF "%1"=="/f" SET FORCE_ASM=1
@@ -95,6 +92,11 @@ REM ************************************************
 ECHO * バイナリデータを切り出します。
 REM ************************************************
 
+REM *** MUSICDRV (RAM:0100-1FFF)
+REM +6E00 size:1E00
+BINCUT2 -s 06E00 -l 01E00 -o %W%.DRV RuneWorth_S.DSK
+IF ERRORLEVEL 1 GOTO :err_end
+
 REM *** OPLLDRV (RAM:0100-11FF)
 REM +6E00 size:1100
 BINCUT2 -s 06E00 -l 01100 -o %W%.OPL RuneWorth_S.DSK
@@ -144,7 +146,8 @@ IF ERRORLEVEL 1 GOTO :err_end
 REM ********************************
 ECHO * バイナリデータを結合します。
 REM ********************************
-COPY /B %KSSPLAYER%.BIN+%W%.OPL+%W%.PSG+%W%_OP.MUS+%W%_C.MUS+%W%_C2.MUS+%W%_A.MUS+%W%_B.MUS+%W%_ED.MUS "%KSSFILE%">nul
+REM COPY /B %KSSPLAYER%.BIN+%W%.OPL+%W%.PSG+%W%_OP.MUS+%W%_C.MUS+%W%_C2.MUS+%W%_A.MUS+%W%_B.MUS+%W%_ED.MUS "%KSSFILE%">nul
+COPY /B %KSSPLAYER%.BIN+%W%.DRV+%W%_OP.MUS+%W%_C.MUS+%W%_C2.MUS+%W%_A.MUS+%W%_B.MUS+%W%_ED.MUS "%KSSFILE%">nul
 
 IF "%NO_TRASH%"=="1" GOTO :no_trash
 REM ********************************
