@@ -163,9 +163,9 @@ Please place the playlist in the same folder as `Rune Worth (MSX).kss`.
 
 - WINAMP
 
-  - You can use either m3u or m3u8 files.
   - MSXPlug(in_msx) is required.
     https://github.com/digital-sound-antiques/in_msx  
+  - use pls either m3u or m3u8 files.
 
 - foobar2000
 
@@ -197,20 +197,27 @@ There was no soundtrack for the MSX sound source, and only a very small number o
 There has long been a demand for people to easily enjoy classical game Music with sound that is as close to the real thing as possible.
 
 As a result, a system was devised that would extract the sound data and drivers from the game image and run them on a virtual machine.
+
 One of them is the KSS file, which has undergone various extensions to become compatible with MSX.
 
-Creating a KSS requires analysis and extraction, but our great predecessors have created toolkits that allow us to create KSS.
+But the KSS creation kit for Runeworth is incomplete, so I have modified it to cover all songs.
 
-However, in the case of the Runeworth MSX version, the analysis was incomplete, and the KSS created using the KSS creation toolkit did not include all the Musics.
+other bonus:
+- add support for whether or not to loop.  
+- add playlists and adjusted the playing time.
 
-Fatal issues include no opening theme Music, and one missing field Music. 
-(Also, there's no Music for when you open a treasure chest.)
+## about hoot
 
-So I reanalyzed it myself, found the missing songs and added them.
+"Hoot" is a system that extracts music data from classic PCs and arcade games and allows you to listen to it using an emulator sound source.
 
-I also added support for whether or not to loop.  
-I also created a playlist and adjusted the playing time.
+It covers a wide range of Japanese games and provides complete analysis information.
 
+This may be useful if you want to extract music data from Japanese MSX games.
+
+http://dmpsoft.s17.xrea.com/hoot/
+
+黒羽製作所(Kurohane Seisakusho) has information on many Japanese-made MSX games.  
+https://kurohane.net/
 
 ## "Undead Line" BGM Collection & MML Development Kit
 

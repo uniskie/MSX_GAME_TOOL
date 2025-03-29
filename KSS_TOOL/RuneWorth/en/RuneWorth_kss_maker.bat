@@ -1,6 +1,9 @@
 @ECHO OFF
 
 set BAT=%0
+SET NO_TRASH=0
+SET FORCE_ASM=0
+
 :arg_loop
 IF "%1"=="" GOTO :arg_end
 IF "%1"=="/f" SET FORCE_ASM=1
@@ -82,8 +85,8 @@ IF EXIST "%KSSPLAYER%.bin" GOTO skip_asm_player
 :exec_assemble
 ECHO * Assemble "%KSSPLAYER%.bin".
 IF NOT EXIST AILZ80ASM.exe GOTO :no_asm
-AILZ80ASM %KSSPLAYER%.asm -f -bin "%KSSPLAYER%.bin" -sm minimal-equ -sym "%KSSPLAYER%.sym" -lst "%KSSPLAYER%.lst" -err "%KSSPLAYER%.err" -gap 0
-REM AILZ80ASM %KSSPLAYER%.asm -f -bin "%KSSPLAYER%.bin" -gap 0
+REM AILZ80ASM %KSSPLAYER%.asm -f -bin "%KSSPLAYER%.bin" -sm minimal-equ -sym "%KSSPLAYER%.sym" -lst "%KSSPLAYER%.lst" -err "%KSSPLAYER%.err" -gap 0
+AILZ80ASM %KSSPLAYER%.asm -f -bin "%KSSPLAYER%.bin" -gap 0
 IF ERRORLEVEL 1 GOTO :err_end
 
 :skip_asm_player

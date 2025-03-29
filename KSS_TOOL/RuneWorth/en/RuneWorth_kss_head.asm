@@ -7,7 +7,21 @@ KSS_BANK_IO:	equ 0xfe
 data_addr:	equ 0x2000
 driver_size:	equ 0x1100
 driver_szb:	equ (driver_size / 0x100)
+
+; T&E BGM Driver X (for PSG/OPLL *mdt file)
+; PSY-O-BLADE / LAYDOCK2 / UNDEADLINE / Rune Worth
+; ( ** Gratest Driver is different driver)
 driver_base:	equ 0x0100	;driver address (Z80)
+driver_intr:	equ driver_base + 0x00 ; interrupt rutine for playing
+driver_init:	equ driver_base + 0x03 ; initialize
+			; (0x0426) == 0 : skip OPLL check (check and swap OPLL/PSG driver)
+driver_play:	equ driver_base + 0x06 ; start play
+			; in: hl = data address
+			;     a = loop count (0=infinite loop)
+			;     b = fade-in wait (unit: 1/60 sec) (each one volume)
+driver_stop:	equ driver_base + 0x09 ; stop play
+driver_fadeout:	equ driver_base + 0x0C ; fade-out
+			; in: b = fade-out wait (unit: 1/60 sec) (each one volume)
 
 BASE:	equ 0x7000
 
@@ -46,7 +60,7 @@ LP:
 
 	push	af
 	ld	a,l
-	add	a,(ix+0)	;add offset
+	add	a,(ix+0)		;add offset
 	ld	l,a
 	jr	nc,FF0
 	inc	h
@@ -64,9 +78,9 @@ ERR:
 GO:
 
 ;copy data
-				;hl = address / 256
+					;hl = address / 256
 	ld	de,data_addr
-	ld	b,(ix+0)	;bc = size
+	ld	b,(ix+0)		;bc = size
 	ld	c,0
 	
 	call	COPY
@@ -77,42 +91,42 @@ GO:
 	jr	z,USE_OPLLDRV
 
 USE_PSGDRV:
-	ld	hl,driver_szb	;hl = address / 256
+	ld	hl,driver_szb		;hl = address / 256
 	ld	de,driver_base
 	ld	bc,driver_size
 	call	COPY
 	;remap ram
 	ld	a,0x7f
 	out	(KSS_BANK_IO),a
-	ld	hl,driver_base
+	ld	hl,driver_intr
 	ld	(PLAY_ADDR),hl
-	call	driver_base + 0x0003
+	call	driver_init
 
-	ld	a,(ix+1)	;a = loop count / 0=infinite loop
-	ld	b,0		;b = fade-in wait-time for each one volume (in 1/60 second units)
+	ld	a,(ix+1)		;a = loop count (0=infinite loop)
+	ld	b,0			;b = fade-in wait (unit: 1/60 sec) (each one volume)
 	ld	hl,data_addr
-	jp	driver_base + 0x0006
+	jp	driver_play
 
 USE_OPLLDRV:
 
-	ld	hl,0x0000	;hl = address / 256
+	ld	hl,0x0000		;hl = address / 256
 	ld	de,driver_base
 	ld	bc,driver_size
 	call	COPY
 	;remap ram
 	ld	a,0x7f
 	out	(KSS_BANK_IO),a
-	ld	hl,driver_base
+	ld	hl,driver_intr
 	ld	(PLAY_ADDR),hl
 	;ld	a,0x80
 	;ld	(0xfcc1),a
 	ld	a,0x00
-	ld	(0x0426),a
-	call	driver_base + 0x0003
-	ld	a,(ix+1)	;a = loop count / 0=infinite loop
-	ld	b,0		;b = fade-in wait-time for each one volume (in 1/60 second units)
+	ld	(0x0426),a		;skip OPLL check
+	call	driver_init
+	ld	a,(ix+1)		;a = loop count (0=infinite loop)
+	ld	b,0			;b = fade-in wait (unit: 1/60 sec) (each one volume)
 	ld	hl,data_addr
-	jp	driver_base + 0x0006
+	jp	driver_play
 
 COPY:	
 ;hl = src address / 256

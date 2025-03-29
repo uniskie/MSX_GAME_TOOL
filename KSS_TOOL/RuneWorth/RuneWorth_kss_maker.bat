@@ -1,6 +1,9 @@
 @ECHO OFF
 
 set BAT=%0
+SET NO_TRASH=0
+SET FORCE_ASM=0
+
 :arg_loop
 IF "%1"=="" GOTO :arg_end
 IF "%1"=="/f" SET FORCE_ASM=1
