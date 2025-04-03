@@ -1,26 +1,19 @@
 ;***************************
 ;   SET TRAP for  PARODIUS
 ;***************************
+; for tniasm v0.45
+; http://www.tni.nl/products/tniasm.html
+
 ; A=USR( TIME-TRAP É ±ÄÞÚ½ )
-	FNAME	"PARODIUS.BOF"	;*BINHEAD*
+	FNAME	"PARODIUS.BIN"	;*BINHEAD*
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
-;
-;
-ENASLT:	EQU	0024H
-RSLREG:	EQU	0138H
-WSLREG:	EQU	013BH
-DACINT:	EQU	0F7F8H
-H_KEYI:	EQU	0FD9AH
-H_TIMI:	EQU	0FD9FH
-RAMPG0:	EQU	0F341H
-EXPTBL:	EQU	0FCC1H
-;
-;CHGCPU:	EQU	0180H
-;GETCPU:	EQU	0183H
-;
+
+;BIOS LABELS for GAME UTILS
+	INCLUDE "BIOS-DEF.ASM"
+
 W_BANK:	EQU	0F0F1H
 BANK1:	EQU	7000H
 BANK2:	EQU	9000H
@@ -39,7 +32,7 @@ PAR_MUS:	;
 	DB	88H,01H,0
 ROMSLT:	DB	1
 ;CPUSAV:	DB	0
-;
+
 ;--------------------------------------
 ;GAME:
 ;	VRAM: 16KByte
@@ -47,7 +40,7 @@ ROMSLT:	DB	1
 ;--------------------------------------
 ;
 ;--------------------------------------
-;VRAM SAVE Version:(Current)
+;VRAM SAVE Version:(Current Version)
 ; * MSX1: not work
 ; * VRAM SAVE: easy in BASIC
 ; * Save Slot: 2
@@ -59,78 +52,15 @@ ROMSLT:	DB	1
 ;$10000	BASIC RAM 8KByte
 ;	BASIC VRAM 16KByte
 ;--------------------------------------
-;
-;--------------------------------------
-;RAM SAVE Version:(??)
-; * MSX1: can work
-; * VRAM SAVE: Difficult in BASIC. Need Machine Language.
+;RAM SAVE Version:(Scrapped Plan)
+; * MSX1: work
+; * VRAM SAVE: Difficult in BASIC.
 ; * Save Slot: 1
 ;
 ;$0000	BASIC RAM 8KByte
 ;$2000	STATE RAM 8KByte
 ;$4000	STATE VRAM 16KByte
 ;--------------------------------------
-;
-;;------: CHANGE SLOT sub_rutines
-;RAM0SLT:	EQU	CSL_RAM0+1
-;RAM1SLT:	EQU	CSL_RAM1+1
-;RAM2SLT:	EQU	CSL_RAM2+1
-;;
-;; (copy value from disk workarea)
-;INISLW:	;
-;	LD	A,(RAMPG0)
-;	LD	(RAM0SLT),A
-;	LD	A,(RAMPG1)
-;	LD	(RAM1SLT),A
-;	LD	A,(RAMPG2)
-;	LD	(RAM2SLT),A
-;	RET
-;;
-;CSL_RAM0:	;
-;	LD	A,0	;slot(*over write*)
-;	LD	H,00H
-;	JR	CHSLT_
-;CSL_BIOS0:	;
-;	LD	A,(EXPTBL)
-;	LD	H,00H
-;; CHSLT_
-;; IN: A=SLOT, HL=ADDRESS
-;; USE: ALL
-;CHSLT_:	CALL	CHGSLT	;PAGE0 À²µ³
-;	DI
-;	RET
-;CSL_RAM1:	;
-;	LD	A,0	;slot(*over write*)
-;	LD	H,40H
-;	JR	ENSLT_
-;CSL_ROM1:	;
-;	LD	A,(ROMSLT)
-;	LD	H,40H
-;	JR	ENSLT_
-;CSL_RAM2:	;
-;	LD	A,0	;slot(*over write*)
-;	LD	H,80H
-;	JR	ENSLT_
-;CSL_ROM2:	;
-;	LD	A,(ROMSLT)
-;	LD	H,80H
-;	JR	ENSLT_
-;CSL_BIOS2:	;
-;	LD	A,(EXPTBL)
-;	LD	H,80H
-;	JR	ENSLT_
-;CSL_BIOS:	;
-;	CALL	CSL_BIOS0
-;CSL_BIOS1:	;
-;	LD	A,(EXPTBL)
-;	LD	H,40H
-;; ENSLT_
-;; IN: A=SLOT, HL=ADDRESS
-;; USE: ALL
-;ENSLT_:	CALL	ENASLT	;PAGE1-2 À²µ³
-;	DI
-;	RET
-;;
 ;----------------
 PARODIUS_:	;
 	CALL CPUZ80
@@ -166,10 +96,10 @@ PARODIUS_:	;
 	LD	(H_KEYI),A
 ;
 	LD	A,(PAR_REF)
-	OR	A
-	JP	NZ,LOAD@	;COMMON
-	CPL
-	LD	(PAR_REF),A
+	DEC	A
+	JP	Z,LOAD	;COMMON
+	INC	A
+	JP	NZ,LOAD_AT	;COMMON
 	JP	PAR_ADR
 PAR_ADR:	EQU	40A7H
 ;
@@ -323,7 +253,7 @@ PLAY:	LD	HL,H_KEYI
 	LD	A,(MUS_NO)
 	LD	(PAR_MUS+0),A
 ;
-RG8SAV:	EQU	0FFE7H
+;RG8SAV:	EQU	0FFE7H
 	LD	A,(RG8SAV)
 	OR	2
 	OUT	(VDP+1),A	;SPRITE OFF

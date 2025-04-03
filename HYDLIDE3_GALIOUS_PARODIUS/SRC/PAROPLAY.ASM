@@ -18,7 +18,7 @@ PLAY_SUB:	;
 	DI
 	CALL	SETFONT
 ;
-	CALL	WR_MES@
+	CALL	WR_MES_AT
 	DW	3800H
 	DB	'XWW PARODIUS :SOUND-BOX WWWWWWWY'	;*DM*
 	DB	'V                              V'	;*DM*

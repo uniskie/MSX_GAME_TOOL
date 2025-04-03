@@ -1,6 +1,6 @@
 ;-*- tab-width: 8 -*-
 
-;SLTTBL:	equ	0FCC5H	;Mirror of Ex-Slot Registers (x4slots)
+SLTTBL:	equ	0FCC5H	;Mirror of Ex-Slot Registers (x4slots)
 SLOTIO:	equ	0A8H	;Slot I/O port
 EXSLTR:	equ	0FFFFH	;Extended Slot Register
 			;拡張スロットの場合は値を書き込んだ後に読み出すと、

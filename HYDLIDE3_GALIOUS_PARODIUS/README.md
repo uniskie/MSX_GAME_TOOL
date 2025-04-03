@@ -4,6 +4,11 @@
 DISK IMAGE -> [HYDLIDE3_GALIOUS_PARODIUS.dsk](HYDLIDE3_GALIOUS_PARODIUS.dsk)
 
 ## 変更履歴  
+- 2025/04/06  
+    - アセンブラソースコードのメンテナンス（ソースコードのリファクタやリネーム）
+    - ツール類のメッセージを分かりやすく修正
+    - PARODIUS.BAS、GALIOUS.BASでもニューゲームとコンティニューを区別
+    - PARODIUSのEXTRA MENU→[C]でパワーアップをするように機能追加
 - 2020/08/21  
     - HYDLIDE3.BASをFMPAC/PACに対応 セーブデータセーブロード時、  
       FMPAC/PACがあればそちらのSRAMを読み書きするように対応。  
@@ -39,7 +44,7 @@ ROMカートリッジを挿さずに電源にBASICを起動し、
 - HYD3CHAR.BAS  
 ...「ハイドライドⅢ」セーブデータ改造ツール  
   
-- GAR-MUS.BAS  
+- GAL-MUS.BAS  
 ...「ガリウスの迷宮」ミュージックボックス  
 ... ※SAVE-MUS.BASでROMイメージからの吸出しファイルを作成する必要がある  
   
@@ -48,7 +53,7 @@ ROMカートリッジを挿さずに電源にBASICを起動し、
 ...※SAVE-MUS.BASでROMイメージからの吸出しファイルを作成する必要がある  
   
 - SAVE-MUS.BAS  
-...GAR-MUS.BAS / PARO-MUS.BAS用イメージファイル作成ツール  
+...GAL-MUS.BAS / PARO-MUS.BAS用イメージファイル作成ツール  
   
 ## 再配布等  
   
@@ -165,8 +170,8 @@ NextorのIDEドライバははMegaSDのものが使用できます。
   
 （※ 他にも新10倍と相性の悪い組み合わせがあるかもしれません。）  
   
-心配な場合は、新10倍ではなこちらのPARODIUS.BASやGARIUS.BASを使っていただければ、  
-ディスク破壊の危険性が少なくなるかと思います。  
+心配な場合は、新10倍ではなこちらの`PARODIUS.BAS`や`GALIOUS.BAS`を使っていただければ、  
+SDカード破壊の危険性が低くなります。  
   
 ---  
 ## ソースファイルについて  
@@ -176,50 +181,51 @@ srcフォルダにマシン後プログラムのソースが入っています�
 makeall.batで一括ビルド可能です。  
   
 #### HYDLIDE3.BAS用  
+        HYDLIDE3.ASM  
         HYD3-EXP.ASM  
-        HYD3STRT.ASM  
   
 #### 共用  
         EX-BIOS.ASM  
   
 #### GALIOUS.BAS用  
-        GAR-EXPS.ASM  
-        GAR-TITL.ASM  
-        GARSTART.ASM  
+        GALIOUS.ASM  
+        GAL-EXPS.ASM  
+        GAL-TITL.ASM  
   
 #### PARODIUS.BAS用  
-        PARO-EXP.ASM  
         PARODIUS.ASM  
+        PARO-EXP.ASM  
         PAROPLAY.ASM  
         PAROTITL.ASM  
   
 ## おまけ  
   
 #### 共用  
+        BIOS-DEF.ASM ... BIOS系シンボル定義（使用しているもののみ）
+        EX-BIOS.ASM ... 共用している処理まとめ
         KJ-VDP.ASM  ... screen5/7へ漢字表示  
         MOJI-24.ASM ... screen2/4へ文字表示  
   
 #### ガリウスの迷宮ミュージックボックス  
-        GAR-MUS.BAS  
-        GAR-MUS.BOF  
-        GAR-MUS.OBJ (同梱無し)  
+        GAL-MUS.BAS  
+        GAL-MUS.BIN  
+        GAL-MUS.OBJ (同梱無し)  
                     ROMバンク$00,$0d,$0eをつなげたファイル  
-        GAR-MUS.ASM  
+        GAL-MUS.ASM  
         GMUS-SUB.ASM  
-        GAR-TL-K.ASM  
+        GAL-TL-K.ASM  
   
 #### パロディウスミュージックボックス  
         PARO-MUS.BAS  
-        PARO-MUS.BOF  
+        PARO-MUS.BIN  
         PARO-MUS.OBJ (同梱無し)  
             ROMバンク$00,$04,$05,$06,$0aをつなげたファイル  
         PARO-MUS.ASM  
   
 #### ミュージックボックス用ROMイメージ作成ツール  
-    （PARO-MUS.OBJ/GAR-MUS.OBJの作成）  
+    （PARO-MUS.OBJ/GAL-MUS.OBJの作成）  
         SAVE-MUS.BAS  
-        TFROM.BOF  
+        TFROM.BIN  
         TFROM.ASM  
-  
 
 [TNIASM]: http://www.tni.nl/products/tniasm.html
