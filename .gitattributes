@@ -1,3 +1,4 @@
+*.bat		diff=sjis encoding=sjis eol=CRLF
 *.bin		binary
 *.bof		binary
 *.bas		binary
