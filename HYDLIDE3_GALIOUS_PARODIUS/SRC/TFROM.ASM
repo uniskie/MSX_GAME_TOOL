@@ -1,7 +1,7 @@
 ;***************************
 ; KONAMI8K SAVE to VRAM
 ;***************************
-	FNAME	"TFROM.BOF"	;*BINHEAD*
+	FNAME	"TFROM.BIN"	;*BINHEAD*
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*

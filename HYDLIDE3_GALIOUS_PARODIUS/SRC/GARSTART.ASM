@@ -3,7 +3,7 @@
 ;**********************************
 ; A=USR( TIME-TRAP É ±ÄÞÚ½ )
 ;
-	FNAME	"GARSTART.BOF"	;*BINHEAD*
+	FNAME	"GARSTART.BIN"	;*BINHEAD*
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
@@ -101,7 +101,7 @@ GALIOUS_:	;
 ;
 	LD	A,(GAR_REF)
 	OR	A
-	JP	NZ,LOAD@	;COMMON
+	JP	NZ,LOAD_AT	;COMMON
 	CPL
 	LD	(GAR_REF),A
 	JP	GAR_ADR
@@ -275,7 +275,7 @@ PLAY:	LD	HL,H_KEYI
 	LD	A,V_PG1	;COMMON
 	CALL	SAVE_	;COMMON
 ;
-	CALL	WR_MES@
+	CALL	WR_MES_AT
 	DW	3800H
 	DB	'xvv/SOUND[BOX/vvvvvvvvvvvvvvvvv~'	;*DM*
 	DB	'w//////////////////////////////w'	;*DM*
@@ -468,7 +468,7 @@ J_PL3:	LD	A,C
 	JR	Z,$-6
 	JP	L_PLAY
 ;
-WR_MES@:	;
+WR_MES_AT:	;
 	POP	HL
 	CALL	WR_MES
 	JP	(HL)

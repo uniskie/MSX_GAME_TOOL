@@ -2,7 +2,7 @@
 ; Maze of GALIOUS SOUND-BOX
 ;***************************
 ; A=USR(0)
-	FNAME	"GAR-MUS.BOF"	;*BINHEAD*
+	FNAME	"GAR-MUS.BIN"	;*BINHEAD*
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
@@ -126,7 +126,7 @@ PLAY:	LD	HL,0E000H
 	LD	(MUS_WORK+0),A
 	EI
 ;
-	CALL	WR_MES@
+	CALL	WR_MES_AT
 	DB	'\0000*CEÅü *C3ñÇèÈì`ê‡ÅE-ÉKÉäÉEÉXÇÃñ¿ã{-*CE Åü'	;*DM*
 	DB	'\1000*CA     ÅsÇrÇnÇtÇmÇcÅEÇaÇnÇwÅt     '	;*DM*
 	DB	'                                '	;*DM*

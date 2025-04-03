@@ -1,5 +1,5 @@
 ;
-WR_MES@:	;
+WR_MES_AT:	;
 	POP	HL
 	CALL	WR_MES
 	INC	HL
