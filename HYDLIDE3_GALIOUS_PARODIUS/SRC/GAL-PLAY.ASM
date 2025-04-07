@@ -1,0 +1,346 @@
+;***************************************
+;  in-game JUKEBOX for Maze of GALIOUS
+;***************************************
+; for tniasm v0.45
+; http://www.tni.nl/products/tniasm.html
+
+;--------------------------------------
+; GALIOUS ROM RUTINES
+;--------------------------------------
+SETMUSIC:	EQU	4E34H
+PMUSIC:	EQU	6004H
+
+MUS_NO:	EQU	0E1C7H
+
+; GALIOUS FONT
+SELFONTBANK:	EQU	41D0H
+SETFONT0:	EQU	5C46H
+SETFONT1:	EQU	5AB3H
+
+;--------------------------------------
+; WORK AREA (STATIC)
+;--------------------------------------
+WAITCT:	DB	0	;WAIT CNT
+
+;--------------------------------------
+; ROUTINES
+;--------------------------------------
+PLAY_SUB:
+	LD	A,2	;DEFAULT SE
+	LD	(GAL_MUS+2),A
+
+	LD	A,(MUS_NO)	;CURRENT BGM
+	LD	(GAL_MUS+0),A
+
+	XOR	A	;STOP BGM
+	CALL	SETMUSIC
+
+	LD	A,(GAL_MUS+0)
+	CALL	SETMUSIC
+
+	CALL	SETFONT
+
+	CALL	WR_MES_AT
+	DW	3800H
+	DB	'xvv/JUKE[BOX/vvvvvvvvvvvvvvvvvv~'	;*DM*
+	DB	'w//////////////////////////////w'	;*DM*
+	DB	'w/SOUND/v00v//////NOW/PLAYING//w'	;*DM*
+	DB	'w/////////////xvvvvvvvvvvvvvvv~w'	;*DM*
+	DB	'w/MUSIC/v00v//w///////////////ww'	;*DM*
+	DB	'w/////////////yvvvvvvvvvvvvvvv'	;*DM*
+	DB	127,'w'
+	DB	'w/EXIT/////////////////////////w'	;*DM*
+	DB	'yvvvvvvvvvvvvvvvHOME[/FADE[OUTv'	;*DM*
+	DB	127,'¡'
+
+;--------------------------------------
+L_PLAY:
+	CALL	WR_PNO
+	CALL	WR_PNUM
+	CALL	WR_TITL
+	XOR	A
+	LD	(WAITCT),A
+	EI
+L_PLAYW:
+	LD	DE,8FFH
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
+	CPL
+	OR	A
+	JP	Z,L_PLAYJ
+	LD	A,(WAITCT)	;WAIT INTERVAL
+	CP	20		;20/60 SEC
+	JR	C,L_PLAYW
+L_PLAYJ:
+	EI
+L_PLAY0:
+	LD	DE,8FFH
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
+	LD	HL,P_JUMPT
+	LD	B,8
+L_PL0:	RLA
+	JP	C,J_PL0
+	LD	E,(HL)
+	INC	HL
+	LD	D,(HL)
+	EX	DE,HL
+	JP	(HL)
+J_PL0:	INC	HL
+	INC	HL
+	DJNZ	L_PL0
+	JP	L_PLAY0
+P_JUMPT:
+	DW	P_RIGH,P_UP,P_DOWN,P_LEFT
+	DW	P_DEL,P_INS,P_HOME,P_SPAC
+
+P_LCH:	POP	DE
+	LD	A,(GAL_MUS+2)
+	CP	2
+	JP	Z,L_PLAY
+	LD	HL,GAL_MUS+1
+	PUSH	DE
+	OR	A
+	RET	Z
+	DEC	HL
+	RET
+
+P_INS:	LD	C,4
+	JP	$+5
+P_RIGH:	LD	C,1
+	CALL	P_LCH
+	OR	A
+	JR	NZ,P_ADD2
+P_ADD:	LD	A,(HL)
+	ADD	A,C
+	CP	31H
+	JP	C,$+5
+	SUB	30H
+	JR	P_ADDE
+P_ADD2:	LD	A,(HL)
+	ADD	A,C
+	AND	255
+	OR	128
+P_ADDE:	LD	(HL),A
+	JP	L_PLAY
+
+P_DEL:	LD	C,4
+	JR	$+5
+P_LEFT:	LD	C,1
+	CALL	P_LCH
+	OR	A
+	JR	NZ,P_SUB2
+P_SUB:	LD	A,(HL)
+	SUB	C
+	JR	C,$+6
+	JR	NZ,$+5
+	ADD	A,30H
+	JR	P_ADDE
+P_SUB2:	LD	A,(HL)
+	SUB	C
+	AND	255
+	OR	128
+	JR	P_ADDE
+
+P_DOWN:	LD	A,(GAL_MUS+2)
+	DEC	A
+	CP	255
+	JR	NZ,L_PUD
+	LD	A,2
+	JP	L_PUD
+
+P_UP:	LD	A,(GAL_MUS+2)
+	INC	A
+	CP	3
+	JR	NZ,L_PUD
+	XOR	A
+L_PUD:	LD	(GAL_MUS+2),A
+	JP	L_PLAY
+
+
+P_HOME:	XOR	A
+	LD	(0E1C1H),A
+	INC	A
+	LD	(0E1C0H),A
+	JP	L_PLAY
+
+P_SPAC:	LD	A,(GAL_MUS+2)
+	CP	2
+	JP	Z,PLAY_R
+	CALL	P_LCH
+	LD	C,(HL)
+	JR	Z,J_PL3
+	LD	A,C
+	CP	0FBH
+	JR	NC,J_PL3
+	XOR	A
+	CALL	SETMUSIC
+J_PL3:	LD	A,C
+	CALL	SETMUSIC
+	LD	DE,0801H
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
+	JR	Z,$-6
+	JP	L_PLAY
+
+WR_MES_AT:
+	POP	HL
+	CALL	WR_MES
+	JP	(HL)
+
+WR_MES:	LD	E,(HL)
+	INC	HL
+	LD	D,(HL)
+	EX	DE,HL
+	DI
+	CALL	NSTWRT
+	DI
+	EX	DE,HL
+	INC	HL
+WR_MES_:
+	LD	A,(HL)
+	CP	'¡'
+	JP	Z,J_PL4
+	CP	'A'
+	JP	C,$+5	;TO SUB 15
+	SUB	7
+	SUB	15+32
+	OUT	(98H),A
+	INC	HL
+	JP	WR_MES_
+J_PL4:	INC	HL
+	RET
+
+WR_PNUM:
+	DI
+	LD	HL,3849H
+	CALL	NSTWRT
+	LD	A,(GAL_MUS+1)
+	CALL	WR_PNU_
+	LD	HL,3889H
+	CALL	NSTWRT
+	LD	A,(GAL_MUS+0)
+	CALL	WR_PNU_
+	EI
+	RET
+WR_PNU_:
+	LD	B,A
+	RRA
+	RRA
+	RRA
+	RRA
+	AND	15
+	INC	A
+	OUT	(98H),A
+	LD	A,B
+	AND	15
+	INC	A
+	OUT	(98H),A
+	RET
+
+WR_PNO:	LD	HL,3841H
+	LD	BC,300H
+L_PL5:	LD	A,(GAL_MUS+2)
+	CP	C
+	LD	A,0
+	LD	D,0
+	JP	NZ,$+7	;TO LD D,A
+	LD	A,44H
+	LD	D,45H
+	DI
+	CALL	NWRVRM
+	LD	A,L
+	ADD	A,6
+	LD	L,A
+	LD	E,A
+	LD	A,2
+	CP	C
+	JP	NZ,$+4
+	DEC	L
+	LD	A,D
+	CALL	NWRVRM
+	EI
+	LD	L,E
+	INC	C
+	LD	A,40H-6
+	ADD	A,L
+	LD	L,A
+	DJNZ	L_PL5
+	RET
+
+
+;--------------------------------------
+PLAY_TR:
+	DI
+	CALL	RDVDP
+	CALL	PMUSIC
+
+	LD	A,(0F0F1H)
+	LD	(BANK1),A
+	LD	A,(0F0F2H)
+	LD	(BANK2),A
+	CALL	RDVDP
+
+	LD	A,(WAITCT)
+	ADD	A,1
+	SBC	A,0	; 255 = STOP
+	LD	(WAITCT),A
+
+	EI
+	RET
+
+;--------------------------------------
+SETFONT:
+	CALL	SELFONTBANK	;BANK D,E,F
+	DI
+	LD	DE,9AD3H
+	LD	HL,2008H
+	CALL	SETFONT0
+	LD	DE,9B24H
+	LD	HL,2058H
+	CALL	SETFONT0
+	LD	A,0F0H
+	LD	HL,0008H
+	LD	BC,0120H
+	CALL	BIGFIL
+	CALL	41B7H	;BANK A,B,C
+	DI
+	LD	IX,D_FDAT
+	CALL	SETFONT1
+D_FDAT:	
+	DB	4,VDP+1,63H,25H,63H,65H,0
+
+;--------------------------------------
+WR_TITL:
+	DI
+	LD	HL,388FH
+	CALL	NSTWRT
+	LD	D,0
+	LD	A,(GAL_MUS)
+	CP	0FBH
+	JP	C,J_WTIT1
+	SUB	0FBH-16H
+	JP	J_WTIT2
+
+J_WTIT1:
+	SUB	80H
+	CP	16H
+	JP	C,J_WTIT2
+	XOR	A
+
+J_WTIT2:
+	RLA
+	RLA
+	RLA
+	RLA
+	JP	NC,J_WTIT3
+	INC	D
+J_WTIT3:
+	AND	0F0H
+	LD	E,A
+	LD	HL,MUS_TIT
+	ADD	HL,DE
+	CALL	WR_MES_
+	RET
+
+;--------------------------------------
+	INCLUDE	"GAL-TITL.ASM"	;*FILE*
+
+

@@ -1,7 +1,7 @@
 ;******:	 PARODIUS  ******
 ;**:	MUSIC TITTLE DATAS **
-;
-MUS_TIT:	;
+
+MUS_TIT:
 	DB	'  SE¥N¥TA¥KU ! ¡'	;*DM*
 	DB	'   OPENNING!   ¡'	;*DM*
 	DB	'    ENDING..   ¡'	;*DM*

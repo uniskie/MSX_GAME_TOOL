@@ -13,7 +13,7 @@ EXSLTR:	equ	0FFFFH	;Extended Slot Register
 ; - code on PAGE2 : works for PAGE 0-1
 ; - code on PAGE3 : works for PAGE 0-2
 ; - code on PAGE0 : works for PAGE 1-2
-;
+
 ; IN:	HL=ADDRESS  
 ;	A=SLOT  
 ;	   X000EEBB  
@@ -50,7 +50,7 @@ CHGSLT:
 
 ;--------------------------------------
 ; MAKE SLOT REGISTER MASK AND VALUE
-;
+
 ; IN:	HL=ADDRESS
 ;	A=SLOT
 ;	   X000EEBB
@@ -107,7 +107,7 @@ CHGSLT:
 
 ;--------------------------------------
 ; CHANGE EXTEND SLOT
-;
+
 ; IN:	HL=ADDRESS
 ;	A=SLOT
 ;	   X000EEBB

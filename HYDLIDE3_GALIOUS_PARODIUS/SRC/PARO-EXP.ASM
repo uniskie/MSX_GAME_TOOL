@@ -15,14 +15,19 @@ V_PG3:	EQU	6
 M_SIZE:	EQU	1CH
 M_ADR:	EQU	0E000H
 
-
-
 SVW_SP:	EQU	SAVSP	; STACK SAVE AREA
 ;STACK:	EQU	BLDCHK+1	;DISK WORK AREA HEAD
 
+;--------------------------------------
+; WORK AREA
+;--------------------------------------
 ;STACKA:	DW	M_ADR-2	; MY STACK ADDRESS
 STACKA:	DW	0D300H-2	; MY STACK ADDRESS
-;
+
+CAPSTA:	DW	0
+W_CAP:	DB	0
+
+;--------------------------------------
 EX_TRAP:
 	DI
 ;	IM	0
@@ -37,7 +42,7 @@ EX_TRAP:
 	AND	10H	;STOP
 	JP	NZ,TRAP_MS
 
-;-----------------
+	;--------------------------------------
 	LD	(SVW_SP),SP
 	LD	HL,(STACKA)
 	LD	SP,HL
@@ -73,20 +78,20 @@ L_PSGSV:
 	LD	BC,80H
 	LDIR
 	XOR	A
-	LD	(988FH),A
+	LD	(SCCMIX),A
 
 	XOR	A
 	CALL	CHGCAP
 
-;-----------------
+;--------------------------------------
 ;	LD	DE,0704H	;ESC
 	LD	DE,0710H	;STOP
 L_MENU_START_WAIT:
-	CALL	KEYIN
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,L_MENU_START_WAIT
 S_CAP:	LD	DE,0
 L_FUNC:	LD	HL,FC_TBL
-L_FUNC_:	;
+L_FUNC_:
 ;MSX1–¢‘Î‰ž‚È‚Ì‚ÅvsyncŠÄŽ‹‘Ò‚¿‚Í‚µ‚È‚¢
 ;	CALL	WTVSYNC
 ;	CP	1
@@ -94,12 +99,12 @@ L_FUNC_:	;
 ;	INC	DE
 ;	LD	A,E
 ;	AND	32	;32 FRAME
-;
+
 	INC	DE
 	LD	A,D
 	AND	20H	;2000H
 
-;-----------------
+;--------------------------------------
 	LD	A,1
 	JR	NZ,J_CAP
 	XOR	A
@@ -107,7 +112,7 @@ J_CAP:	LD	BC,(CAPSTA)
 	CP	C
 	LD	(CAPSTA),A
 	CALL	NZ,CHGCAP
-J_CAP_:	;
+J_CAP_:
 	PUSH	DE
 	LD	E,(HL)
 	INC	HL
@@ -120,7 +125,7 @@ J_CAP_:	;
 	INC	HL
 	LD	B,(HL)
 	INC	HL
-	CALL	KEYIN
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	POP	DE
 	JP	NZ,L_FUNC_
 	EX	AF,AF'	;AF:DE=0 ->LOOP
@@ -130,19 +135,15 @@ J_CAP_:	;
 	LD	L,C
 	JP	(HL)
 
-;-----------------
-CAPSTA:	DW	0
-;-----------------
 
 RETURN_AT:
 	JP	S_CAP
-W_CAP:	DB	0
 
-;-----------------
+;--------------------------------------
 RETURN:
 ;	LD	DE,0704H	;ESC
 	LD	DE,0710H	;STOP
-L_RET:	CALL	KEYIN
+L_RET:	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,L_RET
 
 	; RESTORE PSG
@@ -163,8 +164,8 @@ L_PSGLD:
 	LD	DE,9800H
 	LD	BC,80H
 	LDIR
-	LD	A,(SCCMIX)
-	LD	(988FH),A
+	LD	A,(SCCMXW)
+	LD	(SCCMIX),A
 	LD	A,(W_BANK+1)
 	LD	(BANK2),A
 
@@ -173,7 +174,7 @@ L_PSGLD:
 ;	IM	1
 	JP	TRAP_MS
 
-;-----------------
+;--------------------------------------
 ; FUNCTIONS: [KEY]
 FC_TBL:	DW	0602H,CTRL	; CTRL
 	DW	0501H,SAVE	;'S'
@@ -184,7 +185,7 @@ FC_TBL:	DW	0602H,CTRL	; CTRL
 	DW	0710H,RETURN	; STOP
 	DW	0,L_FUNC	; END of DATA
 
-;-----------------
+;--------------------------------------
 ; FUNCTIONS: [CTRL]+[KEY]
 CTRL:	LD	HL,FC_TBL_AT
 	JP	L_FUNC_
@@ -196,7 +197,7 @@ FC_TBL_AT:
 	DW	0710H,RESET	; STOP
 	DW	0,L_FUNC	; END of DATA
 
-;-----------------
+;--------------------------------------
 SAVE_AT_Q:
 	LD	A,V_PG2
 	CALL	SAVE_
@@ -210,7 +211,7 @@ QUIT:
 	JP	RET_BAS	;COMMON
 
 
-;-----------------
+;--------------------------------------
 SAVE_AT:
 	LD	A,255
 	LD	(PAR_REF),A
@@ -248,7 +249,7 @@ SAVE__:	LD	A,0	;vram page +1
 
 	RET
 
-;-----------------
+;--------------------------------------
 LOAD_AT:
 	LD	A,V_PG1
 	JP	LOAD_M
@@ -295,24 +296,24 @@ LOAD__:	LD	A,0	;vram page
 	CALL	WR_CRG
 	RET
 
-;-----------------
+;--------------------------------------
 RESET:	
 	LD	DE, 0602H	; CTRL
-RESET1:	CALL	KEYIN
+RESET1:	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,RESET1
 ;	LD	DE,0704H	;ESC
 	LD	DE,0710H	;STOP
-RESET2:	CALL	KEYIN
+RESET2:	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,RESET2
 
 	LD	A,1
 	CALL	CHGCAP
-;
+
 	JP	PAR_ADR
 
-;-----------------
+;--------------------------------------
 ; PARODIUS TRAINER
-;
+
 CURE:
 	LD	DE,CURETBL
 CURE_L:
@@ -370,6 +371,7 @@ CURETBL:
 ;				            ;2 - GOEMON
 ;				            ;3 - POPOLON
 ;				            ;4 - BIG VIPER
+
 ;	DB 04H, 0E4H,   X	;0E404H:  X ;PALYER POS Y
 ;	DB 06H, 0E4H,   X	;0E406H:  X ;PALYER POS X
 ;	DB 07H, 0E4H,   X	;0E407H:  X ;PALYER MAIN SPR PAT 
@@ -383,7 +385,7 @@ CURETBL:
 
 ;	DB 2CH, 0E2H,   X	;0E22CH:  X ;DIFFICULTY (0:HARD / 1:EASY)
 ;	DB 67H, 0E2H,  00H	;0E267H-0E268H: ;DIFFICULTY?(UNIT:80H) (0F00H:ZENBU / 0400H:KATAI)
-;	DB 68H, 0E2H,  00H	;
+;	DB 68H, 0E2H,  00H
 
 	DB 40H, 0E2H,  99	;0E240H:  X ;lIVES
 ;	DB 41H, 0E2H,   1	;0E241H:  X ;STAGE (1-6 NORMAL; 7-9 BONUS)
@@ -391,20 +393,22 @@ CURETBL:
 	DB 6DH, 0E2H,   0	;0E26DH:  X ;PASSWORD READY (0:ENABLE / 1:DISABLE)
 
 	DB 35H, 0E3H,   4	;0E335H:04H ;SPEED (0-12)
+
 	DB 0BH, 0E4H,   2	;0E40BH:02H ;OPTION (0-2)
-	DB 10H, 0E4H,   1	;0E410H:01H ;ENABLE OPTION 1
+	DB 10H, 0E4H,   1	;0E410H:  X ;ENABLE OPTION 1 (01H:ON)
 ;	DB 14H, 0E4H,   X	;0E414H:  X ;OPTION 1 POS Y
 ;	DB 16H, 0E4H,   X	;0E416H:  X ;OPTION 1 POS X
-	DB 20H, 0E4H,   1	;0E420H:01H ;ENABLE OPTION 2
+	DB 20H, 0E4H,   1	;0E420H:  X ;ENABLE OPTION 2 (01H:ON)
 ;	DB 24H, 0E4H,   X	;0E424H:  X ;OPTION 2 POS Y
 ;	DB 26H, 0E4H,   X	;0E426H:  X ;OPTION 2 POS X
 ;		                ;0E40EH:  X ;PLAYER POSITION COUNTER (0-255)
 ;		                ;0E440H-0E45FH: PLAYER POSITION LOG ([XX,YY] x 16)
-	DB 30H, 0E4H,   0	;0E430H:00H ;NORMAL SHOOT (0-1)
-	DB 31H, 0E4H,   2	;0E431H:02H ;DOUBLE (0-1)
+
+	DB 30H, 0E4H,   0	;0E430H:00H ;NORMAL SHOT (0-2 / DEFAULT=2)
+	DB 31H, 0E4H,   1	;0E431H:01H ;DOUBLE (0-1)  (DOUBLE: 0E430H AND 0E431H = 1)
 	DB 32H, 0E4H,   2	;0E432H:02H ;LASER (0-2)
 	DB 33H, 0E4H,   2	;0E433H:02H ;MISSILE (0-2)
-	DB 00H, 0E4H,   2	;0E400H:02H ;SHIELD (2=ON / other=OFF / default:1 )
+	DB 00H, 0E4H,   2	;0E400H:02H ;SHIELD (2=ON / OTHER=OFF / DAFAULT:1 )
 	DB 01H, 0E4H, 255	;0E401H:  X ;SHIELD POWER
 
 	DB 4DH, 0E2H,   7	;0E24DH:  x ;POWER GAUGE POS (0-7)

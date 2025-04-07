@@ -1,5 +1,6 @@
 ;***************************
 ; Maze of GALIOUS SOUND-BOX
+; FOR KANJI
 ;***************************
 ; A=USR(0)
 	FNAME	"GAL-MUS.BIN"	;*BINHEAD*
@@ -11,26 +12,41 @@
 ;BIOS LABELS for GAME UTILS
 	INCLUDE "BIOS-DEF.ASM"
 
+USE_KEYBUFFER: EQU	1	;ENABLE KEY BUFFER in EX-BIOOS
+
+;--------------------------------------
+;--- GALIOUS ROM MUSIC RUTINE
+SETMUSIC:	EQU	4E6BH
+PMUSIC:	EQU	6004H
+
+;--------------------------------------
 ORGADR:	EQU	0C000H
 	ORG	ORGADR
-;
-ORGFL:	;
+
+ORGFL:
 	JP	GALIOUS_
-MUS_WORK:	;
+;--------------------------------------
+MUS_WORK:
 	DB	88H,01H,0,0
 SVW_SP:	DW	0
-;
-GALIOUS_:	;
+
+WAITCT:	DB	0	;WAIT CNT
+;--------------------------------------
+SV_HOOK:
+	DS	5
+
+;--------------------------------------
+GALIOUS_:
 	DI
 ;	IM	1
 	LD	(SVW_SP),SP
 	LD	SP,0D300H
-;
+
 	LD	HL,H_KEYI
 	LD	DE,SV_HOOK
 	LD	BC,5
 	LDIR
-;
+
 	LD	A,4
 	LD	C,40H
 	LD	HL,8000H
@@ -41,26 +57,26 @@ GALIOUS_:	;
 	LD	HL,0E000H
 	LD	B,1FH
 	CALL	TF_VRM	;COMMON
-;
+
 	LD	A,(RAMPG0+1)
 	LD	H,40H
 	CALL	ENASLT
-;
+
 	LD	A,5
 	LD	C,0
 	LD	HL,4000H
 	LD	B,60H
 	CALL	TF_RAM	;COMMON
-;
-	LD	HL,PLAY_TR
+
+	LD	HL,PLAY_TRAP
 	LD	(H_KEYI+1),HL
 	LD	A,0C3H
 	LD	(H_KEYI),A
-;
+
 	CALL	PLAY
-;
-;
-RET_BAS:	;
+
+;--------------------------------------
+RET_BAS:
 	LD	A,4
 	LD	C,0
 	LD	HL,8000H
@@ -71,49 +87,74 @@ RET_BAS:	;
 	LD	HL,0E000H
 	LD	B,1FH
 	CALL	TF_RAM	;COMMON
-;
+
 	LD	A,(EXPTBL)
 	LD	H,40H
 	CALL	ENASLT
-;
+
 	LD	HL,SV_HOOK
 	LD	DE,H_KEYI
 	LD	BC,5
 	LDIR
-;
+
 	LD	SP,(SVW_SP)
 ;	IM	0
 	EI
-;
+
 	RET
-;
-;
-SV_HOOK:	;
-	DS	5
-;
-;--- GALIOUS ROM RUTINE
-SETMUSIC:	EQU	4E6BH
-;
+
+;--------------------------------------
 PLAY:	LD	HL,0E000H
 	LD	DE,0E001H
 	LD	BC,010EFH
 	LD	(HL),0
 	LDIR
-;
-	XOR	A
-	CALL	SETMUSIC
-	LD	A,87H
-	CALL	SETMUSIC
-;
-	LD	A,2
-	LD	(MUS_WORK+2),A
-	LD	A,87H
-	LD	(MUS_WORK+0),A
+	JP	PLAY_SUB
+
+;--------------------------------------
+PLAY_R:	DI
+	LD	A,7
+	OUT	(PSGIO),A
+	LD	A,0BFH
+	OUT	(PSGIO+1),A
+
+	LD	DE,0801H	;'SPC'
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
+	JP	Z,$-6
+	RET
+
+;--------------------------------------
+PLAY_TRAP:
+PLAY_TR:
+	DI
+	CALL	RDVDP 	;STATUS READ
+	CALL	PMUSIC 	;MUSIC PLAY RUTINE
+	CALL	SPRITE
+
+	LD	A,(WAITCT)
+	ADD	A,1
+	SBC	A,0	; 255 = STOP
+	LD	(WAITCT),A
+
 	EI
-;
+	RET
+
+
+;--------------------------------------
+PLAY_SUB:
+	XOR	A	;STOP BGM
+	CALL	SETMUSIC
+
+	LD	A,2	;DEFAULT SE
+	LD	(MUS_WORK+2),A
+	LD	A,87H	;START BGM
+	LD	(MUS_WORK+0),A
+	CALL	SETMUSIC
+	EI
+
 	CALL	WR_MES_AT
 	DB	'\0000*CEÅü *C3ñÇèÈì`ê‡ÅE-ÉKÉäÉEÉXÇÃñ¿ã{-*CE Åü'	;*DM*
-	DB	'\1000*CA     ÅsÇrÇnÇtÇmÇcÅEÇaÇnÇwÅt     '	;*DM*
+	DB	'\1000*CA      ÅsÇiÇtÇjÇdÅEÇaÇnÇwÅt      '	;*DM*
 	DB	'                                '	;*DM*
 	DB	'\4058å¯â âπ No.01'	;*DM*
 	DB	'\5858ÇaÇfÇl No.87'	;*DM*
@@ -123,48 +164,34 @@ PLAY:	LD	HL,0E000H
 	DB	'                                '	;*DM*
 	DB	'                                '	;*DM*
 	DB	'\A04C*C3-BGM INDEX-|'	;*DM*
-;
+
 	CALL	WR_PNO
 	CALL	WR_PNUM1
 	CALL	WR_PNUM2
 	CALL	WR_TITL
-;
-	JP	L_PLAY
-;
-;
-; EXIT
-PLAY_R:	DI
-	LD	A,7
-	OUT	(PSGIO),A
-	LD	A,0BFH
-	OUT	(PSGIO+1),A
-;
-	LD	DE,0801H	;'SPC'
-	CALL	KEYIN
-	JP	Z,$-6
-	RET
-;
-L_PLAY:	;DI
+
+;--------------------------------------
+L_PLAY:
 	XOR	A
 	LD	(WAITCT),A
 	EI
-L_PLAYW:	;
+L_PLAYW:
 	CALL	KEYUPD	;KEY MATRIX UPDATE
-;
+
 	LD	DE,8FFH
-	CALL	KEYIN
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	CPL
 	OR	A
 	JP	Z,L_PLAYJ
 	LD	A,(WAITCT)	;WAIT INTERVAL
 	CP	20		;20/60 SEC
 	JR	C,L_PLAYW
-;
-L_PLAYJ:	;
+
+L_PLAYJ:
 	EI
-L_PLAY0:	;
+L_PLAY0:
 	LD	DE,8FFH
-	CALL	KEYIN
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 ;	CALL	KEYTRG
 	LD	HL,P_JUMPT
 	LD	B,8
@@ -178,14 +205,14 @@ L_PL0:	RLA
 J_PL0:	INC	HL
 	INC	HL
 	DJNZ	L_PL0
-;
+
 	CALL	KEYUPD	;KEY MATRIX UPDATE
-;
+
 	JP	L_PLAY0
-P_JUMPT:	;
+P_JUMPT:
 	DW	P_RIGH,P_UP,P_DOWN,P_LEFT
 	DW	P_DEL,P_INS,P_HOME,P_SPAC
-;
+
 P_LCH:	POP	DE
 	LD	A,(MUS_WORK+2)
 	CP	2
@@ -196,7 +223,7 @@ P_LCH:	POP	DE
 	RET	Z
 	DEC	HL
 	RET
-;
+
 P_INS:	LD	C,4
 	JP	$+5
 P_RIGH:	LD	C,1
@@ -217,7 +244,7 @@ P_ADDE:	LD	(HL),A
 	CALL	WR_PNUM2
 	CALL	WR_TITL
 	JP	L_PLAY
-;
+
 P_DEL:	LD	C,4
 	JP	$+5
 P_LEFT:	LD	C,1
@@ -237,14 +264,14 @@ P_SUB2:	LD	A,(HL)
 	AND	255
 	OR	128
 	JP	P_ADDE
-;
+
 P_DOWN:	LD	A,(MUS_WORK+2)
 	DEC	A
 	CP	255
 	JP	NZ,L_PUD
 	LD	A,2
 	JP	L_PUD
-;
+
 P_UP:	LD	A,(MUS_WORK+2)
 	INC	A
 	CP	3
@@ -253,14 +280,13 @@ P_UP:	LD	A,(MUS_WORK+2)
 L_PUD:	LD	(MUS_WORK+2),A
 	CALL	WR_PNO
 	JP	L_PLAY
-;
-;
+
 P_HOME:	XOR	A
 	LD	(0E1C1H),A
 	INC	A
 	LD	(0E1C0H),A
 	JP	L_PLAY
-;
+
 P_SPAC:	LD	A,(MUS_WORK+2)
 	CP	2
 	JP	Z,PLAY_R
@@ -275,14 +301,15 @@ P_SPAC:	LD	A,(MUS_WORK+2)
 J_PL3:	LD	A,C
 	CALL	SETMUSIC
 	LD	DE,0801H
-	CALL	KEYIN
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,$-6	; ≈Ωœ√ﬁœ¬
 	JP	L_PLAY
-;
+
+;--------------------------------------
 	INCLUDE	"GMUS-SUB.ASM" ;*FILE*
 	INCLUDE	"EX-BIOS.ASM" ;*FILE*
 	INCLUDE	"KJ-VDP.ASM" ;*FILE*
 	INCLUDE	"GAL-TL-K.ASM" ;*FILE*
-;
-ENDFL:	;
+
+ENDFL:
 

@@ -1,8 +1,12 @@
 ;BIOS LABELS for GAME UTILS
 ;	INCLUDE "BIOS-DEF.ASM"
 
-ROMID:	EQU	002DH	;MSX ROM VERSION (MSX1=0,MSX2=1,...)
+;DEFINE IF USE KEY BUFFER
+;USE_KEYBUFFER: EQU	1
 
+;--------------------------------------
+; USE BIOS
+;--------------------------------------
 ;KEYIO:	EQU	0A9H
 ;CHGCPU:	EQU	0180H
 ;GETCPU:	EQU	0183H
@@ -22,17 +26,25 @@ ROMID:	EQU	002DH	;MSX ROM VERSION (MSX1=0,MSX2=1,...)
 ;REG0SV:	EQU	0F3DFH
 ;RG7SAV(F3E6H, 1), STATFL(F3E7H, 1)
 
-VDP:	EQU	98H
+;--------------------------------------
+; WORK AREA (STATIC)
+;--------------------------------------
+IFDEF USE_KEYBUFFER
+; KEY MATRIX BUFFER
+KEYBFSZ:	EQU	11	; KEY MATRIX SIZE
+KEYBMAT:	DS	KEYBFSZ	; CURRENT
+KEYBTRG:	DS	KEYBFSZ	; TRIGGER
+ENDIF ;USE_KEYBUFFER
 
-;-- ·°ÊÞ¯Ì§
-KEYBFSZ:	EQU	11
-KEYBMAT:	DS	KEYBFSZ	; CURRENT:²Ï‚Ì¼Þ®³À²
-KEYBTRG:	DS	KEYBFSZ	; PRESS EDGE:¾ÞÝ¶² µ¼Ã²À ·° ²¶Þ² É ¼Þ®³À²
+;--------------------------------------
+; WORK AREA (STATIC)
+;--------------------------------------
+CPUSAV:	DB	0	;SAVE CPU MODE
 
-;------------------------------------
+;--------------------------------------
 ; READ KEY MATRIX
-;
-;D:ÏÄØ¸½ No. /E:FILTER
+; IN:	D = KEY MATRIX No.
+;	E = BIT MASK
 KEYIN:	IN	A,(KEYIO1)
 	AND	0F0H
 	OR	D
@@ -41,10 +53,11 @@ KEYIN:	IN	A,(KEYIO1)
 	AND	E
 	RET
 
-;------------------------------------
+IFDEF USE_KEYBUFFER
+;--------------------------------------
 ; READ KEY MATRIX BUFFER
-;
-;D:ÏÄØ¸½ No. /E:FILTER
+; IN:	D = KEY MATRIX No.
+;	E = BIT MASK
 KEYCUR:	PUSH	HL
 	LD	HL,KEYBMAT
 	LD	A,D
@@ -58,10 +71,10 @@ KEYCUR:	PUSH	HL
 	POP	HL
 	RET
 
-;------------------------------------
+;--------------------------------------
 ; CHECK KEY TRIGGER
-;
-;D:ÏÄØ¸½ No. /E:FILTER
+; IN:	D = KEY MATRIX No.
+;	E = BIT MASK
 KEYTRG:	PUSH	HL
 	LD	HL,KEYBTRG
 	LD	A,D
@@ -75,15 +88,14 @@ KEYTRG:	PUSH	HL
 	POP	HL
 	RET
 
-;------------------------------------
-; UPDATE KEY MATRIX BUFFER
-; AND UPDATE KEY TRIGGER BUFFER
+;--------------------------------------
+; UPDATE KEY MATRIX & TRIGGER BUFFER
 ;
 ; USE: AF,BC,DE,HL
 KEYUPD:	LD	HL,KEYBMAT+KEYBFSZ
 	LD	DE,KEYBTRG+KEYBFSZ
 	LD	B,KEYBFSZ
-KEYUPD_L:	;
+KEYUPD_L:
 	DEC	HL
 	DEC	DE
 
@@ -105,8 +117,9 @@ KEYUPD_L:	;
 
 	DJNZ	KEYUPD_L
 	RET
+ENDIF	;USE_KEYBUFFER
 
-;------------------------------------
+;--------------------------------------
 ;RESTORE VDP (READ BASIC WORKAREA)
 WR_CRG:	XOR	A
 	OUT	(VDP+1),A
@@ -118,9 +131,9 @@ WR_CRG:	XOR	A
 	OTIR
 	RET
 
-;------------------------------------
+;--------------------------------------
 ; SET VRAM R/W ADDRESS
-;
+
 ; A:VRAM bit14-16
 ; C:VRAM bit 8-13 + 40H( WHEN WRITE )
 ; (VRAM ADDRES=A*4000H+(C AND 3FH)*100H)
@@ -133,57 +146,52 @@ VSET:	OUT	(VDP+1),A
 	OUT	(VDP+1),A
 	RET
 
-;------------------------------------
+;--------------------------------------
 ; TRANSFER RAM to VRAM
 ; (VRAM ADDRES=A*4000H+(C AND 3FH)*100H)
-;
-; HL:RAM ADDRESS
-; A:VRAM bit14-16
-; C:VRAM bit 8-13 + 40H( WHEN WRITE )
-; B:SIZE/100H
+; IN:	HL:RAM ADDRESS
+;	A:VRAM bit14-16
+;	C:VRAM bit 8-13 + 40H( WHEN WRITE )
+;	B:SIZE/100H
 ;
 ;TF_VRM:	 LD    C,40H
 TF_VRM:
 	;SET	5,C
 	CALL	VSET
 	LD	A,B
-	LD	BC,0098H
+	LD	BC,VDP
 L_FVRM:	OTIR
 	DEC	A
 	JP	NZ,L_FVRM
 	RET
 
-;------------------------------------
+;--------------------------------------
 ; TRANSFER VRAM to RAM
 ; (VRAM ADDRES=A*4000H+(C AND 3FH)*100H)
-;
-; HL:RAM ADDRESS
-; A:VRAM bit14-16
-; C:VRAM bit 8-13 + 40H( WHEN WRITE )
-; B:SIZE/100H
-;
-;TF_RAM:	 LD    C,0
-;USE: A,BC,IX
+; IN:	HL:RAM ADDRESS
+;	A:VRAM bit14-16
+;	C:VRAM bit 8-13 
+;	B:SIZE/100H
+;TF_RAM:	LD	C,0
 TF_RAM:
-	;POP	IX	;IX=RET ADDRESS
+	;RES	5,C
 	CALL	VSET
 	LD	A,B
-	LD	BC,0098H
+	LD	BC,VDP
 L_FRAM:	INIR
 	DEC	A
 	JP	NZ,L_FRAM
-	;JP	(IX)	;RET IX=RET ADDRESS
 	RET
 
-;;------------------------------------
+;;--------------------------------------
 ;IFDEF USE_VSYNC_AWIT
-;;------------------------------------
+;;--------------------------------------
 ;; WAIT VSYNC (for MSX2 or upper / Not for MSX1)
 ;;
 ;; USE:AF,BC
 ;; RET:A 1=ok/0=wait
 ;; *** NEED DI !
-;WTVSYNC:	;
+;WTVSYNC:
 ;;	DI
 ;	LD	C,VDP+1	;99H
 ;	LD	A,2	;S#2
@@ -210,7 +218,7 @@ L_FRAM:	INIR
 ;	AND	40H	;VERTIACL BLANKING INTERVAL
 ;	JR	NZ,WTVSYNCE
 ;	LD	B,0
-;WTVSYNCE:	;
+;WTVSYNCE:
 ;	XOR	A	;S#0
 ;	OUT	(C),A
 ;	LD	A,15+80H
@@ -219,20 +227,20 @@ L_FRAM:	INIR
 ;	LD	A,B
 ;	LD	(WTVSYNCS),A
 ;	RET
-;WTVSYNCS:	;
+;WTVSYNCS:
 ;	DB	0
-;;------------------------------------
+;;--------------------------------------
 ;ENDIF
-;;------------------------------------
+;;--------------------------------------
 
-;------------------------------------
+;--------------------------------------
 ADDHLA:	ADD	A,L
 	LD	L,A
 	RET	NC
 	INC	H
 	RET
 
-;------------------------------------
+;--------------------------------------
 ; CHANGE to Z80 (SAVE OLD MODE)
 CPUZ80:	LD	A,(GETCPU)
 	OR	A
@@ -248,7 +256,7 @@ CPUZ80:	LD	A,(GETCPU)
 	CALL	CHGCPU
 	RET
 
-;------------------------------------
+;--------------------------------------
 ; CHANGE to SAVED CPU MODE
 CPURES:	LD	A,(GETCPU)
 	OR	A
@@ -260,7 +268,5 @@ CPURES:	LD	A,(GETCPU)
 	OR	80H
 	CALL	CHGCPU
 	RET
-;
-CPUSAV:	DB	0
-;
+
 

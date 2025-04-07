@@ -1,4 +1,4 @@
-;
+
 	include "ex-bios.asm"
 
 ;EXPTBL:	EQU	0FCC1H
@@ -15,16 +15,16 @@ PACBLS:	EQU	400H	; PAC BLOCK SIZE 1024
 
 ; PAC SRAM: $4000-$5FFD
 
-;-------------------
+;--------------------------------------
 ; LOAD FROM PAC SRAM
-;-------------------
+;--------------------------------------
 ;in:	a = slot No.
 ;	hl = read buffer address
 ;	c = start block (1-8)
 ;	b = block size (1-8)
 ;out:	interrupt = di
 ;use	all
-LOADPAC:	;
+LOADPAC:
 	push	af
 	
 	push	hl
@@ -53,16 +53,16 @@ LOADPAC:	;
 	call	DISPAC
 	ret
 
-;-------------------
+;--------------------------------------
 ; SACE TO PAC SRAM
-;-------------------
+;--------------------------------------
 ;in:	a = slot No.
 ;	hl = write buffer address
 ;	c = start block (1-8)
 ;	b = block size (1-8)
 ;out:	interrupt = di
 ;use	all
-SAVEPAC:	;
+SAVEPAC:
 	push	af
 
 	push	hl
@@ -90,13 +90,13 @@ SAVEPAC:	;
 	call	DISPAC
 	ret
 
-;-------------------
+;--------------------------------------
 ; Enable PAC SRAM
-;-------------------
+;--------------------------------------
 ;in:	a = slot No.
 ;out:	interrupt = di
 ;use	all
-ENAPAC:	;
+ENAPAC:
 	ld	hl,(PACSW)
 	ld	(DISPACV+1),hl	; save value / code over write
 
@@ -107,27 +107,27 @@ ENAPAC:	;
 	ld	(PACSW),hl
 	ret
 
-;-------------------
+;--------------------------------------
 ; Disable PAC SRAM
-;-------------------
+;--------------------------------------
 ;in:	a = slot No.
 ;out:	interrupt = di
 ;use	all
-DISPAC:	;
+DISPAC:
 	ld	hl,4000h
 	call	CHGSLT
 
-DISPACV:	;
+DISPACV:
 	ld	hl,0		;restore value
 	ld	(PACSW),hl
 	ret
 
-;-------------------
+;--------------------------------------
 ; Search PAC SLOT
-;-------------------
+;--------------------------------------
 ;out:	 a = PAC slot No. / $FF:no PAC
 ;	interrupt = di
-CHKPAC:	;
+CHKPAC:
 	ld	c,1		; base slot 1
 	ld	ix,S_ChkPAC
 	call	_SltChk
@@ -143,7 +143,7 @@ CHKPAC:	;
 ;in:	a = slot
 ;out: 	z=NG / nz=OK
 ;use	all
-S_ChkPAC:	;
+S_ChkPAC:
 	ld	(O_ChkPAC+1),a	; save slot No / code over write
 
 	push	ix
@@ -161,13 +161,13 @@ S_ChkPAC:	;
 	ld	hl,PACMGN	; PAC SRAM Magic No.
 	call	S_ChkPAC_
 	jr	nz,E_ChkPAC	; not pac sram
-O_ChkPAC:	;
+O_ChkPAC:
 	ld	a,0		; ok = slot no.
 	or	a		; nz (slot 0à»äOÇä˙ë“ÇµÇƒÇ¢ÇÈÅj
 	jr	R_ChkPAC
-E_ChkPAC:	;
+E_ChkPAC:
 	xor	a
-R_ChkPAC:	;
+R_ChkPAC:
 	pop	hl
 	ld	(PACSW),hl	; restore PAC SRAM Switch
 	ret
@@ -182,14 +182,14 @@ S_ChkPAC_:
 	cpl
 	ld	(hl),a
 	ret
-;
+
 ; (check slot/exp slot)
 ;in:	c = base slot
 ;	ix = check program address
 ;		in:	a=slot
 ;		out: 	z=NG / nz=OK
 ;out: 	z = NG / nz=OK
-_SltChk:	;
+_SltChk:
 	ld	hl,EXPTBL
 	ld	a,c
 	call	_AddHLA
@@ -199,11 +199,11 @@ _SltChk:	;
 	jr	nz,_ExpSltC
 	jp	_jp_ix
 ; (check exp slot)
-_ExpSltC:	;
+_ExpSltC:
 	ld	b,04h
 	or	80h
 	ld	c,a
-_ExpSltL:	;
+_ExpSltL:
 	ld	a,c
 	push	bc
 	call	_jp_ix
@@ -216,10 +216,10 @@ _ExpSltL:	;
 	xor	a	;z
 	ret
 
-_jp_ix:	;
+_jp_ix:
 	jp	(ix)
 
-_AddHLA:	;
+_AddHLA:
 	ADD	A,L
 	LD	L,A
 	RET	NC

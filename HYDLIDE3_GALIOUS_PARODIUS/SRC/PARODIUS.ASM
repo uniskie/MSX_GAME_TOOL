@@ -5,46 +5,70 @@
 ; http://www.tni.nl/products/tniasm.html
 
 ; A=USR( TIME-TRAP É ±ÄÞÚ½ )
+
+;--------------------------------------
 	FNAME	"PARODIUS.BIN"	;*BINHEAD*
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
+;--------------------------------------
 
 ;BIOS LABELS for GAME UTILS
 	INCLUDE "BIOS-DEF.ASM"
 
-W_BANK:	EQU	0F0F1H
-BANK1:	EQU	7000H
-BANK2:	EQU	9000H
-BANK3:	EQU	0B000H
-;
-MAGICN:	EQU	04099H
-;
+;--------------------------------------
+; PARODIUS ROM ENTRY
+;--------------------------------------
+PAR_ADR:	EQU	40A7H
+MAGICN:	EQU	04099H	;GAME ROM CHEK ID
+
+; KONAMI MEGA-ROM BANK
+;W_BANK:	EQU	0F0F1H
+;BANK1:	EQU	7000H
+;BANK2:	EQU	9000H
+;BANK3:	EQU	0B000H
+
+;--------------------------------------
+; ENTRY (EXPORT)
+;--------------------------------------
 ORGADR:	EQU	0C000H
 	ORG	ORGADR
-;
+
 	JP	PARODIUS_
-	JP	PAR_CHK
-PAR_REF:	;
+	JP	ROM_CHK	;KONAMI8K.ASM
+;--------------------------------------
+; WORK AREA (EXPORT)
+;--------------------------------------
+PAR_REF:
 	DB	0
-PAR_MUS:	;
+PAR_MUS:
 	DB	88H,01H,0
-ROMSLT:	DB	1
+;ROMSLT:	DB	1
 ;CPUSAV:	DB	0
+
+;--------------------------------------
+; WORK AREA (STATIC)
+;--------------------------------------
+W_SLREG:
+	DB	0
+SV_HOOK:
+	DS	5
+SVPHOOK:
+	DS	5
 
 ;--------------------------------------
 ;GAME:
 ;	VRAM: 16KByte
 ;	RAM : 8KByte ($e000-$fc00)
 ;--------------------------------------
-;
+
 ;--------------------------------------
 ;VRAM SAVE Version:(Current Version)
 ; * MSX1: not work
 ; * VRAM SAVE: easy in BASIC
 ; * Save Slot: 2
-;
+
 ;$4000	AUTO STATE RAM 8KByte
 ;	AUTO STATE VRAM 16KByte
 ;$8000	STATE RAM 8KByte
@@ -56,13 +80,16 @@ ROMSLT:	DB	1
 ; * MSX1: work
 ; * VRAM SAVE: Difficult in BASIC.
 ; * Save Slot: 1
-;
+
 ;$0000	BASIC RAM 8KByte
 ;$2000	STATE RAM 8KByte
 ;$4000	STATE VRAM 16KByte
 ;--------------------------------------
-;----------------
-PARODIUS_:	;
+
+;--------------------------------------
+; ROUTINES
+;--------------------------------------
+PARODIUS_:
 	CALL CPUZ80
 	DI
 	LD	(SVW_SP),SP
@@ -70,148 +97,43 @@ PARODIUS_:	;
 	LD	(W_SLREG),A
 	LD	A,V_PG3	;COMMON
 	CALL	SAVE_	;COMMON
-;
+
 	LD	HL,H_KEYI
 	LD	DE,SV_HOOK
 	LD	BC,5
 	LDIR
-;
-;
+
+
 ;	IM	1
 	LD	SP,0F0F0H
-;
+
 	LD	A,(ROMSLT)
 	LD	H,40H
 	CALL	ENASLT
 	LD	A,(ROMSLT)
 	LD	H,80H
 	CALL	ENASLT
-;
+
 	LD	A,1
 	CALL	CHGCAP	;COMMON
-;
+
 	LD	HL,EX_TRAP	;COMMON
 	LD	(H_KEYI+1),HL
 	LD	A,0C3H
 	LD	(H_KEYI),A
-;
+
 	LD	A,(PAR_REF)
 	DEC	A
 	JP	Z,LOAD	;COMMON
 	INC	A
 	JP	NZ,LOAD_AT	;COMMON
 	JP	PAR_ADR
-PAR_ADR:	EQU	40A7H
-;
-;
-PAR_CHK:	;
-;	PUSH	HL
-;;
-;	LD	A,(ROMSLT)
-;	LD	H,40H
-;	CALL	ENASLT
-;;
-;	POP	HL
-;	INC	HL
-;	INC	HL
-;	LD	DE,(4002H)
-;	LD	(HL),E
-;	INC	HL
-;	LD	(HL),D
-;;
-;	LD	A,(EXPTBL)
-;	LD	H,40H
-;	CALL	ENASLT
-;	EI
-;	RET
-;-------------------
-;A=USR(MATCH VALUE)
-;OUT:	SUCCESS:   A=MATCH VALUE 
-;	NOT FOUND: A=0
-ROM_CHK:	;
-	INC	HL
-	INC	HL
-	PUSH	HL
-	LD	C,1
-	CALL	SLTCHK
-	JR	Z,ROM_CHKE
-	LD	C,2
-	CALL	SLTCHK
-	JR	Z,ROM_CHKE
-;
-	LD	BC,0
-ROM_CHKE:	;
-	POP	HL
-	LD	(HL),C
-	INC	HL
-	LD	(HL),B	;RET VAL
-;
-	LD	A,(EXPTBL)
-	LD	H,40H
-	CALL	ENASLT
-	EI
-	RET
-;
-; (CHECK SLOT/EXP SLOT)
-;(OUT: Z=NG / NZ=OK)
-SLTCHK:	;
-	PUSH	HL
-	LD	HL,EXPTBL
-	LD	A,C
-	CALL	ADDHLA
-	LD	A,(HL)	;EXPSLT CHECK
-	POP	HL
-	AND	80H
-	LD	A,C
-	JR	NZ,EXPSLTC	;EXPANDED
-	LD	(ROMSLT),A
-	JR	ROMCHK_S
-; (CHECK EXP SLOT)
-EXPSLTC:	;
-	LD	B,04H
-	OR	80H
-	LD	C,A
-EXPSLTL:	;
-	LD	(ROMSLT),A
-	CALL	ROMCHK_S
-	RET	Z
-;
-	LD	A,C
-	ADD	A,04H	;EXPSLT+1
-	LD	C,A
-	DJNZ	EXPSLTL
-	OR	1
-	RET
-;
-;(CHECK MATCH ROM VALUE)
-;IN	A=SLOT
-;OUT	Z=NG / NZ=OK
-ROMCHK_S:	;
-	PUSH	HL
-	LD	H,40H
-	CALL	ENASLT
-	POP	HL
-;
-	LD	E,(HL)
-	INC	HL
-	LD	D,(HL)
-	DEC	HL
-;
-	EX	DE,HL
-	LD	BC,(4002H)
-	OR	A
-	SBC	HL,BC
-	EX	DE,HL
-;
-	LD	BC,(ROMSLT)
-	LD	B,0
-	RET
-;
-;
-RET_BAS:	;
+
+;--------------------------------------
+RET_BAS:
 	LD	A,(W_SLREG)
 	CALL	WSLREG
-;
+
 	LD	HL,SV_HOOK
 	LD	DE,H_KEYI
 	LD	BC,5
@@ -219,41 +141,25 @@ RET_BAS:	;
 	LD	SP,(SVW_SP)	;COMMON
 ;	IM	0
 	EI
-;
+
 	CALL	CPURES
 	RET
-;
-;
-W_SLREG:	;
-	DB	0
-SV_HOOK:	;
-	DS	5
-SVPHOOK:	;
-	DS	5
-;
-;
-SETMUSIC:	EQU	43B4H
-MUS_NO:	EQU	0E13BH
-SCCMIX:	EQU	0E1F3H
-;
+
+;--------------------------------------
 PLAY:	LD	HL,H_KEYI
 	LD	DE,SVPHOOK
 	LD	BC,5
 	LDIR
-;
+
 	DI
 	LD	A,0C3H
-	LD	HL,PLAY_TRP
+	LD	HL,PLAY_TRAP
 	LD	(H_KEYI),A
 	LD	(H_KEYI+1),HL
-;
+
 	LD	A,V_PG1	;COMMON
 	CALL	SAVE_	;COMMON
-;
-	LD	A,(MUS_NO)
-	LD	(PAR_MUS+0),A
-;
-;RG8SAV:	EQU	0FFE7H
+
 	LD	A,(RG8SAV)
 	OR	2
 	OUT	(VDP+1),A	;SPRITE OFF
@@ -263,44 +169,42 @@ PLAY:	LD	HL,H_KEYI
 	OUT	(VDP+1),A	;BACK COLOR=0
 	LD	A,7+80H
 	OUT	(VDP+1),A
-;
-;
-	EI
+
 	JP	PLAY_SUB
-;
-;
+
+;--------------------------------------
 PLAY_R:	DI
 	LD	A,7
 	OUT	(PSGIOA),A	;COMMON
 	LD	A,0BFH
 	OUT	(PSGIOW),A	;COMMON
-;
+
 	LD	A,3FH
 	LD	(BANK2),A
 	XOR	A
-	LD	(988FH),A
-;
+	LD	(SCCMIX),A
+
 	LD	DE,H_KEYI
 	LD	HL,SVPHOOK
 	LD	BC,5
 	LDIR
-;
+
 	LD	A,V_PG1	;COMMON
 	CALL	LOAD_	;COMMON
-;
-;
+
+
 	LD	A,(RG8SAV)
 	AND	253
 	OUT	(VDP+1),A	;SPRITE ON
 	LD	A,8+80H
 	OUT	(VDP+1),A
-;
+
 	LD	DE,0801H	;'SPC'
-	CALL	KEYIN
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,$-6
 	JP	RETURN
-;
-PLAY_TRP:	;
+
+PLAY_TRAP:
 	LD	A,4
 	LD	(BANK1),A
 	INC	A
@@ -308,15 +212,15 @@ PLAY_TRP:	;
 	INC	A
 	LD	(BANK3),A
 	JP	PLAY_TR
-;
+
+;--------------------------------------
+	INCLUDE "KONAMI8K.ASM"	;*FILE*
 	INCLUDE	"PAROPLAY.ASM"	;*FILE*
-	INCLUDE	"MOJI-24.ASM"	;*FILE*
 	INCLUDE	"PARO-EXP.ASM"	;*FILE*
 	INCLUDE	"EX-BIOS.ASM"	;*FILE*
-	INCLUDE	"PAROTITL.ASM"	;*FILE*
 ;--------------------------------------
 ; ENASLT CLONE (FOR PAGE 0 SLOT CHANGE)
-	INCLUDE "CHGSLT.ASM" ;*FILE*
+	INCLUDE "CHGSLT.ASM"	;*FILE*
 ;--------------------------------------
-ENDFL:	;
+ENDFL:
 

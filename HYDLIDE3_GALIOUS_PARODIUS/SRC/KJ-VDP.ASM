@@ -17,18 +17,18 @@ STOP:	EQU	000H
 TIMP:	EQU	8
 RSX:	EQU	32
 RDX:	EQU	36
-;
+
 KJ_IO1:	EQU	0D8H
 KJ_IO2:	EQU	0DAH
-;
+
 CL_OO_:	EQU	0FFH
 CL_OX_:	EQU	0F0H
 CL_XO_:	EQU	00FH
 CL_XX_:	EQU	000H
-;
+
 ZENKA_X:	EQU	16
 HANKA_X:	EQU	8
-;
+
 ;ENTRY:
 ;  KANJI_RM  HL:CODE
 ;  KANJI_S   DE:STRENGTH ADDRESS
@@ -37,19 +37,19 @@ HANKA_X:	EQU	8
 ;   KANJI_P
 ;  VDP_COM
 ;  CE_WAIT,S_RESET
-;
+
 ;=:	VDP resister's buffer for kanji
 PR_MMC:	DW	0	;DX
 	DW	0	;DY
 	DW	0	;NX
 	DW	16	;NY
-;
+
 ;//
 ;  KANJI COLOR CHANGE RUTINE
 ;                           //
 ; A:COLOR
 ;  USE : AF
-KANJI_C:	;
+KANJI_C:
 	PUSH	DE
 	LD	(CLOR_XO+1),A
 	LD	D,A
@@ -78,7 +78,7 @@ KANJI_C:	;
 ;                                 //
 ;//:	Check X Size //
 ;(:	HL:KANJI ROM-CODE)
-KANJI_RM:	;
+KANJI_RM:
 	PUSH	HL
 	LD	A,ZENKA_X
 	LD	DE,-960	;ÊÝ¶¸(A0H-DFH)
@@ -90,22 +90,22 @@ KANJI_RM:	;
 	LD	DE,864-96
 	ADD	HL,DE
 	JP	C,KRM_CHK
-SET_HNK:	;
+SET_HNK:
 	LD	A,HANKA_X
-KRM_CHK:	;
+KRM_CHK:
 	LD	(PR_MMC+4),A	;NX write
 	POP	HL
 	JP	KANJI_PC
-;
+
 ;//:	>> KANJI PUT
 ;  KANJI (with S-JIS) PUT RUTINE
 ;                               //
 ; (DE:ADDRESS) SHIFT-JIS >>  JIS >>KANJI CODE
 ; USE : HL,AF,DE,BC (ALL)
-;
+
 ; CHECK CHRARACTER
-;
-KANJI_S:	;
+
+KANJI_S:
 	LD	A,HANKA_X
 	LD	(PR_MMC+4),A
 	LD	A,(DE)	;S-JIS(H)
@@ -129,10 +129,10 @@ SJH_2:	SUB	0B1H
 	ADD	A,A
 	SUB	32-1
 	LD	L,A	; L:JIS(H)-32 (A*2+1-32)
-;
+
 	LD	A,ZENKA_X
 	LD	(PR_MMC+4),A
-;
+
 SJL_:	INC	DE
 	LD	A,(DE)
 	PUSH	DE	;(ADDRESS)
@@ -145,7 +145,7 @@ SJL_1:	INC	L
 	DEC	L
 	ADD	A,7DH-1FH
 SJL_2:	SUB	7DH+32
-;
+
 KJCODE:	LD	C,A
 	LD	B,0
 	LD	A,L
@@ -163,7 +163,7 @@ KJCODE:	LD	C,A
 	ADD	HL,HL	;HL=L*64
 	ADD	HL,DE	;HL=L*(64+32) = L*96
 	ADD	HL,BC	; HL= (JIS_H-32)*96 + (JIS_L-32)
-;
+
 	PUSH	HL
 	LD	DE,-1536	;16*96
 	ADD	HL,DE
@@ -171,16 +171,16 @@ KJCODE:	LD	C,A
 	JP	NC,KJC_ED
 	LD	DE,-512
 	ADD	HL,DE
-;
+
 KJC_ED:	CALL	KANJI_PC
 	POP	DE
 	INC	DE
 	RET
-;
+
 ;//:	Trancefer FONT to RAM //
 ;(:	HL:KANJI-CODE/PR_MMC:SET )
 ;(:	Out put KANJI CODE )
-KANJI_PC:	;
+KANJI_PC:
 	PUSH	HL
 	POP	HL
 	PUSH	HL
@@ -192,7 +192,7 @@ KANJI_PC:	;
 	POP	DE
 	JP	DAI1_K+1
 DAI1_K:	POP	HL
-KANJI_P:	;
+KANJI_P:
 	LD	A,L
 	RLA
 	RL	H
@@ -200,7 +200,7 @@ KANJI_P:	;
 	RL	H
 	LD	A,3FH
 	AND	L
-;
+
 	OUT	(C),A	;Write KANJI CODE Low6bit
 	INC	C
 	OUT	(C),H	;Write KANJI CODE Hi 6bit
@@ -225,25 +225,25 @@ FONTHK:	CALL	FONT_HX
 	IN	A,(C)
 	CALL	FONT_HX
 	JP	SET_MMC
-FONT_HX:	;
+FONT_HX:
 	LD	B,8
-FONT_RD:	;
+FONT_RD:
 	IN	A,(C)	;A=Font data
 	LD	D,4
-CLOR_XX:	;
+CLOR_XX:
 	LD	E,CL_XX_
 	RLA
 	JR	C,CLOR_OO
 	RLA
 	JP	NC,WTDOT
-CLOR_XO:	;
+CLOR_XO:
 	LD	E,CL_XO_
 	JP	WTDOT
-CLOR_OO:	;
+CLOR_OO:
 	LD	E,CL_OO_
 	RLA
 	JR	C,WTDOT
-CLOR_OX:	;
+CLOR_OX:
 	LD	E,CL_OX_
 WTDOT:	LD	(HL),E	;Write color code
 	INC	HL
@@ -251,20 +251,20 @@ WTDOT:	LD	(HL),E	;Write color code
 	JP	NZ,CLOR_XX
 	DJNZ	FONT_RD
 	RET
-;
+
 ;(:	Move command RAM to VRAM )
-;
-SET_MMC:	;
+
+SET_MMC:
 	DI
-;
+
 	PUSH	AF
 	LD	A,(6)	;A=98H (VRAM PORT)
 	INC	A	;A=99H (VDP REG PORT)
 	LD	C,A	;C=99H (VDP REG PORT)
 	POP	AF
-;
+
 ;	LD	C,99H	;C=99H (VDP REG PORT)
-;
+
 	LD	A,36	;DATA:R#36(Inc)
 	OUT	(C),A
 	LD	A,17+80H	;R#17(¶Ý¾Âwrite set)
@@ -304,7 +304,7 @@ SET_MMC:	;
 	CP	HANKA_X
 	JR	Z,MMC_TP2
 ;(:	Output data from RAM to VRAM )
-MMC_TP1:	;
+MMC_TP1:
 	LD	DE,FONTAD+32
 	LD	B,63+8
 	CALL	MMCS1
@@ -313,11 +313,11 @@ MMC_TP1:	;
 	LD	B,64+8
 	CALL	MMCSUB1
 	RET
-MMC_TP2:	;
+MMC_TP2:
 	LD	B,63+16
 	CALL	MMCS2
 	RET
-MMCSUB1:	;
+MMCSUB1:
 	OUTI
 MMCS1:	OUTI
 	OUTI
@@ -330,7 +330,7 @@ MMCS1:	OUTI
 	EX	DE,HL
 	DJNZ	MMCSUB1
 	RET
-MMCSUB2:	;
+MMCSUB2:
 	OUTI
 MMCS2:	OUTI
 	OUTI
@@ -338,23 +338,23 @@ MMCS2:	OUTI
 	DJNZ	MMCSUB2
 	RET
 FONTAD:	DS	128
-;
-;
+
+
 ;//:	VDP COMMAND sub rutine //
 ;(:	HL:Parameter's Address )
 ;(:	B :Loop Count          )
 ;(:	A :Start Resister No.  )
-VDP_COM:	;
+VDP_COM:
 	DI
-;
+
 	PUSH	AF
 	LD	A,(6)	;A=98H (VRAM PORT)
 	INC	A	;A=99H (VDP REG PORT)
 	LD	C,A	;C=99H (VDP REG PORT)
 	POP	AF
-;
+
 ;	LD	C,99H	;C=99H (VDP REG PORT)
-;
+
 	OUT	(C),A
 	LD	A,17+80H
 	OUT	(C),A
@@ -367,24 +367,24 @@ VDP_COM:	;
 	CALL	S_RESET
 	EI
 	RET
-;
+
 ; //
 ; Wait for completing VDP Command
 ;                              //
-CE_WAIT:	;
+CE_WAIT:
 ;	LD	C,99H	;C=99H (VDP REG PORT)
 	LD	A,2
 	OUT	(C),A
 	LD	A,15+80H	;VDP Status set
 	OUT	(C),A
-CE_LOOP:	;
+CE_LOOP:
 	IN	A,(C)
 	AND	1
 	JP	NZ,CE_LOOP
 	RET
-;
+
 ;(:	Reset status resister )
-S_RESET:	;
+S_RESET:
 ;	LD	C,99H	;C=99H (VDP REG PORT)
 	XOR	A
 	OUT	(C),A

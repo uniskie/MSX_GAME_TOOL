@@ -11,7 +11,7 @@ EXPADR:	EQU	VOICAQ	;Program Area 0F975H - 0FAF4H
 STACKA:	EQU	VCBC
 STACKLIM:	EQU	VCBA	; STACK UNDER LIMIT
 STKMIN:	EQU	32+32	;Z80 REG=12*2=24
-;
+
 ; (HYD3-EXP) ROM BANK No. for CONTINUE 4bytes
 BANK_0:	EQU	VCBC + 0	;DB	0
 BANK_1:	EQU	VCBC + 1	;DB	0
@@ -27,26 +27,26 @@ MSXVER:	EQU	VCBC + 8	;DB HYDLIDE3 MSX1/2 VERSION
 ;WAITTM:	EQU	VCBC +10	;DW WAIT
 CAPSTA:	EQU	VCBC +12	;DB CAPS
 ;	VCBC=37/10+2+1=13
-;
+
 ;PADDING EQU	VCBC +13	;DS 7
 ;	VCBC=37/13+7=20
-;
+
 EXPSP:	EQU	VCBC +20	;DW SP ADDRESS for CONTINUE
 ;	VCBC=37/20+2=22
-;
-;PADDING DB	0	;
+
+;PADDING DB	0
 ;	VCBC=37/22+1=23
-;
+
 ; (HYD3-EXP) PSG REG SAV
 PSG_SV:	EQU	VCBC +23	;PSG REG=13bytes+1bytes
 ;	VCBC=37/23+13+1=37
-;------------------
-;
+;--------------------------------------
+
 IF PSG_SV<=CAPSTA 
 	#ERROR
 ENDIF
-;
-;------------------
+
+;--------------------------------------
 ;ƒoƒ“ƒN“Á’è(BANKæ“ª8byte‚Í0‚È‚Ç‚Å–„‚Ü‚Á‚Ä‚¢‚éŽ–‚ª‘½‚¢)
 BANKPG0:	EQU	4000H	;page 0 ÊÞÝ¸ address
 BANKSIZ:	EQU	2000H	;ÊÞÝ¸ »²½Þ

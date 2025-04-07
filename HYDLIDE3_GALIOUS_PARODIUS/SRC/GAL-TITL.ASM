@@ -1,7 +1,7 @@
 ;**:	THE MAZE OF GALIOUS **
 ;**:	MUSIC TITTLE DATAS **
-;
-MUS_TIT:	;
+
+MUS_TIT:
 	DB	'///////////////¡';*DM*
 	DB	'DEMON//APPEARS]¡';*DM*
 	DB	'/////ENTER/////¡';*DM*

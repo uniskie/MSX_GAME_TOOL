@@ -9,38 +9,38 @@
 
 ;BIOS LABELS for GAME UTILS
 	INCLUDE "BIOS-DEF.ASM"
-;
+
 W_BANK:	EQU	0F0F1H
 BANK1:	EQU	7000H
 BANK2:	EQU	9000H
 BANK3:	EQU	0B000H
-;
+
 MAGICN:	EQU	04099H
-;
+
 ORGADR:	EQU	0C000H
 	ORG	ORGADR
 
 	JP	ROM_CHK
 	JP	ROM_CPY
 	
-PAR_REF:	;
+PAR_REF:
 	DB	0
-PAR_MUS:	;
+PAR_MUS:
 	DB	88H,01H,0
 ROMSLT:	DB	1
 ;CPUSAV:	DB	0
-;
+
 ;ADDHLA:	ADD	A,L
 ;	LD	L,A
 ;	RET	NC
 ;	INC	H
 ;	RET
-;
-;----------------------
+
+;--------------------------------------
 ;A=USR(MATCH VALUE)
 ;OUT:	SUCCESS:   A=MATCH VALUE 
 ;	NOT FOUND: A=0
-ROM_CHK:	;
+ROM_CHK:
 	INC	HL
 	INC	HL
 	PUSH	HL
@@ -50,23 +50,23 @@ ROM_CHK:	;
 	LD	C,2
 	CALL	SLTCHK
 	JR	Z,ROM_CHKE
-;
+
 	LD	BC,0
-ROM_CHKE:	;
+ROM_CHKE:
 	POP	HL
 	LD	(HL),C
 	INC	HL
 	LD	(HL),B	;RET VAL
-;
+
 	LD	A,(EXPTBL)
 	LD	H,40H
 	CALL	ENASLT
 	EI
 	RET
-;
+
 ; (CHECK SLOT/EXP SLOT)
 ;(OUT: Z=NG / NZ=OK)
-SLTCHK:	;
+SLTCHK:
 	PUSH	HL
 	LD	HL,EXPTBL
 	LD	A,C
@@ -79,51 +79,51 @@ SLTCHK:	;
 	LD	(ROMSLT),A
 	JR	ROMCHK_S
 ; (CHECK EXP SLOT)
-EXPSLTC:	;
+EXPSLTC:
 	LD	B,04H
 	OR	80H
 	LD	C,A
-EXPSLTL:	;
+EXPSLTL:
 	LD	(ROMSLT),A
 	CALL	ROMCHK_S
 	RET	Z
-;
+
 	LD	A,C
 	ADD	A,04H	;EXPSLT+1
 	LD	C,A
 	DJNZ	EXPSLTL
 	OR	1
 	RET
-;
+
 ;(CHECK MATCH ROM VALUE)
 ;IN	A=SLOT
 ;OUT	Z=NG / NZ=OK
-ROMCHK_S:	;
+ROMCHK_S:
 	PUSH	HL
 	LD	H,40H
 	CALL	ENASLT
 	POP	HL
-;
+
 	LD	E,(HL)
 	INC	HL
 	LD	D,(HL)
 	DEC	HL
-;
+
 	EX	DE,HL
 	LD	BC,(4002H)
 	OR	A
 	SBC	HL,BC
 	EX	DE,HL
-;
+
 	LD	BC,(ROMSLT)
 	LD	B,0
 	RET
-;-------------------
+;--------------------------------------
 ; A=USR(バンク配列文字列)
 ;	最初の2byte：転送先VRAMアドレス
 ;	3文字目以降：バンク番号1byte*N個
 ;	VRAM 10000H-に転送
-ROM_CPY:	;
+ROM_CPY:
 	CP	3
 	RET	NZ	; 文字列以外不可
 	EX	DE,HL
@@ -138,28 +138,28 @@ ROM_CPY:	;
 	POP	IX
 	LD	B,A	;文字数
 	PUSH	BC
-;
+
 	LD	A,(ROMSLT)
 	LD	H,40H
 	CALL	ENASLT
 	DI
-;
+
 	LD	E,(IX+0)
 	LD	D,(IX+1)	;VRAM 10000H+??
 	INC	IX
 	INC	IX
-TFBANK_L:	;
+TFBANK_L:
 	POP	BC
 	LD	A,B
 	OR	A
 	JR	Z,TFBANK_E	;END
 	DEC	B
 	PUSH	BC
-;
+
 	LD	A,(IX+0)
 	INC	IX
 	LD	(BANK1),A
-;
+
 	LD	A,D
 	AND	3FH
 	OR	40H	;WRITE BIT
@@ -173,18 +173,18 @@ TFBANK_L:	;
 	LD	B,20H	;2000H/100H
 	LD	HL,6000H	;BANK1
 	CALL	TF_VRM
-;
+
 	LD	HL,2000H
 	ADD	HL,DE
 	EX	DE,HL	;VRAM ADR+2000H
 	JR	TFBANK_L
-;
-TFBANK_E:	;
+
+TFBANK_E:
 	LD	A,(EXPTBL)
 	LD	H,40H
 	CALL	ENASLT
 	EI
-;
+
 	POP	HL
 	POP	AF
 	CP	1
@@ -192,8 +192,8 @@ TFBANK_E:	;
 	LD	A,255
 	LD	(HL),A
 	RET
-;
-;
+
+
 	INCLUDE	"EX-BIOS.ASM"	;*FILE*
-ENDFL:	;
+ENDFL:
 

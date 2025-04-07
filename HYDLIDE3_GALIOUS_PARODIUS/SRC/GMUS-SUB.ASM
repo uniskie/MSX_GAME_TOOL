@@ -1,10 +1,13 @@
-;
-WR_MES_AT:	;
+; FOR KANJI
+
+;--------------------------------------
+WR_MES_AT:
 	POP	HL
 	CALL	WR_MES
 	INC	HL
 	JP	(HL)
-;
+
+;--------------------------------------
 WR_MES:	LD	A,(HL)
 	CP	'|'
 	RET	Z
@@ -27,17 +30,17 @@ ADD_X:	ADD	A,00 	;?
 	ADD	A,16
 	LD	(PR_MMC+2),A
 	JP	WR_MES
-;
+
 COLOR_:	INC	HL
 	CALL	CHG_NSB
 	CALL	KANJI_C
 	JP	WR_MES
-ACPAGE_:	;
+ACPAGE_:
 	INC	HL
 	CALL	CHG_NS
 	LD	(BAPAGE-1),A
 	JP	WR_MES
-LOCATE_:	;
+LOCATE_:
 	INC	HL
 	CALL	CHG_NSB
 	LD	D,A
@@ -47,9 +50,10 @@ LOCATE_:	;
 	CALL	LOCATE
 	EX	DE,HL
 	JP	WR_MES
-;
+
+;--------------------------------------
 ; 2 chara to 8bit num (00 -> num)
-CHG_NSB:	;
+CHG_NSB:
 	CALL	CHG_NS
 	RLCA
 	RLCA
@@ -59,6 +63,8 @@ CHG_NSB:	;
 	CALL	CHG_NS
 	OR	0 	;?
 	RET
+
+;--------------------------------------
 ; 1 char to 4bit num (0 -> num)
 CHG_NS:	LD	A,(HL)
 	INC	HL
@@ -68,8 +74,9 @@ CHG_NS:	LD	A,(HL)
 	SUB	30H
 	AND	0FH
 	RET
-;
-WR_PNUM1:	;
+
+;--------------------------------------
+WR_PNUM1:
 	DI
 	LD	A,(MUS_WORK+1)
 	LD	HL,40A8H
@@ -77,7 +84,7 @@ WR_PNUM1:	;
 	CALL	WR_PNU_
 	EI
 	RET
-WR_PNUM2:	;
+WR_PNUM2:
 	DI
 	LD	A,(MUS_WORK+0)
 	LD	HL,58A8H
@@ -85,7 +92,7 @@ WR_PNUM2:	;
 	CALL	WR_PNU_
 	EI
 	RET
-WR_PNU_:	;
+WR_PNU_:
 	LD	HL,NM_STR
 	LD	B,A
 	RRA
@@ -110,14 +117,16 @@ NMSET:	OR	A
 	INC	HL
 	RET
 NM_STR:	DB	'00|'	;*DM*
-;
+
+;--------------------------------------
 LOCATE:	LD	IX,PR_MMC
 	LD	(IX+0),L
 	LD	(IX+1),0
 BAPAGE:	LD	(IX+2),H
 	LD	(IX+3),0
 	RET
-;
+
+;--------------------------------------
 WR_PNO:	LD	HL,4044H
 	LD	BC,300H
 L_PL5:	CALL	LOCATE
@@ -138,13 +147,14 @@ J_PL5:	CALL	WR_MES
 	LD	A,0FH
 	CALL	KANJI_C
 	RET
-COR_STR1:	;
+COR_STR1:
 	DB	'*C2Å†|'	;*DM*
-COR_STR2:	;
+COR_STR2:
 	DB	'*23Å°|'	;*DM*
-;
-;
-WR_TITL:	;
+
+
+;--------------------------------------
+WR_TITL:
 	LD	A,0CFH
 	CALL	KANJI_C
 	DI
@@ -161,7 +171,7 @@ WR_TITL:	;
 	CP	16H
 	JP	C,$+3+1
 	XOR	A
-WR_TIT0:	;
+WR_TIT0:
 	LD	L,A
 	LD	H,0
 	ADD	HL,HL
@@ -175,28 +185,8 @@ WR_TIT0:	;
 	LD	A,0FH
 	CALL	KANJI_C
 	RET
-;
-;
-RDVDP:	EQU	013EH
-GAL_BGM:	EQU	6004H
-SPRATR:	EQU	7600H
-;
-PLAY_TR:	;
-	DI
-	CALL	RDVDP 	;STATUS READ
-	CALL	GAL_BGM 	;MUSIC PLAY RUTINE
-	CALL	SPRITE
-;
-	LD	A,(WAITCT)
-	ADD	A,1
-	SBC	A,0	; 255 = STOP
-	LD	(WAITCT),A
-;
-	EI
-	RET
-;
-WAITCT:	DB	0	;WAIT CNT
-;
+
+;--------------------------------------
 SPRITE:	LD	B,32
 	LD	HL,SP_PARA
 	EXX
@@ -212,15 +202,15 @@ L_SP_P:	LD	E,(HL)
 	INC	HL
 	OR	A
 	JP	Z,CH_SPR
-;
+
 	LD	DE,0
 	JP	ADD_SPR
-;
+
 CH_SPR:	LD	A,(HL)
 	DEC	HL
 	LD	(HL),A
 	INC	HL
-ADD_SPR:	;
+ADD_SPR:
 	INC	HL
 	PUSH	DE
 	EXX
@@ -244,7 +234,7 @@ SPR_Y:	LD	(HL),A
 	EXX
 	DJNZ	L_SP_P
 ; WRITE TABLE TO VRAM
-;
+
 	LD	HL,SPRATR
 	LD	A,1
 	OUT	(VDP+1),A
@@ -261,8 +251,10 @@ SPR_Y:	LD	(HL),A
 	LD	BC,VDP+8000H
 	OTIR
 	RET
-;
+
+;--------------------------------------
 ; SPRITE TABLE
+SPRATR:	EQU	7600H
 SPR_TB:	EQU	0D000H
 SP_PARA:	EQU	0D080H
 

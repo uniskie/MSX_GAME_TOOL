@@ -14,17 +14,22 @@ V_PG3:	EQU	6
 M_SIZE:	EQU	1CH
 M_ADR:	EQU	0E000H
 
-W_BANK:	EQU	0F0F1H
-BANK1:	EQU	06000H
-BANK2:	EQU	08000H
-BANK3:	EQU	0A000H
 
+;--------------------------------------
+; WORK AREA (STATIC)
+;--------------------------------------
 SVW_SP:	EQU	SAVSP	; STACK SAVE AREA
 ;STACK:	EQU	BLDCHK+1	;DISK WORK AREA HEAD
 
 ;STACKA:	DW	M_ADR	; MY STACK ADDRESS
 STACKA:	DW	0D300H	; MY STACK ADDRESS
-;
+
+CAPSTA:	DW	0
+W_CAP:	DB	0
+
+;--------------------------------------
+;--------------------------------------
+;--------------------------------------
 EX_TRAP:
 	DI
 ;	IM	0
@@ -39,7 +44,7 @@ EX_TRAP:
 	AND	10H	;STOP
 	JP	NZ,TRAP_MS
 
-;-----------------
+	;--------------------------------------
 	LD	(SVW_SP),SP
 	LD	HL,(STACKA)
 	LD	SP,HL
@@ -70,15 +75,15 @@ L_PSGSV:
 	XOR	A
 	CALL	CHGCAP
 
-;-----------------
+;--------------------------------------
 ;	LD	DE,0704H	;ESC
 	LD	DE,0710H	;STOP
 L_MENU_START_WAIT:
-	CALL	KEYIN
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,L_MENU_START_WAIT
 S_CAP:	LD	DE,0
 L_FUNC:	LD	HL,FC_TBL
-L_FUNC_:	;
+L_FUNC_:
 ;MSX1未対応なのでvsync監視待ちはしない
 ;	CALL	WTVSYNC
 ;	CP	1
@@ -86,12 +91,12 @@ L_FUNC_:	;
 ;	INC	DE
 ;	LD	A,E
 ;	AND	32	;32 FRAME
-;
+
 	INC	DE
 	LD	A,D
 	AND	20H	;2000H
 
-;-----------------
+;--------------------------------------
 	LD	A,1
 	JP	NZ,J_CAP
 	XOR	A
@@ -99,7 +104,7 @@ J_CAP:	LD	BC,(CAPSTA)
 	CP	C
 	LD	(CAPSTA),A
 	CALL	NZ,CHGCAP
-J_CAP_:	;
+J_CAP_:
 	PUSH	DE
 	LD	E,(HL)
 	INC	HL
@@ -112,7 +117,7 @@ J_CAP_:	;
 	INC	HL
 	LD	B,(HL)
 	INC	HL
-	CALL	KEYIN
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	POP	DE
 	JP	NZ,L_FUNC_
 	EX	AF,AF'	;AF:DE=0 ->LOOP
@@ -122,19 +127,15 @@ J_CAP_:	;
 	LD	L,C
 	JP	(HL)
 
-;-----------------
-CAPSTA:	DW	0
-;-----------------
-
+;--------------------------------------
 RETURN_AT:
 	JP	S_CAP
-W_CAP:	DB	0
 
-;-----------------
+;--------------------------------------
 RETURN:
 ;	LD	DE,0704H	;ESC
 	LD	DE,0710H	;STOP
-L_RET:	CALL	KEYIN
+L_RET:	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,L_RET
 
 	; RESTORE PSG
@@ -153,7 +154,7 @@ L_PSGLD:
 ;	IM	1
 	JP	TRAP_MS
 
-;-----------------
+;--------------------------------------
 ; FUNCTIONS: [KEY]
 FC_TBL:	DW	0602H,CTRL	; CTRL
 	DW	0501H,SAVE	;'S'
@@ -164,7 +165,7 @@ FC_TBL:	DW	0602H,CTRL	; CTRL
 	DW	0710H,RETURN	; STOP
 	DW	0,L_FUNC	; END of DATA
 
-;-----------------
+;--------------------------------------
 ; FUNCTIONS: [CTRL]+[KEY]
 CTRL:	LD	HL,FC_TBL_AT
 	JP	L_FUNC_
@@ -176,7 +177,7 @@ FC_TBL_AT:
 	DW	0710H,RESET	; STOP
 	DW	0,L_FUNC	; END of DATA
 
-;-----------------
+;--------------------------------------
 SAVE_AT_Q:
 	LD	A,V_PG2
 	CALL	SAVE_
@@ -190,7 +191,7 @@ QUIT:
 	JP	RET_BAS	;COMMON
 
 
-;-----------------
+;--------------------------------------
 SAVE_AT:
 	LD	A,255
 	LD	(GAL_REF),A
@@ -228,7 +229,7 @@ SAVE__:	LD	A,0	;vram page +1
 
 	RET
 
-;-----------------
+;--------------------------------------
 LOAD_AT:
 	LD	A,V_PG1
 	JP	LOAD_M
@@ -275,34 +276,49 @@ LOAD__:	LD	A,0	;vram page
 	CALL	WR_CRG
 	RET
 
-;-----------------
+;--------------------------------------
 RESET:	
 	LD	DE, 0602H	; CTRL
-RESET1:	CALL	KEYIN
+RESET1:	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,RESET1
 ;	LD	DE,0704H	;ESC
 	LD	DE,0710H	;STOP
-RESET2:	CALL	KEYIN
+RESET2:	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,RESET2
 
 	LD	A,1
 	CALL	CHGCAP
-;
+
 	JP	40ABH
 
-;-----------------
+;--------------------------------------
 ; GALIOUS TRAINER
-;
-CURE:	LD	A,(LIFE1W)
+
+CURE:
+	;POPOLON
+	LD	A,(LIFE1W)
+	OR	A	;CHECK ZERO
 	LD	B,A
+	JR	NZ,CURENR1
+	LD	A,1
+	LD	(PL_REST2),A	;REVIVE POPOLON
+CURENR1:
 	LD	A,(LIFE1W+1)
 	SUB	B
 	LD	(LIFEUP1),A
+
+	;APHRODITE
 	LD	A,(LIFE2W)
+	OR	A	;CHECK ZERO
 	LD	B,A
+	JR	NZ,CURENR2
+	LD	A,1
+	LD	(PL_REST1),A	;REVIVE APHRODITE
+CURENR2:
 	LD	A,(LIFE2W+1)
 	SUB	B
 	LD	(LIFEUP2),A
+
 	LD	HL,ITEM_W
 	LD	DE,999H
 	LD	B,3
@@ -313,27 +329,42 @@ L_CURE:	LD	(HL),E
 	DJNZ	L_CURE
 	JP	RETURN
 
-LIFE1W:	EQU	0E056H
-LIFE2W:	EQU	0E052H
-LIFEUP1:	EQU	0E061H
-LIFEUP2:	EQU	0E05EH
+PLAYERNO:	EQU	0E04DH	;0:POPOLON / 1:APHRODITE
+PL_REST1:	EQU	0E058H	;ENABLE POPOLON ->  APHRODITE
+				;APHRODITE死亡時のみ書き換えが望ましい
+				;それ以外はバグる
+PL_REST2:	EQU	0E059H	;ENABLE APHRODITE -> POPOLON
+				;POPOLON死亡時のみ書き換えが望ましい
+				;それ以外はバグる
+
+EXP1W:	EQU	0E054H	;CUR/MAX (SIGNED 8BIT)
+EXP2W:	EQU	0E050H	;CUR/MAX (SIGNED 8BIT)
+LIFE1W:	EQU	0E056H	;CUR/MAX (SIGNED 8BIT)
+LIFE2W:	EQU	0E052H	;CUR/MAX (SIGNED 8BIT)
+
+EXPUP1:	EQU	0E060H	;(SIGNED 8BIT)
+EXPUP2:	EQU	0E05DH	;(SIGNED 8BIT)
+LIFEUP1:	EQU	0E061H	;(SIGNED 8BIT)
+LIFEUP2:	EQU	0E05EH	;(SIGNED 8BIT)
+
 ITEM_W:	EQU	0E046H
+
 WR_AROW:	EQU	05F79H
 WR_COIN:	EQU	05F84H
 WR_KEYS:	EQU	05F8FH
 WR_LIF1:	EQU	0618BH
 WR_LIF2:	EQU	061B2H
 
-;-----------------
-; CALL MUSIC PLAYER
-PLAY_:	LD	HL,0C007H
-	BIT	7,(HL)
-	JP	Z,J_PLAY_
-	XOR	A
-	CALL	4E34H
-J_PLAY_:	LD	A,(HL)
-	CALL	4E34H
-	DI
-	JP	RETURN
+;;--------------------------------------
+;; CALL MUSIC PLAYER
+;PLAY_:	LD	HL,0C007H
+;	BIT	7,(HL)
+;	JP	Z,J_PLAY_
+;	XOR	A
+;	CALL	4E34H
+;J_PLAY_:	LD	A,(HL)
+;	CALL	4E34H
+;	DI
+;	JP	RETURN
 
 
