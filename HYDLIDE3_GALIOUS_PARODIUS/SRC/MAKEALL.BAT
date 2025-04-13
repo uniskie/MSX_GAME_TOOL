@@ -1,7 +1,7 @@
 @ECHO OFF
 ECHO *****************************************************
-ECHO * Assemble tools for
-ECHO *         MAZE of GARIOUS, PARODIUS, HYDLIDE III.
+ECHO * Assemble tools for ...
+ECHO * MAZE of GARIOUS, F1SPIRIT, PARODIUS, HYDLIDE III.
 ECHO *****************************************************
 WHERE /Q TNIASM.exe
 IF ERRORLEVEL 1 GOTO :EXE_NOT_FOUND
@@ -16,6 +16,8 @@ CALL :ASM GALIOUS.ASM
 CALL :ASM GAL-MUS.ASM
 CALL :ASM PARODIUS.ASM
 CALL :ASM PARO-MUS.ASM
+CALL :ASM F1SPIRIT.ASM
+CALL :ASM F1SP-MUS.ASM
 
 IF "%ERRORS%"=="1" GOTO :END
 
@@ -33,11 +35,13 @@ EXIT/B
 REM **********************************************
 :ASM
 ECHO **** MAKE "%~n1.BIN" ****
+GOTO :SKIP_OLD_BACKUP
 IF EXIST "%~n1.BIN" (
 	IF EXIST "%~n1.BIN.OLD" DEL "%~n1.BIN.OLD"
 	ECHO REN "%~n1.BIN" "%~n1.BIN.OLD"
 	REN "%~n1.BIN" "%~n1.BIN.OLD"
 )
+:SKIP_OLD_BACKUP
 CALL ASM /P %1
 ECHO.
 IF ERRORLEVEL 1 GOTO :ERR

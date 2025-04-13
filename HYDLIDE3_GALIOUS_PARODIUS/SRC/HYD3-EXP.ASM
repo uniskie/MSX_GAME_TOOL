@@ -273,7 +273,7 @@ KEYIN:	IN	A,(KEYIO1)
 ;; *** NEED DI !
 ;WTVSYNC:
 ;;	DI
-;	LD	C,99H
+;	LD	C,VDP+1	;99H
 ;	LD	A,2	;S#2
 ;	OUT	(C),A
 ;	LD	A,15+80H

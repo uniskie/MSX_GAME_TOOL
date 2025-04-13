@@ -40,6 +40,10 @@ GETCPU:	EQU	0183H
 CHGCAP:	EQU	0132H	;CAP ランプの状態を変える
 CHGSND:	EQU	0135H	;1ビットサウンドポート
 
+;PSG
+WRTPSG:	EQU	0093H ;PSG のレジスタにデータを書き込む A にPSG のレジスタ番号、E にデータ
+RDPSG:	EQU	0096H ;PSG のレジスタの値を読む A に PSG のレジスタ番号
+
 ;INTER SLOT
 RDSLT:	EQU	000CH	;指定スロットの指定アドレスから値を読む
 WRLST:	EQU	0014H	;指定スロットの指定アドレスに値を書き込む
@@ -89,6 +93,9 @@ RAMPG3:	EQU	0F344H
 
 ;CAPS
 CAPST:	EQU	0FCABH	;[CAPS]キーの状態
+
+;その他スクリーン設定
+CLIKSW: equ 0F3DBH ;(1)   (初期値 1) キークリックスイッチ(0=OFF、0以外=ON)。SCREEN文の<キークリックスイッチ>により設定される
 
 ;VDP
 REG0SV:		EQU	0F3DFH	;VDP REG#0-#7

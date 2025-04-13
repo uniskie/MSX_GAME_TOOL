@@ -26,7 +26,7 @@ ORGADR:	EQU	0C000H
 ORGFL:
 	JP	GALIOUS_
 ;--------------------------------------
-MUS_WORK:
+PLAYWK:	;BGM,SE,LINE(BGM,SE,EXIT)
 	DB	88H,01H,0,0
 SVW_SP:	DW	0
 
@@ -145,27 +145,17 @@ PLAY_SUB:
 	XOR	A	;STOP BGM
 	CALL	SETMUSIC
 
-	LD	A,2	;DEFAULT SE
-	LD	(MUS_WORK+2),A
+	LD	A,2	;CURSOR:EXIT
+	LD	(PLAYWK+2),A
 	LD	A,87H	;START BGM
-	LD	(MUS_WORK+0),A
+	LD	(PLAYWK+0),A
 	CALL	SETMUSIC
 	EI
 
-	CALL	WR_MES_AT
-	DB	'\0000*CEÅü *C3ñÇèÈì`ê‡ÅE-ÉKÉäÉEÉXÇÃñ¿ã{-*CE Åü'	;*DM*
-	DB	'\1000*CA      ÅsÇiÇtÇjÇdÅEÇaÇnÇwÅt      '	;*DM*
-	DB	'                                '	;*DM*
-	DB	'\4058å¯â âπ No.01'	;*DM*
-	DB	'\5858ÇaÇfÇl No.87'	;*DM*
-	DB	'\7058èIóπ'	;*DM*
-	DB	'\9070*0EHOME KEY:FADE OUT '	;*DM*
-	DB	'\A000*C3                                '	;*DM*
-	DB	'                                '	;*DM*
-	DB	'                                '	;*DM*
-	DB	'\A04C*C3-BGM INDEX-|'	;*DM*
+	LD	HL,TITLE_STR
+	CALL	WR_MES
 
-	CALL	WR_PNO
+	CALL	WR_CUR
 	CALL	WR_PNUM1
 	CALL	WR_PNUM2
 	CALL	WR_TITL
@@ -214,10 +204,10 @@ P_JUMPT:
 	DW	P_DEL,P_INS,P_HOME,P_SPAC
 
 P_LCH:	POP	DE
-	LD	A,(MUS_WORK+2)
+	LD	A,(PLAYWK+2)
 	CP	2
 	JP	Z,L_PLAY
-	LD	HL,MUS_WORK+1
+	LD	HL,PLAYWK+1
 	PUSH	DE
 	OR	A
 	RET	Z
@@ -265,20 +255,20 @@ P_SUB2:	LD	A,(HL)
 	OR	128
 	JP	P_ADDE
 
-P_DOWN:	LD	A,(MUS_WORK+2)
+P_DOWN:	LD	A,(PLAYWK+2)
 	DEC	A
 	CP	255
 	JP	NZ,L_PUD
 	LD	A,2
 	JP	L_PUD
 
-P_UP:	LD	A,(MUS_WORK+2)
+P_UP:	LD	A,(PLAYWK+2)
 	INC	A
 	CP	3
 	JP	NZ,L_PUD
 	XOR	A
-L_PUD:	LD	(MUS_WORK+2),A
-	CALL	WR_PNO
+L_PUD:	LD	(PLAYWK+2),A
+	CALL	WR_CUR
 	JP	L_PLAY
 
 P_HOME:	XOR	A
@@ -287,7 +277,7 @@ P_HOME:	XOR	A
 	LD	(0E1C0H),A
 	JP	L_PLAY
 
-P_SPAC:	LD	A,(MUS_WORK+2)
+P_SPAC:	LD	A,(PLAYWK+2)
 	CP	2
 	JP	Z,PLAY_R
 	CALL	P_LCH

@@ -1,11 +1,11 @@
 ; FOR KANJI
 
 ;--------------------------------------
-WR_MES_AT:
-	POP	HL
-	CALL	WR_MES
-	INC	HL
-	JP	(HL)
+;WR_MES_AT:
+;	POP	HL
+;	CALL	WR_MES
+;	INC	HL
+;	JP	(HL)
 
 ;--------------------------------------
 WR_MES:	LD	A,(HL)
@@ -78,7 +78,7 @@ CHG_NS:	LD	A,(HL)
 ;--------------------------------------
 WR_PNUM1:
 	DI
-	LD	A,(MUS_WORK+1)
+	LD	A,(PLAYWK+1)
 	LD	HL,40A8H
 	CALL	LOCATE
 	CALL	WR_PNU_
@@ -86,7 +86,7 @@ WR_PNUM1:
 	RET
 WR_PNUM2:
 	DI
-	LD	A,(MUS_WORK+0)
+	LD	A,(PLAYWK+0)
 	LD	HL,58A8H
 	CALL	LOCATE
 	CALL	WR_PNU_
@@ -127,12 +127,12 @@ BAPAGE:	LD	(IX+2),H
 	RET
 
 ;--------------------------------------
-WR_PNO:	LD	HL,4044H
+WR_CUR:	LD	HL,4044H
 	LD	BC,300H
 L_PL5:	CALL	LOCATE
 	PUSH	HL
 	PUSH	BC
-	LD	A,(MUS_WORK+2)
+	LD	A,(PLAYWK+2)
 	CP	C
 	LD	HL,COR_STR1
 	JP	NZ,J_PL5 	;TO CALL WR_MES
@@ -160,7 +160,7 @@ WR_TITL:
 	DI
 	LD	HL,0B808H
 	CALL	LOCATE
-	LD	A,(MUS_WORK)
+	LD	A,(PLAYWK)
 	LD	DE,0
 	LD	DE,MUS_TIT
 	CP	0FBH

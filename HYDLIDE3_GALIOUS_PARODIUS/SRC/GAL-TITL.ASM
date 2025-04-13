@@ -29,4 +29,17 @@ MUS_TIT:
 	DB	'/////PAUSE/////¡';*DM*
 	DB	'///PAUSE/OFF///¡';*DM*
 	DB	'///FADE/OUT`///¡';*DM*
+
+TITLE_STR:
+	DW	3800H
+	DB	'xvv/JUKE[BOX/vvvvvvvvvvvvvvvvvv~'	;*DM*
+	DB	'w//////////////////////////////w'	;*DM*
+	DB	'w/SOUND/v00v//////NOW/PLAYING//w'	;*DM*
+	DB	'w/////////////xvvvvvvvvvvvvvvv~w'	;*DM*
+	DB	'w/MUSIC/v00v//w///////////////ww'	;*DM*
+	DB	'w/////////////yvvvvvvvvvvvvvvv'	;*DM*
+	DB	127,'w'
+	DB	'w/EXIT/////////////////////////w'	;*DM*
+	DB	'yvvvvvvvvvvvvvvvHOME[/FADE[OUTv'	;*DM*
+	DB	127,'¡'
 

@@ -3,12 +3,14 @@
 BASFONT:	EQU	0F920H
 ;FILVRM:	EQU	016BH
 
-WR_MES_AT:
-	POP	HL
-	CALL	WR_MES
-	INC	HL
-	JP	(HL)
+;--------------------------------------
+;WR_MES_AT:
+;	POP	HL
+;	CALL	WR_MES
+;	INC	HL
+;	JP	(HL)
 
+;--------------------------------------
 WR_MES:	LD	E,(HL)
 	INC	HL
 	LD	D,(HL)
@@ -23,19 +25,22 @@ WR_MES_:
 	CP	'¡'
 	RET	Z
 	CP	1
-	JP	NZ,J_PL4
+	JR	NZ,WR_MES_2
 	INC	HL
 	LD	A,(HL)
 	SUB	40H
-J_PL4:	OUT	(VDP),A
+WR_MES_2:
+	OUT	(VDP),A
 	INC	HL
-	JP	WR_MES_
+	JR	WR_MES_
 
+;--------------------------------------
 PAT_G_TB:
 	DW	0
 COLOR_TB:
 	DW	0
 
+;--------------------------------------
 SETFONT:
 	LD	A,(PAT_G_TB+1)
 	AND	3FH
@@ -52,10 +57,12 @@ L_SFONT:
 	LD	E,A
 	SRL	E
 	AND	0E0H
+;	AND	0E7H
+;	AND	0EFH
 	OR	E
 	OUT	(VDP),A
 	DEC	C
-	JP	NZ,L_SFONT
+	JR	NZ,L_SFONT
 	DJNZ	L_SFONT
 
 	LD	HL,(COLOR_TB)
@@ -84,7 +91,7 @@ L_SFNT2:
 	OUT	(VDP),A
 	DJNZ	L_SFNT2
 	DEC	C
-	JP	NZ,L_SFNT0
+	JR	NZ,L_SFNT0
 
 	LD	DE,01E0H
 	LD	HL,(COLOR_TB)

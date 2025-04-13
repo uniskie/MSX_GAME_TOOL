@@ -96,7 +96,7 @@ BASICが起動したら
 ## ソースコード
 
 SRCフォルダにアセンブラソースコードが添付してあります。
-当時はバッ活掲載のMSX2 sinmple ASM システムでアセンブルして作りましたが、
+当時はバッ活掲載のMSX2 sinmple ASM システムで製作していましたが、
 添付のソースコードはtniasm用に変換してあります。
 
 tniASM v0.45 [2 November 2011, final freeware Z80/R800/GBZ80 version]  

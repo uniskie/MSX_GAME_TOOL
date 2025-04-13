@@ -29,4 +29,17 @@ MUS_TIT:
 	DB	'         -‚o‚`‚t‚r‚d-         | ';*DM*
 	DB	'         -PAUSE- ‰ðœ         | ';*DM*
 	DB	'      -FADE OUT COMMAND-      | ';*DM*
+
+TITLE_STR:
+	DB	'\0000*CEŸ *C3–‚é“`àE-ƒKƒŠƒEƒX‚Ì–À‹{-*CE Ÿ'	;*DM*
+	DB	'\1000*CA      s‚i‚t‚j‚dE‚a‚n‚wt      '	;*DM*
+	DB	'                                '	;*DM*
+	DB	'\4058Œø‰Ê‰¹ No.01'	;*DM*
+	DB	'\5858‚a‚f‚l No.87'	;*DM*
+	DB	'\7058I—¹'	;*DM*
+	DB	'\9070*0EHOME KEY:FADE OUT '	;*DM*
+	DB	'\A000*C3                                '	;*DM*
+	DB	'                                '	;*DM*
+	DB	'                                '	;*DM*
+	DB	'\A04C*C3-BGM INDEX-|'	;*DM*
 

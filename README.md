@@ -2,7 +2,7 @@
 
 |名前|内容|
 |---|---|
-|[HYDLIDE3_GALIOUS_PARODIUS](HYDLIDE3_GALIOUS_PARODIUS )|ハイドライド３、ガリウスの迷宮、パロディウスなどに使うツール|
+|[HYDLIDE3_GALIOUS_PARODIUS](HYDLIDE3_GALIOUS_PARODIUS )|ハイドライド３、ガリウスの迷宮、パロディウス、F1-SPIRITに使用するツール|
 |[MSXFAN13_HYDLIDE_PATCH   ](MSXFAN13_HYDLIDE_PATCH    )|**MSXFAN 1992年10月号 付録ディスク#13**収録のMSX2用イドライド用置き換え画像データ|
 |[RType_MSXROM_To_Ascii16  ](RType_MSXROM_To_Ascii16   )|RTypeをASCII16用ROMイメージに変換|
 |[SLAYDOCK_SCC             ](SLAYDOCK_SCC              )|スーパーレイドック(MSX)をSCC音源対応させるツール|

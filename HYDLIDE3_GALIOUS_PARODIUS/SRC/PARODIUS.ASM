@@ -21,7 +21,9 @@
 ; PARODIUS ROM ENTRY
 ;--------------------------------------
 PAR_ADR:	EQU	40A7H
+TRAP_MS:	EQU	402EH	;PARODIUS
 MAGICN:	EQU	04099H	;GAME ROM CHEK ID
+GAMESPA:	EQU	0F0F0H
 
 ; KONAMI MEGA-ROM BANK
 ;W_BANK:	EQU	0F0F1H
@@ -42,7 +44,7 @@ ORGADR:	EQU	0C000H
 ;--------------------------------------
 PAR_REF:
 	DB	0
-PAR_MUS:
+PLAYWK:	;BGM,SE,LINE(BGM,SE,EXIT)
 	DB	88H,01H,0
 ;ROMSLT:	DB	1
 ;CPUSAV:	DB	0
@@ -105,7 +107,7 @@ PARODIUS_:
 
 
 ;	IM	1
-	LD	SP,0F0F0H
+	LD	SP,GAMESPA
 
 	LD	A,(ROMSLT)
 	LD	H,40H
@@ -174,15 +176,8 @@ PLAY:	LD	HL,H_KEYI
 
 ;--------------------------------------
 PLAY_R:	DI
-	LD	A,7
-	OUT	(PSGIOA),A	;COMMON
-	LD	A,0BFH
-	OUT	(PSGIOW),A	;COMMON
-
-	LD	A,3FH
-	LD	(BANK2),A
 	XOR	A
-	LD	(SCCMIX),A
+	LD	(SCCR_CHENA),A
 
 	LD	DE,H_KEYI
 	LD	HL,SVPHOOK
@@ -204,6 +199,7 @@ PLAY_R:	DI
 	JP	Z,$-6
 	JP	RETURN
 
+;--------------------------------------
 PLAY_TRAP:
 	LD	A,4
 	LD	(BANK1),A
@@ -212,6 +208,15 @@ PLAY_TRAP:
 	INC	A
 	LD	(BANK3),A
 	JP	PLAY_TR
+
+;--------------------------------------
+SEL_SCC:
+	LD	A,3FH
+	LD	(BANK2),A
+	RET
+
+RET_SCC:
+	RET
 
 ;--------------------------------------
 	INCLUDE "KONAMI8K.ASM"	;*FILE*

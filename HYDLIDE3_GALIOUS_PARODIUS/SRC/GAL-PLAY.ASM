@@ -25,37 +25,48 @@ WAITCT:	DB	0	;WAIT CNT
 ;--------------------------------------
 ; ROUTINES
 ;--------------------------------------
+
+PLAY_END:
+	DI
+	; MUTE PSG
+	LD	BC,300H + PSGIOA
+	LD	A,0BFH
+	LD	E,7
+	OUT	(C),E		;R#7: MIX
+	OUT	(PSGIOW),A	;0BFH - MUTE ALL
+	XOR	A
+PLAY_END_PL:
+	INC	E
+	OUT	(C),E		;R#8-10: VOL
+	OUT	(PSGIOW),A	;0
+	DJNZ	PLAY_END_PL
+
+	JP	PLAY_R
+
+;--------------------------------------
 PLAY_SUB:
-	LD	A,2	;DEFAULT SE
-	LD	(GAL_MUS+2),A
+	DI
+
+	LD	A,2	;CURSOR:EXIT
+	LD	(PLAYWK+2),A
 
 	LD	A,(MUS_NO)	;CURRENT BGM
-	LD	(GAL_MUS+0),A
+	LD	(PLAYWK+0),A
 
 	XOR	A	;STOP BGM
 	CALL	SETMUSIC
 
-	LD	A,(GAL_MUS+0)
+	LD	A,(PLAYWK+0)
 	CALL	SETMUSIC
 
 	CALL	SETFONT
 
-	CALL	WR_MES_AT
-	DW	3800H
-	DB	'xvv/JUKE[BOX/vvvvvvvvvvvvvvvvvv~'	;*DM*
-	DB	'w//////////////////////////////w'	;*DM*
-	DB	'w/SOUND/v00v//////NOW/PLAYING//w'	;*DM*
-	DB	'w/////////////xvvvvvvvvvvvvvvv~w'	;*DM*
-	DB	'w/MUSIC/v00v//w///////////////ww'	;*DM*
-	DB	'w/////////////yvvvvvvvvvvvvvvv'	;*DM*
-	DB	127,'w'
-	DB	'w/EXIT/////////////////////////w'	;*DM*
-	DB	'yvvvvvvvvvvvvvvvHOME[/FADE[OUTv'	;*DM*
-	DB	127,'¡'
+	LD	HL,TITLE_STR
+	CALL	WR_MES
 
 ;--------------------------------------
 L_PLAY:
-	CALL	WR_PNO
+	CALL	WR_CUR
 	CALL	WR_PNUM
 	CALL	WR_TITL
 	XOR	A
@@ -93,10 +104,10 @@ P_JUMPT:
 	DW	P_DEL,P_INS,P_HOME,P_SPAC
 
 P_LCH:	POP	DE
-	LD	A,(GAL_MUS+2)
+	LD	A,(PLAYWK+2)
 	CP	2
 	JP	Z,L_PLAY
-	LD	HL,GAL_MUS+1
+	LD	HL,PLAYWK+1
 	PUSH	DE
 	OR	A
 	RET	Z
@@ -140,19 +151,19 @@ P_SUB2:	LD	A,(HL)
 	OR	128
 	JR	P_ADDE
 
-P_DOWN:	LD	A,(GAL_MUS+2)
+P_DOWN:	LD	A,(PLAYWK+2)
 	DEC	A
 	CP	255
 	JR	NZ,L_PUD
 	LD	A,2
 	JP	L_PUD
 
-P_UP:	LD	A,(GAL_MUS+2)
+P_UP:	LD	A,(PLAYWK+2)
 	INC	A
 	CP	3
 	JR	NZ,L_PUD
 	XOR	A
-L_PUD:	LD	(GAL_MUS+2),A
+L_PUD:	LD	(PLAYWK+2),A
 	JP	L_PLAY
 
 
@@ -162,9 +173,9 @@ P_HOME:	XOR	A
 	LD	(0E1C0H),A
 	JP	L_PLAY
 
-P_SPAC:	LD	A,(GAL_MUS+2)
+P_SPAC:	LD	A,(PLAYWK+2)
 	CP	2
-	JP	Z,PLAY_R
+	JP	Z,PLAY_END
 	CALL	P_LCH
 	LD	C,(HL)
 	JR	Z,J_PL3
@@ -202,7 +213,7 @@ WR_MES_:
 	JP	C,$+5	;TO SUB 15
 	SUB	7
 	SUB	15+32
-	OUT	(98H),A
+	OUT	(VDP),A
 	INC	HL
 	JP	WR_MES_
 J_PL4:	INC	HL
@@ -212,11 +223,11 @@ WR_PNUM:
 	DI
 	LD	HL,3849H
 	CALL	NSTWRT
-	LD	A,(GAL_MUS+1)
+	LD	A,(PLAYWK+1)
 	CALL	WR_PNU_
 	LD	HL,3889H
 	CALL	NSTWRT
-	LD	A,(GAL_MUS+0)
+	LD	A,(PLAYWK+0)
 	CALL	WR_PNU_
 	EI
 	RET
@@ -228,16 +239,16 @@ WR_PNU_:
 	RRA
 	AND	15
 	INC	A
-	OUT	(98H),A
+	OUT	(VDP),A
 	LD	A,B
 	AND	15
 	INC	A
-	OUT	(98H),A
+	OUT	(VDP),A
 	RET
 
-WR_PNO:	LD	HL,3841H
+WR_CUR:	LD	HL,3841H
 	LD	BC,300H
-L_PL5:	LD	A,(GAL_MUS+2)
+L_PL5:	LD	A,(PLAYWK+2)
 	CP	C
 	LD	A,0
 	LD	D,0
@@ -268,28 +279,19 @@ L_PL5:	LD	A,(GAL_MUS+2)
 
 ;--------------------------------------
 PLAY_TR:
-	DI
 	CALL	RDVDP
 	CALL	PMUSIC
-
-	LD	A,(0F0F1H)
-	LD	(BANK1),A
-	LD	A,(0F0F2H)
-	LD	(BANK2),A
-	CALL	RDVDP
 
 	LD	A,(WAITCT)
 	ADD	A,1
 	SBC	A,0	; 255 = STOP
 	LD	(WAITCT),A
-
-	EI
 	RET
 
 ;--------------------------------------
 SETFONT:
+	; SETFONT? -> DI-EI
 	CALL	SELFONTBANK	;BANK D,E,F
-	DI
 	LD	DE,9AD3H
 	LD	HL,2008H
 	CALL	SETFONT0
@@ -301,19 +303,19 @@ SETFONT:
 	LD	BC,0120H
 	CALL	BIGFIL
 	CALL	41B7H	;BANK A,B,C
-	DI
 	LD	IX,D_FDAT
-	CALL	SETFONT1
+	JP	SETFONT1
+;--------------------------------------
 D_FDAT:	
-	DB	4,VDP+1,63H,25H,63H,65H,0
-
+;	DB	7,99H,63H,25H,63H,65H,0	;6000H + 2000H*bank10
+	DB	4,99H,63H,25H,63H,65H,0
 ;--------------------------------------
 WR_TITL:
 	DI
 	LD	HL,388FH
 	CALL	NSTWRT
 	LD	D,0
-	LD	A,(GAL_MUS)
+	LD	A,(PLAYWK)
 	CP	0FBH
 	JP	C,J_WTIT1
 	SUB	0FBH-16H
