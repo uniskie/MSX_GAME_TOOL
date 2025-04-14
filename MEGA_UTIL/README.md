@@ -1,7 +1,8 @@
-﻿# HYDLIDE3_GALIOUS_PARODIUS_F1SPIRIT
- ハイドライド３、ガリウスの迷宮、パロディウス、F1-SPIRITに使うツール  
+﻿# HYDLIDE3 TOOL & KONAMI TOOL
+ ハイドライド３、ガリウスの迷宮、パロディウス、F1-SPIRIT  
+ 対応の状態セーブロードツール（MSX実機向け）
 
-DISK IMAGE -> [HYDLIDE3_GALIOUS_PARODIUS.dsk](HYDLIDE3_GALIOUS_PARODIUS.dsk)
+DISK IMAGE -> [MEGA-UTL.dsk](MEGA-UTL.dsk)
 
 ## 変更履歴  
 - 2025/04/13  
@@ -187,8 +188,11 @@ SDカード破壊の危険性が低くなります。
 ## ソースファイルについて  
 
 srcフォルダにマシン後プログラムのソースが入っています。  
-[TNIASM][TNIASM]を使用してpc上でクロスアセンブルしています。  
+tniASM v0.45を使用してWindows上でクロスアセンブルしています。  
 makeall.batで一括ビルド可能です。  
+
+[tniASM v0.45 (2 November 2011, final freeware Z80/R800/GBZ80 version)](http://www.tni.nl/products/tniasm045.zip)
+[tniASM - Macro Assembler home page](http://www.tni.nl/products/tniasm.html)
 
 #### HYDLIDE3.BAS用  
 - HYDLIDE3.ASM  
@@ -253,4 +257,3 @@ makeall.batで一括ビルド可能です。
 - TFROM.BIN  
 - TFROM.ASM  
 
-[TNIASM]: http://www.tni.nl/products/tniasm.html
