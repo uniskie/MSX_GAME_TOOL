@@ -1,239 +1,340 @@
-�� KONAMI�����c�[��  ������
+﻿# KONAMI向けツール  説明書
 
-F1SPIRIT.BAS
-PARODIUS.BAS
-GALIOUS.BAS
+F1SPIRIT.BAS  
+PARODIUS.BAS  
+GALIOUS.BAS  
 
-  MSX2/2+/turboR�Ή�
-  �v�FRAM64KB/VRAM128KB
-  MSX1/2/2+/turboR�Ή�
-  MSX-DOS1/MSX-DOS2�Ή�
+  MSX2/2+/turboR対応  
+  要RAM64KB/VRAM128KB  
+  MSX-DOS1/MSX-DOS2対応  
 
-  �� VRAM�ɏ�ԃZ�[�u���邽�߁AMSX2/VRAM128KB�ȏオ�K�v�ł��B
-  �� MSX1�ɂ͔�Ή��ł��B
+  ※ VRAMに状態セーブするため、MSX2/VRAM128KB以上が必要です。  
+  ※ MSX1には非対応です。  
 
-  �� ���p�̖ړI
+## 利用の目的
 
-     �V10�{�������Ă��X�e�[�g�Z�[�u���[�h�ł���悤�ɂ���c�[���ł��B
+  新10倍が無くてもステートセーブロードできるようにするツールです。
 
-     MegaRAM+SD��Carnivore2������΁ASofarun�𗘗p���āA
-     1�X���b�g�ł��V10�{�{�Q�[����2�{�������Č����s�ł���̂ŁA
-     ����炪����l�ɂ͕s�v�ł��B
+  MegaRAM+SDやCarnivore2があれば、Sofarunを利用して、  
+  1スロットでも新10倍＋ゲームの2本差しを再現実行できるので、  
+  それらがある人には不要です。  
 
-   ���y�d�v�z�V10�{�Ǝ���SD/SCSI���g���ꍇ�̒���
-     �y�f�B�X�N�j��̉\���z
+##【重要】新10倍と似非SD/SCSIを使う場合の注意
 
-    MSXDOS2�J�[�l�������ł�SD/SCSI�𗘗p����ꍇ�ł����A
-    MSXDOS2�����łł͂Ȃ��yNextor�z�𗘗p���Ă��������B
-    �łȂ��ƃf�B�X�N�A�N�Z�X����
-    �i�������݂łȂ��Ă��j�f�B�X�N��j�󂷂�댯������܂��B
-       
-    �Ⴆ��1ChipMSX�f�t�H���g�ł�Nextor�ł͂Ȃ�MSX-DOS2+����SD�œ��삷��̂ł����A
-    SD�J�[�h��ǂ݂ɍs�������ŁASD�J�[�h���󂵂Ă��܂��m���������ł��B
-    �����͉��x��SD�J�[�h�̒��g�����ėܖڂɂȂ�܂����B
+   【ディスク破壊の可能性】
 
-    OCM�i1ChipMSX�j�ɏ�����Ԃőg�ݍ��܂�Ă���SD�J�[�h�h���C�o�Ƃ̑����͓��Ɉ����l�q�ł��B
-    OCM�ł�Nextor���g���ƕ��C�Ȃ悤�ł��B
-    Nextor��IDE�h���C�o�͂�MegaSD�̂��̂��g�p�ł��܂��B
-    �iOCM��SDBIOS�@�\�𗘗p����Ȃǂ��ĕύX�\�ł��j
-    
-    1ChipMSX�ł͂Ȃ��AMegaSD�J�[�g���b�W�̏ꍇ��
-    ���ʁANextor���v���C���X�g�[������Ă���̂ŁA
-    �����炭���̂܂܎g���đ��v���Ǝv���܂��B
-        
-    �� ���ɂ��V10�{�Ƒ����̈����g�ݍ��킹�����邩������܂���B
-    
-    �S�z�ȏꍇ�́A�V10�{�ł͂Ȃ������PARODIUS.BAS��GARIUS.BAS���g���Ă���������΁A
-    �f�B�X�N�j��̊댯�������Ȃ��Ȃ邩�Ǝv���܂��B
+  MSXDOS2カーネル改造版のSD/SCSIを利用する場合ですが、  
+  MSXDOS2改造版ではなく【Nextor】を利用してください。  
+  でないとディスクアクセス時に  
+  （書き込みでなくても）ディスクを破壊する危険があります。  
 
-   �� MSX1��Ή�
+  例えば1ChipMSXデフォルトではNextorではなくMSX-DOS2+似非SDで動作するのですが、  
+  SDカードを読みに行くだけで、SDカードを壊してしまう確率が高いです。  
+  自分は何度もSDカードの中身が壊れて涙目になりました。  
 
-     �������MSX1�ł͓����܂���B
+  OCM（1ChipMSX）に初期状態で組み込まれているSDカードドライバとの相性は特に悪い様子です。  
+  OCMでもNextorを使うと平気なようです。  
+  NextorのIDEドライバははMegaSDのものが使用できます。  
+  （OCMのSDBIOS機能を利用するなどして変更可能です）  
 
-     �����X�e�[�g�Z�[�u���J�b�g���āA�C�ӃX�e�[�g�Z�[�u�݂̂ɂ���΁A
-     MSX1�ɂ��Ή��ł��܂����A
-     VRAM�ł͂Ȃ���RAM�ɃX�e�[�g�f�[�^���u����邽��
-     �Z�[�u���[�h���[�`�����}�V����ŏ����Ȃ��Ă͂����Ȃ��Ȃ�܂��B
-     ���̂��߁AMSX1�Ή��ɂ͎��t���Ă��܂���B
-       
-     ���̂������Ԃ��Ƃ��΁A�Ή��������Ƃ͎v���܂����A
-     SofaRun�̐V10�{�����}���Č��@�\���g���΂����̂ŁA
-     MSX1�Ή��͗v��Ȃ����ȁH�Ƃ��v���܂��B
+  1ChipMSXではなく、MegaSDカートリッジの場合は  
+  普通、Nextorがプリインストールされているので、  
+  おそらくそのまま使って大丈夫だと思います。  
 
-     �i�t�@�C���ւ̃Z�[�u���[�h���ȒP�ɍs������
-     VRAM�ɃX�e�[�g�Z�[�u����\���ɂȂ��Ă��܂��j
+  ※ 他にも新10倍と相性の悪い組み合わせがあるかもしれません。
 
-�� ������@
+  心配な場合は、新10倍ではなこちらのPARODIUS.BASやGARIUS.BASを使っていただければ、  
+  ディスク破壊の危険性が少なくなるかと思います。  
 
-  ���g���|�[�Y��[ESC]�L�[�ł��B�iSTOP�L�[�ł͐V10�{�Ƃ��Ԃ邽�߁j
+## MSX1非対応について
 
-  ���Q�[�����Ɋg���|�[�Y����N�C�b�N�Z�[�u���[�h���\�ł��B
+   こちらはMSX1では動きません。
 
-    1chipMSX/MegaSD�n�ł́A�V10�{�́u�ۂ��ƕۑ��v�����܂����삵�Ȃ��P�[�X��
-    ����ׁA������𗘗p����Ɨǂ���������܂���B
+   自動ステートセーブをカットして、任意ステートセーブのみにすれば、  
+   MSX1にも対応できますが、  
+   VRAMではなく裏RAMにステートデータが置かれるため  
+   セーブロードルーチンもマシン語で書かなくてはいけなくなります。  
+   そのため、MSX1対応には手を付けていません。  
 
-  �i�V10�{�Ńf�B�X�N�A�N�Z�X�����SD�J�[�h�̓��e���j�󂳂�鎖������j
+   そのうち時間がとれれば、対応したいとは思いますが、  
+   SofaRunの新10倍同時挿し再現機能を使えばいいので、  
+   MSX1対応は要らないかな？とも思います。  
 
-  ���g���|�[�Y����[P]�Ń~���[�W�b�N���[�h�����s�ł��܂��B
+   （ファイルへのセーブロードを簡単に行うため  
+   VRAMにステートセーブする構造になっています）  
 
-  �� BASIC�ɖ߂�Ɩ߂钼�O�̏�Ԃ�[S]�t�@�C���ɃZ�[�u�o���܂��B
+## 操作方法
 
-  �� BASIC����[L]�ŏ�ԃf�[�^���t�@�C������ǂݍ��񂾏ꍇ�A
-     �N�C�b�N�Z�[�u�G���A�ɓǂݍ��ނ����Ȃ̂ŁA
-     �Q�[���J�n��Ɋg���|�[�Y����[L]�ŃN�C�b�N���[�h����K�v������܂��B
-    �i���N�����_�ł͑O��I�����̏�Ԃ���ĊJ���A�V�K�Q�[���ɂȂ�܂��j
+  - 拡張ポーズは[ESC]キーです。  
+    （STOPキーでは新10倍とかぶるため）  
 
-  ���K���E�X�̂݁A�g���|�[�Y����[C]�ŋ����񕜂ł��܂��B
+  - ゲーム中に拡張ポーズからクイックセーブロードが可能です。
 
-  ��������
+  1chipMSX/MegaSD系では、新10倍の「丸ごと保存」がうまく動作しないケースが  
+  ある為、こちらを利用すると良いかもしれません。  
 
-    ��ROM�̃o�[�W�����ɂ���Ă͑Ή����Ă��Ȃ��ꍇ������܂�
+  （新10倍でディスクアクセスするとSDカードの内容が破壊される事がある）
 
-    �� ��ԃ��[�h���́A�f�[�^�����킩�ǂ����`�F�b�N���Ă��Ȃ��ׁA
-        ��ԃZ�[�u���Ă��Ȃ���Ԃŏ�ԃ��[�h����Ɩ\�����܂��B
+-  拡張ポーズ中に[P]でミュージックモードが実行できます。
 
-    �� �V10�{�J�[�g���b�W�Ƃ̕��p�͕ۏ؊O�ł��B
+-  BASICに戻ると戻る直前の状態を[S]ファイルにセーブ出来ます。
 
-  ����ԃZ�[�u�̎��
+-  BASICから[L]で状態データをファイルから読み込んだ場合、  
+   クイックセーブエリアに読み込むだけなので、  
+   ゲーム開始後に拡張ポーズから[L]でクイックロードする必要があります。  
+  （※起動時点では前回終了時の状態から再開か、新規ゲームになります）  
 
-    ��ԃZ�[�u�ɂ�2��ނ���܂��B
+- （ガリウス）拡張ポーズ中に[C]で強制回復できます。
 
-    (1) ... �Q�[������[S]�ŕۑ�������[L]�œǂݍ��ރ��[�U�[�N�C�b�N�Z�[�u
-    (2) ... �Q�[������BASIC�ɖ߂������ɕۑ������V�X�e��������ԃZ�[�u
+- （パロディウス）拡張ポーズ中に[C]でパワーアップできます。
 
-    (2)������ƍĊJ���ɂ������玩���ĊJ���܂��B
+## 諸注意
 
-    BASIC��ʂŃZ�[�u/���[�h����̂�(1)�̃��[�U�[�N�C�b�N�Z�[�u�f�[�^�ł��B
+  - ROMのバージョンによっては対応していない場合があります
 
-  ���g���|�[�Y
+  - 状態ロード時は、データが正常かどうかチェックしていない為、  
+    状態セーブしていない状態で状態ロードすると暴走します。  
 
-    [STOP]        : �g���|�[�Y���g���|�[�Y����
+  - 新10倍カートリッジとの併用は保証外です。
 
-    �g���|�[�Y��:
+## 状態セーブの種類
 
-    [S]           : �N�C�b�N�Z�[�u(QS1)
-    [L]           : �N�C�b�N���[�h(QS1)
+  状態セーブには2種類あります。
 
-    [P]           : �~���[�W�b�N���[�h
+  1. ゲーム中に[S]で保存したり[L]で読み込むユーザークイックセーブ  
+  2. ゲームからBASICに戻った時に保存されるシステム自動状態セーブ  
 
-    [C]           : ���C�t���e�񕜁i�K���E�X�̖��{�j
-                    �p���[�A�b�v�i�p���f�B�E�X�j
+  2があると再開時にそこから自動再開します。
 
-    [CTRL]+[@]    : BASIC�֖߂�
-                    �I���������ۑ�(QS2)���s��
-    [CTRL]+[L]    : �O��̏I���������ۑ�(QS2)��ǂݍ���
-    [CTRL]+[S]    : �N�C�b�N�Z�[�u(QS1)�������ۑ�(QS2)��BASIC���A
+  BASIC画面でセーブ/ロードするのは(1)のユーザークイックセーブデータです。
 
-    [CTRL]+[STOP] :�Q�[�����Z�b�g
+## 拡張ポーズ
 
+### ゲーム中：
 
-�� �i���������j�R�i�~�n��ėp��������
+  [STOP]    : 拡張ポーズ＆拡張ポーズ解除
 
-  �R�i�~MSX1�p�Q�[���n�͊�{�I�ɁA
-  �E�Q�[���̊J�n�����A�h���X
-  �E�Q�[���̊��荞�ݏ����A�h���X
-  ���Ⴄ�����ŁA���͗��p�ł���\��������܂��B
-  �i���X�A�V10�{�J�[�g���b�W�p�ɐF�X�ƊǗ����H�v���Ă��邽�߁j
+###   拡張ポーズ中:
 
-  �����炵������
-  �ERAM��E000H����g�p�iC000H-DFFFH�͖��g�p�j
-  �EMSX1�p�̃Q�[����MSX2�Ŏ��s����ꍇ�AVRAM 4000H�ȍ~�͖��g�p
-  �EBANK�ԍ��̃��[�N�����ʁH�i�����炭�j
+  [S]       : クイックセーブ(QS1)  
+  [L]       : クイックロード(QS1)  
 
-  ���������H�v����Δėp�ɂ��ł��邩������܂���B
-  �i�C���^�[�l�b�g����������Ί��ɂ��肻���ȋC�����܂��j
+  [P]       : ミュージックモード
+
+  [C]       : ライフ＆弾回復（ガリウスの迷宮）  
+          パワーアップ（パロディウス）  
+
+  [CTRL]+[@]  : BASICへ戻る  
+          終了時自動保存(QS2)も行う  
+  [CTRL]+[L]  : 前回の終了時自動保存(QS2)を読み込む  
+  [CTRL]+[S]  : クイックセーブ(QS1)＆自動保存(QS2)＆BASIC復帰  
+
+  [CTRL]+[STOP] :ゲームリセット
 
 
-  �T�E���h�������́A�ꕔ���[�N�G���A�͔z�u���߂����̂́A
-  ���������A�h���X�͈قȂ�悤�ł��B
+# （検討事項）コナミ系を汎用化したい
 
-  �āj
-    �������s����H.KEYI�t�b�N�̏���������h�����߂ɁA
-    �Q�[���v���O�������̃t�b�N���������̌ォ����s�B
+  コナミMSX1用ゲーム系は基本的に、  
+  ・ゲームの開始処理アドレス  
+  ・ゲームの割り込み処理アドレス  
+  が違うだけで、他は流用できる可能性があります。  
+  （元々、新10倍カートリッジ用に色々と管理を工夫してあるため）  
 
-    ������INIT($4002,2bytes)�ɏ����ꂽ�A�h���X����A
-    LD  HL,XXXXH        ;21 XX XX
-    LD  (H_KEYI+1),HL   ;22 9B FD
-    LD  SP,XXXXH        ;31 XX XX
+## 仕様案
 
-    ���������A
+  - コナミのゲームはRAM8K対応が多い。その場合、  
+    RAMはE000Hから使用（C000H-DFFFHは未使用）  
+  - MSX1用のゲームをMSX2で実行する場合、VRAM 4000H以降は未使用  
+  - BANK番号のワーク(`F0F1H`)が共通？（おそらく）  
 
-    1) LD  SP,XXXXH ;31 XX XX
-       ����Q�[���̃X�^�b�N�|�C���^���擾�B
-    
-    2) LD  (H_KEYI+1),HL�̎�O��
-       LD  HL,XXXX ;21 XX XX
-       ����Q�[�����̊��荞�ݏ����A�h���X���擾�B
-       ���O�̊��荞�ݏ����̌�ɌĂяo���悤�ɂ���B
-  
-    2) �Q�[�����s���́A
-       DI
-       IM 1
-       �؁[�W1(4000H)�ƃy�[�W2(8000H)�̃X���b�g���Q�[���̃X���b�g�ɐ؂�ւ�
-       �X�^�b�N�|�C���^���Q�[���̃X�^�b�N�|�C���^�A�h���X�ɐݒ�
-       HL�Ɏ����̊��荞�ݏ����A�h���X������LD  (H_KEYI+1),HL�փW�����v
-       �������́A������H_KEYI��ݒ肵�āALD  (H_KEYI+1),HL�̎��̃A�h���X�փW�����v�B
-
-    �R�i�~8K�o���N���ǂ����Ȃǂ́A
-    �o���N�؂�ւ��������������Ē��ׂ�B
-
-    �p�o��F
-    LD (5000H),A  ;32 00 50 ;BANK0 �ؑ�
-    LD (7000H),A  ;32 00 70 ;BANK1 �ؑ�
-    LD (9000H),A  ;32 00 90 ;BANK2 �ؑ�
-    LD (A000H),A  ;32 00 A0 ;BANK3 �ؑ�
-
-    �󏭗�F
-    LD (4000H),A  ;32 00 40 ;BANK0 �ؑ�
-    LD (6000H),A  ;32 00 60 ;BANK1 �ؑ�
-    LD (8000H),A  ;32 00 80 ;BANK2 �ؑ�
-    LD (B000H),A  ;32 00 B0 ;BANK3 �ؑ�
-
-   �i�� ���ۂ�BANK0��؂�ւ��Ă���P�[�X�͌������Ƃ������̂�
-        BANK0�؂�ւ������Ă���\�t�g�͑��݂��Ȃ���������Ȃ��B�j
-
-  �R�i�~8k�o���N/SCC���K�����̏ꍇ
-	�i�v�̖��p�t�������j
-    $4000 (2): 'AB'
-    40002 (2): �N�����̃W�����v�A�h���X
-    $4010 (2): ������'CD'��'EF'(SHALOM)
-    $4012 (2): BCD�`���ł̌^�� (RC749 �K���E�X�̖��{�Ȃ� 07 49)
-
-  ���K�����ł͂Ȃ��ꍇ
-    ���G����
+  もう少し工夫すれば汎用にもできるかもしれません。  
+  （インターネットを検索すれば既にありそうな気もします）  
 
 
-  ��j�K���E�X�̖��{
-    ;4002   95 40     DW   4095H
-    ;
-    ;4095   F3        DI
-    ;4096   ED 56     IM   1
-    ;4098   CD D3 40  CALL 40D3H     ;GET PAGE1 SLOT No.
-    ;409B   26 80     LD   H,80H
-    ;409D   CD 24 00  CALL 0024H
-    ;40A0   3E C3     LD   A,0C3H
-    ;40A2   32 9A FD  LD   (H_KEYI),A
-    ;40A5   21 EF 40  LD   HL,40EFH	;�� �����������������
-    ;40A8   22 9B FD  LD   (H_KEYI+1),HL
-    ;40AB   
+  サウンド制御周りは、一部ワークエリアは配置が近いものの、  
+  内部処理アドレスは異なるようです。  
 
-    ���荞�ݏ���:40EFH
-    �Q�[���J�n  :40ABH �iDI�AH.KEYI���荞�݃t�b�N�ݒ�A�y�[�W2�̃X���b�g�؂�ւ��j
+## 処理案
 
-  ��j�O���f�B�E�X2
-    ;4002   90 40     DW   4090H
-    ;
-    ;4090   F3        DI
-    ;4091   ED 56     IM   1
-    ;4093   3E C3     LD   A,0C3H
-    ;4095   32 9A FD  LD   (H_KEYI),A
-    ;4098   21 EF 40  LD   HL,4023H	;�� �����������������
-    ;409B   22 9B FD  LD   (H_KEYI+1),HL
-    ;409E   
+  ツール側のH.KEYIフックを上書きされないために  
+  ゲームプログラム側のフック書き換えの次の命令から  
+  ゲームプログラムを実行します。
 
-    ���荞�ݏ���:4023H
-    �Q�[���J�n  :409EH �iDI�AH.KEYI���荞�݃t�b�N�ݒ�j
+  検査のためのコード検索は、  
+  ロムのINIT($4002,2bytes)に書かれたアドレスから検索すると効率が良いかもしれません。
+
+### 手順
+
+  1. `LD  SP,XXXXH        ;31 XX XX  `  
+     を検索してゲームのスタックポインタXXXXHを取得。
+
+  2. `LD  HL,XXXXH        ;21 XX XX  `  
+     `LD  (H_KEYI+1),HL   ;22 9B FD  `  
+     を検索してゲーム中の割り込み処理アドレスXXXXHを取得。  
+     **自前の割り込み処理の後**に呼び出すようにする。  
+
+  3. ゲーム実行時は、  
+     1. `DI`  
+     2. `IM 1`  
+     3. ぺージ1(4000H)とページ2(8000H)のスロットをゲームのスロットに切り替え  
+     4. スタックポインタをゲームのスタックポインタアドレスに設定  
+     5. HLに自分の割り込み処理アドレスを入れて`LD  (H_KEYI+1),HL`へジャンプ  
+        もしくは、  
+        自分でH_KEYIを設定して、`LD  (H_KEYI+1),HL`の次のアドレスへジャンプ。  
+
+  > 例）ガリウスの迷宮  
+  > ```  
+  > 4002:   95 40   DW   4095H  
+  >     :  
+  > 4095:   F3    DI  
+  > 4096:   ED 56   IM   1  
+  > 4098:   CD D3 40  CALL 40D3H   ;GET PAGE1 SLOT No.  
+  > 409B:   26 80   LD   H,80H  
+  > 409D:   CD 24 00  CALL 0024H  
+  > 40A0:   3E C3   LD   A,0C3H  
+  > 40A2:   32 9A FD  LD   (H_KEYI),A  
+  > 40A5:   21 EF 40  LD   HL,40EFH  ;→ これを書き換えたい  
+  > 40A8:   22 9B FD  LD   (H_KEYI+1),HL  
+  > 40AB:  
+  > ```  
+  > - 割り込み処理: 40EFH  
+  > - ゲーム開始  : 40ABH （DI、H.KEYI割り込みフック設定、ページ2のスロット切り替え）  
+
+  > 例）グラディウス2  
+  > ```  
+  > 4002:   90 40   DW   4090H  
+  >     :  
+  > 4090:   F3    DI  
+  > 4091:   ED 56   IM   1  
+  > 4093:   3E C3   LD   A,0C3H  
+  > 4095:   32 9A FD  LD   (H_KEYI),A  
+  > 4098:   21 EF 40  LD   HL,4023H  ;→ これを書き換えたい  
+  > 409B:   22 9B FD  LD   (H_KEYI+1),HL  
+  > 409E:  
+  > ```  
+  > - 割り込み処理: `4023H  `  
+  > - ゲーム開始  : `409EH` （DI、H.KEYI割り込みフック設定）
 
 
-  �� �V10�{�̏�������͂��Đ^����������ƃX�}�[�g�ɏo����C�����܂����A
-     �Â��\�t�g�����o������@�����G�����ł����B
+  ※ 新10倍の処理を解析して真似たらもっとスマートに出来る気もしますが、  
+   古いソフトを検出する方法が複雑そうでした。  
+
+## コナミ8Kバンク検査
+
+   1) 型番リストを作って`4010h`～`4013h`の値を調べる  
+   （牌の魔術師には使えない）  
+   2) バンク切り替え処理を検索して調べる。  
+
+  > 頻出例：  
+  > ```  
+  > LD (5000H),A  ;32 00 50 ;BANK0 切替  
+  > LD (7000H),A  ;32 00 70 ;BANK1 切替  
+  > LD (9000H),A  ;32 00 90 ;BANK2 切替  
+  > LD (A000H),A  ;32 00 A0 ;BANK3 切替  
+  > ```
+
+  > [!NOTE]  
+  >  
+  > ※ 実際にBANK0を切り替えているケースは見たことが無いので  
+  >   BANK0切り替えをしているソフトは存在しないかもしれません。
+
+## コナミ8kバンク/SCCメガロムの識別案
+
+  $4010からの型番埋め込みは後期から？
+
+  - 非メガロムは基本的に型番埋め込みナシ  
+  - メガロムでも牌の魔術師はナシ
+
+  MEGAロム以外で型番が埋め込まれている物：  
+  - グーニーズ         ('CD',07H,34H)  
+  - 魔城伝説           ('CD',07H,39H)  
+  - Qバート            ('CD',07H,46H)
+
+
+  調べたのは手持ちのカートリッジだけなので、  
+  他にも、メガロムでも型番が埋め込まれていない物や  
+  非メガロムでも型番が埋め込まれている物はありそうです。  
+
+  ```  
+  $4000 (2): 'AB'  
+  40002 (2): 起動時のジャンプアドレス  
+  $4010 (2): 'AB' ... イーガー皇帝の逆襲  
+             'EF' ... SHALOM、激ペナ  
+             'CD' ... それ以外  
+  $4012 (2): BCD形式での型番 (RC749 ガリウスの迷宮なら 07 49)  
+  ```  
+
+
+## SCCかどうかの検査案
+
+  1) 型番リストを作って4010h-4013hの値を調べる  
+  2) SCCバンク切り替えコードの存在を検索する  
+     ```  
+     LD   A,3Fh      ;3E 3F  
+     LD   (9000h),A  ;32 00 90  
+     ```
+
+### 参考
+
+新10倍カートリッジ対応表  
+https://www.msx.org/wiki/Konami_Game_Master_2  
+
+| Product | Title | Eng  
+| --- | --- | ---  
+| RC 700 | わんぱくアスレチック           | Athletic Land                           |
+| RC 701 | けっきょく南極大冒険           | Antarctic Adventure                     |
+| RC 702 | モン太君のいち・に・さんすう   | Monkey Academy                          |
+| RC 703 | タイムパイロット               | Time Pilot                              |
+| RC 704 | フロッガー                     | Frogger                                 |
+| RC 705 | スーパーコブラ                 | Super Cobra                             |
+| RC 706 | コナミのビリヤード             | Konami’s Billiards (Video Hustler)     |
+| RC 707 | コナミの麻雀道場               | Konami’s Mahjong                       |
+| RC 710 | ハイパーオリンピック1          | Hyper Olympic 1 (Track & Field 1)       |
+| RC 711 | ハイパーオリンピック2          | Hyper Olympic 2 (Track & Field 2)       |
+| RC 712 | サーカスチャーリー             | Circus Charlie                          |
+| RC 713 | マジカルツリー                 | Magical Tree                            |
+| RC 714 | I love 社会 ぽんぽこパン       | Comic Bakery                            |
+| RC 715 | ハイパースポーツ1              | Hyper Sports 1                          |
+| RC 716 | キャベッジパッチキッズ         | Cabbage Patch Kids                      |
+| RC 717 | ハイパースポーツ2              | Hyper Sports 2                          |
+| RC 718 | ハイパーラリー                 | Hyper Rally                             |
+| RC 720 | コナミのテニス                 | Konami’s Tennis                        |
+| RC 721 | スカイジャガー                 | Sky Jaguar                              |
+| RC 724 | コナミのベースボール           | Konami’s Baseball                      |
+| RC 725 | イーアルカンフー               | Yie Ar Kung Fu                          |
+| RC 727 | 王家の谷                       | King’s Valley                          |
+| RC 728 | モピレンジャー                 | Mopi Ranger                             |
+| RC 729 | ピポルス                       | Pippols                                 |
+| RC 730 | ロードファイター               | Road Fighter                            |
+| RC 731 | コナミのピンポン               | Konami’s Ping Pong                     |
+| RC 732 | コナミのサッカー               | Konami’s Soccer (Konami’s Football)   |
+| RC 733 | ハイパースポーツ3              | Hyper Sports 3                          |
+| RC 734 | グーニーズ                     | The Goonies                             |
+| RC 736 | コナミのボクシング             | Konami’s Boxing                        |
+| RC 737 | イーガー皇帝の逆襲             | Yie Ar Kung Fu 2                        |
+| RC 739 | 魔城伝説                       | Knightmare                              |
+| RC 740 | ツインビー                     | Twin Bee                                |
+| RC 742 | グラディウス                   | Gradius (Nemesis)                       |
+| RC 743 | 夢大陸アドベンチャー           | Penguin Adventure                       |
+| RC 744 | 悪魔城ドラキュラ               | Vampire Killer                          |
+| RC 745 | キングコング2                  | King Kong 2                             |
+| RC 746 | Qバート                        | Q-Bert                                  |
+| RC 747 | 火の鳥 鳳凰編                  | Hinotori (Firebird)                     |
+| RC 748 | がんばれゴエモン!からくり道中  | Ganbare Goemon                          |
+| RC 749 | 魔城伝説Ⅱガリウスの迷宮       | The Maze of Galious                     |
+| RC 750 | メタルギア                     | Metal Gear                              |
+| RC 751 | グラディウス2                  | Gradius 2 (Nemesis 2)                   |
+| RC 752 | F-1スピリット                  | F-1 Spirit                              |
+| RC 753 | ウシャス                       | The Treasure of Usas                    |
+| RC 754 | シャロム 魔城伝説III 完結編    | Shalom                                  |
+| RC 757 | THEプロ野球 激突ペナントレース | Clash Pennant Race 1                    |
+| RC 758 | 沙羅曼蛇                       | Salamander                              |
+| RC 759 | パロディウス                   | Parodius                                |
+| RC 760 | エルギーザの封印 (MSX1)        | King’s Valley 2 (MSX1)                 |
+| RC 761 | エルギーザの封印 (MSX2)        | King’s Valley 2 (MSX2)                 |
+| RC 762 | 魂斗羅                         | Contra                                  |
+| RC 764 | ゴーファーの野望EPISODEII      | Gofer's Ambition Episode II (Nemesis 3) |
+| RC 765 | 牌の魔術師                     | Hai no Majutsushi                       |
+| RC 766 | 激突ペナントレース2            | Clash Pennant Race 2                    |
+| RC 767 | ソリッドスネークメタルギア2    | Metal Gear 2                            |
+| RC 768 | スペースマンボウ               | Space Manbow                            |

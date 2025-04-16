@@ -102,7 +102,7 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 ### HYDLIDE3.BAS  
 
 ここでは概要のみ。  
-詳細は [README_HYDLIDE3.TXT](./README_HYDLIDE3.TXT) 参照。  
+詳細は [README_HYDLIDE3.MD](./README_HYDLIDE3.MD) 参照。  
 
 - MSX1版/MSX2版両対応  
 - MSX1/2/2+/turboR対応  
@@ -136,7 +136,7 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 ### PARODIUS.BAS & F1SPIRIT.BAS & GALIOUS.BAS  
 
 ここでは概要のみ。  
-詳細は [README_KONAMI.TXT](./README_KONAMI.TXT) 参照。  
+詳細は [README_KONAMI.MD](./README_KONAMI.MD) 参照。  
 
 - MSX2/2+/turboR対応  
 - 要：RAM64KB/VRAM128KB  
