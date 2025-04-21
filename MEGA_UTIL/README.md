@@ -27,17 +27,19 @@ DISK IMAGE -> [MEGA-UTL.dsk](MEGA-UTL.dsk)
 以下のゲームの状態保存・復帰などを出来るようにするツールです。  
 
 - HYDLIDE3.BAS  
-...「ハイドライドⅢ」補助ツール  
+  ...「ハイドライドⅢ」補助ツール  
 
 - PARODIUS.BAS  
-...「パロディウス」補助ツール  
+  ...「パロディウス」補助ツール  
 
 - F1SPIRIT.BAS  
-...「F1-SPIRIT」補助ツール  
+  ...「F1-SPIRIT」補助ツール  
 
 - GALIOUS.BAS  
-...「ガリウスの迷宮」補助ツール  
+  ...「ガリウスの迷宮」補助ツール  
 
+- KONAMI.BAS  
+  ...コナミ後期MSX1ソフト汎用クイックセーブロードツール  
 
 処理乗っ取り系のツールなので、  
 ROMカートリッジを挿さずに電源にBASICを起動し、  
@@ -102,7 +104,7 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 ### HYDLIDE3.BAS  
 
 ここでは概要のみ。  
-詳細は [README_HYDLIDE3.MD](./README_HYDLIDE3.MD) 参照。  
+詳細は [README_HYDLIDE3.TXT](./README_HYDLIDE3.TXT) 参照。  
 
 - MSX1版/MSX2版両対応  
 - MSX1/2/2+/turboR対応  
@@ -133,10 +135,10 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 
 ※ SAVEした改造データはLOADで反映・PACにも保存
 
-### PARODIUS.BAS & F1SPIRIT.BAS & GALIOUS.BAS  
+### PARODIUS.BAS / F1SPIRIT.BAS / GALIOUS.BAS / KONAMI.BAS  
 
 ここでは概要のみ。  
-詳細は [README_KONAMI.MD](./README_KONAMI.MD) 参照。  
+詳細は [README_KONAMI.TXT](./README_KONAMI.TXT) 参照。  
 
 - MSX2/2+/turboR対応  
 - 要：RAM64KB/VRAM128KB  
@@ -156,7 +158,6 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 
 ---  
 ## ■【重要】新10倍と似非SD/SCSIを使う場合の注意 【ディスク破壊の可能性】  
-
 
 MSX-DOS2カーネルを改造したSD/SCSI環境（1ChipMSXや似非SCSI環境）についての注意です。  
 
@@ -191,47 +192,61 @@ srcフォルダにマシン後プログラムのソースが入っています�
 tniASM v0.45を使用してWindows上でクロスアセンブルしています。  
 makeall.batで一括ビルド可能です。  
 
-[tniASM v0.45 (2 November 2011, final freeware Z80/R800/GBZ80 version)](http://www.tni.nl/products/tniasm045.zip)
 [tniASM - Macro Assembler home page](http://www.tni.nl/products/tniasm.html)
+
+[tniASM v0.45 (2 November 2011, final freeware Z80/R800/GBZ80 version)](http://www.tni.nl/products/tniasm045.zip)
+
+#### 共用  
+- EX-BIOS.ASM  
+- CHGSLT.ASM  
+- BIOS-DEF.ASM  
 
 #### HYDLIDE3.BAS用  
 - HYDLIDE3.ASM  
 - HYD3-EXP.ASM  
 
-#### 共用  
-- EX-BIOS.ASM  
+#### KONAMI系共用  
+- KONAMI8K.ASM  
 
 #### GALIOUS.BAS用  
-- GALIOUS.ASM  
-- GAL-EXPS.ASM  
-- GAL-TITL.ASM  
+- GALIOUS.ASM  ... 起動処理  
+- GAL-EXPS.ASM ... 拡張ポーズ・クイックセーブロード処理  
+- GAL-PLAY.ASM ... JUKE-BOX処理  
+- GAL-TITL.ASM ... 曲名リスト  
 
 #### F1SPIRIT.BAS用  
-- F1SPIRIT.ASM  
-- F1SP-EXP.ASM  
-- F1SPPLAY.ASM  
-- F1SPTITL.ASM  
+- F1SPIRIT.ASM ... 起動処理  
+- F1SP-EXP.ASM ... 拡張ポーズ・クイックセーブロード処理  
+- F1SPPLAY.ASM ... JUKE-BOX処理  
+- F1SPTITL.ASM ... 曲名リスト  
 
 #### PARODIUS.BAS用  
-- PARODIUS.ASM  
-- PARO-EXP.ASM  
-- PAROPLAY.ASM  
-- PAROTITL.ASM  
+- PARODIUS.ASM ... 起動処理  
+- PARO-EXP.ASM ... 拡張ポーズ・クイックセーブロード処理  
+- PAROPLAY.ASM ... JUKE-BOX処理  
+- PAROTITL.ASM ... 曲名リスト  
+
+#### KONAMI.BAS用  
+- KONAMI.ASM   ... 起動処理  
+- KONA-EXP.ASM ... 拡張ポーズ・クイックセーブロード処理  
+- KONASRCH.ASM ... 汎用対応向け処理  
+- KONALIST.ASM ... コナミゲームID、タイトル名リスト  
 
 ## おまけ  
 
 #### 共用  
-- BIOS-DEF.ASM ... BIOS系シンボル定義（使用しているもののみ）
-- EX-BIOS.ASM ... 共用している処理まとめ
+- BIOS-DEF.ASM ... BIOS系シンボル定義（使用しているもののみ）  
+- EX-BIOS.ASM ... 共用している処理まとめ  
+- CHGSLT.ASM  ... スロット処理まとめ  
 - KJ-VDP.ASM  ... screen5/7へ漢字表示  
 - MOJI-24.ASM ... screen2/4へ文字表示  
-- KONAMI8K.ASM ... KONAMI 8Kバンク/SCC向け定義
-- BIOS-DEF.ASM ... BIOS関連のエントリやワークエリア定義
+- KONAMI8K.ASM ... KONAMI 8Kバンク/SCC/コナミゲームID取得  
+- BIOS-DEF.ASM ... BIOS関連のエントリやワークエリア定義  
 
 #### ガリウスの迷宮ミュージックボックス  
 - GAL-MUS.BAS  
 - GAL-MUS.BIN  
-- GAL-MUS.OBJ (同梱無し)
+- GAL-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
   ... ROMバンク$00,$0D,$0Eをつなげたファイル  
 - GAL-MUS.ASM  
 - GMUS-SUB.ASM  
@@ -240,14 +255,14 @@ makeall.batで一括ビルド可能です。
 #### F1-SPIRITミュージックボックス  
 - F1SP-MUS.BAS  
 - F1SP-MUS.BIN  
-- F1SP-MUS.OBJ (同梱無し)
+- F1SP-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
   ... ROMバンク$0D,$0E,$0Fをつなげたファイル  
 - F1SP-MUS.ASM  
 
 #### パロディウスミュージックボックス  
 - PARO-MUS.BAS  
 - PARO-MUS.BIN  
-- PARO-MUS.OBJ (同梱無し)
+- PARO-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
   ... ROMバンク$00,$04,$05,$06,$0Aをつなげたファイル  
 - PARO-MUS.ASM  
 

@@ -15,7 +15,7 @@ AILZ80ASM "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" -equ "%~n1.E
 @GOTO :CHECK
 
 :SETBIN
-AILZ80ASM "%1" -f -bin "%2" -sm minimal-equ -sym "%TEMP_SYM%" -lst "%~n1.LST" -err "%~n1.ERR" -gap 0
+AILZ80ASM "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" -lst "%~n1.LST" -err "%~n1.ERR" -gap 0
 @GOTO :CHECK
 
 :SIMPLE

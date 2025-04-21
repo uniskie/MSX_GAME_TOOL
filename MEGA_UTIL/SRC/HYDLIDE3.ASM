@@ -105,11 +105,11 @@ RAM2SLT:	EQU	CALLHYD3+1
 
 INISLW:
 ; (copy value from disk workarea)
-	LD	A,(RAMPG0)
+	LD	A,(RAMAD0)
 	LD	(RAM0SLT),A
-	LD	A,(RAMPG1)
+	LD	A,(RAMAD1)
 	LD	(RAM1SLT),A
-	LD	A,(RAMPG2)
+	LD	A,(RAMAD2)
 	LD	(RAM2SLT),A
 	RET
 

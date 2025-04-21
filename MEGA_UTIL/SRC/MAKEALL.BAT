@@ -2,6 +2,7 @@
 ECHO *****************************************************
 ECHO * Assemble tools for ...
 ECHO * MAZE of GARIOUS, F1SPIRIT, PARODIUS, HYDLIDE III.
+ECHO * KONAMI MSX1 GENERIC
 ECHO *****************************************************
 WHERE /Q TNIASM.exe
 IF ERRORLEVEL 1 GOTO :EXE_NOT_FOUND
@@ -18,6 +19,7 @@ CALL :ASM PARODIUS.ASM
 CALL :ASM PARO-MUS.ASM
 CALL :ASM F1SPIRIT.ASM
 CALL :ASM F1SP-MUS.ASM
+CALL :ASM KONAMI.ASM
 
 IF "%ERRORS%"=="1" GOTO :END
 

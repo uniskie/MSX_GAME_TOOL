@@ -16,6 +16,8 @@ M_ADR:	EQU	0E000H
 SVW_SP:	EQU	SAVSP	; STACK SAVE AREA
 ;STACK:	EQU	BLDCHK+1	;DISK WORK AREA HEAD
 
+SCCMXW:	EQU	0E1F3H	;決め打ち：仮
+
 ;--------------------------------------
 ; WORK AREA
 ;--------------------------------------
@@ -39,10 +41,6 @@ EX_TRAP:
 ;	AND	4	;ESC
 	AND	10H	;STOP
 	JP	NZ,TRAP_MS
-
-;	LD	A,(CURE_FLAG)
-;	OR	A
-;	CALL	NZ,CURE_TRAP
 
 	;--------------------------------------
 	LD	(SVW_SP),SP
@@ -181,8 +179,8 @@ L_PSGLD:
 FC_TBL:	DW	0602H,CTRL	; CTRL
 	DW	0501H,SAVE	;'S'
 	DW	0402H,LOAD	;'L'
-	DW	0301H,CURE	;'C'
-	DW	0420H,PLAY	;'P'
+;	DW	0301H,CURE	;'C'
+;	DW	0420H,PLAY	;'P'
 ;	DW	0704H,RETURN	; ESC
 	DW	0710H,RETURN	; STOP
 	DW	0,L_FUNC	; END of DATA
@@ -205,7 +203,7 @@ SAVE_AT_Q:
 	CALL	SAVE_
 QUIT:
 	LD	A,255
-	LD	(F1SP_REF),A
+	LD	(SSAV_REF),A
 	LD	A,V_PG1
 	CALL	SAVE_
 	LD	A,V_PG3
@@ -216,7 +214,7 @@ QUIT:
 ;--------------------------------------
 SAVE_AT:
 	LD	A,255
-	LD	(F1SP_REF),A
+	LD	(SSAV_REF),A
 	LD	A,V_PG1
 	JP	SAVE_P
 SAVE:	LD	A,V_PG2
@@ -308,61 +306,19 @@ RESET1:	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 RESET2:	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,RESET2
 
-	LD	SP,GAMESPA
+	LD	HL,(GAME_SP_ADR)
+	LD	SP,HL
 
 	LD	A,1
 	CALL	CHGCAP
 
-	JP	F1SP_ADR
+	LD	HL,(GAME_MAIN_ADR)
+	JP	(HL)
 
 ;--------------------------------------
 ; F1SPIRIT TRAINNER
 
-CURE:	;なんもなし
-	LD	A,255
-	LD	(0E310H),A	;FUEL 1P
-	LD	(0E3D0H),A	;FUEL 2P
-	XOR	A
-	LD	(0E328H),A	;NO DAMAGE 1P
-	LD	(0E3E8H),A	;NO DAMAGE 2P
-
-	LD	A,1
-	LD	(0E331H),A	;1位 1P
-	LD	(0E3F1H),A	;1位 2P
-	;LD	(CURE_TRAP),A	;常に1位
-
-	LD	A,2
-	LD	(0E1DEH),A	;Q-BERT/KING KONG2 (ENABLE ALL COURSE)
-
-	LD	A,1
-	LD	(0E1FDH),A	;ESCON    F5でリタイアできるようになる
-	LD	(0E1D6H),A	;HYPEROFF ピットインが素早くなる
-	LD	(0E1DFH),A	;MAXPOINT ポイントがMAXになる
+;CURE:	;なんもなし
 ;	JP	L_FUNC
-	JP	RETURN
-
-;CURE_TRAP:
-;	PUSH	AF
-;	LD	A,1
-;	LD	(0E331H),A	;1位 1P
-;	LD	(0E3F1H),A	;1位 2P
-;	POP	AF
-;	RET
-;CURE_FLAG:
-;	DB	0
-
-;openMSX/share/script/_trainerdefs.tcl
-;create_trainer "F1 Spirit - The Way To Formula 1" {time 1} {
-;	"All Combis With Konami Carts" {dpoke 0xe1de 2}
-;	"Escon" {dpoke 0xe1fd 1} ;#F5でリタイアできるようになる。
-;	"Hyperoff" {dpoke 0xe1d6 1} ;#ピットインが素早くなる。
-;	"Maxpoint" {dpoke 0xe1df 1} ;#ポイントがMAXになる。
-;	"Player 1 Always First Place" {dpoke 0xe331 1}
-;	"Player 1 Fuel" {dpoke 0xe310 255}
-;	"Player 1 No Damage (bitmask)" {dpoke 0xe328 0}
-;	"Player 2 Damage" {dpoke 0xe3e8 0}
-;	"Player 2 Fuel" {dpoke 0xe3d0 255}
-;	"Player 2 Position" {dpoke 0xe3f1 1}
-;}
 
 
