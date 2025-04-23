@@ -395,4 +395,3 @@ WR_TITL:
 ;--------------------------------------
 	INCLUDE	"MOJI-24.ASM"	;*FILE*
 	INCLUDE	"F1SPTITL.ASM"	;*FILE*
-

@@ -2,11 +2,14 @@
 ;    TIMER & KEY  INTERRUPT
 ;RAM:	C000-FEFF > VRAM 8000-BEFF
 ;******************************
-	FNAME	"HYD3-EXP.BIN"	;*BINHEAD*
+ORGADR:	EQU	EXPADR
+;	FNAME	"HYD3-EXP.BIN"	;*BINHEAD*
+	ORG	ORGADR-7
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
+;--------------------------------------
 
 VERSION:	EQU	00102H	;VERSION ID
 
@@ -15,8 +18,7 @@ VERSION:	EQU	00102H	;VERSION ID
 GAMESP:	EQU	SAVSP
 EXP_SP:	EQU	EXPSP	;SVWE_SP+1
 EXPSIZ:	EQU	ENDFL-ORGADR
-
-ORGADR:	EQU	EXPADR
+;--------------------------------------
 	ORG	ORGADR
 
 	DW	VERSION
@@ -24,8 +26,10 @@ ORGADR:	EQU	EXPADR
 	DW	EX_TRAP
 	DW	SET_UP
 	DW	CONTINUE
+;--------------------------------------
 ;WAITTM:	DW	0	; WAIT
 ;CAPSTA:	DB	0
+;--------------------------------------
 
 ;--- SET_UP SUB
 ; IN:	DE=RETURN ADDRESS
@@ -313,8 +317,7 @@ KEYIN:	IN	A,(KEYIO1)
 
 ENDFL:
 ;-> tniASM : SIZE CHECK
-IF ENDFL>=VOICQM
+#IF ENDFL>=VOICQM
 	* SIZE OVER ERROR
-ENDIF
+#ENDIF
 ;<-
-

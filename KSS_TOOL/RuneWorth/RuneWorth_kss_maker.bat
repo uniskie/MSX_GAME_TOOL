@@ -94,73 +94,74 @@ REM ************************************************
 
 REM *** MUSICDRV (RAM:0100-1FFF)
 REM +6E00 size:1E00
-BINCUT2 -s 06E00 -l 01E00 -o %W%.DRV RuneWorth_S.DSK
+BINCUT2 -s 06E00 -l 01E00 -o %W%.drv RuneWorth_S.DSK
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM *** OPLLDRV (RAM:0100-11FF)
 REM +6E00 size:1100
-BINCUT2 -s 06E00 -l 01100 -o %W%.OPL RuneWorth_S.DSK
+BINCUT2 -s 06E00 -l 01100 -o %W%.opl RuneWorth_S.DSK
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM *** PSGDRV (RAM:0100-11FF)
 REM +7EBD size:1100
-BINCUT2 -s 07EBD -l 01100 -o %W%.PSG RuneWorth_S.DSK
+BINCUT2 -s 07EBD -l 01100 -o %W%.psg RuneWorth_S.DSK
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM *** OPENNING MUSIC
 REM SECTOR 46-51
 REM +8C00-A3FF size:01800
-BINCUT2 -s 08C00 -l 01800 -o %W%_OP.MUS RuneWorth_S.DSK
+BINCUT2 -s 08C00 -l 01800 -o %W%_op.mus RuneWorth_S.DSK
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM *** ENDING MUSIC
 REM SECTOR 110-11C
 REM +22000-237FF size:01800
-BINCUT2 -s 22000 -l 01800 -o %W%_ED.MUS RuneWorth_S.DSK
+BINCUT2 -s 22000 -l 01800 -o %W%_ed.mus RuneWorth_S.DSK
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM *** COMMON MUSIC (GAME DISK A/B)
 REM SECTOR 1DC-213
 REM +3B800-427FF size:07000
-BINCUT2 -s 3B800 -l 07000 -o %W%_C.MUS RuneWorth_A.DSK
+BINCUT2 -s 3B800 -l 07000 -o %W%_c.mus RuneWorth_A.DSK
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM *** COMMON MUSIC 2 (GAME DISK A/B) #宝箱 #危険がアブナイ
 REM SECTOR 2-4
 REM +00400-00800 size:0400
-BINCUT2 -s 00400 -l 00400 -o %W%_C2.MUS RuneWorth_A.DSK
+BINCUT2 -s 00400 -l 00400 -o %W%_c2.mus RuneWorth_A.DSK
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM *** GAME DISK A ONLY MUSIC
 REM SECTOR 2AD-2CD
 REM +55A00-59BFF size:04200
-BINCUT2 -s 55A00 -l 04200 -o %W%_A.MUS RuneWorth_A.DSK
+BINCUT2 -s 55A00 -l 04200 -o %W%_a.mus RuneWorth_A.DSK
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM *** GAME DISK B ONLY MUSIC
 REM SECTOR 265-28F
 REM +4CA00-51FFF size:05600
-BINCUT2 -s 4CA00 -l 05600 -o %W%_B.MUS RuneWorth_B.DSK
+BINCUT2 -s 4CA00 -l 05600 -o %W%_b.mus RuneWorth_B.DSK
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM ********************************
 ECHO * バイナリデータを結合します。
 REM ********************************
-REM COPY /B %KSSPLAYER%.BIN+%W%.OPL+%W%.PSG+%W%_OP.MUS+%W%_C.MUS+%W%_C2.MUS+%W%_A.MUS+%W%_B.MUS+%W%_ED.MUS "%KSSFILE%">nul
-COPY /B %KSSPLAYER%.BIN+%W%.DRV+%W%_OP.MUS+%W%_C.MUS+%W%_C2.MUS+%W%_A.MUS+%W%_B.MUS+%W%_ED.MUS "%KSSFILE%">nul
+REM COPY /B %KSSPLAYER%.bin+%W%.opl+%W%.psg+%W%_op.mus+%W%_c.mus+%W%_c2.mus+%W%_a.mus+%W%_b.mus+%W%_ed.mus "%KSSFILE%">nul
+
+COPY /B %KSSPLAYER%.bin+%W%.drv+%W%_op.mus+%W%_c.mus+%W%_c2.mus+%W%_a.mus+%W%_b.mus+%W%_ed.mus "%KSSFILE%">nul
 
 IF "%NO_TRASH%"=="1" GOTO :no_trash
 REM ********************************
 ECHO * 作業ファイルを片付けます。
 REM ********************************
-DEL %W%.PSG>nul
-DEL %W%.OPL>nul
-DEL %W%_OP.MUS>nul
-DEL %W%_ED.MUS>nul
-DEL %W%_C.MUS>nul
-DEL %W%_C2.MUS>nul
-DEL %W%_A.MUS>nul
-DEL %W%_B.MUS>nul
+DEL %w%.psg>nul
+DEL %w%.opl>nul
+DEL %w%_op.mus>nul
+DEL %w%_ed.mus>nul
+DEL %w%_c.mus>nul
+DEL %w%_c2.mus>nul
+DEL %w%_a.mus>nul
+DEL %w%_b.mus>nul
 :no_trash
 
 REM ********************************

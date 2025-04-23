@@ -1,8 +1,10 @@
 ;***************************
 ;    PARODIUS  SOUND-BOX
 ;***************************
+ORGADR:	EQU	0C000H
 ; A=USR( TIME-TRAP É ±ÄÞÚ½ )
-	FNAME	"PARO-MUS.BIN"	;*BINHEAD*
+;	FNAME	"PARO-MUS.BIN"	;*BINHEAD*
+	ORG	ORGADR-7
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL	;*BINHEAD*
@@ -13,10 +15,10 @@
 	INCLUDE "BIOS-DEF.ASM"
 ;--------------------------------------
 
-ORGADR:	EQU	0C000H
 	ORG	ORGADR
 
 	JP	PARODIUS_
+	
 
 ;--------------------------------------
 ; WORK AREA
@@ -34,6 +36,11 @@ W_SBANK:
 
 ;--------------------------------------
 PARODIUS_:
+	INC	HL
+	INC	HL
+	LD	A,(HL)
+	LD	(ROMSLT),A
+
 	DI
 	LD	(SVW_SP),SP
 
@@ -208,4 +215,3 @@ PLAY_TRAP:
 	INCLUDE	"PAROPLAY.ASM"	;*FILE*
 	INCLUDE	"EX-BIOS.ASM"	;*FILE*
 ENDFL:
-

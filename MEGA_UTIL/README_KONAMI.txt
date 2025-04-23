@@ -140,15 +140,29 @@ RUN"KONAMI.BAS"⏎
 
 ## MSX2でコナミMSX1ソフトを動かす場合の空き領域
 
-  - コナミのゲームはRAM8K対応が多い。
-    その場合、RAMはE000Hから使用するので、C000H-DFFFHは未使用  
 
-  - MSX1用のゲームをMSX2で実行する場合、VRAM 4000H以降は未使用  
+  - MSX1用のゲームをMSX2で実行する場合、VRAM 4000H以降は未使用です。  
 
-  - MSX2用ソフトは空き領域が無いのでクイックセーブは無理
-    また、フックを何度も書き換えるものもある
+  - コナミのゲームはRAM E000Hから使用するのものが多く、
+    そういったソフトはC000H-DFFFHは未使用です。  
+    KONAMI.BASではその空き領域にツールを配置しています。
 
-## 実装
+    そのため、一部のコナミMSX1用ソフトには非対応です。
+
+    - ※ 注） 沙羅曼蛇はC000Hから使用する（KONAMI.BASでは非対応）
+    - ※ 注） シャロムはディスクにセーブロードするときにC000Hから使用。  
+              そのためゲームのディスクセーブロードを実行するとKONAMI.BASは暴走します
+              
+              進行上、セーブ→MSXリセット→ロードが必要なポイントがあるため、
+
+              1. KONAMI.BASの状態セーブロードを使用。リセットが必要な時だけパスワード
+              2. 状態セーブロードを諦めて、ゲームのセーブロードを使用。
+              のどちらかで遊んでください。
+
+  - MSX2用ソフトは空き領域が無いのでクイックセーブは無理だと思います。  
+    （A1GT限定ならもしかすると可能性があるかもしれませんが…やるのは大変そうです）
+
+## KONAMI.BAS で 実装しているもの
 
   - RC???の型番が埋め込まれていないソフトの認識  
     ... 新10倍の処理を取り込んでいます
@@ -158,7 +172,7 @@ RUN"KONAMI.BAS"⏎
   - ディスクへのセーブロード（BASICプログラムから）
 
 
-## 未実装
+## 未実装のもの
 
   - メガロムかどうかの判定
   - BANK番号のワーク(だいたいは`F0F1H`)の決定
@@ -170,8 +184,6 @@ RUN"KONAMI.BAS"⏎
     内部処理やアドレスは異なるので汎用での対応は難しそう。  
 
 ## 処理概要
-
-  
 
   ツール側のH.KEYIフックを書き込んで、拡張ポーズを追加します。
 
@@ -191,7 +203,14 @@ RUN"KONAMI.BAS"⏎
      を検索してゲーム中の割り込み処理アドレスXXXXHを取得。  
      **自前の割り込み処理の後**に呼び出すようにする。  
 
-  3. ゲーム実行時は、  
+  3. E000H以降のワークエリアを初期化しているコードがあれば、  
+     初期化サイズを調べて、自分で初期化するようにする。
+     （ソフトウェアリセット時にも初期化する）
+
+  4. わんぱくアスレチックなど、VDPワークエリアに書き込まないソフト対策として、
+     コナミ標準の設定をVDPとワークエリアに書き込む
+
+  5. ゲーム開始時は、  
      1. `DI`  
      2. `IM 1`  
      3. ぺージ1(4000H)とページ2(8000H)のスロットをゲームのスロットに切り替え  
@@ -277,62 +296,65 @@ RUN"KONAMI.BAS"⏎
 新10倍カートリッジ対応表  
 https://www.msx.org/wiki/Konami_Game_Master_2  
 
-| Product | Title | Eng  
-| --- | --- | ---  
-| RC 700 | わんぱくアスレチック           | Athletic Land                           |
-| RC 701 | けっきょく南極大冒険           | Antarctic Adventure                     |
-| RC 702 | モン太君のいち・に・さんすう   | Monkey Academy                          |
-| RC 703 | タイムパイロット               | Time Pilot                              |
-| RC 704 | フロッガー                     | Frogger                                 |
-| RC 705 | スーパーコブラ                 | Super Cobra                             |
-| RC 706 | コナミのビリヤード             | Konami’s Billiards (Video Hustler)     |
-| RC 707 | コナミの麻雀道場               | Konami’s Mahjong                       |
-| RC 710 | ハイパーオリンピック1          | Hyper Olympic 1 (Track & Field 1)       |
-| RC 711 | ハイパーオリンピック2          | Hyper Olympic 2 (Track & Field 2)       |
-| RC 712 | サーカスチャーリー             | Circus Charlie                          |
-| RC 713 | マジカルツリー                 | Magical Tree                            |
-| RC 714 | I love 社会 ぽんぽこパン       | Comic Bakery                            |
-| RC 715 | ハイパースポーツ1              | Hyper Sports 1                          |
-| RC 716 | キャベッジパッチキッズ         | Cabbage Patch Kids                      |
-| RC 717 | ハイパースポーツ2              | Hyper Sports 2                          |
-| RC 718 | ハイパーラリー                 | Hyper Rally                             |
-| RC 720 | コナミのテニス                 | Konami’s Tennis                        |
-| RC 721 | スカイジャガー                 | Sky Jaguar                              |
-| RC 724 | コナミのベースボール           | Konami’s Baseball                      |
-| RC 725 | イーアルカンフー               | Yie Ar Kung Fu                          |
-| RC 727 | 王家の谷                       | King’s Valley                          |
-| RC 728 | モピレンジャー                 | Mopi Ranger                             |
-| RC 729 | ピポルス                       | Pippols                                 |
-| RC 730 | ロードファイター               | Road Fighter                            |
-| RC 731 | コナミのピンポン               | Konami’s Ping Pong                     |
-| RC 732 | コナミのサッカー               | Konami’s Soccer (Konami’s Football)   |
-| RC 733 | ハイパースポーツ3              | Hyper Sports 3                          |
-| RC 734 | グーニーズ                     | The Goonies                             |
-| RC 736 | コナミのボクシング             | Konami’s Boxing                        |
-| RC 737 | イーガー皇帝の逆襲             | Yie Ar Kung Fu 2                        |
-| RC 739 | 魔城伝説                       | Knightmare                              |
-| RC 740 | ツインビー                     | Twin Bee                                |
-| RC 742 | グラディウス                   | Gradius (Nemesis)                       |
-| RC 743 | 夢大陸アドベンチャー           | Penguin Adventure                       |
-| RC 744 | 悪魔城ドラキュラ               | Vampire Killer                          |
-| RC 745 | キングコング2                  | King Kong 2                             |
-| RC 746 | Qバート                        | Q-Bert                                  |
-| RC 747 | 火の鳥 鳳凰編                  | Hinotori (Firebird)                     |
-| RC 748 | がんばれゴエモン!からくり道中  | Ganbare Goemon                          |
-| RC 749 | 魔城伝説Ⅱガリウスの迷宮       | The Maze of Galious                     |
-| RC 750 | メタルギア                     | Metal Gear                              |
-| RC 751 | グラディウス2                  | Gradius 2 (Nemesis 2)                   |
-| RC 752 | F-1スピリット                  | F-1 Spirit                              |
-| RC 753 | ウシャス                       | The Treasure of Usas                    |
-| RC 754 | シャロム 魔城伝説III 完結編    | Shalom                                  |
-| RC 757 | THEプロ野球 激突ペナントレース | Clash Pennant Race 1                    |
-| RC 758 | 沙羅曼蛇                       | Salamander                              |
-| RC 759 | パロディウス                   | Parodius                                |
-| RC 760 | エルギーザの封印 (MSX1)        | King’s Valley 2 (MSX1)                 |
-| RC 761 | エルギーザの封印 (MSX2)        | King’s Valley 2 (MSX2)                 |
-| RC 762 | 魂斗羅                         | Contra                                  |
-| RC 764 | ゴーファーの野望EPISODEII      | Gofer's Ambition Episode II (Nemesis 3) |
-| RC 765 | 牌の魔術師                     | Hai no Majutsushi                       |
-| RC 766 | 激突ペナントレース2            | Clash Pennant Race 2                    |
-| RC 767 | ソリッドスネークメタルギア2    | Metal Gear 2                            |
-| RC 768 | スペースマンボウ               | Space Manbow                            |
+| 製品番号 | ハード | 対応 | タイトル | 英語名 |  
+| --- | --- | --- | --- | 
+| RC 700 | MSX | 〇 | わんぱくアスレチック           | Athletic Land                           |
+| RC 701 | MSX | 〇 | けっきょく南極大冒険           | Antarctic Adventure                     |
+| RC 702 | MSX | 〇 | モン太君のいち・に・さんすう   | Monkey Academy                          |
+| RC 703 | MSX | 〇 | タイムパイロット               | Time Pilot                              |
+| RC 704 | MSX | 〇 | フロッガー                     | Frogger                                 |
+| RC 705 | MSX | 〇 | スーパーコブラ                 | Super Cobra                             |
+| RC 706 | MSX | 〇 | コナミのビリヤード             | Konami’s Billiards (Video Hustler)     |
+| RC 707 | MSX | 〇 | コナミの麻雀道場               | Konami’s Mahjong                       |
+| RC 710 | MSX | 〇 | ハイパーオリンピック1          | Hyper Olympic 1 (Track & Field 1)       |
+| RC 711 | MSX | 〇 | ハイパーオリンピック2          | Hyper Olympic 2 (Track & Field 2)       |
+| RC 712 | MSX | 〇 | サーカスチャーリー             | Circus Charlie                          |
+| RC 713 | MSX | 〇 | マジカルツリー                 | Magical Tree                            |
+| RC 714 | MSX | 〇 | I love 社会 ぽんぽこパン       | Comic Bakery                            |
+| RC 715 | MSX | 〇 | ハイパースポーツ1              | Hyper Sports 1                          |
+| RC 716 | MSX | 〇 | キャベッジパッチキッズ         | Cabbage Patch Kids                      |
+| RC 717 | MSX | 〇 | ハイパースポーツ2              | Hyper Sports 2                          |
+| RC 718 | MSX | 〇 | ハイパーラリー                 | Hyper Rally                             |
+| RC 720 | MSX | 〇 | コナミのテニス                 | Konami’s Tennis                        |
+| RC 721 | MSX | 〇 | スカイジャガー                 | Sky Jaguar                              |
+| RC 723 | MSX | 〇 | コナミのゴルフ                 | Konami's Golf                           |
+| RC 724 | MSX | 〇 | コナミのベースボール           | Konami’s Baseball                      |
+| RC 725 | MSX | 〇 | イーアルカンフー               | Yie Ar Kung Fu                          |
+| RC 727 | MSX | 〇 | 王家の谷                       | King’s Valley                          |
+| RC 728 | MSX | 〇 | モピレンジャー                 | Mopi Ranger                             |
+| RC 729 | MSX | 〇 | ピポルス                       | Pippols                                 |
+| RC 730 | MSX | 〇 | ロードファイター               | Road Fighter                            |
+| RC 731 | MSX | 〇 | コナミのピンポン               | Konami’s Ping Pong                     |
+| RC 732 | MSX | 〇 | コナミのサッカー               | Konami’s Soccer (Konami’s Football)   |
+| RC 733 | MSX | 〇 | ハイパースポーツ3              | Hyper Sports 3                          |
+| RC 734 | MSX | 〇 | グーニーズ                     | The Goonies                             |
+| RC 736 | MSX | 〇 | コナミのボクシング             | Konami’s Boxing                        |
+| RC 737 | MSX | 〇 | イーガー皇帝の逆襲             | Yie Ar Kung Fu 2                        |
+| RC 739 | MSX | 〇 | 魔城伝説                       | Knightmare                              |
+| RC 740 | MSX | 〇 | ツインビー                     | Twin Bee                                |
+| RC 742 | MSX | 〇 | グラディウス                   | Gradius (Nemesis)                       |
+| RC 743 | MSX | 〇 | 夢大陸アドベンチャー           | Penguin Adventure                       |
+| RC 744 | MSX2| -- | 悪魔城ドラキュラ               | Vampire Killer                          |
+| RC 745 | MSX2| -- | キングコング2                  | King Kong 2                             |
+| RC 746 | MSX | 〇 | Qバート                        | Q-Bert                                  |
+| RC 747 | MSX2| -- | 火の鳥 鳳凰編                  | Hinotori (Firebird)                     |
+| RC 748 | MSX2| -- | がんばれゴエモン!からくり道中  | Ganbare Goemon                          |
+| RC 749 | MSX | 〇 | 魔城伝説Ⅱガリウスの迷宮       | The Maze of Galious                     |
+| RC 750 | MSX2| -- | メタルギア                     | Metal Gear                              |
+| RC 751 | MSX | 〇 | グラディウス2                  | Gradius 2 (Nemesis 2)                   |
+| RC 752 | MSX | 〇 | F-1スピリット                  | F-1 Spirit                              |
+| RC 753 | MSX2| -- | ウシャス                       | The Treasure of Usas                    |
+| RC 754 | MSX | △ | シャロム 魔城伝説III 完結編    | Shalom                                  |
+| RC 757 | MSX2| -- | THEプロ野球 激突ペナントレース | Clash Pennant Race 1                    |
+| RC 758 | MSX | NG | 沙羅曼蛇                       | Salamander                              |
+| RC 759 | MSX | 〇 | パロディウス                   | Parodius                                |
+| RC 760 | MSX | ?? | エルギーザの封印 (MSX1)        | King’s Valley 2 (MSX1)                 |
+| RC 761 | MSX2| -- | エルギーザの封印 (MSX2)        | King’s Valley 2 (MSX2)                 |
+| RC 762 | MSX2| -- | 魂斗羅                         | Contra                                  |
+| RC 764 | MSX | ?? | ゴーファーの野望EPISODEII      | Gofer's Ambition Episode II (Nemesis 3) |
+| RC 765 | MSX2| -- | 牌の魔術師                     | Hai no Majutsushi                       |
+| RC 766 | MSX2| -- | 激突ペナントレース2            | Clash Pennant Race 2                    |
+| RC 767 | MSX2| -- | ソリッドスネークメタルギア2    | Metal Gear 2                            |
+| RC 768 | MSX2| -- | スペースマンボウ               | Space Manbow                            |
+
+※ 〇が付いていても未検証のものもあります。

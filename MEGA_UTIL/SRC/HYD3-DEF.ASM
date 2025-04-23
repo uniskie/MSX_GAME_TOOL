@@ -42,9 +42,9 @@ PSG_SV:	EQU	VCBC +23	;PSG REG=13bytes+1bytes
 ;	VCBC=37/23+13+1=37
 ;--------------------------------------
 
-IF PSG_SV<=CAPSTA 
+#IF PSG_SV<=CAPSTA 
 	#ERROR
-ENDIF
+#ENDIF
 
 ;--------------------------------------
 ;ƒoƒ“ƒN“Á’è(BANKæ“ª8byte‚Í0‚È‚Ç‚Å–„‚Ü‚Á‚Ä‚¢‚éŽ–‚ª‘½‚¢)

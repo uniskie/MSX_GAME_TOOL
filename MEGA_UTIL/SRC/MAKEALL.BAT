@@ -1,4 +1,4 @@
-@ECHO OFF
+@REM ECHO OFF
 ECHO *****************************************************
 ECHO * Assemble tools for ...
 ECHO * MAZE of GARIOUS, F1SPIRIT, PARODIUS, HYDLIDE III.
@@ -23,8 +23,17 @@ CALL :ASM KONAMI.ASM
 
 IF "%ERRORS%"=="1" GOTO :END
 
+ECHO *** REFRESH FILES ***
+DEL /S tniasm.lst > NUL 2>&1
+DEL /S *.LST > NUL 2>&1
+DEL /S *.ERR > NUL 2>&1
+DEL /S *.EQU > NUL 2>&1
+DEL /S *.ADR > NUL 2>&1
+DEL /S *.ORG.SYM > NUL 2>&1
+
 CHOICE /M "COPY to FILES folder?" /C YN
 IF /I NOT "%ERRORLEVEL%"=="1" GOTO :END
+
 
 ECHO *** COPY FILES ***
 COPY /Y *.BAS ..\FILES\*.*
@@ -44,7 +53,7 @@ IF EXIST "%~n1.BIN" (
 	REN "%~n1.BIN" "%~n1.BIN.OLD"
 )
 :SKIP_OLD_BACKUP
-CALL ASM /P %1
+CALL ASM /P /S %1
 ECHO.
 IF ERRORLEVEL 1 GOTO :ERR
 IF NOT EXIST "%~n1.BIN" GOTO :ERR

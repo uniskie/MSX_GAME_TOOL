@@ -1,8 +1,13 @@
 @ECHO OFF
+SET SYMNAME=%~n1.SYM
+SET TEMP_SYM=%~n1.ORG.SYM
+SET DEF_OPT=--gap-default 0 --no-super-asm --define-label _AILZ80ASM_
 
-SET ASM=AILZ80ASM
+REM ローカルラベルの最後に:がある時の警告を非表示
+SET DEF_OPT=%DEF_OPT% --disable-warning W9005
+
 SET ERRCHK=0
-SET MODE=NORMAL
+SET MODE=SIMPLE
 
 :CHECK_OPTION
 IF /I "%1"=="/P" (
@@ -27,34 +32,16 @@ IF /I "%3"=="/S" SET MODE=SIMPLE
 IF /I "%2"=="/F" SET MODE=FULL
 IF /I "%3"=="/F" SET MODE=FULL
 
-SET SYMNAME=%~n1.SYM
-SET TEMP_SYM=%~n1.ORG.SYM
-SET DEF_OPT=--gap-default 0 --no-super-asm --define-label _AILZ80ASM_=0xBEEF
-REM ローカルラベルの最後に:がある時の警告を非表示
-SET DEF_OPT=%DEF_OPT% --disable-warning W9005
-
-IF "%MODE%"=="FULL" GOTO :FULL
-IF "%MODE%"=="SIMPLE" GOTO :SIMPLE
-GOTO :NORMAL
-
 :FULL
 @ECHO ON
-%ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" -equ "%~n1.EQU" -adr "%~n1.ADR" -lst "%~n1.LST" -err "%~n1.ERR" %DEF_OPT%
-@ECHO OFF
-GOTO :CHECK
-
-:NORMAL
-@ECHO ON
-%ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" -lst "%~n1.LST" -err "%~n1.ERR" %DEF_OPT%
+AILZ80ASM "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" -equ "%~n1.EQU" -adr "%~n1.ADR" -lst "%~n1.LST" -err "%~n1.ERR" %DEF_OPT%
 @ECHO OFF
 GOTO :CHECK
 
 :SIMPLE
 @ECHO ON
-%ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" %DEF_OPT%
+AILZ80ASM "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" -lst "%~n1.LST" -err "%~n1.ERR" %DEF_OPT%
 @ECHO OFF
-GOTO :CHECK
-
 
 :CHECK
 IF ERRORLEVEL 1 GOTO ERR
@@ -79,8 +66,6 @@ EXIT /B
 
 :ERR
 IF NOT "%ERCHK%"=="1" GOTO ERREND
-ECHO エラーが発生しました。
-PAUSE
 PAUSE
 
 :ERREND

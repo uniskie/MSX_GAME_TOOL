@@ -29,12 +29,12 @@
 ;--------------------------------------
 ; WORK AREA (STATIC)
 ;--------------------------------------
-IFDEF USE_KEYBUFFER
+#IF exists USE_KEYBUFFER
 ; KEY MATRIX BUFFER
 KEYBFSZ:	EQU	11	; KEY MATRIX SIZE
 KEYBMAT:	DS	KEYBFSZ	; CURRENT
 KEYBTRG:	DS	KEYBFSZ	; TRIGGER
-ENDIF ;USE_KEYBUFFER
+#ENDIF ;USE_KEYBUFFER
 
 ;--------------------------------------
 ; WORK AREA (STATIC)
@@ -53,7 +53,7 @@ KEYIN:	IN	A,(KEYIO1)
 	AND	E
 	RET
 
-IFDEF USE_KEYBUFFER
+#IF exists USE_KEYBUFFER
 ;--------------------------------------
 ; READ KEY MATRIX BUFFER
 ; IN:	D = KEY MATRIX No.
@@ -99,9 +99,9 @@ KEYUPD_L:
 	DEC	HL
 	DEC	DE
 
-	LD	A,(HL)	;A=ｾﾞﾝｶｲ ｵｼﾃｲﾀ ｷｰ
-	CPL	; BITﾊﾝﾃﾝ
-	LD	C,A	;C=ｾﾞﾝｶｲｵｼﾃｲﾅｲｷｰ ﾉ ﾏｽｸ
+	LD	A,(HL)	;A=前回押したキー
+	CPL	; BITハンテン
+	LD	C,A	;C=前回押していないキー
 
 	;KEYIN
 	IN	A,(KEYIO1)
@@ -111,13 +111,13 @@ KEYUPD_L:
 	OUT	(KEYIO1),A
 	IN	A,(KEYIO0)
 
-	LD	(HL),A	;A=CURRENT:ｲﾏのｼﾞｮｳﾀｲ
+	LD	(HL),A	;A=CURRENT:現在押下中のキー
 	OR	C	;1=key off
-	LD	(DE),A	;A=PRESS EDGE:ｾﾞﾝｶｲ ｵｼﾃｲﾀ ｷｰ ｲｶﾞｲ ﾉ ｼﾞｮｳﾀｲ
+	LD	(DE),A	;A=PRESS EDGE:今回押したキー（前回押していたキーは除外）
 
 	DJNZ	KEYUPD_L
 	RET
-ENDIF	;USE_KEYBUFFER
+#ENDIF	;USE_KEYBUFFER
 
 ;--------------------------------------
 ;RESTORE VDP (READ BASIC WORKAREA)
@@ -133,7 +133,7 @@ WR_CRG:	XOR	A
 
 ;--------------------------------------
 ; SET VRAM R/W ADDRESS
-
+;
 ; A:VRAM bit14-16
 ; C:VRAM bit 8-13 + 40H( WHEN WRITE )
 ; (VRAM ADDRES=A*4000H+(C AND 3FH)*100H)
@@ -145,6 +145,16 @@ VSET:	OUT	(VDP+1),A
 	LD	A,C
 	OUT	(VDP+1),A
 	RET
+
+;--------------------------------------
+; RESET VRAM R/W ADDRESS HIGH
+; (for MSX1 SOFT)
+;
+VRESET:	XOR	A
+	OUT	(VDP+1),A
+	LD	A,14+80H
+	OUT	(VDP+1),A
+	RET	
 
 ;--------------------------------------
 ; TRANSFER RAM to VRAM
@@ -184,7 +194,7 @@ L_FRAM:	INIR
 	RET
 
 ;;--------------------------------------
-;IFDEF USE_VSYNC_AWIT
+;IFEXIST USE_VSYNC_AWIT
 ;;--------------------------------------
 ;; WAIT VSYNC (for MSX2 or upper / Not for MSX1)
 ;;
@@ -269,4 +279,3 @@ CPURES:	LD	A,(GETCPU)
 	CALL	CHGCPU
 	RET
 
-

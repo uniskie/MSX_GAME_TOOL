@@ -374,4 +374,3 @@ J_WTIT3:
 ;--------------------------------------
 	INCLUDE	"MOJI-24.ASM"	;*FILE*
 	INCLUDE	"PAROTITL.ASM"	;*FILE*
-

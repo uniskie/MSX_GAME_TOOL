@@ -1,15 +1,19 @@
 ;***************************
 ;   SET TRAP for KONAMI 
 ;***************************
-; for tniasm v0.45
-; http://www.tni.nl/products/tniasm.html
+ORGADR:	EQU	0C000H
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
 
 ; A=USR( TIME-TRAP ﾉ ｱﾄﾞﾚｽ )
 
 SIN10BAI_SEARCH:	EQU	1	;新10倍タイプの検索を使う
+KONAMI_MSX1_ONLY:	EQU	1	;KONAMI MSX1 ソフトのみ
+KONAMI_MSX1_E000: 	EQU	1	;ワークエリアがE000H以上のソフトのみ
 
 ;--------------------------------------
-	FNAME	"KONAMI.BIN"	;*BINHEAD*
+;	FNAME	"KONAMI.BIN"	;*BINHEAD*
+	ORG	ORGADR-7
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
@@ -26,7 +30,11 @@ SIN10BAI_SEARCH:	EQU	1	;新10倍タイプの検索を使う
 GAMESPA:	EQU	0F0F0H
 
 ; KONAMI MEGA-ROM BANK
-;W_BANK:	EQU	0F0F1H
+;WBANK0:	EQU	0F0F0H
+;WBANK1:	EQU	0F0F1H
+;WBANK2:	EQU	0F0F2H
+;WBANK3:	EQU	0F0F3H
+;BANK0:	EQU	5000H
 ;BANK1:	EQU	7000H
 ;BANK2:	EQU	9000H
 ;BANK3:	EQU	0B000H
@@ -34,7 +42,6 @@ GAMESPA:	EQU	0F0F0H
 ;--------------------------------------
 ; ENTRY (EXPORT)
 ;--------------------------------------
-ORGADR:	EQU	0C000H
 	ORG	ORGADR
 
 	JP	BOOTGAME_
@@ -48,12 +55,13 @@ ORGADR:	EQU	0C000H
 ;SYSTEM SAVE FLAG
 SSAV_REF:
 	DB	0
+;ROMSLT:	DB	1
+;CPUSAV:	DB	0
 RESULT:
 R_GAME_ID:
 	DW	0
 R_GAME_TITLE:
 	DB	0,"                           "	;文字数,27文字
-
 ;--------------------------------------
 GAME_SP_ADR:
 	DW	0F0F0H
@@ -61,6 +69,14 @@ GAME_MAIN_ADR:
 	DW	RET_BAS
 ;GAME_TRAP_ADR:
 ;	DW	0000H
+NEED_EI:
+	DB	0
+GAMEWORK_INIT_SIZE:
+	DW	0	;3FFHとか1FFHとか
+
+;--------------------------------------
+; WORK AREA (STATIC)
+;--------------------------------------
 ;--------------------------------------
 ; JUMP TO GAME HKEYI TRAP
 TRAP_MS:
@@ -70,12 +86,6 @@ GAME_TRAP_ADR:
 
 ;PLAYWK:	;BGM,SE,LINE(BGM,SE,EXIT)
 ;	DB	33H,01H,0
-;ROMSLT:	DB	1
-;CPUSAV:	DB	0
-
-;--------------------------------------
-; WORK AREA (STATIC)
-;--------------------------------------
 W_SLREG:
 	DB	0
 SV_HOOK:
@@ -130,6 +140,15 @@ BOOTGAME_:
 	LD	BC,5
 	LDIR
 
+	; KONAMI MSX1 DEFAULT VDP CONFIG
+	; VDPワークエリアを更新しない一部ソフトの対策
+	; (わんぱくアスレチックなど)
+	LD	HL,KONAMI_VDP_DEF
+	LD	DE,REG0SV
+	LD	BC,8
+	LDIR
+	CALL	WR_CRG
+
 	; INIIALIZE GAME
 	IM	1
 	LD	HL,(GAME_SP_ADR)
@@ -159,9 +178,50 @@ BOOTGAME_:
 	INC	A
 	JP	NZ,LOAD_AT	;COMMON
 
+NEW_GAME:
+	DI
+
+	LD	BC,(GAMEWORK_INIT_SIZE)
+	LD	A,B
+	OR	C
+	JR	Z,NEW_GAME_
+
+	;MEMORY CLEAR
+	LD     HL,0E000H	;21 00 E0
+	LD     DE,0E001H	;11 01 E0
+	LD     (HL),0		;36 00
+	LDIR			;ED B0
+
+NEW_GAME_:
+
+	CALL	RDVDP
+	LD	A,(NEED_EI)
+	OR	A
+	JR	Z,NOT_USE_EI
+
 	EI
+
+NOT_USE_EI:
 	LD	HL,(GAME_MAIN_ADR)
 	JP	(HL)
+
+KONAMI_VDP_DEF:
+	;	R#0  R#1  R#2  R#3  R#4  R#5  R#6  R#7
+	DB	02H, 62H, 0EH, 7FH, 07H, 76H, 03H,0E1H
+	;SCREEN: GRAPHIC2, ENABLE
+	;FREQ:NTSC
+	;LINES:192
+	;INTERLACE:NONE, FLIP:NONE
+	;SPRITE: ENABLE, 16X16, x1
+	;COLOR0: TRANSPARENT
+	;VBLANK-IRQ:ENABLE
+	;HBLANK-IRQ:DISABLE
+	;PAT GEN:2000H
+	;PAT COL:0000H
+	;PAT NAM:3800H
+	;SPR PAT:1800H
+	;SPR ATR:3B00H
+
 ;--------------------------------------
 RET_BAS:
 	LD	A,(W_SLREG)
@@ -256,4 +316,7 @@ RET_SCC:
 	INCLUDE "CHGSLT.ASM"	;*FILE*
 ;--------------------------------------
 ENDFL:
-
+
+#IF (RESULT + KONAMI_ID_ISIZE) > GAME_SP_ADR
+	#PRRINT "[ERROR] (RESULT + KONAMI_ID_ISIZE) > GAME_SP_ADR"
+#ENDIF

@@ -42,4 +42,3 @@ TITLE_STR:
 	DB	'w/EXIT/////////////////////////w'	;*DM*
 	DB	'yvvvvvvvvvvvvvvvHOME[/FADE[OUTv'	;*DM*
 	DB	127,'¡'
-

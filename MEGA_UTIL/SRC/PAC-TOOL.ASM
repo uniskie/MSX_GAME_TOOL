@@ -38,7 +38,7 @@ LOADPAC:
 	dec	a	; block 1 = +0000h
 	rlca
 	rlca
-	add	d
+	add	a,d
 	ld	d,a	;de = de+c*400h
 	
 	ld	a,b
@@ -76,7 +76,7 @@ SAVEPAC:
 	dec	a	; block 1 = +0000h
 	rlca
 	rlca
-	add	d
+	add	a,d
 	ld	d,a	;de = de+c*400h
 	
 	ld	a,b

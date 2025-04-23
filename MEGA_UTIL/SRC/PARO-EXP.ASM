@@ -164,9 +164,10 @@ L_PSGLD:
 	LDIR
 	LD	A,(SCCMXW)
 	LD	(SCCR_CHENA),A
-	LD	A,(W_BANK+1)
+	LD	A,(WBANK2)
 	LD	(BANK2),A
 
+	LD	A,1
 	CALL	CHGCAP
 	LD	SP,(SVW_SP)
 ;	IM	1
@@ -239,6 +240,7 @@ L_SAVE:	LD	C,D
 	LD	B,1
 SAVE__:	LD	A,0	;vram page +1
 	CALL	TF_VRM
+	CALL	VRESET
 
 	INC	D
 	LD	A,40H
@@ -284,12 +286,15 @@ L_LOAD:	LD	A,0	;vram page +1
 	LD	C,20H
 LOAD__:	LD	A,0	;vram page
 	CALL	TF_RAM
+	CALL	VRESET
 
-	LD	A,(W_BANK+0)
+;	LD	A,(WBANK0)
+;	LD	(BANK0),A
+	LD	A,(WBANK1)
 	LD	(BANK1),A
-	LD	A,(W_BANK+1)
+	LD	A,(WBANK2)
 	LD	(BANK2),A
-	LD	A,(W_BANK+2)
+	LD	A,(WBANK3)
 	LD	(BANK3),A
 	CALL	WR_CRG
 	RET
@@ -458,4 +463,3 @@ CURETBL:
 ;連射（改造）：HexEditなどのエディターで「003B57」の列にある「0F」を「01」に書き換る。
 ;無敵（改造）：HexEditなどのエディターで「00042F0」の列にある「D0」を「C9」に書き換え、「0006A60」の列にある「C8」を「C9」に書き換える。
 
-

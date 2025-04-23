@@ -2,44 +2,57 @@
 ;**:	MUSIC TITTLE DATAS **
 
 MUS_TIT:
-	DB	'           --------           | ';*DM*
-	DB	'    -DEMON APPEARS!!- (SE)    | ';*DM*
-	DB	'       -‚d‚m‚s‚d‚q- (SE)      | ';*DM*
-	DB	'        -‚v‚`‚q‚o- (SE)       | ';*DM*
-	DB	'        - Á  –Å - (SE)       | ';*DM*
-	DB	'  -GET A KEY TO NEXT STAGE!-  | ';*DM*
-	DB	'     - ˜  Í (PROLOGUE)-     | ';*DM*
-	DB	'GAMESTART`The MAZE of GALIOUS| ';*DM*
-	DB	'-The MAZE of GALIOUS-(CASTLE) | ';*DM*
-	DB	'  Œ¶˜f ` The MAZE ofGALIOUS  | ';*DM*
-	DB	' -The WORLD of DEMON-  (–‚ŠE) | ';*DM*
-	DB	' V‚½‚È—·‚Ö‚ÌŒ®(WORLD CLEARED)| ';*DM*
-	DB	'      -THE SPELL SEEKER-      | ';*DM*
-	DB	'   GODS-ROOM (“VŠE ‚Ì _X)   | ';*DM*
-	DB	'  –‚ŠE‚Öc (WORLD START S.E.) | ';*DM*
-	DB	' DEMON HIDING HERE...(–‚–@w) | ';*DM*
-	DB	' ˆ«–‚ ‚Ì ™ôšK -Theme of DEMON-| ';*DM*
-	DB	'  -Ã  Žâ- (AFTER The BATTLE) | ';*DM*
-	DB	'     - I  –‹ (EPILOGUE)-     | ';*DM*
-	DB	'        - STAFF ROLL -        | ';*DM*
-	DB	'         Oh! DEAD! (SE)       | ';*DM*
-	DB	'     -‚f‚`‚l‚d  ‚n‚u‚d‚q-     | ';*DM*
-	DB	'         -TIME STOP!-         | ';*DM*
-	DB	'        TIME STOP ‰ðœ        | ';*DM*
-	DB	'         -‚o‚`‚t‚r‚d-         | ';*DM*
-	DB	'         -PAUSE- ‰ðœ         | ';*DM*
-	DB	'      -FADE OUT COMMAND-      | ';*DM*
+	DB	'           --------           | '
+	DB	'    -DEMON APPEARS!!- (SE)    | '
+	DB	'       -‚d‚m‚s‚d‚q- (SE)      | '
+	DB	'        -‚v‚`‚q‚o- (SE)       | '
+	DB	'        - Á  –Å - (SE)       | '
+	DB	'  -GET A KEY TO NEXT STAGE!-  | '
+	DB	'     - ˜  Í (PROLOGUE)-     | '
+	DB	'GAMESTART`The MAZE of GALIOUS| '
+	DB	'-The MAZE of GALIOUS-(CASTLE) | '
+	DB	'  Œ¶˜f ` The MAZE ofGALIOUS  | '
+	DB	' -The WORLD of DEMON-  (–‚ŠE) | '
+	DB	' V‚½‚È—·‚Ö‚ÌŒ®(WORLD CLEARED)| '
+	DB	'      -THE SPELL SEEKER-      | '
+	DB	'   GODS-ROOM (“VŠE ‚Ì _X)   | '
+	DB	'  –‚ŠE‚Öc (WORLD START S.E.) | '
+	DB	' DEMON HIDING HERE...(–‚–@w) | '
+	DB	' ˆ«–‚ ‚Ì ™ôšK -Theme of DEMON-| '
+	DB	'  -Ã  Žâ- (AFTER The BATTLE) | '
+	DB	'     - I  –‹ (EPILOGUE)-     | '
+	DB	'        - STAFF ROLL -        | '
+	DB	'         Oh! DEAD! (SE)       | '
+	DB	'     -‚f‚`‚l‚d  ‚n‚u‚d‚q-     | '
+	DB	'         -TIME STOP!-         | '
+	DB	'        TIME STOP ‰ðœ        | '
+	DB	'         -‚o‚`‚t‚r‚d-         | '
+	DB	'         -PAUSE- ‰ðœ         | '
+	DB	'      -FADE OUT COMMAND-      | '
 
 TITLE_STR:
-	DB	'\0000*CEŸ *C3–‚é“`àE-ƒKƒŠƒEƒX‚Ì–À‹{-*CE Ÿ'	;*DM*
-	DB	'\1000*CA      s‚i‚t‚j‚dE‚a‚n‚wt      '	;*DM*
-	DB	'                                '	;*DM*
-	DB	'\4058Œø‰Ê‰¹ No.01'	;*DM*
-	DB	'\5858‚a‚f‚l No.87'	;*DM*
-	DB	'\7058I—¹'	;*DM*
-	DB	'\9070*0EHOME KEY:FADE OUT '	;*DM*
-	DB	'\A000*C3                                '	;*DM*
-	DB	'                                '	;*DM*
-	DB	'                                '	;*DM*
-	DB	'\A04C*C3-BGM INDEX-|'	;*DM*
-
+#IF exists _AILZ80ASM_
+	DB	5CH,'0000*CEŸ *C3–‚é“`àE-ƒKƒŠƒEƒX‚Ì–À‹{-*CE Ÿ'
+	DB	5CH,'1000*CA      s‚i‚t‚j‚dE‚a‚n‚wt      '
+	DB	'                                '
+	DB	5CH,'4058Œø‰Ê‰¹ No.01'
+	DB	5CH,'5858‚a‚f‚l No.87'
+	DB	5CH,'7058I—¹'
+	DB	5CH,'9070*0EHOME KEY:FADE OUT '
+	DB	5CH,'A000*C3                                '
+	DB	'                                '
+	DB	'                                '
+	DB	'\\A04C*C3-BGM INDEX-|'
+#ELSE
+	DB	'\0000*CEŸ *C3–‚é“`àE-ƒKƒŠƒEƒX‚Ì–À‹{-*CE Ÿ'
+	DB	'\1000*CA      s‚i‚t‚j‚dE‚a‚n‚wt      '
+	DB	'                                '
+	DB	'\4058Œø‰Ê‰¹ No.01'
+	DB	'\5858‚a‚f‚l No.87'
+	DB	'\7058I—¹'
+	DB	'\9070*0EHOME KEY:FADE OUT '
+	DB	'\A000*C3                                '
+	DB	'                                '
+	DB	'                                '
+	DB	'\A04C*C3-BGM INDEX-|'
+#ENDIF

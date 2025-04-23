@@ -1,27 +1,37 @@
 ;***************************
 ; KONAMI8K SAVE to VRAM
 ;***************************
-	FNAME	"TFROM.BIN"	;*BINHEAD*
+ORGADR:	EQU	0C000H
+
+;--------------------------------------
+;	FNAME	"TFROM.BIN"	;*BINHEAD*
+	ORG	ORGADR-7
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
+;--------------------------------------
 
 ;BIOS LABELS for GAME UTILS
 	INCLUDE "BIOS-DEF.ASM"
 
-W_BANK:	EQU	0F0F1H
+WBANK0:	EQU	0F0F0H
+WBANK1:	EQU	0F0F1H
+WBANK2:	EQU	0F0F2H
+WBANK3:	EQU	0F0F3H
+BANK0:	EQU	5000H
 BANK1:	EQU	7000H
 BANK2:	EQU	9000H
 BANK3:	EQU	0B000H
 
 MAGICN:	EQU	04099H
 
-ORGADR:	EQU	0C000H
+;--------------------------------------
 	ORG	ORGADR
 
 	JP	ROM_CHK
 	JP	ROM_CPY
+;--------------------------------------
 	
 PAR_REF:
 	DB	0
@@ -196,4 +206,3 @@ TFBANK_E:
 
 	INCLUDE	"EX-BIOS.ASM"	;*FILE*
 ENDFL:
-

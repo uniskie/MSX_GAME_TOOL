@@ -5,13 +5,13 @@
 KSS_BANK_IO:	equ 0xfe
 
 data_addr:	equ 0x2000
-driver_size:	equ 0x1e00
-driver_szb:	equ (driver_size / 0x100)
 
 ; T&E BGM Driver X (for PSG/OPLL *mdt file)
 ; PSY-O-BLADE / LAYDOCK2 / UNDEADLINE / Rune Worth
 ; ( ** Gratest Driver is different driver)
 driver_base:	equ 0x0100	;driver address (Z80)
+driver_size:	equ 0x1e00
+driver_szb:	equ (driver_size / 0x100)
 driver_intr:	equ driver_base + 0x00 ; interrupt rutine for playing
 driver_init:	equ driver_base + 0x03 ; initialize
 			; (0x0426) == 0 : skip OPLL check (check and swap OPLL/PSG driver)
@@ -112,16 +112,21 @@ USE_PSGDRV:
 
 USE_OPLLDRV:
 	call COPY_DRV
+
 	;remap ram
 	ld	a,0x7f
 	out	(KSS_BANK_IO),a
+
 	ld	a,0x00 ;write self: nop
 	ld	(PLAY),a
 	ld	a,0x00 ;write self: nop
 	ld	(PCHECK),a
+
 	ld	a,0x00
 	ld	(0x0426),a		;force OPLL mode
+
 	call	driver_init
+
 	ld	a,(ix+1)		;a = loop count (0=infinite loop)
 	ld	b,0			;b = fade-in wait (unit: 1/60 sec) (each one volume)
 	ld	hl,data_addr

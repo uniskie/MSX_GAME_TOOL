@@ -391,4 +391,3 @@ S_RESET:
 	LD	A,15+80H
 	OUT	(C),A
 	RET
-

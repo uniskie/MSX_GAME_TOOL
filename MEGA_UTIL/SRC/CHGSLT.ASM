@@ -1,6 +1,6 @@
 ;-*- tab-width: 8 -*-
 
-;IFDEF SLTTBL ELSE
+;IFEXIST SLTTBL ELSE
 ;SLTTBL:	equ	0FCC5H	;Mirror of Ex-Slot Registers (x4slots)
 ;ENDIF
 SLOTIO:	equ	0A8H	;Slot I/O port
@@ -166,4 +166,4 @@ CHGSLT:
 	POP	AF
 	AND	03H
 	RET
-
+

@@ -1,13 +1,15 @@
 ;**********************************
 ;   SET TRAP for Maze of GALIOUS
 ;**********************************
-; for tniasm v0.45
-; http://www.tni.nl/products/tniasm.html
+ORGADR:	EQU	0C000H
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
 
 ; A=USR( TIME-TRAP É ±ÄÞÚ½ )
 
 ;--------------------------------------
-	FNAME	"GALIOUS.BIN"	;*BINHEAD*
+;	FNAME	"GALIOUS.BIN"	;*BINHEAD*
+	ORG	ORGADR-7
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
@@ -28,15 +30,18 @@ GAMESPA:	EQU	0F0F0H
 
 
 ; KONAMI MEGA-ROM BANK
-;W_BANK:	EQU	0F0F1H
-;BANK1:	EQU	06000H
-;BANK2:	EQU	08000H
-;BANK3:	EQU	0A000H
+;WBANK0:	EQU	0F0F0H
+;WBANK1:	EQU	0F0F1H
+;WBANK2:	EQU	0F0F2H
+;WBANK3:	EQU	0F0F3H
+;BANK0:	EQU	5000H
+;BANK1:	EQU	7000H
+;BANK2:	EQU	9000H
+;BANK3:	EQU	0B000H
 
 ;--------------------------------------
 ; ENTRY (EXPORT)
 ;--------------------------------------
-ORGADR:	EQU	0C000H
 	ORG	ORGADR
 
 	JP	GALIOUS_
@@ -191,9 +196,11 @@ PLAY_TRAP:
 
 	CALL	PLAY_TR
 
-	LD	A,(W_BANK+0)
+;	LD	A,(WBANK0)
+;	LD	(BANK0),A
+	LD	A,(WBANK1)
 	LD	(BANK1),A
-	LD	A,(W_BANK+1)
+	LD	A,(WBANK2)
 	LD	(BANK2),A
 
 PLAY_TRAP_E:
@@ -208,4 +215,3 @@ PLAY_TRAP_E:
 	INCLUDE	"EX-BIOS.ASM"	;*FILE*
 
 ENDFL:
-

@@ -38,7 +38,7 @@ GETCPU:	EQU	0183H
 ;******************************
 ;GENERAL PORT
 ;******************************
-CHGCAP:	EQU	0132H	;CAP ランプの状態を変える
+CHGCAP:	EQU	0132H	;CAP ランプの状態を変える A=0:点灯/O以外:消灯
 CHGSND:	EQU	0135H	;1ビットサウンドポート
 
 ;CAPS
@@ -89,10 +89,14 @@ KEYINT:	EQU	0038H	;TIMER
 ;******************************
 ; VDP / VRAM ACCESS
 ;******************************
+
 WRTVRM:	EQU	004DH	;HL=VRAM ADDRESS(14bit),
 SETWRT:	EQU	0053H	;HL=VRAM ADDRESS(14bit), A=DATA
 FILVRM:	EQU	0056H	;HL=VRAM ADDRESS(14bit), BC=SIZE, A=DATA
-RDVDP:	EQU	013EH
+
+CHGMOD:	EQU	005FH	;スクリーン・モードを変える。パレットは初期化しない。A にスクリーンモード (0～8)
+
+RDVDP:	EQU	013EH	;VDP のステータス・レジスタを読む
 
 NSTWRT:	EQU	0171H	;HL=VRAM ADDRESS(16bit),
 NWRVRM:	EQU	0177H	;HL=VRAM ADDRESS(16bit), A=DATA

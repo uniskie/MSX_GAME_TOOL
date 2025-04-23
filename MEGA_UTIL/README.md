@@ -189,24 +189,27 @@ SDカード破壊の危険性が低くなります。
 ## ソースファイルについて  
 
 srcフォルダにマシン後プログラムのソースが入っています。  
-tniASM v0.45を使用してWindows上でクロスアセンブルしています。  
-makeall.batで一括ビルド可能です。  
+AILZ80ASMを使用してWindows上でクロスアセンブルしています。  
+（使用アセンブラをTNIASMからAILZ80ASMに変更しました。）  
+MAKEALL.BATで一括ビルド可能です。  
 
-[tniASM - Macro Assembler home page](http://www.tni.nl/products/tniasm.html)
-
-[tniASM v0.45 (2 November 2011, final freeware Z80/R800/GBZ80 version)](http://www.tni.nl/products/tniasm045.zip)
+[AILZ80ASM](https://github.com/AILight/AILZ80ASM)
 
 #### 共用  
-- EX-BIOS.ASM  
-- CHGSLT.ASM  
-- BIOS-DEF.ASM  
+- BIOS-DEF.ASM ... BIOS系シンボル定義（使用しているもののみ）  
+- EX-BIOS.ASM ... 共用している処理まとめ  
+- CHGSLT.ASM  ... スロット処理まとめ  
+- KJ-VDP.ASM  ... screen5/7へ漢字表示  
+- MOJI-24.ASM ... screen2/4へ文字表示  
+- KONAMI8K.ASM ... KONAMI 8Kバンク/SCC/コナミゲームID取得  
+- BIOS-DEF.ASM ... BIOS関連のエントリやワークエリア定義  
+- PAC-TOOL.ASM ... Pana Amusement Cartridge関連
+- KONAMI8K.ASM ... コナミ共通（ROMバンクやSCC関連）
 
 #### HYDLIDE3.BAS用  
-- HYDLIDE3.ASM  
-- HYD3-EXP.ASM  
-
-#### KONAMI系共用  
-- KONAMI8K.ASM  
+- HYDLIDE3.ASM  ... 起動処理
+- HYD3-EXP.ASM  ... 拡張ポーズ処理
+- HYD3CHAR.BAS  ... キャラクターデータ改造ツール
 
 #### GALIOUS.BAS用  
 - GALIOUS.ASM  ... 起動処理  
@@ -233,15 +236,6 @@ makeall.batで一括ビルド可能です。
 - KONALIST.ASM ... コナミゲームID、タイトル名リスト  
 
 ## おまけ  
-
-#### 共用  
-- BIOS-DEF.ASM ... BIOS系シンボル定義（使用しているもののみ）  
-- EX-BIOS.ASM ... 共用している処理まとめ  
-- CHGSLT.ASM  ... スロット処理まとめ  
-- KJ-VDP.ASM  ... screen5/7へ漢字表示  
-- MOJI-24.ASM ... screen2/4へ文字表示  
-- KONAMI8K.ASM ... KONAMI 8Kバンク/SCC/コナミゲームID取得  
-- BIOS-DEF.ASM ... BIOS関連のエントリやワークエリア定義  
 
 #### ガリウスの迷宮ミュージックボックス  
 - GAL-MUS.BAS  

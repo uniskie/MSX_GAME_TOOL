@@ -1,13 +1,15 @@
 ;***************************
 ;   SET TRAP for  PARODIUS
 ;***************************
-; for tniasm v0.45
-; http://www.tni.nl/products/tniasm.html
+ORGADR:	EQU	0C000H
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
 
 ; A=USR( TIME-TRAP É ±ÄÞÚ½ )
 
 ;--------------------------------------
-	FNAME	"PARODIUS.BIN"	;*BINHEAD*
+;	FNAME	"PARODIUS.BIN"	;*BINHEAD*
+	ORG	ORGADR-7
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
@@ -26,7 +28,11 @@ MAGICN:	EQU	04099H	;GAME ROM CHEK ID
 GAMESPA:	EQU	0F0F0H
 
 ; KONAMI MEGA-ROM BANK
-;W_BANK:	EQU	0F0F1H
+;WBANK0:	EQU	0F0F0H
+;WBANK1:	EQU	0F0F1H
+;WBANK2:	EQU	0F0F2H
+;WBANK3:	EQU	0F0F3H
+;BANK0:	EQU	5000H
 ;BANK1:	EQU	7000H
 ;BANK2:	EQU	9000H
 ;BANK3:	EQU	0B000H
@@ -34,7 +40,6 @@ GAMESPA:	EQU	0F0F0H
 ;--------------------------------------
 ; ENTRY (EXPORT)
 ;--------------------------------------
-ORGADR:	EQU	0C000H
 	ORG	ORGADR
 
 	JP	PARODIUS_
@@ -228,4 +233,3 @@ RET_SCC:
 	INCLUDE "CHGSLT.ASM"	;*FILE*
 ;--------------------------------------
 ENDFL:
-

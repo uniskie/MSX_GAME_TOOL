@@ -1,8 +1,8 @@
 ;***************************************
 ;  in-game JUKEBOX for Maze of GALIOUS
 ;***************************************
-; for tniasm v0.45
-; http://www.tni.nl/products/tniasm.html
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
 
 ;--------------------------------------
 ; GALIOUS ROM RUTINES
@@ -345,4 +345,3 @@ J_WTIT3:
 ;--------------------------------------
 	INCLUDE	"GAL-TITL.ASM"	;*FILE*
 
-

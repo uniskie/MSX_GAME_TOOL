@@ -1,8 +1,11 @@
 ;***************************
 ;    F1SPIRIT  SOUND-BOX
 ;***************************
+ORGADR:	EQU	0C000H
+
 ; A=USR( TIME-TRAP ? Å}???? )
-	FNAME	"F1SP-MUS.BIN"	;*BINHEAD*
+;	FNAME	"F1SP-MUS.BIN"	;*BINHEAD*
+	ORG	ORGADR-7
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL	;*BINHEAD*
@@ -14,9 +17,7 @@
 
 ;--------------------------------------
 
-ORGADR:	EQU	0C000H
 	ORG	ORGADR
-
 	JP	F1SPIRIT_
 
 ;--------------------------------------
@@ -38,6 +39,11 @@ TRAP_READY:
 
 ;--------------------------------------
 F1SPIRIT_:
+	INC	HL
+	INC	HL
+	LD	A,(HL)
+	LD	(ROMSLT),A
+
 	DI
 	LD	(SVW_SP),SP
 
@@ -260,4 +266,3 @@ PLAY_TRAP:
 	INCLUDE	"F1SPPLAY.ASM"	;*FILE*
 	INCLUDE	"EX-BIOS.ASM"	;*FILE*
 ENDFL:
-
