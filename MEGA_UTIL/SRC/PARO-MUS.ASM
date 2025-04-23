@@ -1,6 +1,9 @@
 ;***************************
 ;    PARODIUS  SOUND-BOX
 ;***************************
+USE_SCC_SEARCH: EQU	1	;SCCåüçıÇóLå¯Ç…
+USE_SCC_SEARCH_BAS: EQU	1	;SCCåüçı(BASICóp)ÇóLå¯Ç…
+
 ORGADR:	EQU	0C000H
 ; A=USR( TIME-TRAP … ±ƒﬁ⁄Ω )
 ;	FNAME	"PARO-MUS.BIN"	;*BINHEAD*
@@ -18,7 +21,7 @@ ORGADR:	EQU	0C000H
 	ORG	ORGADR
 
 	JP	PARODIUS_
-	
+	JP	SEARCH_SCC_BAS
 
 ;--------------------------------------
 ; WORK AREA
@@ -36,12 +39,17 @@ W_SBANK:
 
 ;--------------------------------------
 PARODIUS_:
+	DI
+
 	INC	HL
 	INC	HL
 	LD	A,(HL)
+#IF exists USE_SCC_SEARCH
+	OR	A
+	CALL	Z,SEARCH_SCC
+#ENDIF;#IF exists USE_SCC_SEARCH
 	LD	(ROMSLT),A
 
-	DI
 	LD	(SVW_SP),SP
 
 	LD	HL,8000H

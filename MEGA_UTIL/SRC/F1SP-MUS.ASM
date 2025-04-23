@@ -1,6 +1,9 @@
 ;***************************
 ;    F1SPIRIT  SOUND-BOX
 ;***************************
+USE_SCC_SEARCH: EQU	1	;SCCåüçıÇóLå¯Ç…
+USE_SCC_SEARCH_BAS: EQU	1	;SCCåüçı(BASICóp)ÇóLå¯Ç…
+
 ORGADR:	EQU	0C000H
 
 ; A=USR( TIME-TRAP ? Å}???? )
@@ -14,11 +17,12 @@ ORGADR:	EQU	0C000H
 ;--------------------------------------
 ;BIOS LABELS for GAME UTILS
 	INCLUDE "BIOS-DEF.ASM"
-
 ;--------------------------------------
 
 	ORG	ORGADR
+
 	JP	F1SPIRIT_
+	JP	SEARCH_SCC_BAS
 
 ;--------------------------------------
 ; WORK AREA
@@ -39,12 +43,17 @@ TRAP_READY:
 
 ;--------------------------------------
 F1SPIRIT_:
+	DI
+
 	INC	HL
 	INC	HL
 	LD	A,(HL)
+#IF exists USE_SCC_SEARCH
+	OR	A
+	CALL	Z,SEARCH_SCC
+#ENDIF;#IF exists USE_SCC_SEARCH
 	LD	(ROMSLT),A
 
-	DI
 	LD	(SVW_SP),SP
 
 	XOR	A

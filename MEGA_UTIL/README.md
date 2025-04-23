@@ -5,6 +5,16 @@
 DISK IMAGE -> [MEGA-UTL.dsk](MEGA-UTL.dsk)
 
 ## 変更履歴  
+- 2025/04/24  
+   - SCCの自動認識を追加（PARO-MUS,F1SP-MUS）
+- 2025/04/23  
+   - アセンブラをAILZ80ASMに変更  
+     （なるべく共通モジュールにしたいので順次リファクタリング中）
+   - KONAMI.BASの対応ソフトを強化  
+     (わんぱくアスレチックの動作安定化。  
+     　コナミのゴルフをリストに追加。等）
+   - 沙羅曼蛇は要RAM16KBのソフトなので対応から除外
+   - PARO-MUS、F1SP-MUSのSCCスロット指定が機能しなくなっていたのを修正
 - 2025/04/13  
    - F1-SPIRIT向けのツールを追加
    - ソースファイルのメンテナンスと共通化
@@ -51,22 +61,24 @@ ROMカートリッジを挿さずに電源にBASICを起動し、
 ## その他ツール  
 
 - HYD3CHAR.BAS  
-...「ハイドライドⅢ」セーブデータ改造ツール  
+  ...「ハイドライドⅢ」セーブデータ改造ツール  
 
 - GAL-MUS.BAS  
-...「ガリウスの迷宮」ミュージックボックス  
-... ※SAVE-MUS.BASでROMイメージからの吸出しファイルを作成する必要がある  
+  ...「ガリウスの迷宮」JUKE-BOX (サウンドテスト)  
+  ... ※SAVE-MUS.BASでROMイメージからGAL-MUS.OBJを作成しておく必要があります。
 
 - PARO-MUS.BAS  
-...「パロディウス」ミュージックボックス  
-...※SAVE-MUS.BASでROMイメージからの吸出しファイルを作成する必要がある  
+  ...「パロディウス」JUKE-BOX (サウンドテスト)  
+  ... ※SAVE-MUS.BASでROMイメージからPARO-MUS.OBJを作成しておく必要があります。
 
 - F1SP-MUS.BAS  
-...「F1-SPIRIT」ミュージックボックス  
-...※SAVE-MUS.BASでROMイメージからの吸出しファイルを作成する必要がある  
+  ...「F1-SPIRIT」JUKE-BOX (サウンドテスト)  
+  ... ※SAVE-MUS.BASでROMイメージからF1SP-MUS.OBJを作成しておく必要があります。
 
 - SAVE-MUS.BAS  
-...GAL-MUS.BAS / PARO-MUS.BAS用イメージファイル作成ツール  
+  ... ROMからJUKE-BOX用バイナリファイル作成を作成するツール  
+  ... 「ガリウスの迷宮」「パロディウス」「F1-SPIRIT」用
+
 
 ## 再配布等  
 
@@ -99,9 +111,8 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 （LEDランプが切り替わるのでそれで判断可能）  
 
 ---  
-## 各プログラムの概要  
 
-### HYDLIDE3.BAS  
+## HYDLIDE3.BAS  
 
 ここでは概要のみ。  
 詳細は [README_HYDLIDE3.TXT](./README_HYDLIDE3.TXT) 参照。  
@@ -125,7 +136,7 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 - MSX2版は1chipMSXのクロックアップ状態でしばらく動かしていると暴走します。  
     （このツールを使用していない場合でも同様です）
 
-#### 操作例：キャラデータを改造して実行
+### 操作例：キャラデータを改造して実行
 1. RUN"HYDLIDE3.BAS
 2. カートリッジ後挿し
 3. LOAD CHARACTERSまたはPLAY→STOP→CTRL+@
@@ -135,7 +146,9 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 
 ※ SAVEした改造データはLOADで反映・PACにも保存
 
-### PARODIUS.BAS / F1SPIRIT.BAS / GALIOUS.BAS / KONAMI.BAS  
+---  
+
+## PARODIUS.BAS / F1SPIRIT.BAS / GALIOUS.BAS / KONAMI.BAS  
 
 ここでは概要のみ。  
 詳細は [README_KONAMI.TXT](./README_KONAMI.TXT) 参照。  
@@ -186,6 +199,7 @@ NextorのIDEドライバははMegaSDのものが使用できます。
 SDカード破壊の危険性が低くなります。  
 
 ---  
+
 ## ソースファイルについて  
 
 srcフォルダにマシン後プログラムのソースが入っています。  
@@ -195,7 +209,7 @@ MAKEALL.BATで一括ビルド可能です。
 
 [AILZ80ASM](https://github.com/AILight/AILZ80ASM)
 
-#### 共用  
+### 共用  
 - BIOS-DEF.ASM ... BIOS系シンボル定義（使用しているもののみ）  
 - EX-BIOS.ASM ... 共用している処理まとめ  
 - CHGSLT.ASM  ... スロット処理まとめ  
@@ -206,30 +220,30 @@ MAKEALL.BATで一括ビルド可能です。
 - PAC-TOOL.ASM ... Pana Amusement Cartridge関連
 - KONAMI8K.ASM ... コナミ共通（ROMバンクやSCC関連）
 
-#### HYDLIDE3.BAS用  
+### HYDLIDE3.BAS用  
 - HYDLIDE3.ASM  ... 起動処理
 - HYD3-EXP.ASM  ... 拡張ポーズ処理
 - HYD3CHAR.BAS  ... キャラクターデータ改造ツール
 
-#### GALIOUS.BAS用  
+### GALIOUS.BAS用  
 - GALIOUS.ASM  ... 起動処理  
 - GAL-EXPS.ASM ... 拡張ポーズ・クイックセーブロード処理  
 - GAL-PLAY.ASM ... JUKE-BOX処理  
 - GAL-TITL.ASM ... 曲名リスト  
 
-#### F1SPIRIT.BAS用  
+### F1SPIRIT.BAS用  
 - F1SPIRIT.ASM ... 起動処理  
 - F1SP-EXP.ASM ... 拡張ポーズ・クイックセーブロード処理  
 - F1SPPLAY.ASM ... JUKE-BOX処理  
 - F1SPTITL.ASM ... 曲名リスト  
 
-#### PARODIUS.BAS用  
+### PARODIUS.BAS用  
 - PARODIUS.ASM ... 起動処理  
 - PARO-EXP.ASM ... 拡張ポーズ・クイックセーブロード処理  
 - PAROPLAY.ASM ... JUKE-BOX処理  
 - PAROTITL.ASM ... 曲名リスト  
 
-#### KONAMI.BAS用  
+### KONAMI.BAS用  
 - KONAMI.ASM   ... 起動処理  
 - KONA-EXP.ASM ... 拡張ポーズ・クイックセーブロード処理  
 - KONASRCH.ASM ... 汎用対応向け処理  
@@ -237,7 +251,7 @@ MAKEALL.BATで一括ビルド可能です。
 
 ## おまけ  
 
-#### ガリウスの迷宮ミュージックボックス  
+### ガリウスの迷宮 JUKE-BOX (サウンドテスト)  
 - GAL-MUS.BAS  
 - GAL-MUS.BIN  
 - GAL-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
@@ -246,23 +260,34 @@ MAKEALL.BATで一括ビルド可能です。
 - GMUS-SUB.ASM  
 - GAL-TL-K.ASM  
 
-#### F1-SPIRITミュージックボックス  
+### F1-SPIRIT JUKE-BOX (サウンドテスト)  
 - F1SP-MUS.BAS  
 - F1SP-MUS.BIN  
 - F1SP-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
   ... ROMバンク$0D,$0E,$0Fをつなげたファイル  
 - F1SP-MUS.ASM  
 
-#### パロディウスミュージックボックス  
+### パロディウス JUKE-BOX (サウンドテスト)  
 - PARO-MUS.BAS  
 - PARO-MUS.BIN  
 - PARO-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
   ... ROMバンク$00,$04,$05,$06,$0Aをつなげたファイル  
 - PARO-MUS.ASM  
 
-#### ミュージックボックス用ROMイメージ作成ツール  
+### JUKE-BOX (サウンドテスト) 用 ROMイメージ作成ツール  
 （F1SP-MUS.OBJ/PARO-MUS.OBJ/GAL-MUS.OBJの作成）  
 - SAVE-MUS.BAS  
 - TFROM.BIN  
 - TFROM.ASM  
+
+#### JUKE-BOX対応ROM
+
+```
+Bytes   SHA1                                     Name
+------- ---------------------------------------- ------------
+131,072 42FBB18722DF3E34E5B0F935A2DC0CE0D85099E9 F1SPIRIT.ROM
+131,072 4D51D3C5036311392B173A576BC7D91DC9FED6CB GALIOUS.ROM
+131,072 2220363AE56EF707AB2471FCDB36F4816AD1D32C PARODIUS.ROM
+-------------------------------------------------------------
+```
 

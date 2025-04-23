@@ -29,9 +29,11 @@ IF /I "%3"=="/F" SET MODE=FULL
 
 SET SYMNAME=%~n1.SYM
 SET TEMP_SYM=%~n1.ORG.SYM
-SET DEF_OPT=--gap-default 0 --no-super-asm --define-label _AILZ80ASM_=0xBEEF
-REM ローカルラベルの最後に:がある時の警告を非表示
+SET DEF_OPT=--gap-default 0
+SET DEF_OPT=%DEF_OPT% --define-label _AILZ80ASM_=0xBEEF
+SET DEF_OPT=%DEF_OPT% --no-super-asm
 SET DEF_OPT=%DEF_OPT% --disable-warning W9005
+REM ローカルラベルの最後に:がある時の警告を非表示
 
 IF "%MODE%"=="FULL" GOTO :FULL
 IF "%MODE%"=="SIMPLE" GOTO :SIMPLE
