@@ -2,6 +2,9 @@
 ;     TIMER & KEY  INTERRUPT
 ; RAM C000-FEFF > VRAM 8000-BEFF
 ;*********************************
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
 ;       NAME  F1SP-EXP
 
 PSG_SV:	EQU	VCBC+19	;0FB8BH+19
@@ -206,7 +209,7 @@ SAVE_AT_Q:
 	CALL	SAVE_
 QUIT:
 	LD	A,255
-	LD	(F1SP_REF),A
+	LD	(SAV_REF),A
 	LD	A,V_PG1
 	CALL	SAVE_
 	LD	A,V_PG3
@@ -217,7 +220,7 @@ QUIT:
 ;--------------------------------------
 SAVE_AT:
 	LD	A,255
-	LD	(F1SP_REF),A
+	LD	(SAV_REF),A
 	LD	A,V_PG1
 	JP	SAVE_P
 SAVE:	LD	A,V_PG2
@@ -318,7 +321,7 @@ RESET2:	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	LD	A,1
 	CALL	CHGCAP
 
-	JP	F1SP_ADR
+	JP	RUN_ADR
 
 ;--------------------------------------
 ; F1SPIRIT TRAINNER

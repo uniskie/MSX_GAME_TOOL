@@ -5,6 +5,8 @@
 DISK IMAGE -> [MEGA-UTL.dsk](MEGA-UTL.dsk)
 
 ## 変更履歴  
+- 2025/04/24 -2  
+   - ガリウスの迷宮をSCCカートリッジと誤認する問題を修正（PARO-MUS,F1SP-MUS）
 - 2025/04/24  
    - SCCの自動認識を追加（PARO-MUS,F1SP-MUS）
 - 2025/04/23  

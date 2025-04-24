@@ -1,3 +1,8 @@
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
+#pragma once
+
 ;BIOS LABELS for GAME UTILS
 
 ;******************************

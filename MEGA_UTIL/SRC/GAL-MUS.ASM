@@ -2,7 +2,15 @@
 ; Maze of GALIOUS SOUND-BOX
 ; FOR KANJI
 ;***************************
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
+;--------------------------------------
+USE_KEYBUFFER: EQU	1	;ENABLE KEY BUFFER in EX-BIOOS
+;--------------------------------------
+
 ORGADR:	EQU	0C000H
+
 ; A=USR(0)
 ;	FNAME	"GAL-MUS.BIN"	;*BINHEAD*
 	ORG	ORGADR-7
@@ -11,21 +19,20 @@ ORGADR:	EQU	0C000H
 	DW	ENDFL-1	;*BINHEAD*
 	DW	ORGADR ;*BINHEAD*;
 
+;--------------------------------------
 ;BIOS LABELS for GAME UTILS
 	INCLUDE "BIOS-DEF.ASM"
 
-USE_KEYBUFFER: EQU	1	;ENABLE KEY BUFFER in EX-BIOOS
-
-;--------------------------------------
 ;--- GALIOUS ROM MUSIC RUTINE
 SETMUSIC:	EQU	4E6BH
 PMUSIC:	EQU	6004H
-
 ;--------------------------------------
+
 	ORG	ORGADR
 
 ORGFL:
-	JP	GALIOUS_
+	JP	JUKEBOX_
+
 ;--------------------------------------
 PLAYWK:	;BGM,SE,LINE(BGM,SE,EXIT)
 	DB	88H,01H,0,0
@@ -37,7 +44,7 @@ SV_HOOK:
 	DS	5
 
 ;--------------------------------------
-GALIOUS_:
+JUKEBOX_:
 	DI
 ;	IM	1
 	LD	(SVW_SP),SP

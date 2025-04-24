@@ -1,5 +1,10 @@
 ;-*- tab-width: 8 -*-
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
 
+#pragma once
+
+;--------------------------------------
 ;IFEXIST SLTTBL ELSE
 ;SLTTBL:	equ	0FCC5H	;Mirror of Ex-Slot Registers (x4slots)
 ;ENDIF

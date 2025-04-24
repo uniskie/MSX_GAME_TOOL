@@ -1,7 +1,14 @@
 ;***************************
 ;  SET UP  for HYDLIDE3
 ;***************************
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
+;--------------------------------------
+
 ORGADR:	EQU	0A000H
+
+;--------------------------------------
 ;"HYD3STRT"
 ;	FNAME	"HYDLIDE3.BIN"	;*BINHEAD*
 	ORG	ORGADR-7
@@ -10,6 +17,7 @@ ORGADR:	EQU	0A000H
 	DW	ENDFL-1	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 
+;--------------------------------------
 VERSION:	EQU	0102H	;VERSION ID
 
 	INCLUDE	"HYD3-DEF.ASM"
@@ -34,11 +42,11 @@ CHRD4S:	EQU	400H	;ALL CHARA DATA SIZE (CHRD1S*4)
 DMAADR:	EQU	0B000H	;B000H-CFFFH
 DMASIZ:	EQU	2000H
 
-;VRAM 0000H-2000H ﾉ ｲﾁｼﾞﾎｿﾞﾝ
-;VRMSAV:	EQU	DMAADR	;DISK BUFｦ ﾂｶｳ / RAMﾍﾟｰｼﾞ0ｦ ﾂｶﾜﾅｲ
-VRMSAV:	EQU	4000H	;RAMﾍﾟｰｼﾞ1ｦ ﾂｶｳ
+;VRAM 0000H-2000H の 一時保存
+;VRMSAV:	EQU	DMAADR	;DISK BUFを使う / RAMページ0を使わない
+VRMSAV:	EQU	4000H	;RAMページ1を使う
 VRMSVS:	EQU	2000H
-CHREVA:	EQU	6000H	;RAMﾍﾟｰｼﾞ1 DISKBUFF ｼﾖｳｼﾞ ﾀｲﾋ
+CHREVA:	EQU	6000H	;RAMページ1 DISKBUFF 使用時の退避先
 
 PT_TRAP:	EQU	0F6FFH
 PTTRAPH:	EQU	PT_TRAP/0100H	;F6FFH	Interrupt mode 2 call address(??FFH)
@@ -51,6 +59,7 @@ BNKSW0:	EQU	6000H	;ROM BANK PAGE0:4000h-5FFFh
 BNKSW1:	EQU	6800H	;ROM BANK PAGE1:6000h-7FFFh
 BNKSW2:	EQU	7000H	;ROM BANK PAGE2:8000h-9FFFh
 BNKSW3:	EQU	6800H	;ROM BANK PAGE3:A000h-BFFFh
+
 ;--------------------------------------
 ; HYD3-EXP TABLE OFFSET
 _VERSION:	EQU	0
@@ -58,13 +67,12 @@ _EXPSIZ:	EQU	2
 _EX_TRAP:	EQU	4
 _SET_UP:	EQU	6
 _CONTINUE:	EQU	8
+
 ;--------------------------------------
-
-
 	ORG	ORGADR
 
 ; JUMP TABLE
-	JP	HYDLID3_	;USR0	EXEC HYDLIDE3
+	JP	GAMEBOOT_	;USR0	EXEC HYDLIDE3
 	JP	HYD3_CHK	;USR1	CHECK SLOT
 	JP	HYD3SAVE	;USR2	SACE STATE
 	JP	HYD3LOAD	;USR3	LOAD STATE
@@ -74,6 +82,7 @@ _CONTINUE:	EQU	8
 ;	3*7=21
 RETBAS:	JP	RET_BAS
 ;	21+3=24
+
 ;--------------------------------------
 ROMSLT:	DB	1	;ROM SLOT
 GAMVER:	DB	0	;HYDLIDE3 = 1:MSX / 2:MSX2
@@ -121,7 +130,7 @@ CSL_RAM0:
 CSL_BIOS0:
 	LD	A,(EXPTBL)
 	LD	H,00H
-CHSLT_:	CALL	CHGSLT	;PAGE0 ﾀｲｵｳ
+CHSLT_:	CALL	CHGSLT	;PAGE0 に対応
 ;IN: A=SLOT, HL=ADDRESS
 ;USE: ALL
 	DI
@@ -139,7 +148,7 @@ CSL_BIOS:
 CSL_BIOS1:
 	LD	A,(EXPTBL)
 	LD	H,40H
-ENSLT_:	CALL	ENASLT	;PAGE1-2 ﾀｲｵｳ
+ENSLT_:	CALL	ENASLT	;PAGE1-2 に対応
 ;IN: A=SLOT, HL=ADDRESS
 ;USE: ALL
 	DI
@@ -187,9 +196,9 @@ RDB_ROM1:
 ;	RET
 
 ;------------------------ START
-; A=USR( HYD3-EXP adrress )
-;  ｱﾄﾞﾚｽ ｶﾞ ﾏｲﾅｽ: continue
-HYDLID3_:
+; A=USR( HYD3-EXP ADDRESS )
+;  ADDRESSがマイナスなら: continue
+GAMEBOOT_:
 
 ;INT ONLY CALL USRINI
 
@@ -585,7 +594,7 @@ CHKSAV_E:
 ;	EI	まだそのまま
 	RET
 
-;-- STATE SAVE ｦ ﾑｺｳｶ ｽﾙ --
+;-- STATE SAVE を無効化する --
 DELSVDT:
 	XOR	A
 	LD	(SAVVER),A	;NO SAVE DATA
@@ -705,8 +714,8 @@ L_MEMSWP:
 	INC	HL
 	LD	(HL),D	;SAVE CHECKSUM
 	RET
-;--------------- Make Check IdentifY Data
-;  (Bank No. ﾄｸﾃｲ ﾖｳ ﾁｪｯｸﾁ)
+;--------------- Make BANK Identify Data
+;  (BANK番号を特定するためのデータを作成)
 
 MAKHASH:
 	CALL	CSL_ROM1
@@ -746,7 +755,7 @@ ZCHHASH:
 	INC	IX
 	EXX	;<--
 
-;(MAKE IDENTIFY DATA)
+;(make identify data)
 	LD	DE,IDDBAS0
 	LD	B,IDDSIZE
 MKHASHL2:
@@ -798,7 +807,7 @@ DPCHASH:
 	RET
 
 ;-------------- Check bank-identifier
-;  (bank no. ﾉ ﾄｸﾃｲ)
+;  (BANK番号を特定する)
 ; HL = BANK No. LIST ADDRESS
 LOG_IDD:
 	PUSH	HL
@@ -1466,8 +1475,8 @@ CHRSUM_:
 
 ;---------- PUSH/POP EDIT-SAVEDATA
 ; (call befor/after DISK BUFF USING.)
-; A=USR6(0) : Move to Evacuation area
-; A=USR6(1) : Back from Evacuation area
+; A=USR6(0) : 退避エリアに保存
+; A=USR6(1) : 退避エリアから復元
 ; IN:	HL - 0=PUSH/1=POP
 ; OUT:	(EVCFLG) - 1=Evacuation data Exists(Need Back)
 CHREEVAC:

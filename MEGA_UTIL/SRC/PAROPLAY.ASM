@@ -1,3 +1,9 @@
+;***************************************
+;  in-game JUKEBOX for PARODIUS
+;***************************************
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
 ;SETWRT:	EQU	0171H
 ;WRTVRM:	EQU	0177H
 

@@ -1,8 +1,13 @@
 ;***************************
 ;    F1SPIRIT  SOUND-BOX
 ;***************************
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
+;--------------------------------------
 USE_SCC_SEARCH: EQU	1	;SCCåüçıÇóLå¯Ç…
 USE_SCC_SEARCH_BAS: EQU	1	;SCCåüçı(BASICóp)ÇóLå¯Ç…
+;--------------------------------------
 
 ORGADR:	EQU	0C000H
 
@@ -21,7 +26,7 @@ ORGADR:	EQU	0C000H
 
 	ORG	ORGADR
 
-	JP	F1SPIRIT_
+	JP	JUKEBOX_
 	JP	SEARCH_SCC_BAS
 
 ;--------------------------------------
@@ -42,7 +47,7 @@ TRAP_READY:
 	DB	0
 
 ;--------------------------------------
-F1SPIRIT_:
+JUKEBOX_:
 	DI
 
 	INC	HL

@@ -1,54 +1,57 @@
+;--------------------------------------
 ; SEARCH KONAMI ROM DATA
 ;--------------------------------------
-;; JUMP TO GAME HKEYI TRAP
-;TRAP_MS:
-;	RET		;RE-WRITE -> C3H
-;GAME_TRAP_ADR:
-;	DW	0000H	;RE-WRITE -> GAME_TRAP_ADR
-;NEED_EI:
-;	DB	0
-;GAMEWORK_INIT_SIZE:
-;	DW	0	;3FFHとか1FFHとか
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
+#pragma once
+
+;--------------------------------------
+;USE_SIN10BAI_SEARCH:	EQU	1	;新10倍タイプの検索を使う
+;KONAMI_MSX1_ONLY:	EQU	1	;KONAMI MSX1 ソフトのみ
+;KONAMI_MSX1_E000: 	EQU	1	;ワークエリアがE000H以上のソフトのみ
+;SEARCH_ID_ONLY:	EQU	1	;ID検索のみ行う（スタックポインタ、フック、EIなどを検査しない）
+;USE_SCC_SEARCH:	EQU	1	;SCC検索を有効に
+;USE_SCC_SEARCH_BAS:	EQU	1	;SCC検索(BASIC用)を有効に
+;--------------------------------------
 
 GAME_SLOT:	EQU	ROMSLT
+
 ;--------------------------------------
-GET_SLOT_BAS:
-	CP	2	;INTEGER
-	RET	NZ
-	PUSH	HL
-	POP	IX
-	LD	A,(ROMSLT)
-	LD	(IX+2),A
-	LD	(IX+3),0
-	RET
-
-GET_GAME_ID_BAS:
-	CP	2	;INTEGER
-	RET	NZ
-	PUSH	HL
-	POP	IX
-	LD	HL,(R_GAME_ID+0)	;DB 07 XX
-	LD	(IX+2),H	;07
-	LD	(IX+3),L	;XX
-	RET
-
-GET_TITLE_BAS:
-	CP	3	;STRIING
-	RET	NZ
-	PUSH	DE
-	POP	IX
-	LD	A,(R_GAME_TITLE)
-	LD	HL,R_GAME_TITLE+1
-	LD	(IX+0),A
-	LD	(IX+1),L
-	LD	(IX+2),H
-	RET
+#IF (exists USE_SIN10BAI_SEARCH)
+RESULT:
+R_GAME_ID:
+	DW	0
+R_GAME_TITLE:
+	DB	0,"                           "	;文字数,27文字
+#ENDIF;#IF (exists USE_SIN10BAI_SEARCH)
+#IF (exists USE_SIN10BAI_SEARCH) && !(exists SEARCH_ID_ONLY)
+GAME_SP_ADR:
+	DW	0F0F0H
+GAME_MAIN_ADR:
+	DW	RET_BAS
+GAME_TRAP_ADR:
+	DW	0000H
+NEED_EI:
+	DB	0
+GAMEWORK_INIT_SIZE:
+	DW	0	;3FFHとか1FFHとか
+;--------------------------------------
+; JUMP TO GAME HKEYI TRAP
+TRAP_MS:
+	DB	0C3H	;JP
+TRAP_MS_ADR:
+	DW	RET_BAS	;RE-WRITE -> GAME_TRAP_ADR
+#ENDIF;#IF (exists USE_SIN10BAI_SEARCH) && !(exists SEARCH_ID_ONLY)
 
 ;--------------------------------------
 ; ROM SEARCH FOR BASIC
-; (BASIC) A$=USR(0)
+; (BASIC) A$=USR("")
 ;	OK:	A$=ゲーム名
 ;	NG:	A$=空文字列
+; (BASIC) A=USR(0)
+;	OK:	A=スロット
+;	NG:	A=0
 SEARCH_ROM_BAS:
 	PUSH	DE	;DE=STRING DESCRIPTOR
 	PUSH	HL	;HL=DAC
@@ -84,6 +87,39 @@ SEARCH_ROM_RET_STR:
 	LD	(IX+1),L	;文字列本体アドレス
 	LD	(IX+2),H	;文字列本体アドレス
 
+	RET
+
+;--------------------------------------
+GET_SLOT_BAS:
+	CP	2	;INTEGER
+	RET	NZ
+	PUSH	HL
+	POP	IX
+	LD	A,(ROMSLT)
+	LD	(IX+2),A
+	LD	(IX+3),0
+	RET
+
+GET_GAME_ID_BAS:
+	CP	2	;INTEGER
+	RET	NZ
+	PUSH	HL
+	POP	IX
+	LD	HL,(R_GAME_ID+0)	;DB 07 XX
+	LD	(IX+2),H	;07
+	LD	(IX+3),L	;XX
+	RET
+
+GET_TITLE_BAS:
+	CP	3	;STRIING
+	RET	NZ
+	PUSH	DE
+	POP	IX
+	LD	A,(R_GAME_TITLE)
+	LD	HL,R_GAME_TITLE+1
+	LD	(IX+0),A
+	LD	(IX+1),L
+	LD	(IX+2),H
 	RET
 
 ;--------------------------------------
@@ -128,7 +164,7 @@ SEARCH_GAMEID_L:
 	JP	NOT_FOUND_ROM
 
 SEARCH_ROM_1:
-#IF exists USE_SIN10BAI_SEARCH
+#IF (exists USE_SIN10BAI_SEARCH)
 #ELSE
 	PUSH	HL
 
@@ -145,6 +181,9 @@ SEARCH_ROM_1:
 	LD	BC,KONAMI_ID_ISIZE
 	LDIR
 
+#IF exists SEARCH_ID_ONLY
+	JR	ROM_DETECTED
+#ELSE;#IF exists SEARCH_ID_ONLY
 ;スタックポインタを探す
 	LD	HL,(4002H)	;HL=BOOT ADDRESS
 	CALL	SEARCH_SP
@@ -248,14 +287,17 @@ CPBCDE:
 	LD	A,C
 	SUB	E
 	RET
+#ENDIF;#IF exists SEARCH_ID_ONLY
 
 NOT_FOUND_ROM:
 	LD	HL,0
 	LD	(GAME_ID),HL
+#IF !(exists SEARCH_ID_ONLY)
 	LD	HL,RET_BAS
 	LD	(GAME_MAIN_ADR),HL
 	LD	HL,0F0F0H
 	LD	(GAME_SP_ADR),HL
+#ENDIF;#IF !(exists SEARCH_ID_ONLY)
 	XOR	A
 	LD	(ROMSLT),A
 

@@ -1,11 +1,31 @@
 ;***************************
 ;   SET TRAP for  PARODIUS
 ;***************************
-ORGADR:	EQU	0C000H
 ; for AILZ80ASM
 ; https://github.com/AILight/AILZ80ASM/
 
-; A=USR( TIME-TRAP É ±ÄÞÚ½ )
+;--------------------------------------
+;GAME:
+;	VRAM: 16KByte
+;	RAM : 8KByte ($e000-$fc00)
+;--------------------------------------
+;VRAM SAVE Version:(Current Version)
+; * MSX1: not work
+; * VRAM SAVE: easy in BASIC
+; * Save Slot: 2
+
+;$0000	(GAME)
+;$4000	AUTO STATE RAM 8KByte
+;	AUTO STATE VRAM 16KByte
+;$8000	STATE RAM 8KByte
+;	STATE VRAM 16KByte
+;$10000	BASIC RAM 8KByte
+;	BASIC VRAM 16KByte
+;$14000	free
+;$18000	free
+;--------------------------------------
+
+ORGADR:	EQU	0C000H
 
 ;--------------------------------------
 ;	FNAME	"PARODIUS.BIN"	;*BINHEAD*
@@ -14,15 +34,13 @@ ORGADR:	EQU	0C000H
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
-;--------------------------------------
 
+;--------------------------------------
 ;BIOS LABELS for GAME UTILS
 	INCLUDE "BIOS-DEF.ASM"
 
-;--------------------------------------
 ; PARODIUS ROM ENTRY
-;--------------------------------------
-PAR_ADR:	EQU	40A7H
+RUN_ADR:	EQU	40A7H
 TRAP_MS:	EQU	402EH	;PARODIUS
 MAGICN:	EQU	04099H	;GAME ROM CHEK ID
 GAMESPA:	EQU	0F0F0H
@@ -42,12 +60,12 @@ GAMESPA:	EQU	0F0F0H
 ;--------------------------------------
 	ORG	ORGADR
 
-	JP	PARODIUS_
+	JP	GAMEBOOT_
 	JP	ROM_CHK	;KONAMI8K.ASM
 ;--------------------------------------
 ; WORK AREA (EXPORT)
 ;--------------------------------------
-PAR_REF:
+SAV_REF:
 	DB	0
 PLAYWK:	;BGM,SE,LINE(BGM,SE,EXIT)
 	DB	88H,01H,0
@@ -65,38 +83,9 @@ SVPHOOK:
 	DS	5
 
 ;--------------------------------------
-;GAME:
-;	VRAM: 16KByte
-;	RAM : 8KByte ($e000-$fc00)
-;--------------------------------------
-
-;--------------------------------------
-;VRAM SAVE Version:(Current Version)
-; * MSX1: not work
-; * VRAM SAVE: easy in BASIC
-; * Save Slot: 2
-
-;$4000	AUTO STATE RAM 8KByte
-;	AUTO STATE VRAM 16KByte
-;$8000	STATE RAM 8KByte
-;	STATE VRAM 16KByte
-;$10000	BASIC RAM 8KByte
-;	BASIC VRAM 16KByte
-;--------------------------------------
-;RAM SAVE Version:(Scrapped Plan)
-; * MSX1: work
-; * VRAM SAVE: Difficult in BASIC.
-; * Save Slot: 1
-
-;$0000	BASIC RAM 8KByte
-;$2000	STATE RAM 8KByte
-;$4000	STATE VRAM 16KByte
-;--------------------------------------
-
-;--------------------------------------
 ; ROUTINES
 ;--------------------------------------
-PARODIUS_:
+GAMEBOOT_:
 	CALL CPUZ80
 	DI
 	LD	(SVW_SP),SP
@@ -129,12 +118,12 @@ PARODIUS_:
 	LD	A,0C3H
 	LD	(H_KEYI),A
 
-	LD	A,(PAR_REF)
+	LD	A,(SAV_REF)
 	DEC	A
 	JP	Z,LOAD	;COMMON
 	INC	A
 	JP	NZ,LOAD_AT	;COMMON
-	JP	PAR_ADR
+	JP	RUN_ADR
 
 ;--------------------------------------
 RET_BAS:
@@ -230,6 +219,6 @@ RET_SCC:
 	INCLUDE	"EX-BIOS.ASM"	;*FILE*
 ;--------------------------------------
 ; ENASLT CLONE (FOR PAGE 0 SLOT CHANGE)
-	INCLUDE "CHGSLT.ASM"	;*FILE*
+;	INCLUDE "CHGSLT.ASM"	;*FILE*
 ;--------------------------------------
 ENDFL:

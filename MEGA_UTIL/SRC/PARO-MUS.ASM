@@ -1,11 +1,16 @@
 ;***************************
 ;    PARODIUS  SOUND-BOX
 ;***************************
-USE_SCC_SEARCH: EQU	1	;SCC検索を有効に
-USE_SCC_SEARCH_BAS: EQU	1	;SCC検索(BASIC用)を有効に
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
+;--------------------------------------
+USE_SCC_SEARCH:		EQU	1	;SCC検索を有効に
+USE_SCC_SEARCH_BAS:	EQU	1	;SCC検索(BASIC用)を有効に
+;--------------------------------------
 
 ORGADR:	EQU	0C000H
-; A=USR( TIME-TRAP ﾉ ｱﾄﾞﾚｽ )
+
 ;	FNAME	"PARO-MUS.BIN"	;*BINHEAD*
 	ORG	ORGADR-7
 	DB	0FEH	;*BINHEAD*
@@ -20,7 +25,7 @@ ORGADR:	EQU	0C000H
 
 	ORG	ORGADR
 
-	JP	PARODIUS_
+	JP	JUKEBOX_
 	JP	SEARCH_SCC_BAS
 
 ;--------------------------------------
@@ -38,7 +43,7 @@ W_SBANK:
 	DB	0
 
 ;--------------------------------------
-PARODIUS_:
+JUKEBOX_:
 	DI
 
 	INC	HL
@@ -96,7 +101,6 @@ PARODIUS_:
 	LD	(H_KEYI),A
 
 	JP	PLAY
-
 
 ;--------------------------------------
 RET_BAS:

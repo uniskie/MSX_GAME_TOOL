@@ -1,7 +1,22 @@
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
+#pragma once
+
+;--------------------------------------
+;USE_SIN10BAI_SEARCH:	EQU	1	;新10倍タイプの検索を使う
+;KONAMI_MSX1_ONLY:	EQU	1	;KONAMI MSX1 ソフトのみ
+;KONAMI_MSX1_E000: 	EQU	1	;ワークエリアがE000H以上のソフトのみ
+;SEARCH_ID_ONLY:	EQU	1	;ID検索のみ行う（スタックポインタ、フック、EIなどを検査しない）
+;USE_SCC_SEARCH:	EQU	1	;SCC検索を有効に
+;USE_SCC_SEARCH_BAS:	EQU	1	;SCC検索(BASIC用)を有効に
+;--------------------------------------
+
 ;***************************
 ; KONAMI 8K MEGAROM UTIL
 ;***************************
 
+;--------------------------------------
 ;BIOS LABELS for GAME UTILS
 ;	INCLUDE "BIOS-DEF.ASM"
 
@@ -263,16 +278,22 @@ SEARCH_SCC:
 
 	;is RAM?
 	LD	HL,8000H
+	LD	B,8	;8000H-8007Hを検査
+.CHECK_SCC_L1:;SEARCH_SCC.CHECK_SCC_L1
 	LD	C,(HL)	;C=(8000H) 退避
 	LD	A,C
 	CPL		;値を反転
 	LD	(HL),A	;反転した値を書き込む
 	CP	(HL)	;書きこめたか比較
-	LD	(HL),C	;(8000H)=C 復帰
-	JR	Z,.NO_SCC
+	LD	(HL),C	;(800XH)=C 復帰
+	JR	NZ,.CHECK_SCC_1
+	INC	HL
+	DJNZ	.CHECK_SCC_L1
+	JR	.NO_SCC
 
+.CHECK_SCC_1:;SEARCH_SCC.CHECK_SCC_1
 	LD	HL,SCCR_PLUS
-	LD	B,(HL)	;B=(SCCR_PLUS) 退避
+	LD	D,(HL)	;B=(SCCR_PLUS) 退避
 	XOR	A	;SCC COMPATIBLE MODE
 	LD	(HL),A
 
@@ -282,17 +303,21 @@ SEARCH_SCC:
 	LD	(HL),A
 
 	LD	HL,SCCR_WAVE1
+	LD	B,8	;8バイトを検査
+.CHECK_SCC_L2:;SEARCH_SCC.CHECK_SCC_L2
 	LD	E,(HL)	;E=(SCCR_WAVE1) 退避
 	LD	A,E
 	CPL		;値を反転
 	LD	(HL),A  ;反転した値を書き込む
 	CP	(HL)    ;書きこめたか比較
 	LD	(HL),E	;(SCCR_WAVE1)=E 復帰
-	JR	Z,.IS_SCC
+	INC	HL
+	DJNZ	.CHECK_SCC_L2
+	JR	Z,.IS_SCC	;全て一致
 
 	;SCCでなければ保存した値を書き戻す
 	LD	HL,SCCR_PLUS
-	LD	(HL),B	;(SCCR_PLUS)=B 復帰
+	LD	(HL),D	;(SCCR_PLUS)=B 復帰
 	LD	HL,BANK2
 	LD	(HL),C	;(BANK2)=C 復帰
 .NO_SCC:;SEARCH_SCC.NO_SCC

@@ -1,5 +1,12 @@
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
+#pragma once
+
+;--------------------------------------
 ;BIOS LABELS for GAME UTILS
-;	INCLUDE "BIOS-DEF.ASM"
+	INCLUDE "BIOS-DEF.ASM"
+;--------------------------------------
 
 ;DEFINE IF USE KEY BUFFER
 ;USE_KEYBUFFER: EQU	1

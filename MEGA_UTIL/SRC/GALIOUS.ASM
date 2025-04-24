@@ -1,11 +1,31 @@
 ;**********************************
 ;   SET TRAP for Maze of GALIOUS
 ;**********************************
-ORGADR:	EQU	0C000H
 ; for AILZ80ASM
 ; https://github.com/AILight/AILZ80ASM/
 
-; A=USR( TIME-TRAP É ±ÄÞÚ½ )
+;--------------------------------------
+;GAME:
+;	VRAM: 16KByte
+;	RAM : 8KByte ($e000-$fc00)
+;--------------------------------------
+;VRAM SAVE Version:(Current Version)
+; * MSX1: not work
+; * VRAM SAVE: easy in BASIC
+; * Save Slot: 2
+
+;$0000	(GAME)
+;$4000	AUTO STATE RAM 8KByte
+;	AUTO STATE VRAM 16KByte
+;$8000	STATE RAM 8KByte
+;	STATE VRAM 16KByte
+;$10000	BASIC RAM 8KByte
+;	BASIC VRAM 16KByte
+;$14000	free
+;$18000	free
+;--------------------------------------
+
+ORGADR:	EQU	0C000H
 
 ;--------------------------------------
 ;	FNAME	"GALIOUS.BIN"	;*BINHEAD*
@@ -20,14 +40,11 @@ ORGADR:	EQU	0C000H
 ;BIOS LABELS for GAME UTILS
 	INCLUDE "BIOS-DEF.ASM"
 
-;--------------------------------------
 ; GALIOUS ROM ENTRY
-;--------------------------------------
 GAL_ADR:	EQU	40AEH
 TRAP_MS:	EQU	40EFH	;M-GALIOUS
 MAGICN:	EQU	04095H	;GAME ID
 GAMESPA:	EQU	0F0F0H
-
 
 ; KONAMI MEGA-ROM BANK
 ;WBANK0:	EQU	0F0F0H
@@ -49,7 +66,7 @@ GAMESPA:	EQU	0F0F0H
 ;--------------------------------------
 ; WORK AREA (EXPORT)
 ;--------------------------------------
-GAL_REF:
+SAV_REF:
 	DB	0
 PLAYWK:	;BGM,SE,LINE(BGM,SE,EXIT)
 	DB	88H,01H,0
@@ -101,7 +118,7 @@ GALIOUS_:
 	LD	HL,EX_TRAP	;GAL-EXP.ASM
 	LD	(H_KEYI+1),HL
 
-	LD	A,(GAL_REF)
+	LD	A,(SAV_REF)
 	DEC	A
 	JP	Z,LOAD	;GAL-EXP.ASM
 	INC	A

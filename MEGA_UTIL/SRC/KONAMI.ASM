@@ -1,15 +1,37 @@
 ;***************************
 ;   SET TRAP for KONAMI 
 ;***************************
-ORGADR:	EQU	0C000H
 ; for AILZ80ASM
 ; https://github.com/AILight/AILZ80ASM/
 
-; A=USR( TIME-TRAP ﾉ ｱﾄﾞﾚｽ )
+;--------------------------------------
+;GAME:
+;	VRAM: 16KByte
+;	RAM : 8KByte ($e000-$fc00)
+;--------------------------------------
+;VRAM SAVE Version:(Current Version)
+; * MSX1: not work
+; * VRAM SAVE: easy in BASIC
+; * Save Slot: 2
 
+;$0000	(GAME)
+;$4000	AUTO STATE RAM 8KByte
+;	AUTO STATE VRAM 16KByte
+;$8000	STATE RAM 8KByte
+;	STATE VRAM 16KByte
+;$10000	BASIC RAM 8KByte
+;	BASIC VRAM 16KByte
+;$14000	free
+;$18000	free
+;--------------------------------------
+
+;--------------------------------------
 USE_SIN10BAI_SEARCH:	EQU	1	;新10倍タイプの検索を使う
 KONAMI_MSX1_ONLY:	EQU	1	;KONAMI MSX1 ソフトのみ
 KONAMI_MSX1_E000: 	EQU	1	;ワークエリアがE000H以上のソフトのみ
+;--------------------------------------
+
+ORGADR:	EQU	0C000H
 
 ;--------------------------------------
 ;	FNAME	"KONAMI.BIN"	;*BINHEAD*
@@ -23,10 +45,7 @@ KONAMI_MSX1_E000: 	EQU	1	;ワークエリアがE000H以上のソフトのみ
 ;BIOS LABELS for GAME UTILS
 	INCLUDE "BIOS-DEF.ASM"
 
-;--------------------------------------
-; F1SPIRIT ROM ENTRY
-;--------------------------------------
-
+;for GAME
 GAMESPA:	EQU	0F0F0H
 
 ; KONAMI MEGA-ROM BANK
@@ -44,7 +63,7 @@ GAMESPA:	EQU	0F0F0H
 ;--------------------------------------
 	ORG	ORGADR
 
-	JP	BOOTGAME_
+	JP	GAMEBOOT_
 	JP	SEARCH_ROM_BAS	;KONASRCH.ASM
 	JP	GET_SLOT_BAS	;KONASRCH.ASM
 	JP	GET_GAME_ID_BAS	;KONASRCH.ASM
@@ -53,37 +72,14 @@ GAMESPA:	EQU	0F0F0H
 ; WORK AREA (EXPORT)
 ;--------------------------------------
 ;SYSTEM SAVE FLAG
-SSAV_REF:
+SAV_REF:
 	DB	0
 ;ROMSLT:	DB	1
 ;CPUSAV:	DB	0
-RESULT:
-R_GAME_ID:
-	DW	0
-R_GAME_TITLE:
-	DB	0,"                           "	;文字数,27文字
-;--------------------------------------
-GAME_SP_ADR:
-	DW	0F0F0H
-GAME_MAIN_ADR:
-	DW	RET_BAS
-;GAME_TRAP_ADR:
-;	DW	0000H
-NEED_EI:
-	DB	0
-GAMEWORK_INIT_SIZE:
-	DW	0	;3FFHとか1FFHとか
 
 ;--------------------------------------
 ; WORK AREA (STATIC)
 ;--------------------------------------
-;--------------------------------------
-; JUMP TO GAME HKEYI TRAP
-TRAP_MS:
-	DB	0C3H	;JP
-GAME_TRAP_ADR:
-	DW	RET_BAS	;RE-WRITE -> GAME_TRAP_ADR
-
 ;PLAYWK:	;BGM,SE,LINE(BGM,SE,EXIT)
 ;	DB	33H,01H,0
 W_SLREG:
@@ -94,39 +90,13 @@ SVPHOOK:
 	DB	0C9H,0C9H,0C9H,0C9H,0C9H
 
 ;--------------------------------------
-;GAME:
-;	VRAM: 16KByte
-;	RAM : 8KByte ($e000-$fc00)
-;--------------------------------------
-
-;--------------------------------------
-;VRAM SAVE Version:(Current Version)
-; * MSX1: not work
-; * VRAM SAVE: easy in BASIC
-; * Save Slot: 2
-
-;$4000	AUTO STATE RAM 8KByte
-;	AUTO STATE VRAM 16KByte
-;$8000	STATE RAM 8KByte
-;	STATE VRAM 16KByte
-;$10000	BASIC RAM 8KByte
-;	BASIC VRAM 16KByte
-;--------------------------------------
-;RAM SAVE Version:(Scrapped Plan)
-; * MSX1: work
-; * VRAM SAVE: Difficult in BASIC.
-; * Save Slot: 1
-
-;$0000	BASIC RAM 8KByte
-;$2000	STATE RAM 8KByte
-;$4000	STATE VRAM 16KByte
-;--------------------------------------
-
-;--------------------------------------
 ; ROUTINES
 ;--------------------------------------
-BOOTGAME_:
+
+;--------------------------------------
+GAMEBOOT_:
 	; FROM BASIC
+
 	CALL CPUZ80
 	DI
 	LD	(SVW_SP),SP
@@ -172,7 +142,7 @@ BOOTGAME_:
 	LD	A,0C3H
 	LD	(H_KEYI),A
 
-	LD	A,(SSAV_REF)
+	LD	A,(SAV_REF)
 	DEC	A
 	JP	Z,LOAD	;COMMON
 	INC	A
@@ -313,7 +283,7 @@ RET_SCC:
 	INCLUDE	"EX-BIOS.ASM"	;*FILE*
 ;--------------------------------------
 ; ENASLT CLONE (FOR PAGE 0 SLOT CHANGE)
-	INCLUDE "CHGSLT.ASM"	;*FILE*
+;	INCLUDE "CHGSLT.ASM"	;*FILE*
 ;--------------------------------------
 ENDFL:
 

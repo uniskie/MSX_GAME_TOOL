@@ -1,3 +1,9 @@
+;***************************************
+;  in-game JUKEBOX for F-1 SPIRIT
+;***************************************
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
 ;SETWRT:	EQU	0171H
 ;WRTVRM:	EQU	0177H
 
@@ -273,7 +279,9 @@ P_SPAC:	LD	A,(PLAYWK+2)
 	LD	(HL),A
 P_SPAC0:
 	PUSH	AF
-	JP	Z,J_PL3
+	LD	A,(PLAYWK+2)
+	OR	A
+	JP	Z,J_PL3	;SE‚È‚çŽ~‚ß‚È‚¢
 WAIT_FO:
 	LD	A,(MUS_CTL)
 	BIT	0,A

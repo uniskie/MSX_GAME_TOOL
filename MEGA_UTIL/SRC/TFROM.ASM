@@ -1,6 +1,14 @@
 ;***************************
 ; KONAMI8K SAVE to VRAM
 ;***************************
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
+;--------------------------------------
+USE_SIN10BAI_SEARCH:	EQU	1	;新10倍タイプの検索を使う
+SEARCH_ID_ONLY:		EQU	1	;ID検索のみ行う（スタックポインタ、フック、EIなどを検査しない）
+;--------------------------------------
+
 ORGADR:	EQU	0C000H
 
 ;--------------------------------------
@@ -10,124 +18,41 @@ ORGADR:	EQU	0C000H
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
-;--------------------------------------
 
+;--------------------------------------
 ;BIOS LABELS for GAME UTILS
 	INCLUDE "BIOS-DEF.ASM"
 
-WBANK0:	EQU	0F0F0H
-WBANK1:	EQU	0F0F1H
-WBANK2:	EQU	0F0F2H
-WBANK3:	EQU	0F0F3H
-BANK0:	EQU	5000H
-BANK1:	EQU	7000H
-BANK2:	EQU	9000H
-BANK3:	EQU	0B000H
-
-MAGICN:	EQU	04099H
+;WBANK0:	EQU	0F0F0H
+;WBANK1:	EQU	0F0F1H
+;WBANK2:	EQU	0F0F2H
+;WBANK3:	EQU	0F0F3H
+;BANK0:	EQU	5000H
+;BANK1:	EQU	7000H
+;BANK2:	EQU	9000H
+;BANK3:	EQU	0B000H
 
 ;--------------------------------------
 	ORG	ORGADR
 
-	JP	ROM_CHK
+	JP	SEARCH_ROM_BAS	;KONASRCH.ASM
+	JP	GET_SLOT_BAS	;KONASRCH.ASM
+	JP	GET_GAME_ID_BAS	;KONASRCH.ASM
+	JP	GET_TITLE_BAS	;KONASRCH.ASM
 	JP	ROM_CPY
+
 ;--------------------------------------
 	
-PAR_REF:
-	DB	0
-PAR_MUS:
-	DB	88H,01H,0
-ROMSLT:	DB	1
+;ROMSLT:	DB	1
 ;CPUSAV:	DB	0
 
+;--------------------------------------
 ;ADDHLA:	ADD	A,L
 ;	LD	L,A
 ;	RET	NC
 ;	INC	H
 ;	RET
 
-;--------------------------------------
-;A=USR(MATCH VALUE)
-;OUT:	SUCCESS:   A=MATCH VALUE 
-;	NOT FOUND: A=0
-ROM_CHK:
-	INC	HL
-	INC	HL
-	PUSH	HL
-	LD	C,1
-	CALL	SLTCHK
-	JR	Z,ROM_CHKE
-	LD	C,2
-	CALL	SLTCHK
-	JR	Z,ROM_CHKE
-
-	LD	BC,0
-ROM_CHKE:
-	POP	HL
-	LD	(HL),C
-	INC	HL
-	LD	(HL),B	;RET VAL
-
-	LD	A,(EXPTBL)
-	LD	H,40H
-	CALL	ENASLT
-	EI
-	RET
-
-; (CHECK SLOT/EXP SLOT)
-;(OUT: Z=NG / NZ=OK)
-SLTCHK:
-	PUSH	HL
-	LD	HL,EXPTBL
-	LD	A,C
-	CALL	ADDHLA
-	LD	A,(HL)	;EXPSLT CHECK
-	POP	HL
-	AND	80H
-	LD	A,C
-	JR	NZ,EXPSLTC	;EXPANDED
-	LD	(ROMSLT),A
-	JR	ROMCHK_S
-; (CHECK EXP SLOT)
-EXPSLTC:
-	LD	B,04H
-	OR	80H
-	LD	C,A
-EXPSLTL:
-	LD	(ROMSLT),A
-	CALL	ROMCHK_S
-	RET	Z
-
-	LD	A,C
-	ADD	A,04H	;EXPSLT+1
-	LD	C,A
-	DJNZ	EXPSLTL
-	OR	1
-	RET
-
-;(CHECK MATCH ROM VALUE)
-;IN	A=SLOT
-;OUT	Z=NG / NZ=OK
-ROMCHK_S:
-	PUSH	HL
-	LD	H,40H
-	CALL	ENASLT
-	POP	HL
-
-	LD	E,(HL)
-	INC	HL
-	LD	D,(HL)
-	DEC	HL
-
-	EX	DE,HL
-	LD	BC,(4002H)
-	OR	A
-	SBC	HL,BC
-	EX	DE,HL
-
-	LD	BC,(ROMSLT)
-	LD	B,0
-	RET
 ;--------------------------------------
 ; A=USR(バンク配列文字列)
 ;	最初の2byte：転送先VRAMアドレス
@@ -203,6 +128,8 @@ TFBANK_E:
 	LD	(HL),A
 	RET
 
-
+;--------------------------------------
+	INCLUDE "KONASRCH.ASM"	;*FILE*
+	INCLUDE "KONAMI8K.ASM"	;*FILE*
 	INCLUDE	"EX-BIOS.ASM"	;*FILE*
 ENDFL:
