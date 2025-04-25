@@ -18,13 +18,26 @@
 GAME_SLOT:	EQU	ROMSLT
 
 ;--------------------------------------
+	INCLUDE "KONALIST.ASM"	; ここに置かないとラベルの未解決エラーが出る
+;--------------------------------------
+
 #IF (exists USE_SIN10BAI_SEARCH)
 RESULT:
 R_GAME_ID:
-	DW	0
+	DW	0 ; 07h,xxh
+R_GAME_SPEC:
+	DB	0 ;bit7=MSX2, bit0-6:RAM SIZE
 R_GAME_TITLE:
-	DB	0,"                           "	;文字数,27文字
+	DB	0	;文字数
+	DS	KONAMI_TITLE_SIZE	;文字列
+_RESULT_END:
+
 #ENDIF;#IF (exists USE_SIN10BAI_SEARCH)
+
+#IF (exists USE_SIN10BAI_SEARCH) && ((RESULT + KONAMI_ID_ISIZE) != _RESULT_END)
+	#PRRINT "[ERROR] (RESULT + KONAMI_ID_ISIZE) != GAME_SP_ADR"
+#ENDIF
+
 #IF (exists USE_SIN10BAI_SEARCH) && !(exists SEARCH_ID_ONLY)
 GAME_SP_ADR:
 	DW	0F0F0H
@@ -382,6 +395,3 @@ CPHLDE:
 	POP	AF
 	RET
 ;--------------------------------------
-
-;--------------------------------------
-	INCLUDE "KONALIST.ASM"	;*FILE*

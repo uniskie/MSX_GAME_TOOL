@@ -29,6 +29,7 @@
 USE_SIN10BAI_SEARCH:	EQU	1	;新10倍タイプの検索を使う
 KONAMI_MSX1_ONLY:	EQU	1	;KONAMI MSX1 ソフトのみ
 KONAMI_MSX1_E000: 	EQU	1	;ワークエリアがE000H以上のソフトのみ
+KONAMI_LIST_LANG:	EQU	0	;0=JP / 1=EN / 2=SJIS
 ;--------------------------------------
 
 ORGADR:	EQU	0C000H
@@ -286,7 +287,3 @@ RET_SCC:
 ;	INCLUDE "CHGSLT.ASM"	;*FILE*
 ;--------------------------------------
 ENDFL:
-
-#IF (RESULT + KONAMI_ID_ISIZE) > GAME_SP_ADR
-	#PRRINT "[ERROR] (RESULT + KONAMI_ID_ISIZE) > GAME_SP_ADR"
-#ENDIF
