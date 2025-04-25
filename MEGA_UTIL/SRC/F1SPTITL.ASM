@@ -81,30 +81,30 @@ MUST8:	DB	'   WINNING RUN   ｡';3EH, (GOAL)
 MUST9:	DB	'    F-1 SPIRIT   ｡';38H, (F-1)
 MUSTA:	DB	'     FAILED!     ｡';3CH, (PIT)
 MUSTB:	DB	'STREET COLLECTION｡';40H, (ENDING)
-MUSTN:	DB	'  -------------  ｡'	;*DM*
+MUSTN:	DB	'  -------------  ｡'
 
 TITLE_STR:
 #IF exists _AILZ80ASM_
 	charmap @MSX, "MSX_chara.json"
 	DW	3800H
-	DB	@MSX:'┌──　Ｆ１－ＳＰＩＲＩＴ　：ＪＵＫＥ－ＢＯＸ　───────┐'	;*DM*
-	DB	@MSX:'│　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　│'	;*DM*
-	DB	@MSX:'│　ＳＯＵＮＤ　００　　　　　　　　　ＮＯＷ　ＰＬＡＹＩＮＧ　│'	;*DM*
-	DB	@MSX:'│　　　　　　　　　　　┌─────────────────┐│'	;*DM*
-	DB	@MSX:'│　ＭＵＳＩＣ　００　　│　　　　　　　　　　　　　　　　　││'	;*DM*
-	DB	@MSX:'│　　　　　　　　　　　└─────────────────┘│'	;*DM*
-	DB	@MSX:'│　ＥＸＩＴ　　　　　　　　　（ＳＴＯＰ）：ＳＴＯＰ－ＢＧＭ　│'	;*DM*
-	DB	@MSX:'└──────────────（ＨＯＭＥ）：ＦＡＤＥ－ＯＵＴ　┘'	;*DM*
+	DB	@MSX:'┌──　Ｆ１－ＳＰＩＲＩＴ　：ＪＵＫＥ－ＢＯＸ　───────┐'
+	DB	@MSX:'│　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　│'
+	DB	@MSX:'│　ＳＯＵＮＤ　００　　　　　　　　　ＮＯＷ　ＰＬＡＹＩＮＧ　│'
+	DB	@MSX:'│　　　　　　　　　　　┌─────────────────┐│'
+	DB	@MSX:'│　ＭＵＳＩＣ　００　　│　　　　　　　　　　　　　　　　　││'
+	DB	@MSX:'│　　　　　　　　　　　└─────────────────┘│'
+	DB	@MSX:'│　ＥＸＩＴ　　　　　　　　　（ＳＴＯＰ）：ＳＴＯＰ－ＢＧＭ　│'
+	DB	@MSX:'└──────────────（ＨＯＭＥ）：ＦＡＤＥ－ＯＵＴ　┘'
 	DB	@MSX:'｡'
 #ELSE
 	DW	3800H
-	DB	'XWW F1-SPIRIT :JUKE-BOX WWWWWWWY'	;*DM*
-	DB	'V                              V'	;*DM*
-	DB	'V SOUND 00         NOW PLAYING V'	;*DM*
-	DB	'V           XWWWWWWWWWWWWWWWWWYV'	;*DM*
-	DB	'V MUSIC 00  V                 VV'	;*DM*
-	DB	'V           ZWWWWWWWWWWWWWWWWW[V'	;*DM*
-	DB	'V EXIT         (STOP):STOP-BGM V'	;*DM*
-	DB	'ZWWWWWWWWWWWWWW(HOME):FADE-OUT ['	;*DM*
+	DB	'XWW F1-SPIRIT :JUKE-BOX WWWWWWWY'
+	DB	'V                              V'
+	DB	'V SOUND 00         NOW PLAYING V'
+	DB	'V           XWWWWWWWWWWWWWWWWWYV'
+	DB	'V MUSIC 00  V                 VV'
+	DB	'V           ZWWWWWWWWWWWWWWWWW[V'
+	DB	'V EXIT         (STOP):STOP-BGM V'
+	DB	'ZWWWWWWWWWWWWWW(HOME):FADE-OUT ['
 	DB	'｡'
 #ENDIF

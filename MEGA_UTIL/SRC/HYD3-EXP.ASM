@@ -1,8 +1,13 @@
+;-*- tab-width: 8 -*-
 ;******************************
 ;    TIMER & KEY  INTERRUPT
 ;RAM:	C000-FEFF > VRAM 8000-BEFF
 ;******************************
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
 ORGADR:	EQU	EXPADR
+
 ;	FNAME	"HYD3-EXP.BIN"	;*BINHEAD*
 	ORG	ORGADR-7
 	DB	0FEH	;*BINHEAD*

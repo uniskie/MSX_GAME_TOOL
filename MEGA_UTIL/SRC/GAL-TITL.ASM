@@ -32,13 +32,13 @@ MUS_TIT:
 
 TITLE_STR:
 	DW	3800H
-	DB	'xvv/JUKE[BOX/vvvvvvvvvvvvvvvvvv~'	;*DM*
-	DB	'w//////////////////////////////w'	;*DM*
-	DB	'w/SOUND/v00v//////NOW/PLAYING//w'	;*DM*
-	DB	'w/////////////xvvvvvvvvvvvvvvv~w'	;*DM*
-	DB	'w/MUSIC/v00v//w///////////////ww'	;*DM*
-	DB	'w/////////////yvvvvvvvvvvvvvvv'	;*DM*
+	DB	'xvv/JUKE[BOX/vvvvvvvvvvvvvvvvvv~'
+	DB	'w//////////////////////////////w'
+	DB	'w/SOUND/v00v//////NOW/PLAYING//w'
+	DB	'w/////////////xvvvvvvvvvvvvvvv~w'
+	DB	'w/MUSIC/v00v//w///////////////ww'
+	DB	'w/////////////yvvvvvvvvvvvvvvv'
 	DB	127,'w'
-	DB	'w/EXIT/////////////////////////w'	;*DM*
-	DB	'yvvvvvvvvvvvvvvvHOME[/FADE[OUTv'	;*DM*
+	DB	'w/EXIT/////////////////////////w'
+	DB	'yvvvvvvvvvvvvvvvHOME[/FADE[OUTv'
 	DB	127,'¡'

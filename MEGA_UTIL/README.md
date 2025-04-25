@@ -5,6 +5,8 @@
 DISK IMAGE -> [MEGA-UTL.dsk](MEGA-UTL.dsk)
 
 ## 変更履歴  
+- 2025/04/25  
+   - KONAMI.BASでゲームが起動しなくなった問題の修正(KONASERCH.ASM)
 - 2025/04/24 -2  
    - ガリウスの迷宮をSCCカートリッジと誤認する問題を修正（PARO-MUS,F1SP-MUS）
 - 2025/04/24  
@@ -117,7 +119,7 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 ## HYDLIDE3.BAS  
 
 ここでは概要のみ。  
-詳細は [README_HYDLIDE3.TXT](./README_HYDLIDE3.TXT) 参照。  
+詳細は [README_HYDLIDE3.MD](./README_HYDLIDE3.MD) 参照。  
 
 - MSX1版/MSX2版両対応  
 - MSX1/2/2+/turboR対応  
@@ -153,7 +155,7 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 ## PARODIUS.BAS / F1SPIRIT.BAS / GALIOUS.BAS / KONAMI.BAS  
 
 ここでは概要のみ。  
-詳細は [README_KONAMI.TXT](./README_KONAMI.TXT) 参照。  
+詳細は [README_KONAMI.MD](./README_KONAMI.MD) 参照。  
 
 - MSX2/2+/turboR対応  
 - 要：RAM64KB/VRAM128KB  

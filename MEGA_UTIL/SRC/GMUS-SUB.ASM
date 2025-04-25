@@ -120,7 +120,7 @@ NMSET:	OR	A
 	LD	(HL),A
 	INC	HL
 	RET
-NM_STR:	DB	'00|'	;*DM*
+NM_STR:	DB	'00|'
 
 ;--------------------------------------
 LOCATE:	LD	IX,PR_MMC
@@ -152,9 +152,9 @@ J_PL5:	CALL	WR_MES
 	CALL	KANJI_C
 	RET
 COR_STR1:
-	DB	'*C2Å†|'	;*DM*
+	DB	'*C2Å†|'
 COR_STR2:
-	DB	'*23Å°|'	;*DM*
+	DB	'*23Å°|'
 
 
 ;--------------------------------------
