@@ -26,6 +26,10 @@ WAITCT:	DB	0	;WAIT CNT
 ; ROUTINES
 ;--------------------------------------
 
+;--------------------------------------
+;PLAY_TRAP:	EQU	PLAY_TRAP
+
+;--------------------------------------
 PLAY_END:
 	DI
 	; MUTE PSG
@@ -44,6 +48,19 @@ PLAY_END_PL:
 	JP	PLAY_R
 
 ;--------------------------------------
+PLAY_TR:
+	CALL	RDVDP
+	CALL	PMUSIC
+#IF exists PLAY_TR_DISP
+	CALL	PLAY_TR_DISP
+#ENDIF
+	LD	A,(WAITCT)
+	ADD	A,1
+	SBC	A,0	; 255 = STOP
+	LD	(WAITCT),A
+	RET
+
+;--------------------------------------
 PLAY_SUB:
 	DI
 
@@ -59,20 +76,20 @@ PLAY_SUB:
 	LD	A,(PLAYWK+0)
 	CALL	SETMUSIC
 
-	CALL	SETFONT
-
-	LD	HL,TITLE_STR
-	CALL	WR_MES
+	CALL	DRAW_PLAY_INIT
 
 ;--------------------------------------
 L_PLAY:
-	CALL	WR_CUR
-	CALL	WR_PNUM
-	CALL	WR_TITL
+#IF exists DRAW_PLAY_LOOP
+	CALL	DRAW_PLAY_LOOP
+#ENDIF
 	XOR	A
 	LD	(WAITCT),A
 	EI
 L_PLAYW:
+;#IF exists USE_KEYBUFFER
+;	CALL	KEYUPD	;KEY MATRIX UPDATE
+;#ENDIF
 	LD	DE,8FFH
 	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	CPL
@@ -85,7 +102,11 @@ L_PLAYJ:
 	EI
 L_PLAY0:
 	LD	DE,8FFH
+;#IF exists USE_KEYBUFFER
+;	CALL	KEYTRG	;D=KEYMTX NO / E=MASK
+;#ELSE
 	CALL	KEYIN	;D=KEYMTX NO / E=MASK
+;#ENDIF
 	LD	HL,P_JUMPT
 	LD	B,8
 L_PL0:	RLA
@@ -98,11 +119,21 @@ L_PL0:	RLA
 J_PL0:	INC	HL
 	INC	HL
 	DJNZ	L_PL0
+	LD	DE,0710H	;STOP
+	CALL	KEYIN	;D=KEYMTX NO / E=MASK
+	JP	Z,P_STOP
+
+;#IF exists USE_KEYBUFFER
+;	CALL	KEYUPD	;KEY MATRIX UPDATE
+;#ENDIF
 	JP	L_PLAY0
+
+;--------------------------------------
 P_JUMPT:
 	DW	P_RIGH,P_UP,P_DOWN,P_LEFT
 	DW	P_DEL,P_INS,P_HOME,P_SPAC
 
+;--------------------------------------
 P_LCH:	POP	DE
 	LD	A,(PLAYWK+2)
 	CP	2
@@ -114,43 +145,67 @@ P_LCH:	POP	DE
 	DEC	HL
 	RET
 
+;--------------------------------------
 P_INS:	LD	C,4
-	JP	$+5
+	JR	P_RIGH.@1
+;--------------------------------------
 P_RIGH:	LD	C,1
-	CALL	P_LCH
+.@1:	CALL	P_LCH
 	OR	A
 	JR	NZ,P_ADD2
 P_ADD:	LD	A,(HL)
 	ADD	A,C
 	CP	31H
-	JP	C,$+5
+	JR	C,P_NUM1
 	SUB	30H
-	JR	P_ADDE
+	JR	P_NUM1
 P_ADD2:	LD	A,(HL)
 	ADD	A,C
-	AND	255
+;	AND	127
 	OR	128
-P_ADDE:	LD	(HL),A
+	CP	96H
+	JR	C,P_NUM2
+	CP	FBH
+	JR	NC,P_NUM2
+	ADD	A,FBH-96H
+P_NUM2:	LD	(HL),A
+#IF exists DRAW_UPD_NUM2
+	CALL	DRAW_UPD_NUM2
+#ENDIF
 	JP	L_PLAY
 
+;--------------------------------------
 P_DEL:	LD	C,4
-	JR	$+5
+	JR	P_LEFT.@1
+;--------------------------------------
 P_LEFT:	LD	C,1
-	CALL	P_LCH
+.@1:	CALL	P_LCH
 	OR	A
 	JR	NZ,P_SUB2
 P_SUB:	LD	A,(HL)
 	SUB	C
-	JR	C,$+6
-	JR	NZ,$+5
-	ADD	A,30H
-	JR	P_ADDE
+	JR	Z,.@1
+	CP	31H
+	JR	C,P_NUM1
+.@1:	ADD	A,30H
+P_NUM1:	LD	(HL),A
+
+#IF exists DRAW_UPD_NUM1
+	CALL	DRAW_UPD_NUM1
+#ENDIF
+	JP	L_PLAY
 P_SUB2:	LD	A,(HL)
 	SUB	C
-	AND	255
+;	AND	127
 	OR	128
-	JR	P_ADDE
+	CP	96H
+	JR	C,P_NUM2
+	CP	FBH
+	JR	NC,P_NUM2
+	SUB	FBH-96H
+	JR	P_NUM2
 
+;--------------------------------------
 P_DOWN:	LD	A,(PLAYWK+2)
 	DEC	A
 	CP	255
@@ -158,21 +213,32 @@ P_DOWN:	LD	A,(PLAYWK+2)
 	LD	A,2
 	JP	L_PUD
 
+;--------------------------------------
 P_UP:	LD	A,(PLAYWK+2)
 	INC	A
 	CP	3
 	JR	NZ,L_PUD
 	XOR	A
 L_PUD:	LD	(PLAYWK+2),A
+#IF exists DRAW_UPD_CUR
+	CALL	DRAW_UPD_CUR
+#ENDIF
 	JP	L_PLAY
 
-
+;--------------------------------------
 P_HOME:	XOR	A
 	LD	(0E1C1H),A
 	INC	A
 	LD	(0E1C0H),A
 	JP	L_PLAY
 
+;--------------------------------------
+P_STOP:
+	XOR	A
+	CALL	SETMUSIC
+	JP	L_PLAY
+
+;--------------------------------------
 P_SPAC:	LD	A,(PLAYWK+2)
 	CP	2
 	JP	Z,PLAY_END
@@ -186,162 +252,9 @@ P_SPAC:	LD	A,(PLAYWK+2)
 	CALL	SETMUSIC
 J_PL3:	LD	A,C
 	CALL	SETMUSIC
-	LD	DE,0801H
+.@1:	LD	DE,0801H
 	CALL	KEYIN	;D=KEYMTX NO / E=MASK
-	JR	Z,$-6
+	JR	Z,.@1	;ÊÅ½ÏÃÞÏÂ
 	JP	L_PLAY
 
-WR_MES_AT:
-	POP	HL
-	CALL	WR_MES
-	JP	(HL)
-
-WR_MES:	LD	E,(HL)
-	INC	HL
-	LD	D,(HL)
-	EX	DE,HL
-	DI
-	CALL	NSTWRT
-	DI
-	EX	DE,HL
-	INC	HL
-WR_MES_:
-	LD	A,(HL)
-	CP	'¡'
-	JP	Z,J_PL4
-	CP	'A'
-	JP	C,$+5	;TO SUB 15
-	SUB	7
-	SUB	15+32
-	OUT	(VDP),A
-	INC	HL
-	JP	WR_MES_
-J_PL4:	INC	HL
-	RET
-
-WR_PNUM:
-	DI
-	LD	HL,3849H
-	CALL	NSTWRT
-	LD	A,(PLAYWK+1)
-	CALL	WR_PNU_
-	LD	HL,3889H
-	CALL	NSTWRT
-	LD	A,(PLAYWK+0)
-	CALL	WR_PNU_
-	EI
-	RET
-WR_PNU_:
-	LD	B,A
-	RRA
-	RRA
-	RRA
-	RRA
-	AND	15
-	INC	A
-	OUT	(VDP),A
-	LD	A,B
-	AND	15
-	INC	A
-	OUT	(VDP),A
-	RET
-
-WR_CUR:	LD	HL,3841H
-	LD	BC,300H
-L_PL5:	LD	A,(PLAYWK+2)
-	CP	C
-	LD	A,0
-	LD	D,0
-	JP	NZ,$+7	;TO LD D,A
-	LD	A,44H
-	LD	D,45H
-	DI
-	CALL	NWRVRM
-	LD	A,L
-	ADD	A,6
-	LD	L,A
-	LD	E,A
-	LD	A,2
-	CP	C
-	JP	NZ,$+4
-	DEC	L
-	LD	A,D
-	CALL	NWRVRM
-	EI
-	LD	L,E
-	INC	C
-	LD	A,40H-6
-	ADD	A,L
-	LD	L,A
-	DJNZ	L_PL5
-	RET
-
-
-;--------------------------------------
-PLAY_TR:
-	CALL	RDVDP
-	CALL	PMUSIC
-
-	LD	A,(WAITCT)
-	ADD	A,1
-	SBC	A,0	; 255 = STOP
-	LD	(WAITCT),A
-	RET
-
-;--------------------------------------
-SETFONT:
-	; SETFONT? -> DI-EI
-	CALL	SELFONTBANK	;BANK D,E,F
-	LD	DE,9AD3H
-	LD	HL,2008H
-	CALL	SETFONT0
-	LD	DE,9B24H
-	LD	HL,2058H
-	CALL	SETFONT0
-	LD	A,0F0H
-	LD	HL,0008H
-	LD	BC,0120H
-	CALL	BIGFIL
-	CALL	41B7H	;BANK A,B,C
-	LD	IX,D_FDAT
-	JP	SETFONT1
-;--------------------------------------
-D_FDAT:	
-;	DB	7,99H,63H,25H,63H,65H,0	;6000H + 2000H*bank10
-	DB	4,99H,63H,25H,63H,65H,0
-;--------------------------------------
-WR_TITL:
-	DI
-	LD	HL,388FH
-	CALL	NSTWRT
-	LD	D,0
-	LD	A,(PLAYWK)
-	CP	0FBH
-	JP	C,J_WTIT1
-	SUB	0FBH-16H
-	JP	J_WTIT2
-
-J_WTIT1:
-	SUB	80H
-	CP	16H
-	JP	C,J_WTIT2
-	XOR	A
-
-J_WTIT2:
-	RLA
-	RLA
-	RLA
-	RLA
-	JP	NC,J_WTIT3
-	INC	D
-J_WTIT3:
-	AND	0F0H
-	LD	E,A
-	LD	HL,MUS_TIT
-	ADD	HL,DE
-	CALL	WR_MES_
-	RET
-
-;--------------------------------------
-	INCLUDE	"GAL-TITL.ASM"	;*FILE*
 

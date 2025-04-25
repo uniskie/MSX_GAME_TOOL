@@ -1,4 +1,57 @@
-; FOR KANJI
+;***************************************
+;  DRAW RUTINES fo JUKEBOX (KANJI)
+;  for Maze of GALIOUS
+;***************************************
+; for AILZ80ASM
+; https://github.com/AILight/AILZ80ASM/
+
+BS_Y:	EQU	30H	;効果音 No. Y
+BS_X:	EQU	58H	;効果音 No. X
+BS_CUR_Y:	EQU	BS_Y		;カーソル原点 Y
+BS_CUR_X:	EQU	BS_X - 14H	;カーソル原点 X
+PNUM1_Y:	EQU	BS_Y		;SE番号 Y
+PNUM1_X:	EQU	BS_X + 50H	;SE番号 X
+PNUM2_Y:	EQU	BS_Y + 18H	;BGM番号 Y
+PNUM2_X:	EQU	BS_X + 50H	;BGM番号 X
+TITLE_Y:	EQU	0B8H
+TITLE_X:	EQU	08H
+;TITLE_CL:	EQU	01FH
+TITLE_CL:	EQU	0CFH
+
+;--------------------------------------
+PLAY_TR_DISP:	EQU	SPRITE
+
+;--------------------------------------
+DRAW_PLAY_INIT:
+	EI
+
+	LD	HL,TITLE_STR
+	CALL	WR_MES
+
+	CALL	WR_CUR
+	CALL	WR_PNUM1
+	CALL	WR_PNUM2
+	CALL	WR_TITL
+
+	RET
+
+;--------------------------------------
+;DRAW_PLAY_LOOP:
+;	RET
+
+;--------------------------------------
+DRAW_UPD_CUR:	EQU	WR_CUR
+
+;--------------------------------------
+DRAW_UPD_NUM1:
+	CALL	WR_PNUM1
+	RET
+
+;--------------------------------------
+DRAW_UPD_NUM2:
+	CALL	WR_PNUM2
+	CALL	WR_TITL
+	RET
 
 ;--------------------------------------
 ;WR_MES_AT:
@@ -51,7 +104,7 @@ LOCATE_:
 	CALL	CHG_NSB
 	LD	E,A
 	EX	DE,HL
-	CALL	LOCATE
+	CALL	LOCATE	;L=X / H=Y
 	EX	DE,HL
 	JP	WR_MES
 
@@ -83,16 +136,16 @@ CHG_NS:	LD	A,(HL)
 WR_PNUM1:
 	DI
 	LD	A,(PLAYWK+1)
-	LD	HL,40A8H
-	CALL	LOCATE
+	LD	HL,PNUM1_X + PNUM1_Y * 100H
+	CALL	LOCATE	;L=X / H=Y
 	CALL	WR_PNU_
 	EI
 	RET
 WR_PNUM2:
 	DI
 	LD	A,(PLAYWK+0)
-	LD	HL,58A8H
-	CALL	LOCATE
+	LD	HL,PNUM2_X + PNUM2_Y * 100H
+	CALL	LOCATE	;L=X / H=Y
 	CALL	WR_PNU_
 	EI
 	RET
@@ -108,7 +161,7 @@ WR_PNU_:
 	LD	A,B
 	AND	15
 	CALL	NMSET
-	LD	HL,NM_STR
+	LD	HL,NM_STR_C
 	CALL	WR_MES
 	RET
 NMSET:	OR	A
@@ -120,6 +173,8 @@ NMSET:	OR	A
 	LD	(HL),A
 	INC	HL
 	RET
+NM_STR_C:
+	DB	'*CF'
 NM_STR:	DB	'00|'
 
 ;--------------------------------------
@@ -131,9 +186,9 @@ BAPAGE:	LD	(IX+2),H
 	RET
 
 ;--------------------------------------
-WR_CUR:	LD	HL,4044H
+WR_CUR:	LD	HL,BS_CUR_X + BS_CUR_Y * 100H
 	LD	BC,300H
-L_PL5:	CALL	LOCATE
+L_PL5:	CALL	LOCATE	;L=X / H=Y
 	PUSH	HL
 	PUSH	BC
 	LD	A,(PLAYWK+2)
@@ -159,11 +214,11 @@ COR_STR2:
 
 ;--------------------------------------
 WR_TITL:
-	LD	A,0CFH
+	LD	A,TITLE_CL
 	CALL	KANJI_C
 	DI
-	LD	HL,0B808H
-	CALL	LOCATE
+	LD	HL,TITLE_X + TITLE_Y * 100H
+	CALL	LOCATE	;L=X / H=Y
 	LD	A,(PLAYWK)
 	LD	DE,0
 	LD	DE,MUS_TIT
@@ -189,6 +244,15 @@ WR_TIT0:
 	LD	A,0FH
 	CALL	KANJI_C
 	RET
+
+;**************************************
+; SPRITE ANIMATION
+;**************************************
+;--------------------------------------
+; SPRITE TABLE
+SPRATR:	EQU	7600H
+SPR_TB:	EQU	0D000H
+SP_PARA:	EQU	0D080H
 
 ;--------------------------------------
 SPRITE:	LD	B,32
@@ -256,8 +320,3 @@ SPR_Y:	LD	(HL),A
 	OTIR
 	RET
 
-;--------------------------------------
-; SPRITE TABLE
-SPRATR:	EQU	7600H
-SPR_TB:	EQU	0D000H
-SP_PARA:	EQU	0D080H

@@ -7,6 +7,7 @@
 ;--------------------------------------
 USE_SIN10BAI_SEARCH:	EQU	1	;新10倍タイプの検索を使う
 SEARCH_ID_ONLY:		EQU	1	;ID検索のみ行う（スタックポインタ、フック、EIなどを検査しない）
+KONAMI_LIST_LANG:	EQU	0	;0=JP / 1=EN / 2=SJIS
 ;--------------------------------------
 
 ORGADR:	EQU	0C000H
@@ -129,7 +130,7 @@ TFBANK_E:
 	RET
 
 ;--------------------------------------
-	INCLUDE "KONASRCH.ASM"	;*FILE*
-	INCLUDE "KONAMI8K.ASM"	;*FILE*
-	INCLUDE	"EX-BIOS.ASM"	;*FILE*
+	INCLUDE "KONASRCH.ASM"
+	INCLUDE "KONAMI8K.ASM"
+	INCLUDE	"EX-BIOS.ASM"
 ENDFL:

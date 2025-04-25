@@ -11,18 +11,41 @@
 ;--------------------------------------
 ;VRAM SAVE Version:(Current Version)
 ; * MSX1: not work
+; * RAM: 8KB
 ; * VRAM SAVE: easy in BASIC
 ; * Save Slot: 2
+;
+;$0000	(GAME)                    4KBytes
+;$4000	(EMPTY)                   4KBytes
+;$8000	AUTO SAVE  RAM  E000-FFFF 8KBytes
+;	AUTO SAVE  VRAM 0000-3FFF 16KBytes
+;	(EMPTY)                   8KBytes
+;$10000	STATE SAVE RAM  E000-FFFF 8KBytes
+;	STATE SAVE VRAM 0000-3FFF 16KBytes
+;	(EMPTY)                   8KBytes
+;$18000	BASIC      RAM  E000-FFFF 8KBytes
+;	BASIC      VRAM 0000-3FFF 16KBytes
+;	(EMPTY)                   8KBytes
+;--------------------------------------
 
-;$0000	(GAME)
-;$4000	AUTO STATE RAM 8KByte
-;	AUTO STATE VRAM 16KByte
-;$8000	STATE RAM 8KByte
-;	STATE VRAM 16KByte
-;$10000	BASIC RAM 8KByte
-;	BASIC VRAM 16KByte
-;$14000	free
-;$18000	free
+;--------------------------------------
+;VRAM SAVE Version:(unused version)
+; * MSX1: not work
+; * RAM: 16KB
+; * VRAM SAVE: easy in BASIC
+; * Save Slot: 2
+;
+;$0000	(GAME)                    4KBytes
+;$4000	(EMPTY)                   4KBytes
+;$8000	AUTO SAVE  RAM  C000-DFFF 8KBytes
+;	AUTO SAVE  RAM  E000-FFFF 8KBytes
+;	AUTO SAVE  VRAM 0000-3FFF 16KBytes
+;$10000	STATE SAVE RAM  C000-DFFF 8KBytes
+;	STATE SAVE RAM  E000-FFFF 8KBytes
+;	STATE SAVE VRAM 0000-3FFF 16KBytes
+;$18000	BASIC      RAM  C000-DFFF 8KBytes
+;	BASIC      RAM  E000-FFFF 8KBytes
+;	BASIC      VRAM 0000-3FFF 16KBytes
 ;--------------------------------------
 
 ;--------------------------------------
@@ -82,7 +105,7 @@ SAV_REF:
 ; WORK AREA (STATIC)
 ;--------------------------------------
 ;PLAYWK:	;BGM,SE,LINE(BGM,SE,EXIT)
-;	DB	33H,01H,0
+;	DB	33H,01H,2
 W_SLREG:
 	DB	0
 SV_HOOK:
@@ -278,12 +301,12 @@ RET_SCC:
 	RET
 
 ;--------------------------------------
-	INCLUDE "KONASRCH.ASM"	;*FILE*
-	INCLUDE "KONAMI8K.ASM"	;*FILE*
-	INCLUDE	"KONA-EXP.ASM"	;*FILE*
-	INCLUDE	"EX-BIOS.ASM"	;*FILE*
+	INCLUDE "KONASRCH.ASM"
+	INCLUDE "KONAMI8K.ASM"
+	INCLUDE	"KONA-EXP.ASM"
+	INCLUDE	"EX-BIOS.ASM"
 ;--------------------------------------
 ; ENASLT CLONE (FOR PAGE 0 SLOT CHANGE)
-;	INCLUDE "CHGSLT.ASM"	;*FILE*
+;	INCLUDE "CHGSLT.ASM"
 ;--------------------------------------
 ENDFL:

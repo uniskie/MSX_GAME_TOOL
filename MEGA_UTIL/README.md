@@ -69,20 +69,19 @@ ROMカートリッジを挿さずに電源にBASICを起動し、
 
 - GAL-MUS.BAS  
   ...「ガリウスの迷宮」JUKE-BOX (サウンドテスト)  
-  ... ※SAVE-MUS.BASでROMイメージからGAL-MUS.OBJを作成しておく必要があります。
+  ... ※SAVE-MUS.BASでゲームROMからGAL-MUS.OBJを作成しておく必要があります。
 
 - PARO-MUS.BAS  
   ...「パロディウス」JUKE-BOX (サウンドテスト)  
-  ... ※SAVE-MUS.BASでROMイメージからPARO-MUS.OBJを作成しておく必要があります。
+  ... ※SAVE-MUS.BASでゲームROMからPARO-MUS.OBJを作成しておく必要があります。
 
 - F1SP-MUS.BAS  
   ...「F1-SPIRIT」JUKE-BOX (サウンドテスト)  
-  ... ※SAVE-MUS.BASでROMイメージからF1SP-MUS.OBJを作成しておく必要があります。
+  ... ※SAVE-MUS.BASでゲームROMからF1SP-MUS.OBJを作成しておく必要があります。
 
 - SAVE-MUS.BAS  
   ... ROMからJUKE-BOX用バイナリファイル作成を作成するツール  
   ... 「ガリウスの迷宮」「パロディウス」「F1-SPIRIT」用
-
 
 ## 再配布等  
 
@@ -204,7 +203,54 @@ SDカード破壊の危険性が低くなります。
 
 ---  
 
-## ソースファイルについて  
+## おまけ：独立動作版 JUKE-BOX  
+
+- GAL-MUS.BAS  
+- PARO-MUS.BAS  
+- F1SP-MUS.BAS  
+
+`SAVE-MUS.BAS`でロムカートリッジから必要なデータを取り出したOBJファイルを作成しておきます。
+
+OBJファイルを利用して（ロムカートリッジなしで）JUKE-BOXを実行するプログラムです。
+（SCC音源を使う場合はSCCカートリッジを挿す必要があります。）
+
+### JUKE-BOX対応ROM
+
+```
+Bytes   SHA1                                     Name
+------- ---------------------------------------- ------------
+131,072 42FBB18722DF3E34E5B0F935A2DC0CE0D85099E9 F1SPIRIT.ROM
+131,072 4D51D3C5036311392B173A576BC7D91DC9FED6CB GALIOUS.ROM
+131,072 2220363AE56EF707AB2471FCDB36F4816AD1D32C PARODIUS.ROM
+-------------------------------------------------------------
+```
+
+### JUKE-BOX (サウンドテスト) 用 ROMイメージ作成ツール  
+（F1SP-MUS.OBJ/PARO-MUS.OBJ/GAL-MUS.OBJの作成）  
+- SAVE-MUS.BAS  ... ゲームROMからファイルを作成  
+- TFROM.BIN     ... 機械語プログラム  
+
+### ガリウスの迷宮 JUKE-BOX (サウンドテスト)  
+- GAL-MUS.BAS ... JUKE-BOX起動  
+- GAL-MUS.BIN ... 機械語プログラム  
+- GAL-MUS.OBJ ... (同梱無し/SAVE-MUS.BASで作成)  
+              ... ROMバンク$00,$0D,$0Eをつなげたファイル  
+
+### F-1スピリット JUKE-BOX (サウンドテスト)  
+- F1SP-MUS.BAS ... JUKE-BOX起動  
+- F1SP-MUS.BIN ... 機械語プログラム  
+- F1SP-MUS.OBJ ... (同梱無し/SAVE-MUS.BASで作成)  
+               ... ROMバンク$0D,$0E,$0Fをつなげたファイル  
+
+### パロディウス JUKE-BOX (サウンドテスト)  
+- PARO-MUS.BAS ... JUKE-BOX起動  
+- PARO-MUS.BIN ... 機械語プログラム  
+- PARO-MUS.OBJ ... (同梱無し/SAVE-MUS.BASで作成)  
+               ... ROMバンク$00,$04,$05,$06,$0Aをつなげたファイル  
+
+---  
+
+## ソースファイル
 
 srcフォルダにマシン後プログラムのソースが入っています。  
 AILZ80ASMを使用してWindows上でクロスアセンブルしています。  
@@ -233,6 +279,7 @@ MAKEALL.BATで一括ビルド可能です。
 - GALIOUS.ASM  ... 起動処理  
 - GAL-EXPS.ASM ... 拡張ポーズ・クイックセーブロード処理  
 - GAL-PLAY.ASM ... JUKE-BOX処理  
+- GAL-PL-D.ASM ... JUKE-BOX表示処理  
 - GAL-TITL.ASM ... 曲名リスト  
 
 ### F1SPIRIT.BAS用  
@@ -253,45 +300,24 @@ MAKEALL.BATで一括ビルド可能です。
 - KONASRCH.ASM ... 汎用対応向け処理  
 - KONALIST.ASM ... コナミゲームID、タイトル名リスト  
 
-## おまけ  
+### F1SP-MUS.BAS用
+- F1SP-MUS.ASM ... JUKE-BOX起動  
+- F1SPPLAY.ASM ... JUKE-BOX処理  
+- F1SPTITL.ASM ... 曲名リスト  
 
-### ガリウスの迷宮 JUKE-BOX (サウンドテスト)  
-- GAL-MUS.BAS  
-- GAL-MUS.BIN  
-- GAL-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
-  ... ROMバンク$00,$0D,$0Eをつなげたファイル  
-- GAL-MUS.ASM  
-- GMUS-SUB.ASM  
-- GAL-TL-K.ASM  
+### PARO-MUS.BAS用
+- PARO-MUS.ASM ... JUKE-BOX起動  
+- PAROPLAY.ASM ... JUKE-BOX処理  
+- PAROTITL.ASM ... 曲名リスト  
 
-### F1-SPIRIT JUKE-BOX (サウンドテスト)  
-- F1SP-MUS.BAS  
-- F1SP-MUS.BIN  
-- F1SP-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
-  ... ROMバンク$0D,$0E,$0Fをつなげたファイル  
-- F1SP-MUS.ASM  
+### GAL-MUS.BAS用
+- GAL-MUS.ASM  ... JUKE-BOX起動  
+- GAL-PLAY.ASM ... JUKE-BOX処理  
+- GAL-PLKD.ASM ... JUKE-BOX表示処理（漢字版）  
+- GAL-TL-K.ASM ... 曲名リスト（漢字版）  
 
-### パロディウス JUKE-BOX (サウンドテスト)  
-- PARO-MUS.BAS  
-- PARO-MUS.BIN  
-- PARO-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
-  ... ROMバンク$00,$04,$05,$06,$0Aをつなげたファイル  
-- PARO-MUS.ASM  
-
-### JUKE-BOX (サウンドテスト) 用 ROMイメージ作成ツール  
-（F1SP-MUS.OBJ/PARO-MUS.OBJ/GAL-MUS.OBJの作成）  
-- SAVE-MUS.BAS  
-- TFROM.BIN  
-- TFROM.ASM  
-
-#### JUKE-BOX対応ROM
-
-```
-Bytes   SHA1                                     Name
-------- ---------------------------------------- ------------
-131,072 42FBB18722DF3E34E5B0F935A2DC0CE0D85099E9 F1SPIRIT.ROM
-131,072 4D51D3C5036311392B173A576BC7D91DC9FED6CB GALIOUS.ROM
-131,072 2220363AE56EF707AB2471FCDB36F4816AD1D32C PARODIUS.ROM
--------------------------------------------------------------
-```
+### TFROM.BAS用
+- TFROM.ASM  ... ロムの検索とコピー
+- KONASRCH.ASM ... 汎用対応向け処理  
+- KONALIST.ASM ... コナミゲームID、タイトル名リスト  
 

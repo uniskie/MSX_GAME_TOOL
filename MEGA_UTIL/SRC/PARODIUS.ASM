@@ -11,18 +11,21 @@
 ;--------------------------------------
 ;VRAM SAVE Version:(Current Version)
 ; * MSX1: not work
+; * RAM: 8KB
 ; * VRAM SAVE: easy in BASIC
 ; * Save Slot: 2
-
-;$0000	(GAME)
-;$4000	AUTO STATE RAM 8KByte
-;	AUTO STATE VRAM 16KByte
-;$8000	STATE RAM 8KByte
-;	STATE VRAM 16KByte
-;$10000	BASIC RAM 8KByte
-;	BASIC VRAM 16KByte
-;$14000	free
-;$18000	free
+;
+;$0000	(GAME)                    4KBytes
+;$4000	(EMPTY)                   4KBytes
+;$8000	AUTO SAVE  RAM  E000-FFFF 8KBytes
+;	AUTO SAVE  VRAM 0000-3FFF 16KBytes
+;	(EMPTY)                   8KBytes
+;$10000	STATE SAVE RAM  E000-FFFF 8KBytes
+;	STATE SAVE VRAM 0000-3FFF 16KBytes
+;	(EMPTY)                   8KBytes
+;$18000	BASIC      RAM  E000-FFFF 8KBytes
+;	BASIC      VRAM 0000-3FFF 16KBytes
+;	(EMPTY)                   8KBytes
 ;--------------------------------------
 
 ORGADR:	EQU	0C000H
@@ -68,7 +71,7 @@ GAMESPA:	EQU	0F0F0H
 SAV_REF:
 	DB	0
 PLAYWK:	;BGM,SE,LINE(BGM,SE,EXIT)
-	DB	88H,01H,0
+	DB	88H,01H,2
 ;ROMSLT:	DB	1
 ;CPUSAV:	DB	0
 
@@ -213,12 +216,12 @@ RET_SCC:
 	RET
 
 ;--------------------------------------
-	INCLUDE "KONAMI8K.ASM"	;*FILE*
-	INCLUDE	"PAROPLAY.ASM"	;*FILE*
-	INCLUDE	"PARO-EXP.ASM"	;*FILE*
-	INCLUDE	"EX-BIOS.ASM"	;*FILE*
+	INCLUDE "KONAMI8K.ASM"
+	INCLUDE	"PAROPLAY.ASM"
+	INCLUDE	"PARO-EXP.ASM"
+	INCLUDE	"EX-BIOS.ASM"
 ;--------------------------------------
 ; ENASLT CLONE (FOR PAGE 0 SLOT CHANGE)
-;	INCLUDE "CHGSLT.ASM"	;*FILE*
+;	INCLUDE "CHGSLT.ASM"
 ;--------------------------------------
 ENDFL:

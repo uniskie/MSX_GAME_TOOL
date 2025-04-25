@@ -17,6 +17,7 @@
 - F1SP-MUS.BAS ... F-1 SPIRIT  
 - PARO-MUS.BAS ... パロディウス  
 - GAL-MUS.BAS  ... ガリウスの迷宮  
+- SAVE-MUS.BAS ... *.OBJファイルの作成
 
 サウンドプレイヤー(JUKE-BOX)対応ROM
 
@@ -154,7 +155,6 @@ VRAMではなく裏RAMにステートデータが置かれるため
 - GAL-MUS.BAS  
   ...「ガリウスの迷宮」JUKE-BOX (サウンドテスト)  
 
-
 - PARO-MUS.BAS  
   ...「パロディウス」JUKE-BOX (サウンドテスト)  
 
@@ -170,23 +170,28 @@ VRAMではなく裏RAMにステートデータが置かれるため
 
 実行にはゲームカートリッジから作成したJUKE-BOX用OBJファイルが必要です。  
 
-## GAL-MUS.OBJ / F1SP-MUS.OBJ / F1SP-MUS.OBJ の作成
+## 準備 : OBJファイルの作成
 
 1. SAVE-MUS.BASを実行
-2. それぞれのゲームカートリッジを後挿し
+2. ゲームカートリッジを後挿し
 3. ゲームカートリッジを自動認識し、ディスクへ各OBJファイルが書き出されます。
 
-### SAVE-MUS.BAS の 出力ファイル
+### 出力されるOBJファイル
 
-- GAL-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
+- ガリウスの迷宮  
+
+  GAL-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
   ... ROMバンク$00,$0D,$0Eをつなげたファイル  
 
-- PARO-MUS.OBJ
+- パロディウス  
+
+  PARO-MUS.OBJ
   ... ROMバンク$00,$04,$05,$06,$0Aをつなげたファイル  
 
-- F1SP-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
-  ... ROMバンク$0D,$0E,$0Fをつなげたファイル  
+- F-1スピリット  
 
+  F1SP-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
+  ... ROMバンク$0D,$0E,$0Fをつなげたファイル  
 
 ## SCC音源
 

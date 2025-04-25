@@ -401,5 +401,5 @@ WR_TITL:
 	RET
 
 ;--------------------------------------
-	INCLUDE	"MOJI-24.ASM"	;*FILE*
-	INCLUDE	"F1SPTITL.ASM"	;*FILE*
+	INCLUDE	"MOJI-24.ASM"
+	INCLUDE	"F1SPTITL.ASM"

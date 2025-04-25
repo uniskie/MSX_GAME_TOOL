@@ -131,11 +131,15 @@ J_PL0:	INC	HL
 	LD	DE,0710H	;STOP
 	CALL	KEYIN	;D=KEYMTX NO / E=MASK
 	JP	Z,P_STOP
+
 	JP	L_PLAY0
+
+;--------------------------------------
 P_JUMPT:
 	DW	P_RIGH,P_UP,P_DOWN,P_LEFT
 	DW	P_DEL,P_INS,P_HOME,P_SPAC
 
+;--------------------------------------
 P_LCH:	POP	DE
 	LD	A,(PLAYWK+2)
 	CP	2
@@ -147,8 +151,10 @@ P_LCH:	POP	DE
 	DEC	HL
 	RET
 
+;--------------------------------------
 P_INS:	LD	C,4
 	JR	P_RIGH_
+;--------------------------------------
 P_RIGH:
 	LD	C,1
 P_RIGH_:
@@ -174,8 +180,10 @@ J_PADD2:
 	LD	(HL),A
 	JP	L_PLAY
 
+;--------------------------------------
 P_DEL:	LD	C,4
 	JR	P_LEFT_
+;--------------------------------------
 P_LEFT:	LD	C,1
 P_LEFT_:
 	CALL	P_LCH
@@ -202,6 +210,7 @@ J_PSUB2:
 	LD	(HL),A
 	JP	L_PLAY
 
+;--------------------------------------
 P_DOWN:	LD	A,(PLAYWK+2)
 	DEC	A
 	CP	255
@@ -209,6 +218,7 @@ P_DOWN:	LD	A,(PLAYWK+2)
 	LD	A,2
 	JR	L_PUD
 
+;--------------------------------------
 P_UP:	LD	A,(PLAYWK+2)
 	INC	A
 	CP	3
@@ -218,10 +228,12 @@ L_PUD:	LD	(PLAYWK+2),A
 	JP	L_PLAY
 
 
+;--------------------------------------
 P_HOME:	LD	A,BGMNO_FADEOUT	;81H
 	CALL	SETMUSIC
 	JP	L_PLAY
 
+;--------------------------------------
 P_STOP:
 	LD	A,BGMNO_FADEOFF	;80H
 	CALL	SETMUSIC
@@ -229,6 +241,7 @@ P_STOP:
 	CALL	SETMUSIC
 	JP	L_PLAY
 
+;--------------------------------------
 P_SPAC:	LD	A,(PLAYWK+2)
 	CP	2
 	JP	Z,PLAY_END	;END JUKEBOX
@@ -378,5 +391,5 @@ J_WTIT3:
 	RET
 
 ;--------------------------------------
-	INCLUDE	"MOJI-24.ASM"	;*FILE*
-	INCLUDE	"PAROTITL.ASM"	;*FILE*
+	INCLUDE	"MOJI-24.ASM"
+	INCLUDE	"PAROTITL.ASM"
