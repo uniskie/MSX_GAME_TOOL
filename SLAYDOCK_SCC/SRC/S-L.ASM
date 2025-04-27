@@ -335,31 +335,31 @@ LOADEND:	;DI
 HOOK_BKU:
 	DB	0,0
 FCB:	DB	0
-	DB	'SLAYDOCKDAT'	;*DM*
+	DB	'SLAYDOCKDAT'
 	DS	37-12
 FCB2:	DB	0
-	DB	'LAY-HEADBIN'	;*DM*
+	DB	'LAY-HEADBIN'
 	DS	37-12
 
 MESG_O:	DB	CLS
-	DB	'===[SUPER LAYDOCK -MISSION STRIKER-]==='	;*DM*
+	DB	'===[SUPER LAYDOCK -MISSION STRIKER-]==='
 	DB	LF,LF,CR
-	DB	'  (C)1987 T&E SOFT (MSX16K 2Mbit ROM)  '	;*DM*
+	DB	'  (C)1987 T&E SOFT (MSX16K 2Mbit ROM)  '
 	DB	LF,LF,CR
-	DB	'= for DISK /MSX2/2+ 64K MEMORY MAPPER ='	;*DM*
+	DB	'= for DISK /MSX2/2+ 64K MEMORY MAPPER ='
 	DB	LF,LF,CR
 ; DM ' OPTION: SCC_SOUND (insert SLOT 2)     '
-	DB	' OPTION: SCC_SOUND (insert SLOT '	;*DM*
+	DB	' OPTION: SCC_SOUND (insert SLOT '
 MESG_SL:
 	DB	30H+SCCSLTN	;'0'+SCCSLTN
 	DB	' ',' '
-	DB	')   '	;*DM*
+	DB	')   '
 	DB	LF,CR
-	DB	'         [STOP]  DEBUG-MENU            '	;*DM*
+	DB	'         [STOP]  DEBUG-MENU            '
 	DB	LF,CR
-	DB	'after CHANGE PARAMETER push (CTRL+STOP)'	;*DM*
+	DB	'after CHANGE PARAMETER push (CTRL+STOP)'
 	DB	LF,LF,CR
-	DB	'             HIT ANY KEY'	;*DM*
+	DB	'             HIT ANY KEY'
 	DB	ED
 
 SSGVDAT:	DB	0,1,2,3,10,11,12,13,28,31

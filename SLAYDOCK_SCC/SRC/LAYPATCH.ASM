@@ -118,7 +118,7 @@ LOOPF:	EXX
 
 ;====== MAIN DATA ====
 FCB:	DB	0
-	DB	'SLAYDOCKDAT'	;*DM*
+	DB	'SLAYDOCKDAT'
 	DW	0
 	DW	0H
 	DS	21	; (FCB total 37 bytes)
@@ -149,9 +149,9 @@ ENTRY4:	;writte adress
 
 ;=== MESSAGE ===
 MESG_O:	DB	LF,CR
-	DB	'=== SUPER LAYDOCK (2Mbit-ROM)==='	;*DM*
+	DB	'=== SUPER LAYDOCK (2Mbit-ROM)==='
 	DB	LF,CR
-	DB	'OVER WRITER for DISK (MSX2+)'	;*DM*
+	DB	'OVER WRITER for DISK (MSX2+)'
 	DB	LF,CR,ED
 
 ;====== INCLUDE ====

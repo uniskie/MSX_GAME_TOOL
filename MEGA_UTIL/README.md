@@ -257,6 +257,9 @@ AILZ80ASMを使用してWindows上でクロスアセンブルしています。
 （使用アセンブラをTNIASMからAILZ80ASMに変更しました。）  
 MAKEALL.BATで一括ビルド可能です。  
 
+AILZ80ASM v1.0.29 以上を使用してください。
+(SYMファイルのコメントなしオプション使用)
+
 [AILZ80ASM](https://github.com/AILight/AILZ80ASM)
 
 ### 共用  

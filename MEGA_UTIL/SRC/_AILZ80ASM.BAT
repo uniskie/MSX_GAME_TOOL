@@ -30,6 +30,7 @@ IF /I "%3"=="/F" SET MODE=FULL
 SET SYMNAME=%~n1.SYM
 SET TEMP_SYM=%~n1.ORG.SYM
 SET DEF_OPT=--gap-default 0
+SET DEF_OPT=%DEF_OPT% -oh sym
 SET DEF_OPT=%DEF_OPT% --define-label _AILZ80ASM_=0xBEEF
 SET DEF_OPT=%DEF_OPT% --no-super-asm
 SET DEF_OPT=%DEF_OPT% --disable-warning W9005
@@ -41,19 +42,22 @@ GOTO :NORMAL
 
 :FULL
 @ECHO ON
-%ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" -equ "%~n1.EQU" -adr "%~n1.ADR" -lst "%~n1.LST" -err "%~n1.ERR" %DEF_OPT%
+REM %ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" -equ "%~n1.EQU" -adr "%~n1.ADR" -lst "%~n1.LST" -err "%~n1.ERR" %DEF_OPT%
+%ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%SYMNAME%" -equ "%~n1.EQU" -adr "%~n1.ADR" -lst "%~n1.LST" -err "%~n1.ERR" %DEF_OPT%
 @ECHO OFF
 GOTO :CHECK
 
 :NORMAL
 @ECHO ON
-%ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" -lst "%~n1.LST" -err "%~n1.ERR" %DEF_OPT%
+REM %ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" -lst "%~n1.LST" -err "%~n1.ERR" %DEF_OPT%
+%ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%SYMNAME%" -lst "%~n1.LST" -err "%~n1.ERR" %DEF_OPT%
 @ECHO OFF
 GOTO :CHECK
 
 :SIMPLE
 @ECHO ON
-%ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" %DEF_OPT%
+REM %ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%TEMP_SYM%" %DEF_OPT%
+%ASM% "%1" -f -bin "%~n1.BIN" -sm minimal-equ -sym "%SYMNAME%" %DEF_OPT%
 @ECHO OFF
 GOTO :CHECK
 
@@ -61,21 +65,21 @@ GOTO :CHECK
 :CHECK
 IF ERRORLEVEL 1 GOTO ERR
 
-:MODIFY_SYM
-REM PAUSE
-SET CNT=0
-DEL /F "%SYMNAME%" > NUL 2>&1
-ECHO %SYMNAME% *** 1行目のコメントを消しています ***
-FOR /F "DELIMS= SKIP=1" %%I IN (%TEMP_SYM%) DO (
-   IF "%%I" == "" (
-      REM ECHO.
-      ECHO. >> "%SYMNAME%"
-   ) ELSE (
-      REM ECHO %%I
-      ECHO %%I >> "%SYMNAME%"
-    )
-)
-REM DEL /F "%TEMP_SYM%"
+REM :MODIFY_SYM
+REM REM PAUSE
+REM SET CNT=0
+REM DEL /F "%SYMNAME%" > NUL 2>&1
+REM ECHO %SYMNAME% *** 1行目のコメントを消しています ***
+REM FOR /F "DELIMS= SKIP=1" %%I IN (%TEMP_SYM%) DO (
+REM    IF "%%I" == "" (
+REM       REM ECHO.
+REM       ECHO. >> "%SYMNAME%"
+REM    ) ELSE (
+REM       REM ECHO %%I
+REM       ECHO %%I >> "%SYMNAME%"
+REM     )
+REM )
+REM REM DEL /F "%TEMP_SYM%"
 
 EXIT /B
 

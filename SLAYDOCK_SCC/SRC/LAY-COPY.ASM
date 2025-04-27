@@ -80,22 +80,22 @@ ENDE:	LD	DE,MESG2
 
 ;====== DATA ======
 FCB:	DB	0
-	DB	'SLAYDOCKDAT'	;*DM*
+	DB	'SLAYDOCKDAT'
 	DS	37-12
 
-MESG0:	DB	'=== Super LAYDOCK  disk buckup tool==='	;*DM*
+MESG0:	DB	'=== Super LAYDOCK  disk buckup tool==='
 	DB	10,10,13
-	DB	'insert CARTRIDGE in SLOT '	;*DM*
+	DB	'insert CARTRIDGE in SLOT '
 	DB	30H+GAMESLT	;'0'+GAMESLT
 	DB	10,10,13,'$'
-MESG1:	DB	'identified CARTRIDGE = Super LAYDOCK'	;*DM*
+MESG1:	DB	'identified CARTRIDGE = Super LAYDOCK'
 	DB	10,13
-	DB	'write file "SLAYDOCK.DAT"'	;*DM*
+	DB	'write file "SLAYDOCK.DAT"'
 	DB	10,10,13,'$'
-MESG2:	DB	'Completed Buckup'	;*DM*
+MESG2:	DB	'Completed Buckup'
 	DB	10,13,'$'
 
-MOJI:	DB	'SuperLAYDOCK'	;*DM*
+MOJI:	DB	'SuperLAYDOCK'
 
 ;====== INCLUDE ======
 

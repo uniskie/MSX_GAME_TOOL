@@ -139,7 +139,7 @@ HKPRADR:	DW	0	;検出したフック操作アドレス
 SCCSLT:		DB	0	;0なら未検出
 SCC_STACK_SAV:	DW	0	;スタック対比
 
-SCC_STACK_AREA:	DS	30H	;一時スタック 
+SCC_STACK_AREA:	DBFIL	30H	;一時スタック 
 SCC_STACK_TEMP:			;割り込み禁止なら20Hで間に合うが
 				;割り込みが入るなら60H~80Hほど必要になる
 				;割り込み禁止推奨

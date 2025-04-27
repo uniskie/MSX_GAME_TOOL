@@ -126,9 +126,9 @@ CR:	EQU	13
 
 ;=== ERROR messages ===
 ERROR_:	DB	BEEP,LF,ED
-FMAKE_:	DB	'Too many files to make new file !!$'	;*DM*
-FCLOSE_:	DB	'Can not close file !!$'	;*DM*
-FOPEN_:	DB	'Can not open file !!$'	;*DM*
-FREAD_:	DB	'Can not read file !!$'	;*DM*
-FWRITE_:	DB	'Can not write file !!$'	;*DM*
+FMAKE_:	DB	'Too many files to make new file !!$'
+FCLOSE_:	DB	'Can not close file !!$'
+FOPEN_:	DB	'Can not open file !!$'
+FREAD_:	DB	'Can not read file !!$'
+FWRITE_:	DB	'Can not write file !!$'
 

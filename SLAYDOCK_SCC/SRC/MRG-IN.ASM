@@ -84,6 +84,6 @@ CR:	EQU	13
 
 ;=== ERROR messages ===
 ERROR_:	DB	BEEP,LF,ED
-FOPEN_:	DB	'Can not open file !!$'	;*DM*
-FREAD_:	DB	'Can not read file !!$'	;*DM*
+FOPEN_:	DB	'Can not open file !!$'
+FREAD_:	DB	'Can not read file !!$'
 

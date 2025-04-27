@@ -81,9 +81,9 @@ PLAYWK:	;BGM,SE,LINE(BGM,SE,EXIT)
 W_SLREG:
 	DB	0
 SV_HOOK:
-	DS	5
+	DBFIL	5
 SVPHOOK:
-	DS	5
+	DBFIL	5
 
 ;--------------------------------------
 ; ROUTINES

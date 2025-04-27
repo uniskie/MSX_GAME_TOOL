@@ -213,22 +213,22 @@ P_IFECH:	LD	DE,0200H+21
 KEYDAT:	DS	9	;KEYBUFFER
 
 M_MENUD:
-	DB	'-------=== DEBUG MENU ===-------'	;*DM*
-	DB	'|bank0:__|--------------        '	;*DM*
-	DB	'|bank1:__||SCC DELAY:__|        '	;*DM*
-	DB	'|bank2:__|| (INS/DEL)  |        '	;*DM*
-	DB	'|bank3:__|--------------        '	;*DM*
-	DB	'                                '	;*DM*
-	DB	'      STAGE SELECT(S):__        '	;*DM*
-	DB	'          MONSTER (M):__        '	;*DM*
-	DB	'         NO-DAMAGE(D):__        '	;*DM*
-	DB	'        DAIVA-HINT(H):__        '	;*DM*
-	DB	'                                '	;*DM*
-	DB	'     (STOP):return to game      '	;*DM*
-	DB	'   (CTRL+STOP):restart game     '	;*DM*
-	DB	'      (TAB+BS):game over        '	;*DM*
-	DB	'    (CTRL+S):scc initialize     '	;*DM*
-	DB	'                                '	;*DM*
+	DB	'-------=== DEBUG MENU ===-------'
+	DB	'|bank0:__|--------------        '
+	DB	'|bank1:__||SCC DELAY:__|        '
+	DB	'|bank2:__|| (INS/DEL)  |        '
+	DB	'|bank3:__|--------------        '
+	DB	'                                '
+	DB	'      STAGE SELECT(S):__        '
+	DB	'          MONSTER (M):__        '
+	DB	'         NO-DAMAGE(D):__        '
+	DB	'        DAIVA-HINT(H):__        '
+	DB	'                                '
+	DB	'     (STOP):return to game      '
+	DB	'   (CTRL+STOP):restart game     '
+	DB	'      (TAB+BS):game over        '
+	DB	'    (CTRL+S):scc initialize     '
+	DB	'                                '
 	DB	ED
 
 ;=== KEY SEARCH ===
@@ -298,8 +298,8 @@ P_K_ON:	CALL	STR_PUT
 	JP	NZ,LP_KAI
 	RET
 
-_ON:	DB	':ON$'	;*DM*
-_OFF:	DB	'off$'	;*DM*
+_ON:	DB	':ON$'
+_OFF:	DB	'off$'
 
 
 ;=== PUT CHR 0-255 ===
