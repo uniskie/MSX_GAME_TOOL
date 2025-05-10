@@ -1,37 +1,13 @@
-;***************************
-;   SET TRAP for  PARODIUS
-;***************************
+;*************************************
+; SET EX-TRAP : RC-751 GRADIUS2
+;*************************************
 ; for AILZ80ASM
 ; https://github.com/AILight/AILZ80ASM/
-
-;--------------------------------------
-;GAME:
-;	VRAM: 16KByte
-;	RAM : 8KByte ($e000-$fc00)
-;--------------------------------------
-;VRAM SAVE Version:(Current Version)
-; * MSX1: not work
-; * RAM: 8KB
-; * VRAM SAVE: easy in BASIC
-; * Save Slot: 2
-;
-;$0000	(GAME)                    4KBytes
-;$4000	(EMPTY)                   4KBytes
-;$8000	AUTO SAVE  RAM  E000-FFFF 8KBytes
-;	AUTO SAVE  VRAM 0000-3FFF 16KBytes
-;	(EMPTY)                   8KBytes
-;$10000	STATE SAVE RAM  E000-FFFF 8KBytes
-;	STATE SAVE VRAM 0000-3FFF 16KBytes
-;	(EMPTY)                   8KBytes
-;$18000	BASIC      RAM  E000-FFFF 8KBytes
-;	BASIC      VRAM 0000-3FFF 16KBytes
-;	(EMPTY)                   8KBytes
-;--------------------------------------
 
 ORGADR:	EQU	0C000H
 
 ;--------------------------------------
-;	FNAME	"PARODIUS.BIN"	;*BINHEAD*
+;	FNAME	"GRADIUS2.BIN"	;*BINHEAD*
 
 	ORG	ORGADR-7
 	DB	0FEH	;*BINHEAD*
@@ -43,10 +19,10 @@ ORGADR:	EQU	0C000H
 ;BIOS LABELS for GAME UTILS
 	INCLUDE "BIOS-DEF.ASM"
 
-; PARODIUS ROM ENTRY
-RUN_ADR:	EQU	40A7H
-TRAP_MS:	EQU	402EH	;PARODIUS
-ROMINIT:	EQU	04099H	;GAME ROM CHEK ID
+; GRADIUS2 ROM ENTRY
+RUN_ADR:	EQU	409EH
+TRAP_MS:	EQU	4023H	;GRADIUS2
+ROMINIT:	EQU	4090H	;GAME ROM CHEK ID
 MUSBANK:	EQU	04H
 GAMESPA:	EQU	0F0F0H
 
@@ -73,7 +49,7 @@ GAMESPA:	EQU	0F0F0H
 SAV_REF:
 	DB	0
 PLAYWK:	;BGM,SE,LINE(BGM,SE,EXIT)
-	DB	88H,01H,2
+	DB	3FH,01H,2
 ;ROMSLT:	DB	1
 ;CPUSAV:	DB	0
 
@@ -182,9 +158,6 @@ PLAY:	LD	HL,H_KEYI
 
 ;--------------------------------------
 PLAY_R:	DI
-	XOR	A
-	LD	(SCCR_CHENA),A
-
 	LD	DE,H_KEYI
 	LD	HL,SVPHOOK
 	LD	BC,5
@@ -192,7 +165,6 @@ PLAY_R:	DI
 
 	LD	A,V_PG1	;COMMON
 	CALL	LOAD_	;COMMON
-
 
 	LD	A,(RG8SAV)
 	AND	253
@@ -208,7 +180,8 @@ PLAY_R:	DI
 ;--------------------------------------
 PLAY_TRAP:
 	CALL	SET_PLAYBANK
-	JP	PLAY_TR
+	CALL	PLAY_TR
+	RET
 
 ;--------------------------------------
 SET_PLAYBANK:
@@ -231,8 +204,8 @@ RET_SCC:
 
 ;--------------------------------------
 	INCLUDE "KONAMI8K.ASM"
-	INCLUDE	"PAROPLAY.ASM"
-	INCLUDE	"PARO-EXP.ASM"
+	INCLUDE	"GRA2PLAY.ASM"
+	INCLUDE	"GRA2-EXP.ASM"
 	INCLUDE	"EX-BIOS.ASM"
 ;--------------------------------------
 ; ENASLT CLONE (FOR PAGE 0 SLOT CHANGE)

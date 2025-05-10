@@ -34,7 +34,7 @@ TITLE_STR:
 	DW	3800H
 	DB	'xvv/JUKE[BOX/vvvvvvvvvvvvvvvvvv~'
 	DB	'w//////////////////////////////w'
-	DB	'w/SOUND/v00v//////NOW/PLAYING//w'
+	DB	'w/SOUND/v00v///////////////////w'
 	DB	'w/////////////xvvvvvvvvvvvvvvv~w'
 	DB	'w/MUSIC/v00v//w///////////////ww'
 	DB	'w/////////////yvvvvvvvvvvvvvvv',127,'w'

@@ -1,3 +1,5 @@
+;****** F-1 SPIRIT MUSIC TITLES  ******
+
 ;GET TITLE
 ; IN:	A=BGM NO.
 ; OUT:	HL=STRING ADDRESS
@@ -25,9 +27,7 @@ GET_TTL_D:	;DETECT
 	LD	L,B
 	RET
 
-;****** F1SPIRIT MUSIC TITLES  ******
-
-MUS_TIT: 
+MUS_TIT:
 #IF exists _AILZ80ASM_
 	DB	33H, low MUST0, high MUST0
 	DB	34H, low MUST1, high MUST1
@@ -84,12 +84,12 @@ MUSTB:	DB	'STREET COLLECTION｡';40H, (ENDING)
 MUSTN:	DB	'  -------------  ｡'
 
 TITLE_STR:
+	DW	3800H
 #IF exists _AILZ80ASM_
 	charmap @MSX, "MSX_chara.json"
-	DW	3800H
 	DB	@MSX:'┌──　Ｆ１－ＳＰＩＲＩＴ　：ＪＵＫＥ－ＢＯＸ　───────┐'
 	DB	@MSX:'│　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　│'
-	DB	@MSX:'│　ＳＯＵＮＤ　００　　　　　　　　　ＮＯＷ　ＰＬＡＹＩＮＧ　│'
+	DB	@MSX:'│　ＳＯＵＮＤ　００　　　　　　　　　　　　　　　　　　　　　│'
 	DB	@MSX:'│　　　　　　　　　　　┌─────────────────┐│'
 	DB	@MSX:'│　ＭＵＳＩＣ　００　　│　　　　　　　　　　　　　　　　　││'
 	DB	@MSX:'│　　　　　　　　　　　└─────────────────┘│'
@@ -97,10 +97,9 @@ TITLE_STR:
 	DB	@MSX:'└──────────────（ＨＯＭＥ）：ＦＡＤＥ－ＯＵＴ　┘'
 	DB	@MSX:'｡'
 #ELSE
-	DW	3800H
 	DB	'XWW F1-SPIRIT :JUKE-BOX WWWWWWWY'
 	DB	'V                              V'
-	DB	'V SOUND 00         NOW PLAYING V'
+	DB	'V SOUND 00                     V'
 	DB	'V           XWWWWWWWWWWWWWWWWWYV'
 	DB	'V MUSIC 00  V                 VV'
 	DB	'V           ZWWWWWWWWWWWWWWWWW[V'

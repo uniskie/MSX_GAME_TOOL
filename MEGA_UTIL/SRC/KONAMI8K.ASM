@@ -81,8 +81,8 @@ SCCR_VOL3:	equ 988CH	;ch3 音量 (1 byte)
 SCCR_VOL4:	equ 988DH	;ch4 音量 (1 byte)
 SCCR_VOL5:	equ 988EH	;ch5 音量 (1 byte)
 SCCR_CHENA:	equ 988FH	;channel enable (bit0=ch1 ... bit4 = ch5)
-SCCR_MIRROR:	equ 9890H	;(9889-988FHのミラー)
-SCCR_WAVE5:	equ 98A0H	;波形チャンネル5 (波形チャンネル4のミラー：書き込みなし)
+SCCR_MIRROR:	equ 9890H	;(9889-988FHのミラー)(サウンドカートリッジのみ)
+SCCR_WAVE5:	equ 98A0H	;(波形チャンネル4のミラー：書き込みなし)(サウンドカートリッジのみ)
 SCCR_MODE:	equ 98C0H	;初期値は0 (98C1-98DFはミラー)
 				;bit0: 分周比を4ビットにします。実際の分周比は、分周比レジスタの1／256になります。
 				;bit1: 分周比を8ビットにします。ビット8～11は0になります。
@@ -670,7 +670,7 @@ ROM_ID_LIST:
 ;--------------------------------------
 ; シンプルなGAME ID判定 FOR BASIC
 ;（4012H埋め込みタイプ限定）
-; (BASIC) A%=USR(GAME ROM ID)
+; (BASIC) A%=USR(GAME ROM ID) ... &H07xx
 ;	OK:	A%=SLOT
 ;	NG:	A%=0
 ;--------------------------------------
@@ -813,9 +813,11 @@ ROMCHK_S:
 	RET	;NZ=NG
 
 ROMCHK_S2:
-	LD	E,(HL)
+	; (HL) = 0x07XX
+	; (GAME_ID_ADR) = 0xXX07 (BCDなので、エンディアンが逆)
+	LD	D,(HL)	; 07H
 	INC	HL
-	LD	D,(HL)
+	LD	E,(HL)	; XXH
 	DEC	HL
 
 	EX	DE,HL

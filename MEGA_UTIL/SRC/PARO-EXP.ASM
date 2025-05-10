@@ -16,6 +16,8 @@ V_PG3:	EQU	6	;6*4000H=18000H	;VRAM bit14-16
 M_ADR:	EQU	0E000H
 M_SIZE:	EQU	1CH	;E000H - FC00H
 
+VSYNC_MUTEX:	EQU	0E205H	;フレーム落ちカウンタ
+
 ;--------------------------------------
 ; WORK AREA
 ;--------------------------------------
@@ -32,6 +34,10 @@ W_CAP:	DB	0
 EX_TRAP:
 	DI
 ;	IM	0
+
+	LD	A,(VSYNC_MUTEX)	;フレーム落ち時はスキップ（転送中などの画像化け対策）
+	AND	A
+	JP	NZ,TRAP_MS
 
 	; WAIT UNTIL RELEASE KEY
 	IN	A,(KEYIO1)
@@ -66,15 +72,12 @@ L_PSGSV:
 	LD	(PSG_SV+7),A	; 10XXXXXX
 
 	; MUTE PSG
-	LD	A,7
-	OUT	(PSGIOA),A
-	LD	A,0BFH
-	OUT	(PSGIOW),A
+	CALL	MUTE_PSG
 
 	; SAVE SCC
 	LD	A,3FH
 	LD	(BANK2),A
-	LD	HL,9800H
+	LD	HL,SCCR_WAVE1	;9800H
 	LD	DE,SCCWAV
 	LD	BC,80H
 	LDIR
@@ -165,8 +168,14 @@ L_PSGLD:
 	LD	DE,9800H
 	LD	BC,80H
 	LDIR
-	LD	A,(SCCMXW)
-	LD	(SCCR_CHENA),A
+
+;	LD	A,(SCCMXW)
+;	LD	(SCCR_CHENA),A
+	LD	HL,SCCRWORK
+	LD	DE,SCCR_TONE1	;9880H
+	LD	BC,10H
+	LDIR
+
 	LD	A,(WBANK2)
 	LD	(BANK2),A
 

@@ -286,3 +286,20 @@ CPURES:	LD	A,(GETCPU)
 	CALL	CHGCPU
 	RET
 
+;--------------------------------------
+; MUTE PSG
+MUTE_PSG:
+;	LD	B,3
+;	LD	C,PSGIOA
+	LD	BC,300H + PSGIOA
+	LD	A,0BFH
+	LD	E,7
+	OUT	(C),E		;R#7: MIX
+	OUT	(PSGIOW),A	;0BFH - MUTE ALL
+	XOR	A
+.LP:
+	INC	E
+	OUT	(C),E		;R#8-10: VOL
+	OUT	(PSGIOW),A	;0
+	DJNZ	.LP
+	RET

@@ -2,30 +2,33 @@
 
 -----------------------------------------------------------------------------
 
-クイックセーブ＆ミニチート&サウンドプレイヤー
+ゲームにクイックセーブ＆ミニチート&サウンドプレイヤーを追加
 
-- F1SPIRIT.BAS ... F-1 SPIRIT  
-- PARODIUS.BAS ... パロディウス  
-- GALIOUS.BAS  ... ガリウスの迷宮  
+- `GRADIUS2.BAS` ... グラディウス2  
+- `F1SPIRIT.BAS` ... F-1 SPIRIT  
+- `PARODIUS.BAS` ... パロディウス  
+- `GALIOUS.BAS`  ... ガリウスの迷宮  
 
-クイックセーブのみ
+ゲームにクイックセーブのみ追加
 
-- KONAMI.BAS   ... コナミMSX1ソフト(RAM8KB)汎用  
+- `KONAMI.BAS`   ... コナミMSX1ソフト(RAM8KB)汎用  
 
 サウンドプレイヤー単体
 
-- F1SP-MUS.BAS ... F-1 SPIRIT  
-- PARO-MUS.BAS ... パロディウス  
-- GAL-MUS.BAS  ... ガリウスの迷宮  
-- SAVE-MUS.BAS ... *.OBJファイルの作成
+- `GRA2-MUS.BAS` ... グラディウス2  
+- `F1SP-MUS.BAS` ... F-1 SPIRIT  
+- `PARO-MUS.BAS` ... パロディウス  
+- `GAL-MUS.BAS`  ... ガリウスの迷宮  
+- `SAVE-MUS.BAS` ... *.OBJファイルの作成
 
 サウンドプレイヤー(JUKE-BOX)対応ROM
 
 ```
 Bytes   SHA1                                     Name
 ------- ---------------------------------------- ------------
-131,072 42FBB18722DF3E34E5B0F935A2DC0CE0D85099E9 F1SPIRIT.ROM
 131,072 4D51D3C5036311392B173A576BC7D91DC9FED6CB GALIOUS.ROM
+131,072 D63E20369F98487767810A0C57603BEF6A2A07E5 GRADIUS2.ROM
+131,072 42FBB18722DF3E34E5B0F935A2DC0CE0D85099E9 F1SPIRIT.ROM
 131,072 2220363AE56EF707AB2471FCDB36F4816AD1D32C PARODIUS.ROM
 -------------------------------------------------------------
 ```
@@ -40,7 +43,7 @@ Bytes   SHA1                                     Name
 - 要:RAM64KB（メモリマッパ不要）  
 - 要:VRAM128KB
 - MSX-DOS/MSX-DOS2  
-- 漢字ROM(GAL-MUS.BAS)
+- 漢字ROM(`GAL-MUS.BAS`)
 
   ※ VRAMに状態セーブするため、MSX2/VRAM128KB以上が必要です。  
   ※ MSX1には非対応です。  
@@ -72,9 +75,10 @@ Bytes   SHA1                                     Name
 
 ゲームごとに、BASICから
 ```
+RUN"GALIOUS.BAS"⏎  
+RUN"GRADIUS2.BAS"⏎  
 RUN"F1SPIRIT.BAS"⏎  
 RUN"PARODIUS.BAS"⏎  
-RUN"GALIOUS.BAS"⏎  
 RUN"KONAMI.BAS"⏎  
 ```
 どれかを実行してから、
@@ -105,10 +109,13 @@ RUN"KONAMI.BAS"⏎
 - [P]       : JUKE-BOX (サウンドプレイヤー)
               (コナミ汎用はナシ)
 
-- [C]       : ガリウスの迷宮：ライフ＆弾回復  
-              パロディウス  ：パワーアップ  
-              F-1スピリット ：なし  
-              (コナミ汎用はナシ)
+- [C]       : 回復/パワーアップ
+
+  - ガリウスの迷宮：ライフ＆弾回復  
+  - グラディウス2  ：パワーアップ（ダブル+レーザー+ガリウス+Qバート+無敵：壊れ気味）  
+  - F-1スピリット ：1位&修復&高速ピット等  
+  - パロディウス  ：パワーアップ （ダブル+レーザー+無敵）  
+  - (コナミ汎用はナシ)
 
 - [CTRL]+[@]  : BASICへ戻る  
                 終了時自動保存(QS2)も行う  
@@ -152,17 +159,19 @@ VRAMではなく裏RAMにステートデータが置かれるため
 
 # おまけ：JUKE-BOX
 
-- GAL-MUS.BAS  
+- `GAL-MUS.BAS`  
   ...「ガリウスの迷宮」JUKE-BOX (サウンドテスト)  
 
-- PARO-MUS.BAS  
-  ...「パロディウス」JUKE-BOX (サウンドテスト)  
-
-
-- F1SP-MUS.BAS  
+- `F1SP-MUS.BAS`  
   ...「F1-SPIRIT」JUKE-BOX (サウンドテスト)  
 
-- SAVE-MUS.BAS  
+- `GRA2-MUS.BAS`  
+  ...「グラディウス2」JUKE-BOX (サウンドテスト)  
+
+- `PARO-MUS.BAS`  
+  ...「パロディウス」JUKE-BOX (サウンドテスト)  
+
+- `SAVE-MUS.BAS`  
   ... ゲームカートリッジからデータを読みだして、JUKE-BOX用OBJファイルを作成するツール  
 
 
@@ -172,7 +181,7 @@ VRAMではなく裏RAMにステートデータが置かれるため
 
 ## 準備 : OBJファイルの作成
 
-1. SAVE-MUS.BASを実行
+1. `SAVE-MUS.BAS`を実行
 2. ゲームカートリッジを後挿し
 3. ゲームカートリッジを自動認識し、ディスクへ各OBJファイルが書き出されます。
 
@@ -180,22 +189,27 @@ VRAMではなく裏RAMにステートデータが置かれるため
 
 - ガリウスの迷宮  
 
-  GAL-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
+  `GAL-MUS.OBJ` (同梱無し/`SAVE-MUS.BAS`で作成)
   ... ROMバンク$00,$0D,$0Eをつなげたファイル  
 
-- パロディウス  
+- グラディウス2  
 
-  PARO-MUS.OBJ
-  ... ROMバンク$00,$04,$05,$06,$0Aをつなげたファイル  
+  `GRA2-MUS.OBJ` (同梱無し/`SAVE-MUS.BAS`で作成)
+  ... ROMバンク$04,$05,$06をつなげたファイル  
 
 - F-1スピリット  
 
-  F1SP-MUS.OBJ (同梱無し/SAVE-MUS.BASで作成)
+  `F1SP-MUS.OBJ` (同梱無し/`SAVE-MUS.BAS`で作成)
   ... ROMバンク$0D,$0E,$0Fをつなげたファイル  
+
+- パロディウス  
+
+  `PARO-MUS.OBJ`
+  ... ROMバンク$00,$04,$05,$06,$0Aをつなげたファイル  
 
 ## SCC音源
 
-PARO-MUS.BAS （パロディウス）、F1SP-MUS.BAS（F1-SPIRIT）の演奏には、
+`PARO-MUS.BAS` （パロディウス）、`F1SP-MUS.BAS`（F1-SPIRIT）の演奏には、
 スナッチャー付属のコナミサウンドカートリッジかSCC音源内蔵ゲームカートリッジが必要です。  
 
 ゲームカートリッジの場合はカートリッジ後挿しが必要になります。
@@ -203,7 +217,7 @@ PARO-MUS.BAS （パロディウス）、F1SP-MUS.BAS（F1-SPIRIT）の演奏に�
 
 -----------------------------------------------------------------------------
 
-# コナミ汎用ツール KONAMI.BAS 解説
+# コナミ汎用ツール `KONAMI.BAS` 解説
 
 コナミMSX1用ゲーム系は基本的に  
 ・ゲームの開始処理アドレス  
@@ -218,7 +232,7 @@ PARO-MUS.BAS （パロディウス）、F1SP-MUS.BAS（F1-SPIRIT）の演奏に�
 シャロムもゲーム内のディスク操作をしなければ大丈夫なようです。
 
 
-## KONAMI.BAS で 実装しているもの
+## `KONAMI.BAS` で 実装しているもの
 
 - RC???の型番が埋め込まれていないソフトの認識  
   ... 新10倍の処理を取り込んでいます
@@ -244,18 +258,18 @@ PARO-MUS.BAS （パロディウス）、F1SP-MUS.BAS（F1-SPIRIT）の演奏に�
 2. コナミのゲームはRAM8KB対応のソフトが多く、  
    そういったソフトはC000H-DFFFHが未使用です。  
 
-KONAMI.BASではその空き領域にツールを配置して楽をしています。
+`KONAMI.BAS`ではその空き領域にツールを配置して楽をしています。
 
 このような構造の為、  
 MSX2用ソフトはもちろん非対応ですし、  
 RAM16KBを必要とする一部のコナミMSX1用ソフトには非対応です。
 
-> - 沙羅曼蛇はC000Hから使用するので、KONAMI.BASでは非対応としました。
+> - 沙羅曼蛇はC000Hから使用するので、`KONAMI.BAS`では非対応としました。
 > - シャロムはディスクにセーブロードするときにC000Hから使用します。  
->   ゲーム内ディスクセーブロードを実行するとKONAMI.BASは暴走します。
+>   ゲーム内ディスクセーブロードを実行すると`KONAMI.BAS`は暴走します。
 >   
 >   進行上、セーブ→MSXリセット→ロードが必要なポイントがあるため、  
->   KONAMI.BAS使用時はパスワードか新10倍SRAMへのセーブを利用してください。
+>   `KONAMI.BAS`使用時はパスワードか新10倍SRAMへのセーブを利用してください。
 
 ## 処理概要
 
@@ -357,7 +371,7 @@ RAM16KBを必要とする一部のコナミMSX1用ソフトには非対応です
 
 ## ゲームIDの取得方法
 
-詳細は KONAMI8K.ASM の GET_KONAMI_ID の処理を参考にしてください。
+詳細は `KONAMI8K.ASM` の GET_KONAMI_ID の処理を参考にしてください。
 
 1. ロムヘッダ検査 (4000H が 'AB')
 2. 4002Hに書かれたアドレスから+FFHの範囲に値としてH_TIMI(FD9Fh)かH_KEYI(FD9AH)があるか検査
@@ -421,7 +435,7 @@ RAM16KBを必要とする一部のコナミMSX1用ソフトには非対応です
 | RC 718 | MSX | 〇 |   | ハイパーラリー                 | Hyper Rally                             |
 | RC 720 | MSX | 〇 |   | コナミのテニス                 | Konami’s Tennis                        |
 | RC 721 | MSX | 〇 |   | スカイジャガー                 | Sky Jaguar                              |
-| RC 723 | MSX | 〇 |   | コナミのゴルフ                 | Konami's Golf                           |
+| RC 723 | MSX | 〇 |   | コナミのゴルフ                 | Konami’s Golf                          |
 | RC 724 | MSX | 〇 |   | コナミのベースボール           | Konami’s Baseball                      |
 | RC 725 | MSX | 〇 |   | イーアルカンフー               | Yie Ar Kung Fu                          |
 | RC 727 | MSX | 〇 |   | 王家の谷                       | King’s Valley                          |
@@ -455,7 +469,7 @@ RAM16KBを必要とする一部のコナミMSX1用ソフトには非対応です
 | RC 760 | MSX | ?? |SCC| エルギーザの封印 (MSX1)        | King’s Valley 2 (MSX1)                 |
 | RC 761 | MSX2| -- |SCC| エルギーザの封印 (MSX2)        | King’s Valley 2 (MSX2)                 |
 | RC 762 | MSX2| -- |SCC| 魂斗羅                         | Contra                                  |
-| RC 764 | MSX | ?? |SCC| ゴーファーの野望EPISODEII      | Gofer's Ambition Episode II (Nemesis 3) |
+| RC 764 | MSX | ?? |SCC| ゴーファーの野望EPISODEII      | Gofer’s Ambition Episode II (Nemesis 3)|
 | RC 765 | MSX2| -- |DAC| 牌の魔術師                     | Hai no Majutsushi                       |
 | RC 766 | MSX2| -- |SCC| 激突ペナントレース2            | Clash Pennant Race 2                    |
 | RC 767 | MSX2| -- |SCC| ソリッドスネークメタルギア2    | Metal Gear 2                            |

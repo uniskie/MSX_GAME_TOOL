@@ -5,8 +5,12 @@
 DISK IMAGE -> [MEGA-UTL.dsk](MEGA-UTL.dsk)
 
 ## 変更履歴  
+- 2025/05/11
+	- `PARO-MUS.OBJ`のサイズ削減（`SAVE-MUS.BAS`で出力しなおしてください）
+	- SCCとPSGの一時ミュートと復帰時の異音を抑制（SCCレジスタ対策やPSGミュート時のHENV対策）
+	- グラディウス2仮対応（パワーアップちゃんぽん'C'も仮対応）
 - 2025/04/25  
-   - KONAMI.BASでゲームが起動しなくなった問題の修正(KONASERCH.ASM)
+   - `KONAMI.BAS`でゲームが起動しなくなった問題の修正(`KONASERCH.ASM`)
 - 2025/04/24 -2  
    - ガリウスの迷宮をSCCカートリッジと誤認する問題を修正（PARO-MUS,F1SP-MUS）
 - 2025/04/24  
@@ -14,7 +18,7 @@ DISK IMAGE -> [MEGA-UTL.dsk](MEGA-UTL.dsk)
 - 2025/04/23  
    - アセンブラをAILZ80ASMに変更  
      （なるべく共通モジュールにしたいので順次リファクタリング中）
-   - KONAMI.BASの対応ソフトを強化  
+   - `KONAMI.BAS`の対応ソフトを強化  
      (わんぱくアスレチックの動作安定化。  
      　コナミのゴルフをリストに追加。等）
    - 沙羅曼蛇は要RAM16KBのソフトなので対応から除外
@@ -25,14 +29,14 @@ DISK IMAGE -> [MEGA-UTL.dsk](MEGA-UTL.dsk)
 - 2025/04/06  
     - アセンブラソースコードのメンテナンス（ソースコードのリファクタやリネーム）
     - ツール類のメッセージを分かりやすく修正
-    - PARODIUS.BAS、GALIOUS.BASでもニューゲームとコンティニューを区別
+    - `PARODIUS.BAS`、`GALIOUS.BAS`でもニューゲームとコンティニューを区別
     - PARODIUSのEXTRA MENU→[C]でパワーアップをするように機能追加
 - 2020/08/21  
-    - HYDLIDE3.BASをFMPAC/PACに対応 セーブデータセーブロード時、  
+    - `HYDLIDE3.BAS`をFMPAC/PACに対応 セーブデータセーブロード時、  
       FMPAC/PACがあればそちらのSRAMを読み書きするように対応。  
-    - HYD3CHAR.BASのバグ修正（アイテム選択で左カーソルが反応しない問題）  
+    - `HYD3CHAR.BAS`のバグ修正（アイテム選択で左カーソルが反応しない問題）  
 - 2020/08/19  
-    - HYD3CHAR.BASのバグ修正（マシン後書き込みアドレス計算がずれる問題）  
+    - `HYD3CHAR.BAS`のバグ修正（マシン後書き込みアドレス計算がずれる問題）  
 - 2020/08/10  
     - 初版  
 
@@ -40,19 +44,22 @@ DISK IMAGE -> [MEGA-UTL.dsk](MEGA-UTL.dsk)
 ## ツールについて  
 以下のゲームの状態保存・復帰などを出来るようにするツールです。  
 
-- HYDLIDE3.BAS  
+- `HYDLIDE3.BAS`  
   ...「ハイドライドⅢ」補助ツール  
 
-- PARODIUS.BAS  
-  ...「パロディウス」補助ツール  
-
-- F1SPIRIT.BAS  
-  ...「F1-SPIRIT」補助ツール  
-
-- GALIOUS.BAS  
+- `GALIOUS.BAS`  
   ...「ガリウスの迷宮」補助ツール  
 
-- KONAMI.BAS  
+- `GRADIUS2.BAS`  
+  ...「グラディウス2」補助ツール  
+
+- `F1SPIRIT.BAS`  
+  ...「F1-SPIRIT」補助ツール  
+
+- `PARODIUS.BAS`  
+  ...「パロディウス」補助ツール  
+
+- `KONAMI.BAS`  
   ...コナミ後期MSX1ソフト汎用クイックセーブロードツール  
 
 処理乗っ取り系のツールなので、  
@@ -64,22 +71,26 @@ ROMカートリッジを挿さずに電源にBASICを起動し、
 
 ## その他ツール  
 
-- HYD3CHAR.BAS  
+- `HYD3CHAR.BAS`  
   ...「ハイドライドⅢ」セーブデータ改造ツール  
 
-- GAL-MUS.BAS  
+- `GAL-MUS.BAS`  
   ...「ガリウスの迷宮」JUKE-BOX (サウンドテスト)  
-  ... ※SAVE-MUS.BASでゲームROMからGAL-MUS.OBJを作成しておく必要があります。
+  ... ※`SAVE-MUS.BAS`でゲーム`ROMからGAL-MUS.OBJ`を作成しておく必要があります。
 
-- PARO-MUS.BAS  
-  ...「パロディウス」JUKE-BOX (サウンドテスト)  
-  ... ※SAVE-MUS.BASでゲームROMからPARO-MUS.OBJを作成しておく必要があります。
+- `GRA2-MUS.BAS`  
+  ...「グラディウス2」JUKE-BOX (サウンドテスト)  
+  ... ※`SAVE-MUS.BAS`でゲーム`ROMからGRA2-MUS.OBJ`を作成しておく必要があります。
 
-- F1SP-MUS.BAS  
+- `F1SP-MUS.BAS`  
   ...「F1-SPIRIT」JUKE-BOX (サウンドテスト)  
-  ... ※SAVE-MUS.BASでゲームROMからF1SP-MUS.OBJを作成しておく必要があります。
+  ... ※`SAVE-MUS.BAS`でゲーム`ROMからF1SP-MUS.OBJ`を作成しておく必要があります。
 
-- SAVE-MUS.BAS  
+- `PARO-MUS.BAS`  
+  ...「パロディウス」JUKE-BOX (サウンドテスト)  
+  ... ※`SAVE-MUS.BAS`でゲーム`ROMからPARO-MUS.OBJ`を作成しておく必要があります。
+
+- `SAVE-MUS.BAS`  
   ... ROMからJUKE-BOX用バイナリファイル作成を作成するツール  
   ... 「ガリウスの迷宮」「パロディウス」「F1-SPIRIT」用
 
@@ -115,7 +126,7 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 
 ---  
 
-## HYDLIDE3.BAS  
+## `HYDLIDE3.BAS`  
 
 ここでは概要のみ。  
 詳細は [README_HYDLIDE3.MD](./README_HYDLIDE3.MD) 参照。  
@@ -140,18 +151,18 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
     （このツールを使用していない場合でも同様です）
 
 ### 操作例：キャラデータを改造して実行
-1. RUN"HYDLIDE3.BAS
+1. `RUN"HYDLIDE3.BAS"`
 2. カートリッジ後挿し
-3. LOAD CHARACTERSまたはPLAY→STOP→CTRL+@
-4. CHARA DATA EDIT → CTRL+STOP→RUN"HYDLIDE3.BAS
-5. SAVE CHARACTERS
-6. LOAD CHARACTERS
+3. `LOAD CHARACTERS`または`PLAY`→`STOP`→`CTRL+@`
+4. `CHARA DATA EDIT` → `CTRL+STOP`→`RUN"HYDLIDE3.BAS"`
+5. `SAVE CHARACTERS`
+6. `LOAD CHARACTERS`
 
 ※ SAVEした改造データはLOADで反映・PACにも保存
 
 ---  
 
-## PARODIUS.BAS / F1SPIRIT.BAS / GALIOUS.BAS / KONAMI.BAS  
+## `GALIOUS.BAS` / `GRADIUS2.BAS` / `F1SPIRIT.BAS` / `PARODIUS.BAS` /`KONAMI.BAS`  
 
 ここでは概要のみ。  
 詳細は [README_KONAMI.MD](./README_KONAMI.MD) 参照。  
@@ -198,16 +209,22 @@ NextorのIDEドライバははMegaSDのものが使用できます。
 
 （※ 他にも新10倍と相性の悪い組み合わせがあるかもしれません。）  
 
-心配な場合は、新10倍ではなこちらの`PARODIUS.BAS`、`f1SPIRIT.BSA`、`GALIOUS.BAS`を使っていただければ、  
+心配な場合は、新10倍ではなこちらの
+`GALIOUS.BAS`
+`GRADIUS2.BAS`
+`F1SPIRIT.BAS`
+`PARODIUS.BAS`
+を使えば、  
 SDカード破壊の危険性が低くなります。  
 
 ---  
 
 ## おまけ：独立動作版 JUKE-BOX  
 
-- GAL-MUS.BAS  
-- PARO-MUS.BAS  
-- F1SP-MUS.BAS  
+- `GAL-MUS.BAS`  
+- `GRA2-MUS.BAS`  
+- `F1SP-MUS.BAS`  
+- `PARO-MUS.BAS`  
 
 `SAVE-MUS.BAS`でロムカートリッジから必要なデータを取り出したOBJファイルを作成しておきます。
 
@@ -219,34 +236,41 @@ OBJファイルを利用して（ロムカートリッジなしで）JUKE-BOXを
 ```
 Bytes   SHA1                                     Name
 ------- ---------------------------------------- ------------
-131,072 42FBB18722DF3E34E5B0F935A2DC0CE0D85099E9 F1SPIRIT.ROM
 131,072 4D51D3C5036311392B173A576BC7D91DC9FED6CB GALIOUS.ROM
+131,072 D63E20369F98487767810A0C57603BEF6A2A07E5 GRADIUS2.ROM
+131,072 42FBB18722DF3E34E5B0F935A2DC0CE0D85099E9 F1SPIRIT.ROM
 131,072 2220363AE56EF707AB2471FCDB36F4816AD1D32C PARODIUS.ROM
 -------------------------------------------------------------
 ```
 
 ### JUKE-BOX (サウンドテスト) 用 ROMイメージ作成ツール  
-（F1SP-MUS.OBJ/PARO-MUS.OBJ/GAL-MUS.OBJの作成）  
-- SAVE-MUS.BAS  ... ゲームROMからファイルを作成  
-- TFROM.BIN     ... 機械語プログラム  
+（`GAL-MUS.OBJ`/`GRA2-MUS.OBJ`/`F1SP-MUS.OBJ`/`PARO-MUS.OBJ`の作成）  
+- `SAVE-MUS.BAS`  ... ゲームROMからファイルを作成  
+- `TFROM.BIN`     ... 機械語プログラム  
 
 ### ガリウスの迷宮 JUKE-BOX (サウンドテスト)  
-- GAL-MUS.BAS ... JUKE-BOX起動  
-- GAL-MUS.BIN ... 機械語プログラム  
-- GAL-MUS.OBJ ... (同梱無し/SAVE-MUS.BASで作成)  
+- `GAL-MUS.BAS` ... JUKE-BOX起動  
+- `GAL-MUS.BIN` ... 機械語プログラム  
+- `GAL-MUS.OBJ` ... (同梱無し/`SAVE-MUS.BAS`で作成)  
               ... ROMバンク$00,$0D,$0Eをつなげたファイル  
 
+### グラディウス JUKE-BOX (サウンドテスト)  
+- `GRA2-MUS.BAS` ... JUKE-BOX起動  
+- `GRA2-MUS.BIN` ... 機械語プログラム  
+- `GRA2-MUS.OBJ` ... (同梱無し/`SAVE-MUS.BAS`で作成)  
+               ... ROMバンク$04,$05,$06をつなげたファイル  
+
 ### F-1スピリット JUKE-BOX (サウンドテスト)  
-- F1SP-MUS.BAS ... JUKE-BOX起動  
-- F1SP-MUS.BIN ... 機械語プログラム  
-- F1SP-MUS.OBJ ... (同梱無し/SAVE-MUS.BASで作成)  
+- `F1SP-MUS.BAS` ... JUKE-BOX起動  
+- `F1SP-MUS.BIN` ... 機械語プログラム  
+- `F1SP-MUS.OBJ` ... (同梱無し/`SAVE-MUS.BAS`で作成)  
                ... ROMバンク$0D,$0E,$0Fをつなげたファイル  
 
 ### パロディウス JUKE-BOX (サウンドテスト)  
-- PARO-MUS.BAS ... JUKE-BOX起動  
-- PARO-MUS.BIN ... 機械語プログラム  
-- PARO-MUS.OBJ ... (同梱無し/SAVE-MUS.BASで作成)  
-               ... ROMバンク$00,$04,$05,$06,$0Aをつなげたファイル  
+- `PARO-MUS.BAS` ... JUKE-BOX起動  
+- `PARO-MUS.BIN` ... 機械語プログラム  
+- `PARO-MUS.OBJ` ... (同梱無し/`SAVE-MUS.BAS`で作成)  
+               ... ROMバンク$04,$05,$06,$0Aをつなげたファイル  
 
 ---  
 
@@ -263,64 +287,75 @@ AILZ80ASM v1.0.29 以上を使用してください。
 [AILZ80ASM](https://github.com/AILight/AILZ80ASM)
 
 ### 共用  
-- BIOS-DEF.ASM ... BIOS系シンボル定義（使用しているもののみ）  
-- EX-BIOS.ASM ... 共用している処理まとめ  
-- CHGSLT.ASM  ... スロット処理まとめ  
-- KJ-VDP.ASM  ... screen5/7へ漢字表示  
-- MOJI-24.ASM ... screen2/4へ文字表示  
-- KONAMI8K.ASM ... KONAMI 8Kバンク/SCC/コナミゲームID取得  
-- BIOS-DEF.ASM ... BIOS関連のエントリやワークエリア定義  
-- PAC-TOOL.ASM ... Pana Amusement Cartridge関連
-- KONAMI8K.ASM ... コナミ共通（ROMバンクやSCC関連）
+- `BIOS-DEF.ASM` ... BIOS系シンボル定義（使用しているもののみ）  
+- `EX-BIOS.ASM` ... 共用している処理まとめ  
+- `CHGSLT.ASM`  ... スロット処理まとめ  
+- `KJ-VDP.ASM`  ... screen5/7へ漢字表示  
+- `MOJI-24.ASM` ... screen2/4へ文字表示  
+- `KONAMI8K.ASM` ... KONAMI 8Kバンク/SCC/コナミゲームID取得  
+- `BIOS-DEF.ASM` ... BIOS関連のエントリやワークエリア定義  
+- `PAC-TOOL.ASM` ... Pana Amusement Cartridge関連
+- `KONAMI8K.ASM` ... コナミ共通（ROMバンクやSCC関連）
 
-### HYDLIDE3.BAS用  
-- HYDLIDE3.ASM  ... 起動処理
-- HYD3-EXP.ASM  ... 拡張ポーズ処理
-- HYD3CHAR.BAS  ... キャラクターデータ改造ツール
+### `HYDLIDE3.BAS`用  
+- `HYDLIDE3.ASM`  ... 起動処理
+- `HYD3-EXP.ASM`  ... 拡張ポーズ処理
+- `HYD3CHAR.BAS`  ... キャラクターデータ改造ツール
 
-### GALIOUS.BAS用  
-- GALIOUS.ASM  ... 起動処理  
-- GAL-EXPS.ASM ... 拡張ポーズ・クイックセーブロード処理  
-- GAL-PLAY.ASM ... JUKE-BOX処理  
-- GAL-PL-D.ASM ... JUKE-BOX表示処理  
-- GAL-TITL.ASM ... 曲名リスト  
+### `GALIOUS.BAS`用  
+- `GALIOUS.ASM`  ... 起動処理  
+- `GAL-EXPS.ASM` ... 拡張ポーズ・クイックセーブロード処理  
+- `GAL-PLAY.ASM` ... JUKE-BOX処理  
+- `GAL-PL-D.ASM` ... JUKE-BOX表示処理  
+- `GAL-TITL.ASM` ... 曲名リスト  
 
-### F1SPIRIT.BAS用  
-- F1SPIRIT.ASM ... 起動処理  
-- F1SP-EXP.ASM ... 拡張ポーズ・クイックセーブロード処理  
-- F1SPPLAY.ASM ... JUKE-BOX処理  
-- F1SPTITL.ASM ... 曲名リスト  
+### `GRADIUS2.BAS`用  
+- `GRADIUS2.ASM` ... 起動処理  
+- `GRA2-EXP.ASM` ... 拡張ポーズ・クイックセーブロード処理  
+- `GRA2PLAY.ASM` ... JUKE-BOX処理  
+- `GRA2TITL.ASM` ... 曲名リスト  
 
-### PARODIUS.BAS用  
-- PARODIUS.ASM ... 起動処理  
-- PARO-EXP.ASM ... 拡張ポーズ・クイックセーブロード処理  
-- PAROPLAY.ASM ... JUKE-BOX処理  
-- PAROTITL.ASM ... 曲名リスト  
+### `F1SPIRIT.BAS`用  
+- `F1SPIRIT.ASM` ... 起動処理  
+- `F1SP-EXP.ASM` ... 拡張ポーズ・クイックセーブロード処理  
+- `F1SPPLAY.ASM` ... JUKE-BOX処理  
+- `F1SPTITL.ASM` ... 曲名リスト  
 
-### KONAMI.BAS用  
-- KONAMI.ASM   ... 起動処理  
-- KONA-EXP.ASM ... 拡張ポーズ・クイックセーブロード処理  
-- KONASRCH.ASM ... 汎用対応向け処理  
-- KONALIST.ASM ... コナミゲームID、タイトル名リスト  
+### `PARODIUS.BAS`用  
+- `PARODIUS.ASM` ... 起動処理  
+- `PARO-EXP.ASM` ... 拡張ポーズ・クイックセーブロード処理  
+- `PAROPLAY.ASM` ... JUKE-BOX処理  
+- `PAROTITL.ASM` ... 曲名リスト  
 
-### F1SP-MUS.BAS用
-- F1SP-MUS.ASM ... JUKE-BOX起動  
-- F1SPPLAY.ASM ... JUKE-BOX処理  
-- F1SPTITL.ASM ... 曲名リスト  
+### `KONAMI.BAS`用  
+- `KONAMI.ASM`   ... 起動処理  
+- `KONA-EXP.ASM` ... 拡張ポーズ・クイックセーブロード処理  
+- `KONASRCH.ASM` ... 汎用対応向け処理  
+- `KONALIST.ASM` ... コナミゲームID、タイトル名リスト  
 
-### PARO-MUS.BAS用
-- PARO-MUS.ASM ... JUKE-BOX起動  
-- PAROPLAY.ASM ... JUKE-BOX処理  
-- PAROTITL.ASM ... 曲名リスト  
+### `GAL-MUS.BAS`用
+- `GAL-MUS.ASM`  ... JUKE-BOX起動  
+- `GAL-PLAY.ASM` ... JUKE-BOX処理  
+- `GAL-PLKD.ASM` ... JUKE-BOX表示処理（漢字版）  
+- `GAL-TL-K.ASM` ... 曲名リスト（漢字版）  
 
-### GAL-MUS.BAS用
-- GAL-MUS.ASM  ... JUKE-BOX起動  
-- GAL-PLAY.ASM ... JUKE-BOX処理  
-- GAL-PLKD.ASM ... JUKE-BOX表示処理（漢字版）  
-- GAL-TL-K.ASM ... 曲名リスト（漢字版）  
+### `GRA2-MUS.BAS`用
+- `GRA2-MUS.ASM` ... JUKE-BOX起動  
+- `GRA2PLAY.ASM` ... JUKE-BOX処理  
+- `GRA2TITL.ASM` ... 曲名リスト  
 
-### TFROM.BAS用
-- TFROM.ASM  ... ロムの検索とコピー
-- KONASRCH.ASM ... 汎用対応向け処理  
-- KONALIST.ASM ... コナミゲームID、タイトル名リスト  
+### `F1SP-MUS.BAS`用
+- `F1SP-MUS.ASM` ... JUKE-BOX起動  
+- `F1SPPLAY.ASM` ... JUKE-BOX処理  
+- `F1SPTITL.ASM` ... 曲名リスト  
+
+### `PARO-MUS.BAS`用
+- `PARO-MUS.ASM` ... JUKE-BOX起動  
+- `PAROPLAY.ASM` ... JUKE-BOX処理  
+- `PAROTITL.ASM` ... 曲名リスト  
+
+### `TFROM.BAS`用
+- `TFROM.ASM`  ... ロムの検索とコピー
+- `KONASRCH.ASM` ... 汎用対応向け処理  
+- `KONALIST.ASM` ... コナミゲームID、タイトル名リスト  
 

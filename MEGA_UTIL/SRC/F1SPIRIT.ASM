@@ -31,8 +31,10 @@
 ORGADR:	EQU	0C000H
 
 ;--------------------------------------
-	ORG	ORGADR-7
 ;	FNAME	"F1SPIRIT.BIN"	;*BINHEAD*
+
+	ORG	ORGADR-7
+
 	DB	0FEH	;*BINHEAD*
 	DW	ORGADR	;*BINHEAD*
 	DW	ENDFL-1	;*BINHEAD*
@@ -45,7 +47,8 @@ ORGADR:	EQU	0C000H
 ; F1SPIRIT ROM ENTRY
 RUN_ADR:	EQU	4117H
 TRAP_MS:	EQU	4018H	;F1SPIRIT H.KEYI
-MAGICN:	EQU	40E4H	;GAME ROM CHEK ID
+ROMINIT:	EQU	40E4H	;GAME ROM CHEK ID
+MUSBANK:	EQU	0DH
 GAMESPA:	EQU	0F0F0H
 
 ; KONAMI MEGA-ROM BANK
@@ -88,8 +91,9 @@ SVPHOOK:
 ;--------------------------------------
 ; ROUTINES
 ;--------------------------------------
+
+; FROM BASIC
 GAMEBOOT_:
-	; FROM BASIC
 	CALL CPUZ80
 	DI
 	LD	(SVW_SP),SP
@@ -222,10 +226,14 @@ PLAY:	LD	HL,H_KEYI
 	LD	A,7+80H
 	OUT	(VDP+1),A
 
+	CALL	SET_PLAYBANK
 	JP	PLAY_SUB
 
 ;--------------------------------------
 PLAY_R:	DI
+;	XOR	A
+;	LD	(SCCR_CHENA),A
+
 	LD	DE,H_KEYI
 	LD	HL,SVPHOOK
 	LD	BC,5
@@ -248,13 +256,18 @@ PLAY_R:	DI
 
 ;--------------------------------------
 PLAY_TRAP:
-	LD	A,0DH
+	CALL	SET_PLAYBANK
+	JP	PLAY_TR
+
+;--------------------------------------
+SET_PLAYBANK:
+	LD	A,MUSBANK
 	LD	(BANK1),A
 	INC	A
 	LD	(BANK2),A
 	INC	A
 	LD	(BANK3),A
-	JP	PLAY_TR
+	RET
 
 ;--------------------------------------
 SEL_SCC:
