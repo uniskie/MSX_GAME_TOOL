@@ -1,0 +1,3 @@
+@REM CALL _TNIASM %1 %2 %3 %4 %5
+@CALL _AILZ80ASM %1 %2 %3 %4 %5
+exit /b %ERRORLEVEL%

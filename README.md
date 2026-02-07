@@ -2,6 +2,7 @@
 
 |名前|内容|
 |---|---|
+|[ExternalFDD_Compatibility_Fix](ExternalFDD_Compatibility_Fix)|外付けFDDで動かないきゃんきゃんバニースペリオールを動かす起動サポートディスク|
 |[DISCSTATION              ](DISCSTATION               )|ディスクステーションからゲームを切り出すツール|
 |[MEGA_UTIL](MEGA_UTIL )|ハイドライド３、ガリウスの迷宮、パロディウス、F1-SPIRITに使用するツール。（おまけでコナミ後期MSX1用ソフト汎用クイックセーブツールもアリ）<BR>ROMの後挿しをしてBASICからゲームを起動。拡張ポーズ機能を追加。<BR>1. ゲーム中に状態をまるごとクイック保存・復帰<BR>2. 状態を保存してBASICとゲームを行き来。<BR>3. BASICに戻ってディスクにゲームの状態丸ごと保存・復帰<BR>4. JUKE-BOX（GALIOUS、PARODIUS、F1SPIRIT）、またはキャラクターデータエディット（HYDLIDE3）機能の追加|
 |[MSXFAN13_HYDLIDE_PATCH   ](MSXFAN13_HYDLIDE_PATCH    )|**MSXFAN 1992年10月号 付録ディスク#13**収録のMSX2用イドライド用置き換え画像データ|
