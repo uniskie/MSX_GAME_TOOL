@@ -5,12 +5,22 @@
 
 WINDOWS用です。
 
-| バッチファイル      | ゲーム名         | 出力ファイル | 元イメージ  |
-|---------------------|------------------|--------------|-------------|
-| GULKAVE_DS.bat      | GULKAVE          | GULKAVED.ROM | DS#9-2.DSK  |
-| FINALJUSTICE_DS.bat | FINAL JUSTICE    | FINALJUD.ROM | DS#8-1.DSK  |
-| CRUSADER_DS.bat     | CRUSADER         | CRUSADED.ROM | DS#10-1.DSK |
-| EI_DS.bat           | E.I. (EXA INOVA) | EI_DS.ROM    | DS#15-1.DSK |
+動作保証やサポートはありません。
+
+| 収録 | バッチファイル         | ゲーム名                | 出力ファイル | 元イメージ  |
+|------|------------------------|-------------------------|--------------|-------------|
+| 00号 | HustleChumy_DS.bat     | ハッスルチューミー      | HUSTLEDS.ROM | DS#0.DSK    |
+| 01号 | MEGALOPOLIS_SOS_DS.bat | メガロポリスSOS         | MEGARODS.ROM | DS#1-1.DSK  |
+| 02号 | SWING_DS.bat           | 窓ふき会社のスイング君  | SWING_DS.ROM | DS#2-2.DSK  |
+| 03号 | GODZILLA_DS.bat        | ゴジラくん              | GODZILDS.ROM | DS#3-2.DSK  |
+| 04号 | EGGY_DS.bat            | EGGY                    | EGGY_DS.ROM  | DS#4-2.DSK  |
+| 05号 | MACCROSS_DS.bat        | マクロス カウントダウン | MACROSDS.ROM | DS#5-2.DSK  |
+| 06号 | XYXOLOC_DS.bat         | XYXOLOC                 | XYXOLODS.ROM | DS#6-1.DSK  |
+| 07号 | CSO_DS.bat             | C-SO!                   | CSO_DS.ROM   | DS#7-2.DSK  |
+| 08号 | FINALJUSTICE_DS.bat    | FINAL JUSTICE           | FINALJDS.ROM | DS#8-1.DSK  |
+| 09号 | GULKAVE_DS.bat         | GULKAVE                 | GULKAVDS.ROM | DS#9-2.DSK  |
+| 10号 | CRUSADER_DS.bat        | CRUSADER                | CRUSADDS.ROM | DS#10-1.DSK |
+| 15号 | EI_DS.bat              | E.I. (EXA INOVA)        | EI_DS.ROM    | DS#15-1.DSK |
 
 ## 必要ツール
 
@@ -18,10 +28,11 @@ bincut2.exe     ... バイナリーカッター
 https://nezplug.sourceforge.net/  
 https://www.purose.net/befis/download/nezplug/oldsite.shtml  
 
-## 注意：CRUSADED.ROM
+## 注意：CRUSADDS.ROM
 
-openMSXではCRUSADED.ROMのROMタイプを正常に判定できないので、
-ROM TYPEは手動で`NORMAL4000`を指定してください。
+openMSXではCRUSADDS.ROMのROMタイプを正常に判定できないので、
+ROM TYPEは手動で`NORMAL4000`または`Plain 32K page1-2`を指定してください。
+
 
 オリジナル版でもDS版でも、MSX1以外では起動に失敗することがあります。
 （リセットすれば動くことがあるそうです）
@@ -56,5 +67,4 @@ CRUSADER_DS.batではこの問題を修正しています。
 > ```
 > 
 > 対処内容：`CALL   #433E`を`POP IX`の前に移動
-
 

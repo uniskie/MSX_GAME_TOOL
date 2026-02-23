@@ -9,16 +9,31 @@ SHIFT
 GOTO :arg_loop
 :arg_end
 
-SET G=GULKAVED
-SET SRC=DS#9-2.DSK
+SET VOL=9
+SET DISC=2
+SET TITLE=GULKAVE
+SET G=GULKAVDS
+
+REM ROM IMAGE: +98000H size:8000H
+REM (CLUSTER:603 / SECTOR:4C0H) 
+REM     ;(CLU=SEC/2-5)...(2DD:CLU=SEC/2-(14-2*2)/2)
+SET SADR=98000
+SET SIZE=8000
+
+IF "%DISC%"=="0" (
+ SET SRC=DS#%VOL%.DSK
+) ELSE (
+ SET SRC=DS#%VOL%-%DISC%.DSK
+)
 SET ROMFILE=%G%.ROM
 
-ECHO ***** GULKAVE DISC STATION #9 ver ************************************
+ECHO ********************************************************************
+ECHO  %TITLE% ... Disc Station #%DISC% ver
 ECHO.
 ECHO ** "%SRC%"から"%ROMFILE%" を作成 します
 ECHO.
 ECHO 準備：
-ECHO    %SRC% ... DISC STATION 9 DISK2 IMAGE
+ECHO    %SRC% ... DISC STATION #%VOL% DISK %DISC% IMAGE
 ECHO.
 ECHO    bincut2.exe     ... バイナリーカッター
 ECHO      https://nezplug.sourceforge.net/
@@ -53,10 +68,7 @@ REM ************************************************
 ECHO * バイナリデータを切り出します。
 REM ************************************************
 
-REM GULKAVE.OBJ
-REM ROM IMAGE: +9800H size:8000H
-REM (CLUSTER:610 / SECTOR:4C0H) (CLU=SEC/2+1)
-BINCUT2 -s 98000 -l 8000 -o %G%.ROM %SRC%
+BINCUT2 -s %SADR% -l %SIZE% -o %G%.ROM %SRC%
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM ********************************

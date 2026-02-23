@@ -9,16 +9,31 @@ SHIFT
 GOTO :arg_loop
 :arg_end
 
+SET VOL=15
+SET DISC=1
+SET TITLE=E.I.
 SET G=EI_DS
-SET SRC=DS#15-1.DSK
+
+REM ROM IMAGE: +6C000H size:4000H
+REM (CLUSTER:427 / SECTOR:360H)
+REM     ;(CLU=SEC/2-5)...(2DD:CLU=SEC/2-(14-2*2)/2)
+SET SADR=6C000
+SET SIZE=4000
+
+IF "%DISC%"=="0" (
+ SET SRC=DS#%VOL%.DSK
+) ELSE (
+ SET SRC=DS#%VOL%-%DISC%.DSK
+)
 SET ROMFILE=%G%.ROM
 
-ECHO ***** E.I. DISC STATION #15 ver ************************************
+ECHO ********************************************************************
+ECHO  %TITLE% ... Disc Station #%DISC% ver
 ECHO.
 ECHO ** "%SRC%"から"%ROMFILE%" を作成 します
 ECHO.
 ECHO 準備：
-ECHO    %SRC% ... DISC STATION 15 DISK1 IMAGE
+ECHO    %SRC% ... DISC STATION #%VOL% DISK %DISC% IMAGE
 ECHO.
 ECHO    bincut2.exe     ... バイナリーカッター
 ECHO      https://nezplug.sourceforge.net/
@@ -53,9 +68,8 @@ REM ************************************************
 ECHO * バイナリデータを切り出します。
 REM ************************************************
 
-REM ROM IMAGE: +6C000H size:4000H
-rem (CLUSTER:434 / SECTOR:360H) (CLU=SEC/2+1)
-BINCUT2 -s 6C000 -l 4000 -o %G%_RAW.ROM %SRC%
+BINCUT2 -s %SADR% -l %SIZE% -o %G%_RAW.ROM %SRC%
+IF ERRORLEVEL 1 GOTO :err_end
 
 REM BOOT CODE: 4000H-4023H SIZE=24H 
 REM +0000 size:24

@@ -9,19 +9,31 @@ SHIFT
 GOTO :arg_loop
 :arg_end
 
-SET G=CRUSADED
-SET SRC=DS#10-1.DSK
+SET VOL=10
+SET DISC=1
+SET TITLE=CRUSADER
+SET G=CRUSADDS
+
+REM ROM IMAGE: +74000H size:8000H
+REM (CLUSTER:459 / SECTOR:3A0H)
+REM     (CLU=SEC/2-5)...(2DD:CLU=SEC/2-(14-2*2)/2)
+SET SADR=74000
+SET SIZE=8000
+
+IF "%DISC%"=="0" (
+ SET SRC=DS#%VOL%.DSK
+) ELSE (
+ SET SRC=DS#%VOL%-%DISC%.DSK
+)
 SET ROMFILE=%G%.ROM
 
-ECHO ***** CRUSADER DISC STATION #10 ver ********************************
-ECHO.
-ECHO 注） ** タイプはNORMAL4000Hを指定してください **
-ECHO      （openMSXのauto detectは正しく認識しません）
+ECHO ********************************************************************
+ECHO  %TITLE% ... Disc Station #%DISC% ver
 ECHO.
 ECHO ** "%SRC%"から"%ROMFILE%" を作成 します
 ECHO.
 ECHO 準備：
-ECHO    %SRC% ... DISC STATION 10 DISK1 IMAGE
+ECHO    %SRC% ... DISC STATION #%VOL% DISK %DISC% IMAGE
 ECHO.
 ECHO    bincut2.exe     ... バイナリーカッター
 ECHO      https://nezplug.sourceforge.net/
@@ -56,9 +68,8 @@ REM ************************************************
 ECHO * バイナリデータを切り出します。
 REM ************************************************
 
-REM ROM IMAGE: +74000H size:8000H
-rem (CLUSTER:466 / SECTOR:3A0H) (CLU=SEC/2+1)
-BINCUT2 -s 74000 -l 8000 -o %G%_RAW.ROM %SRC%
+BINCUT2 -s %SADR% -l %SIZE% -o %G%_RAW.ROM %SRC%
+IF ERRORLEVEL 1 GOTO :err_end
 
 REM BOOT CODE: 4000H-4007H SIZE=8H 
 REM +0000 size:8
@@ -133,7 +144,8 @@ DEL %G%_FIX3.BIN>nul
 
 :no_trash
 ECHO.
-ECHO 注） ** タイプはNORMAL4000Hを指定してください **
+ECHO 注） ** タイプは NORMAL4000H
+ECHO         または Plain 32K page1-2 を指定してください **
 ECHO      （openMSXのauto detectは正しく認識しません）
 ECHO.
 

@@ -9,16 +9,31 @@ SHIFT
 GOTO :arg_loop
 :arg_end
 
-SET G=FINALJUD
-SET SRC=DS#8-1.DSK
+SET VOL=8
+SET DISC=1
+SET TITLE=FINAL JUSTICE
+SET G=FINALJDS
+
+REM ROM IMAGE: +60000 size:4000H
+REM (CLUSTER:379 / SECTOR:300H)
+REM     ;(CLU=SEC/2-5)...(2DD:CLU=SEC/2-(14-2*2)/2)
+SET SADR=60000
+SET SIZE=4000
+
+IF "%DISC%"=="0" (
+ SET SRC=DS#%VOL%.DSK
+) ELSE (
+ SET SRC=DS#%VOL%-%DISC%.DSK
+)
 SET ROMFILE=%G%.ROM
 
-ECHO ***** FINAL JUSTICE DISC STATION #8 ver ****************************
+ECHO ********************************************************************
+ECHO  %TITLE% ... Disc Station #%DISC% ver
 ECHO.
 ECHO ** "%SRC%"から"%ROMFILE%" を作成 します
 ECHO.
 ECHO 準備：
-ECHO    %SRC% ... DISC STATION 8 DISK1 IMAGE
+ECHO    %SRC% ... DISC STATION #%VOL% DISK %DISC% IMAGE
 ECHO.
 ECHO    bincut2.exe     ... バイナリーカッター
 ECHO      https://nezplug.sourceforge.net/
@@ -53,14 +68,12 @@ REM ************************************************
 ECHO * バイナリデータを切り出します。
 REM ************************************************
 
-REM ROM IMAGE: +60000 size:4000H
-REM (CLUSTER:386 / SECTOR:300H) (CLU=SEC/2+2)
-BINCUT2 -s 60000 -l 4000 -o %G%_RAW.ROM %SRC%
+BINCUT2 -s %SADR% -l %SIZE% -o %G%_RAW.ROM %SRC%
 IF ERRORLEVEL 1 GOTO :err_end
 
-REM BODY: 402H-4FFFH SIZE:(4000H-2)
-REM +24 size:3FFE
-BINCUT2 -s 2 -l 3FFFE -o %G%_BODY.BIN %G%_RAW.ROM
+REM BODY: 4002H-4FFFH SIZE:(4000H-2)
+REM +2 size:3FFE
+BINCUT2 -s 2 -l 3FFE -o %G%_BODY.BIN %G%_RAW.ROM
 IF ERRORLEVEL 1 GOTO :err_end
 
 REM ********************************
