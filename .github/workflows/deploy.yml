@@ -5,55 +5,55 @@ on:
     branches:
       - main
 
+# Pagesの直接公開（パブリッシュ）に必要な権限を設定
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時実行された場合に古いジョブをキャンセルする設定
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  sync-and-deploy:
+  sync-and-publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          # 直前コミット（HEAD~1）との差分を比較可能にするため履歴を2世代取得
-          fetch-depth: 2 
 
       - name: Sync modified folders or files from hidden JSON
         run: |
-          # .github/ フォルダ内に配置された設定ファイルを指定してループ処理を実行
+          # .github/sync-config.json から設定を読み込んでファイルをコピー
           jq -c '.[]' .github/sync-config.json | while read -r set; do
-            # jqコマンドを用いて個別のオブジェクトから設定値を取得
             SRC=$(echo "$set" | jq -r '.from')
             DEST=$(echo "$set" | jq -r '.to')
             
-            # 指定した監視対象（フォルダまたはファイル）に変更があったか検証
-            if git diff --name-only HEAD~1 | grep -q "^${SRC}"; then
-              echo "Changes detected in ${SRC}. Syncing to ${DEST}..."
+            # 過去すべてのファイル（フルビルド）を対象とするため、存在チェックのみで安全にコピー
+            if [ -e "${SRC}" ]; then
+              echo "Syncing ${SRC} to ${DEST}..."
               mkdir -p "./${DEST}"
-              
-              # 対象がファイルかフォルダかを判定してコピーコマンドを分岐
               if [ -f "${SRC}" ]; then
-                # ファイル単体を直接指定のディレクトリへコピー
                 cp "${SRC}" "./${DEST}/"
               elif [ -d "${SRC}" ]; then
-                # フォルダ内のすべての中身を再帰的にコピー
                 cp -r ${SRC}/* "./${DEST}/"
               fi
             fi
           done
 
-      - name: Push synchronized changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
-          
-          git add .
-          
-          # インデックス（ステージングエリア）に差分が存在する場合のみ処理を実行
-          # [skip ci] タグを付与して本コミットによるActionsの無限ループを防止
-          if ! git diff --staged --quiet; then
-            git commit -m "chore: auto-sync updated assets [skip ci]"
-            git push origin main
-          else
-            echo "No changes detected. Skipping push."
-          fi
+      # -------------------------------------------------------------
+      # ここから下で、リポジトリにコミットせず直接WEB公開へ流し込みます
+      # -------------------------------------------------------------
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # WEB公開したいフォルダを指定（docsフォルダを公開する場合）
+          path: './docs'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
