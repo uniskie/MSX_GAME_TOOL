@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FC版 ファイナルファンタジー1 セーブデータエディタ</title>
+<title>ＦＣ版／ＭＳＸ版 ファイナルファンタジーⅠ セーブデータエディタ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
@@ -167,6 +167,7 @@
 
   .field { display: flex; align-items: center; margin-bottom: 6px; }
   .field label { width: 110px; color: #ffffff; font-size: 14px; font-weight: bold; flex-shrink: 0; }
+  .card-basic .field label { width: 68px; }
   input[type="number"], input[type="text"], select {
     background: var(--ff-blue);
     border: 2px solid var(--ff-border-white);
@@ -180,11 +181,13 @@
     transition: background-color 0.15s, border-color 0.15s;
   }
   .w-name   { width: 72px; }
-  .w-2digit { width: 50px; text-align: center; }
+  /*.w-2digit { width: 50px; text-align: center; }*/
+  .w-2digit { width: 64px; text-align: center; } /*1byteなので制限なしでは3桁*/
   .w-3digit { width: 64px; text-align: center; }
+  .w-4digit { width: 80px; text-align: center; }
   .w-6digit { width: 94px; text-align: center; }
   .w-select { width: 145px; }
-  .w-equip  { width: 132px; }
+  .w-equip  { width: 135px; }
 
   input[type="number"]::-webkit-inner-spin-button {
     margin-left: 5px;
@@ -201,10 +204,20 @@
   select option:disabled {
     color: #888888;
   }
+  select option[hidden] {
+    display: none;
+  }
   input[type="number"]:focus, input[type="text"]:focus, select:focus {
     outline: none;
     background: var(--ff-focus-blue);
     border-color: var(--accent-yellow);
+  }
+  #paramSourceSelect, #paramSourceSelect option {
+    font-size: 12px;
+    background: #000000;
+  }
+  #paramSourceSelect:focus {
+    background: #000000;
   }
   .field-check { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; cursor: pointer; font-size: 14px; font-weight: bold; color:#fff; }
   .field-check input { cursor: pointer; width: 15px; height: 15px; }
@@ -212,7 +225,7 @@
   /* 装備スロット用レイアウト */
   .equip-row {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     align-items: center;
     margin-bottom: 6px;
     flex-wrap: nowrap;
@@ -261,6 +274,15 @@
     margin: 0;
   }
 
+  #consumablesContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 12px;
+  }
+  #consumablesContainer .field label {
+    width: 88px;
+  }
+
   #keyItemsContainer {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -294,20 +316,23 @@
 
 <div class="container">
   <h1>
-    <span>FC版 ファイナルファンタジー1 セーブデータエディタ</span>
+    <span>ＦＣ版／ＭＳＸ版 ファイナルファンタジーⅠ セーブデータエディタ</span>
     <div style="display:flex; align-items:center; flex-wrap:wrap; gap:16px;">
       <div style="display:flex; align-items:center; gap:6px; font-size:12px;">
         <span>パラメータ基準:</span>
-        <select id="paramSourceSelect" style="width:auto; padding:2px 8px;" onchange="onParamSourceChange()">
-          <option value="standard">デフォルト (FC原版)</option>
+        <select id="paramSourceSelect" style="width:auto; padding:1px 6px;" onchange="onParamSourceChange()">
+          <option value="standard">デフォルト (標準)</option>
           <option value="rom" id="optRomSource" disabled>読み込みROM準拠 (未読込)</option>
         </select>
       </div>
       <label style="font-size:12px; font-weight:normal; display:flex; align-items:center; gap:6px; cursor:pointer;">
-        <input type="checkbox" id="restrictEquipCheckbox" checked onchange="onRestrictEquipToggle()"> 装備制限を適用
+        <input type="checkbox" id="restrictEquipCheckbox" checked onchange="onRestrictEquipToggle()"> 装備制限
       </label>
       <label style="font-size:12px; font-weight:normal; display:flex; align-items:center; gap:6px; cursor:pointer;">
-        <input type="checkbox" id="autoCalcCheckbox" checked> パラメータ自動計算を有効化
+        <input type="checkbox" id="autoCalcCheckbox" checked> パラメータ自動計算
+      </label>
+      <label style="font-size:12px; font-weight:normal; display:flex; align-items:center; gap:6px; cursor:pointer;">
+        <input type="checkbox" id="paramLimitCheckbox" checked onchange="onParamLimitToggle()"> パラメータ制限
       </label>
     </div>
   </h1>
@@ -317,8 +342,8 @@
     <div class="io-controls">
       <div class="file-inputs">
         <div class="file-btn-wrapper">
-          <span class="file-btn">📂 .SAV 読込 (8KB)</span>
-          <input type="file" id="savInput" accept=".sav,.bin">
+          <span class="file-btn">📂 SAV / DSK 読込</span>
+          <input type="file" id="savInput" accept=".sav,.bin,.dsk">
         </div>
         <div class="file-btn-wrapper">
           <span class="file-btn" style="border-style:dashed;">🎮 NES ROM 読込 (任意・テーブル抽出)</span>
@@ -353,13 +378,14 @@
       <div class="card">
         <div class="card-title">基本・乗り物フラグ</div>
         <div class="field">
-          <label>所持金 (G)</label>
+          <label style="width: 100px; white-space: nowrap;">所持金（ギル）</label>
           <input type="number" id="goldInput" class="w-6digit" min="0" max="999999">
         </div>
         <div style="margin-top:12px;">
           <label class="field-check"><input type="checkbox" id="bridgeFlag"> 北の橋 架橋済み</label>
           <label class="field-check"><input type="checkbox" id="introSceneFlag"> OPデモ 表示済み</label>
           <label class="field-check"><input type="checkbox" id="shipFlag"> 船 所持</label>
+          <label class="field-check"><input type="checkbox" id="nitroFlag"> 海峡 爆破済み </label>
           <label class="field-check"><input type="checkbox" id="airshipFlag"> 飛空艇 所持</label>
         </div>
       </div>
@@ -392,96 +418,6 @@ const JOBS = [
   "ナイト", "忍者", "スーパーモンク", "赤魔道士", "白魔道士", "黒魔道士"
 ];
 
-// 武器データ (jobs: 装備可能なジョブインデックス 0〜11)
-const WEAPONS = [
-  { id: 0x00, name: "(なし)", atk: 0, hit: 0, jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
-  { id: 0x01, name: "ヌンチャク", atk: 12, hit: 0, jobs: [2, 7, 8] },
-  { id: 0x02, name: "ナイフ", atk: 5, hit: 10, jobs: [0, 1, 2, 3, 5, 6, 7, 8, 9, 11] },
-  { id: 0x03, name: "つえ", atk: 6, hit: 0, jobs: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
-  { id: 0x04, name: "レイピア", atk: 9, hit: 5, jobs: [0, 1, 3, 6, 7, 9] },
-  { id: 0x05, name: "ハンマー", atk: 9, hit: 0, jobs: [0, 4, 6, 7, 10] },
-  { id: 0x06, name: "ブロードソード", atk: 15, hit: 10, jobs: [0, 3, 6, 7, 9] },
-  { id: 0x07, name: "バトルアクス", atk: 16, hit: 5, jobs: [0, 6, 7] },
-  { id: 0x08, name: "シミター", atk: 10, hit: 10, jobs: [0, 1, 3, 6, 7, 9] },
-  { id: 0x09, name: "テツヌンチャク", atk: 16, hit: 0, jobs: [2, 7, 8] },
-  { id: 0x0A, name: "ダガー", atk: 7, hit: 10, jobs: [0, 1, 2, 3, 5, 6, 7, 8, 9, 11] },
-  { id: 0x0B, name: "しゃくじょう", atk: 14, hit: 0, jobs: [0, 2, 6, 7, 8] },
-  { id: 0x0C, name: "サーベル", atk: 13, hit: 5, jobs: [0, 1, 3, 6, 7, 9] },
-  { id: 0x0D, name: "ロングソード", atk: 20, hit: 10, jobs: [0, 3, 6, 7, 9] },
-  { id: 0x0E, name: "グレートアクス", atk: 22, hit: 5, jobs: [0, 6, 7] },
-  { id: 0x0F, name: "フォールチョン", atk: 16, hit: 10, jobs: [0, 1, 3, 6, 7, 9] },
-  { id: 0x10, name: "ミスリルナイフ", atk: 10, hit: 15, jobs: [0, 1, 2, 3, 5, 6, 7, 8, 9, 11] },
-  { id: 0x11, name: "ミスリルソード", atk: 23, hit: 15, jobs: [0, 3, 6, 7, 9] },
-  { id: 0x12, name: "ミスリルハンマ", atk: 12, hit: 5, jobs: [0, 4, 6, 7, 10] },
-  { id: 0x13, name: "ミスリルアクス", atk: 25, hit: 10, jobs: [0, 6, 7] },
-  { id: 0x14, name: "フレームソード", atk: 26, hit: 20, jobs: [0, 3, 6, 7, 9] },
-  { id: 0x15, name: "アイスブランド", atk: 23, hit: 25, jobs: [0, 3, 6, 7, 9] },
-  { id: 0x16, name: "ウィルムキラー", atk: 19, hit: 15, jobs: [0, 1, 3, 6, 7, 9] },
-  { id: 0x17, name: "グレートソード", atk: 21, hit: 20, jobs: [0, 3, 6, 7, 9] },
-  { id: 0x18, name: "サンブレード", atk: 32, hit: 30, jobs: [0, 3, 6, 7, 9] },
-  { id: 0x19, name: "さんごのつるぎ", atk: 19, hit: 15, jobs: [0, 1, 3, 6, 7, 9] },
-  { id: 0x1A, name: "ウェアバスター", atk: 18, hit: 15, jobs: [0, 3, 6, 7, 9] },
-  { id: 0x1B, name: "ルーンブレード", atk: 18, hit: 15, jobs: [0, 1, 3, 6, 7, 9] },
-  { id: 0x1C, name: "ちからのつえ", atk: 12, hit: 0, jobs: [0, 2, 4, 5, 6, 7, 8, 10, 11] },
-  { id: 0x1D, name: "ライトアクス", atk: 28, hit: 15, jobs: [0, 6, 7] },
-  { id: 0x1E, name: "いやしのつえ", atk: 6, hit: 0, jobs: [4, 7, 10] },
-  { id: 0x1F, name: "まじゅつのつえ", atk: 12, hit: 10, jobs: [5, 7, 11] },
-  { id: 0x20, name: "ディフェンダー", atk: 30, hit: 35, jobs: [6, 7, 9] },
-  { id: 0x21, name: "まどうしのつえ", atk: 15, hit: 15, jobs: [11] },
-  { id: 0x22, name: "シャープソード", atk: 24, hit: 25, jobs: [6, 7, 9] },
-  { id: 0x23, name: "ネコのツメ", atk: 22, hit: 35, jobs: [6, 7, 9, 11] },
-  { id: 0x24, name: "トールハンマー", atk: 18, hit: 15, jobs: [6, 7, 10] },
-  { id: 0x25, name: "レイズサーベル", atk: 22, hit: 20, jobs: [6, 7, 9] },
-  { id: 0x26, name: "サスケのかたな", atk: 33, hit: 35, jobs: [7] },
-  { id: 0x27, name: "エクスカリバー", atk: 45, hit: 35, jobs: [6] },
-  { id: 0x28, name: "マサムネ", atk: 56, hit: 50, jobs: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] }
-];
-
-// 防具データ (type: 'body'|'shield'|'head'|'arm', jobs: 装備可能ジョブ)
-const ARMORS = [
-  { id: 0x00, name: "(なし)", def: 0, wt: 0, type: "none", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
-  { id: 0x01, name: "ふく", def: 1, wt: 2, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
-  { id: 0x02, name: "かわよろい", def: 4, wt: 8, type: "body", jobs: [0, 1, 2, 3, 6, 7, 8, 9] },
-  { id: 0x03, name: "くさりかたびら", def: 15, wt: 15, type: "body", jobs: [0, 3, 6, 7, 9] },
-  { id: 0x04, name: "てつよろい", def: 24, wt: 23, type: "body", jobs: [0, 6, 7] },
-  { id: 0x05, name: "ナイトのよろい", def: 34, wt: 33, type: "body", jobs: [0, 6] },
-  { id: 0x06, name: "ミスリルメイル", def: 18, wt: 8, type: "body", jobs: [0, 3, 6, 7, 9] },
-  { id: 0x07, name: "フレイムメイル", def: 34, wt: 23, type: "body", jobs: [0, 6, 7] },
-  { id: 0x08, name: "アイスアーマー", def: 34, wt: 23, type: "body", jobs: [0, 6, 7] },
-  { id: 0x09, name: "ダイヤアーマー", def: 58, wt: 23, type: "body", jobs: [6] },
-  { id: 0x0A, name: "ドラゴンメイル", def: 56, wt: 23, type: "body", jobs: [6] },
-  { id: 0x0B, name: "どうのうでわ", def: 4, wt: 1, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
-  { id: 0x0C, name: "ぎんのうでわ", def: 15, wt: 1, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
-  { id: 0x0D, name: "ルビーのうでわ", def: 24, wt: 1, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
-  { id: 0x0E, name: "ダイヤのうでわ", def: 34, wt: 1, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
-  { id: 0x0F, name: "しろのローブ", def: 24, wt: 2, type: "body", jobs: [10] },
-  { id: 0x10, name: "くろのローブ", def: 24, wt: 2, type: "body", jobs: [11] },
-  { id: 0x11, name: "かわのたて", def: 2, wt: 0, type: "shield", jobs: [0, 6, 7] },
-  { id: 0x12, name: "てつのたて", def: 4, wt: 0, type: "shield", jobs: [0, 6, 7] },
-  { id: 0x13, name: "ミスリルのたて", def: 8, wt: 0, type: "shield", jobs: [0, 6, 7] },
-  { id: 0x14, name: "ほのおのたて", def: 12, wt: 0, type: "shield", jobs: [0, 6, 7] },
-  { id: 0x15, name: "アイスシールド", def: 12, wt: 0, type: "shield", jobs: [0, 6, 7] },
-  { id: 0x16, name: "ダイヤシールド", def: 16, wt: 0, type: "shield", jobs: [6] },
-  { id: 0x17, name: "イージスのたて", def: 16, wt: 0, type: "shield", jobs: [6] },
-  { id: 0x18, name: "バックラー", def: 2, wt: 0, type: "shield", jobs: [0, 1, 3, 6, 7, 9] },
-  { id: 0x19, name: "まもりのマント", def: 8, wt: 2, type: "shield", jobs: [0, 1, 3, 4, 5, 6, 7, 9, 10, 11] },
-  { id: 0x1A, name: "かわのぼうし", def: 1, wt: 1, type: "head", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
-  { id: 0x1B, name: "かぶと", def: 3, wt: 3, type: "head", jobs: [0, 6, 7] },
-  { id: 0x1C, name: "おおかぶと", def: 5, wt: 5, type: "head", jobs: [0, 6, 7] },
-  { id: 0x1D, name: "ミスリルヘルム", def: 8, wt: 3, type: "head", jobs: [0, 6, 7] },
-  { id: 0x1E, name: "ダイヤのかぶと", def: 15, wt: 3, type: "head", jobs: [6] },
-  { id: 0x1F, name: "いやしのかぶと", def: 6, wt: 3, type: "head", jobs: [6, 7] },
-  { id: 0x20, name: "リボン", def: 1, wt: 1, type: "head", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
-  { id: 0x21, name: "かわてぶくろ", def: 1, wt: 1, type: "arm", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
-  { id: 0x22, name: "せいどうのこて", def: 2, wt: 3, type: "arm", jobs: [0, 6, 7] },
-  { id: 0x23, name: "はがねのこて", def: 4, wt: 5, type: "arm", jobs: [0, 6, 7] },
-  { id: 0x24, name: "ミスリルのこて", def: 6, wt: 3, type: "arm", jobs: [0, 6, 7] },
-  { id: 0x25, name: "ガントレット", def: 4, wt: 5, type: "arm", jobs: [0, 6, 7] },
-  { id: 0x26, name: "きょじんのこて", def: 5, wt: 5, type: "arm", jobs: [0, 6, 7, 8] },
-  { id: 0x27, name: "ダイヤのこて", def: 13, wt: 3, type: "arm", jobs: [6] },
-  { id: 0x28, name: "まもりのゆびわ", def: 8, wt: 1, type: "arm", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] }
-];
-
 const ARMOR_TYPE_NAMES = {
   none: "",
   body: "体",
@@ -490,24 +426,245 @@ const ARMOR_TYPE_NAMES = {
   arm: "腕"
 };
 
+// 基礎データ（名称・基本パラメータ・装備可能ジョブ）
+const BASE_WEAPONS_DATA = [
+  { name: "ヌンチャク", atk: 12, hit: 0, jobs: [2, 7, 8] },
+  { name: "ナイフ", atk: 5, hit: 10, jobs: [0, 1, 2, 3, 5, 6, 7, 8, 9, 11] },
+  { name: "つえ", atk: 6, hit: 0, jobs: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
+  { name: "レイピア", atk: 9, hit: 5, jobs: [0, 1, 3, 6, 7, 9] },
+  { name: "ハンマー", atk: 9, hit: 0, jobs: [0, 4, 6, 7, 10] },
+  { name: "ブロードソード", atk: 15, hit: 10, jobs: [0, 3, 6, 7, 9] },
+  { name: "バトルアクス", atk: 16, hit: 5, jobs: [0, 6, 7] },
+  { name: "シミター", atk: 10, hit: 10, jobs: [0, 1, 3, 6, 7, 9] },
+  { name: "テツヌンチャク", atk: 16, hit: 0, jobs: [2, 7, 8] },
+  { name: "ダガー", atk: 7, hit: 10, jobs: [0, 1, 2, 3, 5, 6, 7, 8, 9, 11] },
+  { name: "しゃくじょう", atk: 14, hit: 0, jobs: [0, 2, 6, 7, 8] },
+  { name: "サーベル", atk: 13, hit: 5, jobs: [0, 1, 3, 6, 7, 9] },
+  { name: "ロングソード", atk: 20, hit: 10, jobs: [0, 3, 6, 7, 9] },
+  { name: "グレートアクス", atk: 22, hit: 5, jobs: [0, 6, 7] },
+  { name: "フォールチョン", atk: 16, hit: 10, jobs: [0, 1, 3, 6, 7, 9] },
+  { name: "ミスリルナイフ", atk: 10, hit: 15, jobs: [0, 1, 2, 3, 5, 6, 7, 8, 9, 11] },
+  { name: "ミスリルソード", atk: 23, hit: 15, jobs: [0, 3, 6, 7, 9] },
+  { name: "ミスリルハンマ", atk: 12, hit: 5, jobs: [0, 4, 6, 7, 10] },
+  { name: "ミスリルアクス", atk: 25, hit: 10, jobs: [0, 6, 7] },
+  { name: "フレームソード", atk: 26, hit: 20, jobs: [0, 3, 6, 7, 9] },
+  { name: "アイスブランド", atk: 23, hit: 25, jobs: [0, 3, 6, 7, 9] },
+  { name: "ウィルムキラー", atk: 19, hit: 15, jobs: [0, 1, 3, 6, 7, 9] },
+  { name: "グレートソード", atk: 21, hit: 20, jobs: [0, 3, 6, 7, 9] },
+  { name: "サンブレード", atk: 32, hit: 30, jobs: [0, 3, 6, 7, 9] },
+  { name: "さんごのつるぎ", atk: 19, hit: 15, jobs: [0, 1, 3, 6, 7, 9] },
+  { name: "ウェアバスター", atk: 18, hit: 15, jobs: [0, 3, 6, 7, 9] },
+  { name: "ルーンブレード", atk: 18, hit: 15, jobs: [0, 1, 3, 6, 7, 9] },
+  { name: "ちからのつえ", atk: 12, hit: 0, jobs: [0, 2, 4, 5, 6, 7, 8, 10, 11] },
+  { name: "ライトアクス", atk: 28, hit: 15, jobs: [0, 6, 7] },
+  { name: "いやしのつえ", atk: 6, hit: 0, jobs: [4, 7, 10] },
+  { name: "まじゅつのつえ", atk: 12, hit: 10, jobs: [5, 7, 11] },
+  { name: "ディフェンダー", atk: 30, hit: 35, jobs: [6, 7, 9] },
+  { name: "まどうしのつえ", atk: 15, hit: 15, jobs: [11] },
+  { name: "シャープソード", atk: 24, hit: 25, jobs: [6, 7, 9] },
+  { name: "ネコのツメ", atk: 22, hit: 35, jobs: [6, 7, 9, 11] },
+  { name: "トールハンマー", atk: 18, hit: 15, jobs: [6, 7, 10] },
+  { name: "レイズサーベル", atk: 22, hit: 20, jobs: [6, 7, 9] },
+  { name: "サスケのかたな", atk: 33, hit: 35, jobs: [7] },
+  { name: "エクスカリバー", atk: 45, hit: 35, jobs: [6] },
+  { name: "マサムネ", atk: 56, hit: 50, jobs: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] }
+];
+
+const BASE_ARMORS_DATA = [
+  { name: "ふく", def: 1, wt: 2, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
+  { name: "かわよろい", def: 4, wt: 8, type: "body", jobs: [0, 1, 2, 3, 6, 7, 8, 9] },
+  { name: "くさりかたびら", def: 15, wt: 15, type: "body", jobs: [0, 3, 6, 7, 9] },
+  { name: "てつよろい", def: 24, wt: 23, type: "body", jobs: [0, 6, 7] },
+  { name: "ナイトのよろい", def: 34, wt: 33, type: "body", jobs: [0, 6] },
+  { name: "ミスリルメイル", def: 18, wt: 8, type: "body", jobs: [0, 3, 6, 7, 9] },
+  { name: "フレイムメイル", def: 34, wt: 23, type: "body", jobs: [0, 6, 7] },
+  { name: "アイスアーマー", def: 34, wt: 23, type: "body", jobs: [0, 6, 7] },
+  { name: "ダイヤアーマー", def: 58, wt: 23, type: "body", jobs: [6] },
+  { name: "ドラゴンメイル", def: 56, wt: 23, type: "body", jobs: [6] },
+  { name: "どうのうでわ", def: 4, wt: 1, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
+  { name: "ぎんのうでわ", def: 15, wt: 1, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
+  { name: "ルビーのうでわ", def: 24, wt: 1, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
+  { name: "ダイヤのうでわ", def: 34, wt: 1, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
+  { name: "しろのローブ", def: 24, wt: 2, type: "body", jobs: [10] },
+  { name: "くろのローブ", def: 24, wt: 2, type: "body", jobs: [11] },
+  { name: "かわのたて", def: 2, wt: 0, type: "shield", jobs: [0, 6, 7] },
+  { id: 0x12, name: "てつのたて", def: 4, wt: 0, type: "shield", jobs: [0, 6, 7] },
+  { name: "ミスリルのたて", def: 8, wt: 0, type: "shield", jobs: [0, 6, 7] },
+  { name: "ほのおのたて", def: 12, wt: 0, type: "shield", jobs: [0, 6, 7] },
+  { name: "アイスシールド", def: 12, wt: 0, type: "shield", jobs: [0, 6, 7] },
+  { name: "ダイヤシールド", def: 16, wt: 0, type: "shield", jobs: [6] },
+  { name: "イージスのたて", def: 16, wt: 0, type: "shield", jobs: [6] },
+  { name: "バックラー", def: 2, wt: 0, type: "shield", jobs: [0, 1, 3, 6, 7, 9] },
+  { name: "まもりのマント", def: 8, wt: 2, type: "shield", jobs: [0, 1, 3, 4, 5, 6, 7, 9, 10, 11] },
+  { name: "かわのぼうし", def: 1, wt: 1, type: "head", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
+  { name: "かぶと", def: 3, wt: 3, type: "head", jobs: [0, 6, 7] },
+  { name: "おおかぶと", def: 5, wt: 5, type: "head", jobs: [0, 6, 7] },
+  { name: "ミスリルヘルム", def: 8, wt: 3, type: "head", jobs: [0, 6, 7] },
+  { name: "ダイヤのかぶと", def: 15, wt: 3, type: "head", jobs: [6] },
+  { name: "いやしのかぶと", def: 6, wt: 3, type: "head", jobs: [6, 7] },
+  { name: "リボン", def: 1, wt: 1, type: "head", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
+  { name: "かわてぶくろ", def: 1, wt: 1, type: "arm", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
+  { name: "せいどうのこて", def: 2, wt: 3, type: "arm", jobs: [0, 6, 7] },
+  { name: "はがねのこて", def: 4, wt: 5, type: "arm", jobs: [0, 6, 7] },
+  { name: "ミスリルのこて", def: 6, wt: 3, type: "arm", jobs: [0, 6, 7] },
+  { name: "ガントレット", def: 4, wt: 5, type: "arm", jobs: [0, 6, 7] },
+  { name: "きょじんのこて", def: 5, wt: 5, type: "arm", jobs: [0, 6, 7, 8] },
+  { name: "ダイヤのこて", def: 13, wt: 3, type: "arm", jobs: [6] },
+  { name: "まもりのゆびわ", def: 8, wt: 1, type: "arm", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] }
+];
+
+const CONSUMABLE_NAMES = ["ねぶくろ", "テント", "コテージ", "ポーション", "どくけし", "きんのはり"];
+const KEY_NAMES = [
+  "リュート", "クラウン", "すいしょうのめ", "めざめのくすり", "しんぴのかぎ", "ニトロのかやく",
+  "アダマンタイト", "ロゼッタいし", "スタールビー", "つちのつえ", "ふゆうせき", "チャイム",
+  "ねずみのしっぽ", "ワープキューブ", "ようせいのビン", "くうきのみず", "カヌー",
+  "つちのクリスタル", "ひのクリスタル", "みずのクリスタル", "かぜのクリスタル"
+];
+
+/**
+ * 機種別アイテムマスターテーブル（ひな形定義）
+ * FC版: 武器(1〜40)と防具(1〜40)でID体系が独立して管理される。
+ * MSX版: 全アイテムが一元管理された体系のため、武器・防具で同一のマスターを参照する。
+ */
+const PLATFORM_WEAPONS = {
+  fc: [],
+  msx: []
+};
+
+const PLATFORM_ARMORS = {
+  fc: [],
+  msx: []
+};
+
+(function buildPlatformItemMasters() {
+  // --- 1. FC版 武器マスター (ID 1〜40: 武器、41〜80: 実機オーバーラン防具等) ---
+  PLATFORM_WEAPONS.fc.push({ id: 0, name: "(なし)", category: "none", atk: 0, hit: 0, def: 0, wt: 0, type: "none", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] });
+  for (let i = 0; i < 40; i++) {
+    const w = BASE_WEAPONS_DATA[i];
+    PLATFORM_WEAPONS.fc.push({ id: 1 + i, name: w.name, category: "weapon", atk: w.atk, hit: w.hit, def: 0, wt: 0, type: "none", jobs: w.jobs });
+  }
+  for (let i = 0; i < 40; i++) {
+    const a = BASE_ARMORS_DATA[i];
+    PLATFORM_WEAPONS.fc.push({ id: 41 + i, name: a.name, category: "armor", atk: a.wt, hit: a.def, def: 0, wt: 0, type: "none", jobs: a.jobs });
+  }
+  for (let i = 0; i < 6; i++) {
+    PLATFORM_WEAPONS.fc.push({ id: 81 + i, name: CONSUMABLE_NAMES[i], category: "item", atk: (81 + i) & 0x3F, hit: 10, def: 0, wt: 0, type: "none", jobs: [] });
+  }
+  for (let i = 0; i < 21; i++) {
+    PLATFORM_WEAPONS.fc.push({ id: 87 + i, name: KEY_NAMES[i], category: "key", atk: (87 + i) & 0x3F, hit: 15, def: 0, wt: 0, type: "none", jobs: [] });
+  }
+  for (let i = 108; i <= 127; i++) {
+    PLATFORM_WEAPONS.fc.push({ id: i, name: `[未定義 $${i.toString(16).toUpperCase()}]`, category: "unknown", atk: (i * 3) & 0xFF, hit: (i * 7) & 0xFF, def: 0, wt: 0, type: "none", jobs: [] });
+  }
+
+  // --- 2. FC版 防具マスター (ID 1〜40: 防具、41以降: 実機オーバーラン) ---
+  PLATFORM_ARMORS.fc.push({ id: 0, name: "(なし)", category: "none", atk: 0, hit: 0, def: 0, wt: 0, type: "none", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] });
+  for (let i = 0; i < 40; i++) {
+    const a = BASE_ARMORS_DATA[i];
+    PLATFORM_ARMORS.fc.push({ id: 1 + i, name: a.name, category: "armor", atk: 0, hit: 0, def: a.def, wt: a.wt, type: a.type, jobs: a.jobs });
+  }
+  for (let i = 0; i < 6; i++) {
+    PLATFORM_ARMORS.fc.push({ id: 41 + i, name: CONSUMABLE_NAMES[i], category: "item", atk: 0, hit: 0, def: (41 + i) & 0x1F, wt: 0, type: "body", jobs: [] });
+  }
+  for (let i = 0; i < 21; i++) {
+    PLATFORM_ARMORS.fc.push({ id: 47 + i, name: KEY_NAMES[i], category: "key", atk: 0, hit: 0, def: (47 + i) & 0x1F, wt: 0, type: "body", jobs: [] });
+  }
+  for (let i = 68; i <= 127; i++) {
+    PLATFORM_ARMORS.fc.push({ id: i, name: `[未定義 $${i.toString(16).toUpperCase()}]`, category: "unknown", atk: 0, hit: 0, def: (i * 5) & 0xFF, wt: (i * 2) & 0x7F, type: "body", jobs: [] });
+  }
+
+  // --- 3. MSX版 共通マスター (BASIC DATA 1010〜1080行の完全配列) ---
+  const msxMaster = [];
+  msxMaster.push({ id: 0, name: "(なし)", category: "none", atk: 0, hit: 0, def: 0, wt: 0, type: "none", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] });
+  for (let i = 0; i < 21; i++) {
+    msxMaster.push({ id: 1 + i, name: KEY_NAMES[i], category: "key", atk: (1 + i) * 2, hit: 5, def: (1 + i), wt: 0, type: "body", jobs: [] });
+  }
+  for (let i = 0; i < 6; i++) {
+    msxMaster.push({ id: 22 + i, name: CONSUMABLE_NAMES[i], category: "item", atk: (22 + i), hit: 10, def: Math.floor((22 + i) / 2), wt: 0, type: "body", jobs: [] });
+  }
+  for (let i = 0; i < 40; i++) {
+    const w = BASE_WEAPONS_DATA[i];
+    msxMaster.push({ id: 28 + i, name: w.name, category: "weapon", atk: w.atk, hit: w.hit, def: 0, wt: 0, type: "none", jobs: w.jobs });
+  }
+  for (let i = 0; i < 40; i++) {
+    const a = BASE_ARMORS_DATA[i];
+    msxMaster.push({ id: 68 + i, name: a.name, category: "armor", atk: a.wt, hit: a.def, def: a.def, wt: a.wt, type: a.type, jobs: a.jobs });
+  }
+  for (let i = 108; i <= 127; i++) {
+    msxMaster.push({ id: i, name: `[未定義 $${i.toString(16).toUpperCase()}]`, category: "unknown", atk: (i * 3) & 0xFF, hit: (i * 7) & 0xFF, def: (i * 5) & 0xFF, wt: (i * 2) & 0x7F, type: "body", jobs: [] });
+  }
+
+  // MSX版では武器と防具のマスター内容が同一
+  PLATFORM_WEAPONS.msx = msxMaster;
+  PLATFORM_ARMORS.msx = msxMaster;
+})();
+
+// 実行時アクティブ参照テーブル（初期状態はFC版）
+let activePlatform = 'fc';
+let activeWeaponTable = PLATFORM_WEAPONS.fc;
+let activeArmorTable = PLATFORM_ARMORS.fc;
+
+function setPlatform(platform) {
+  if (platform !== 'fc' && platform !== 'msx') return;
+  activePlatform = platform;
+  activeWeaponTable = PLATFORM_WEAPONS[platform];
+  activeArmorTable = PLATFORM_ARMORS[platform];
+  rebuildAllEquipSelectOptions();
+}
+
+function rebuildCharEquipOptions(c) {
+  const isRestricted = document.getElementById('restrictEquipCheckbox').checked;
+
+  // 武器スロットの選択肢構築
+  for (let w = 0; w < 4; w++) {
+    const sel = document.getElementById(`c${c}_wep_${w}`);
+    if (!sel) continue;
+    const curVal = parseInt(sel.value) || 0;
+    const list = isRestricted
+      ? activeWeaponTable.filter(i => i.id === 0 || i.category === 'weapon')
+      : activeWeaponTable;
+    sel.innerHTML = list.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
+    sel.value = curVal;
+  }
+
+  // 防具スロットの選択肢構築
+  for (let a = 0; a < 4; a++) {
+    const sel = document.getElementById(`c${c}_arm_${a}`);
+    if (!sel) continue;
+    const curVal = parseInt(sel.value) || 0;
+    const list = isRestricted
+      ? activeArmorTable.filter(i => i.id === 0 || i.category === 'armor')
+      : activeArmorTable;
+    sel.innerHTML = list.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
+    sel.value = curVal;
+  }
+}
+
+function rebuildAllEquipSelectOptions() {
+  for (let c = 0; c < 4; c++) {
+    rebuildCharEquipOptions(c);
+    updateAllEquipStatsAndRestrictions(c);
+  }
+}
+
 const CONSUMABLES = [
-  { addr: 0x0036, name: "ねぶくろ" }, { addr: 0x0037, name: "テント" },
-  { addr: 0x0038, name: "コテージ" }, { addr: 0x0039, name: "ポーション" },
-  { addr: 0x003A, name: "どくけし" }, { addr: 0x003B, name: "きんのはり" }
+  { id: 0, name: "ねぶくろ" }, { id: 1, name: "テント" },
+  { id: 2, name: "コテージ" }, { id: 3, name: "ポーション" },
+  { id: 4, name: "どくけし" }, { id: 5, name: "きんのはり" }
 ];
 
 const KEY_ITEMS = [
-  { addr: 0x0021, name: "リュート" }, { addr: 0x0022, name: "クラウン" },
-  { addr: 0x0023, name: "すいしょうのめ" }, { addr: 0x0024, name: "めざめのくすり" },
-  { addr: 0x0025, name: "しんぴのかぎ" }, { addr: 0x0026, name: "ニトロのかやく" },
-  { addr: 0x0027, name: "アダマンタイト" }, { addr: 0x0028, name: "ロゼッタいし" },
-  { addr: 0x0029, name: "スタールビー" }, { addr: 0x002A, name: "つちのつえ" },
-  { addr: 0x002B, name: "ふゆうせき" }, { addr: 0x002C, name: "チャイム" },
-  { addr: 0x002D, name: "ねずみのしっぽ" }, { addr: 0x002E, name: "ワープキューブ" },
-  { addr: 0x002F, name: "ようせいのビン" }, { addr: 0x0030, name: "くうきのみず" },
-  { addr: 0x0031, name: "カヌー" }, { addr: 0x0032, name: "つちのクリスタル" },
-  { addr: 0x0033, name: "ひのクリスタル" }, { addr: 0x0034, name: "みずのクリスタル" },
-  { addr: 0x0035, name: "かぜのクリスタル" }
+  { id: 0, name: "リュート" }, { id: 1, name: "クラウン" },
+  { id: 2, name: "すいしょうのめ" }, { id: 3, name: "めざめのくすり" },
+  { id: 4, name: "しんぴのかぎ" }, { id: 5, name: "ニトロのかやく" },
+  { id: 6, name: "アダマンタイト" }, { id: 7, name: "ロゼッタいし" },
+  { id: 8, name: "スタールビー" }, { id: 9, name: "つちのつえ" },
+  { id: 10, name: "ふゆうせき" }, { id: 11, name: "チャイム" },
+  { id: 12, name: "ねずみのしっぽ" }, { id: 13, name: "ワープキューブ" },
+  { id: 14, name: "ようせいのビン" }, { id: 15, name: "くうきのみず" },
+  { id: 16, name: "カヌー" }, { id: 17, name: "つちのクリスタル" },
+  { id: 18, name: "ひのクリスタル" }, { id: 19, name: "みずのクリスタル" },
+  { id: 20, name: "かぜのクリスタル" }
 ];
 
 const SPELLS_BY_LV = [
@@ -591,6 +748,33 @@ function sanitizeNameInput(input) {
   }
 }
 
+const PARAM_LIMITS = {
+  lv:      { game: 50,      byte: 255 },
+  stat:    { game: 99,      byte: 255 },
+  hp:      { game: 999,     byte: 65535 },
+  exp:     { game: 999999,  byte: 16777215 },
+  combat:  { game: 255,     byte: 255 },
+  mp:      { game: 9,       byte: 255 },
+  gold:    { game: 999999,  byte: 16777215 },
+  item:    { game: 99,      byte: 255 }
+};
+
+function isLimitUnlocked() {
+  const chk = document.getElementById('paramLimitCheckbox');
+  // チェックONで制限あり（通常）、チェックOFFで制限解除（物理限界）
+  return chk ? !chk.checked : false;
+}
+
+function getLimit(type) {
+  const lim = PARAM_LIMITS[type];
+  if (!lim) return 255;
+  return isLimitUnlocked() ? lim.byte : lim.game;
+}
+
+function onParamLimitToggle() {
+  updateAllInputLimits();
+}
+
 function clampNumberInput(input) {
   if (input.value === "") return;
   let val = parseInt(input.value, 10);
@@ -602,9 +786,133 @@ function clampNumberInput(input) {
   input.value = val;
 }
 
+function updateAllInputLimits() {
+  const unlocked = isLimitUnlocked();
+  document.getElementById('goldInput').max = unlocked ? PARAM_LIMITS.gold.byte : PARAM_LIMITS.gold.game;
+
+  CONSUMABLES.forEach(c => {
+    const el = document.getElementById(`con_${c.id}`);
+    if (el) el.max = unlocked ? PARAM_LIMITS.item.byte : PARAM_LIMITS.item.game;
+  });
+
+  for (let c = 0; c < 4; c++) {
+    const setMax = (id, type) => {
+      const el = document.getElementById(id);
+      if (el) el.max = unlocked ? PARAM_LIMITS[type].byte : PARAM_LIMITS[type].game;
+    };
+    setMax(`c${c}_lv`, 'lv');
+    setMax(`c${c}_curHp`, 'hp');
+    setMax(`c${c}_maxHp`, 'hp');
+    setMax(`c${c}_exp`, 'exp');
+    setMax(`c${c}_str`, 'stat');
+    setMax(`c${c}_agi`, 'stat');
+    setMax(`c${c}_int`, 'stat');
+    setMax(`c${c}_vit`, 'stat');
+    setMax(`c${c}_luk`, 'stat');
+    setMax(`c${c}_atk`, 'combat');
+    setMax(`c${c}_hit`, 'combat');
+    setMax(`c${c}_def`, 'combat');
+    setMax(`c${c}_eva`, 'combat');
+    for (let lv = 1; lv <= 8; lv++) {
+      setMax(`c${c}_curMp_${lv}`, 'mp');
+      setMax(`c${c}_maxMp_${lv}`, 'mp');
+    }
+  }
+}
+
+function onUnlockLimitsToggle() {
+  updateAllInputLimits();
+}
+
 let savData = null;
 let nesRom = null;
-let loadedSavFileName = "FINAL_FANTASY_1_EDITED.sav";
+let loadedSavFileName = "FINAL_FANTASY_1.sav";
+const MSX_SAVE_OFFSET = 0x1400;
+
+/**
+ * セーブデータ構造体（レイアウト定義）
+ */
+const SAVE_LAYOUTS = {
+  fc: {
+    charBase: 0x0100,
+    charStride: 0x40,
+    lvOffset: 0x26,
+    lvZeroBased: true,
+    magicBase: 0x0300,
+    magicStride: 0x40,
+    curMpOffset: 0x20,
+    maxMpOffset: 0x28,
+    expEndian: 'LE',
+    goldAddr: 0x001C,
+    goldBytes: 3,
+    goldEndian: 'LE',
+    shipAddr: 0x0000,
+    nitroAddr: 0x0002, //仮
+    airshipAddr: 0x0004,
+    airshipVal: 0x1F,
+    bridgeAddr: 0x0008,
+    introSceneAddr: 0x0016,
+    keyItemAddr: 0x0021,
+    keyItemVal: 0x01,
+    consumableAddr: 0x0036
+  },
+  msx: {
+    charBase: MSX_SAVE_OFFSET,
+    charStride: 0x40,
+    lvOffset: 0x26,
+    lvZeroBased: false,
+    magicBase: MSX_SAVE_OFFSET + 0x0100,
+    magicStride: 0x40,
+    curMpOffset: 0x28,
+    maxMpOffset: 0x20,
+    expEndian: 'BE',
+    goldAddr: 0x1654,
+    goldBytes: 3,
+    goldEndian: 'BE',
+    shipAddr: 0x16F1,
+    nitroAddr: 0x16F2,
+    airshipAddr: 0x16F3,
+    airshipVal: 0x01,
+    airshipXAddr: 0x1631, // 2byte コーネリア入り口： 041E
+    airshipYAddr: 0x1633, // 2byte コーネリア入り口： 0412
+    bridgeAddr: 0x16F0,
+    introSceneAddr: 0x1636,
+    keyItemAddr: 0x1600,
+    keyItemVal: 0x01,
+    consumableAddr: 0x1615
+  }
+};
+
+/**
+ * 汎用バイト読み書き関数
+ */
+function readVal(buf, offset, bytes, endian = 'LE') {
+  let val = 0;
+  if (endian === 'LE') {
+    for (let i = 0; i < bytes; i++) {
+      val |= (buf[offset + i] << (i * 8));
+    }
+  } else {
+    for (let i = 0; i < bytes; i++) {
+      val = (val << 8) | buf[offset + i];
+    }
+  }
+  return val >>> 0;
+}
+
+function writeVal(buf, offset, bytes, val, endian = 'LE') {
+  val = Math.max(0, val);
+  if (endian === 'LE') {
+    for (let i = 0; i < bytes; i++) {
+      buf[offset + i] = (val >> (i * 8)) & 0xFF;
+    }
+  } else {
+    for (let i = bytes - 1; i >= 0; i--) {
+      buf[offset + i] = val & 0xFF;
+      val = Math.floor(val / 256);
+    }
+  }
+}
 
 /**
  * ゲームパラメータ・ROMデータ統合管理クラス
@@ -709,6 +1017,8 @@ class GameDataManager {
     expTable: null,
     initialStats: null,
     growth: null,
+    weapons: null,
+    armors: null,
     battlePalettes: null,
     jobPaletteAssignment: null
   };
@@ -731,19 +1041,66 @@ class GameDataManager {
     return (this.romData.jobPaletteAssignment) ? this.romData.jobPaletteAssignment : this.standard.jobPaletteAssignment;
   }
 
+  static getPrgStartOffset(rom) {
+    if (!rom || rom.length < 16) return 16;
+    const hasTrainer = (rom[6] & 0x04) !== 0;
+    return 16 + (hasTrainer ? 512 : 0);
+  }
+
+  static getBankOffset(rom, bankIndex) {
+    return this.getPrgStartOffset(rom) + (bankIndex * 0x4000);
+  }
+
   static applyDummyRom() {
-    const dummyRom = new Uint8Array(0x26670);
+    // 256KB PRG-ROM + 16バイト iNESヘッダー (合計262,160バイト)
+    const dummyRom = new Uint8Array(262160);
+    dummyRom[0] = 0x4E; dummyRom[1] = 0x45; dummyRom[2] = 0x53; dummyRom[3] = 0x1A; // "NES\x1A"
+    dummyRom[4] = 16; // PRG-ROM 16KB * 16 = 256KB
+    const bank9Offset = 16 + (9 * 0x4000);
     for (let job = 0; job < 12; job++) {
-      const offset = 0x25010 + (job * 0x200);
+      const offset = bank9Offset + 0x1000 + (job * 0x200);
       dummyRom.set(this.DEFAULT_SPRITES[job], offset);
     }
     nesRom = dummyRom;
+  }
+
+  static updateRuntimeTables() {
+    if (activePlatform !== 'fc') return;
+    const isRom = (this.currentSource === 'rom');
+    for (let i = 0; i < 40; i++) {
+      const wep = PLATFORM_WEAPONS.fc[i + 1];
+      if (wep) {
+        if (isRom && this.romData.weapons && this.romData.weapons[i]) {
+          wep.atk = this.romData.weapons[i].atk;
+          wep.hit = this.romData.weapons[i].hit;
+        } else {
+          wep.atk = BASE_WEAPONS_DATA[i].atk;
+          wep.hit = BASE_WEAPONS_DATA[i].hit;
+        }
+      }
+      const arm = PLATFORM_ARMORS.fc[i + 1];
+      if (arm) {
+        if (isRom && this.romData.armors && this.romData.armors[i]) {
+          arm.def = this.romData.armors[i].def;
+          arm.wt = this.romData.armors[i].wt;
+        } else {
+          arm.def = BASE_ARMORS_DATA[i].def;
+          arm.wt = BASE_ARMORS_DATA[i].wt;
+        }
+      }
+    }
+    for (let c = 0; c < 4; c++) {
+      updateAllEquipStatsAndRestrictions(c);
+      recalculateParameters(c);
+    }
   }
 
   static setSource(source) {
     this.currentSource = source;
     const sel = document.getElementById('paramSourceSelect');
     if (sel.value !== source) sel.value = source;
+
+    this.updateRuntimeTables();
 
     if (document.getElementById('autoCalcCheckbox').checked) {
       for (let c = 0; c < 4; c++) {
@@ -757,15 +1114,74 @@ class GameDataManager {
     this.romData.diffList = [];
     this.romData.diffDetected = false;
 
-    let fixedBankOffset = -1;
-    if (rom.length >= 16 && rom[0] === 0x4E && rom[1] === 0x45 && rom[2] === 0x53 && rom[3] === 0x1A) {
-      const prgSize = rom[4] * 16384;
-      if (rom.length >= 16 + prgSize) {
-        fixedBankOffset = 16 + prgSize - 0x4000;
+    const prgStart = this.getPrgStartOffset(rom);
+    const fixedBankOffset = this.getBankOffset(rom, 15);
+    const bankCOffset = this.getBankOffset(rom, 12);
+
+    // --- 武器データ抽出 (Bank C: 40武器、各4バイト [Hit%, Atk, Crit%, Elem/Status]) ---
+    let wepOffset = -1;
+    if (bankCOffset + 0x4000 <= rom.length) {
+      for (let i = 0; i < 0x4000 - 160; i++) {
+        const o = bankCOffset + i;
+        if (rom[o] === 0 && rom[o+1] === 12 && rom[o+4] === 10 && rom[o+5] === 5 && rom[o+8] === 0 && rom[o+9] === 6) {
+          wepOffset = o;
+          break;
+        }
       }
     }
-    if (fixedBankOffset < 0 && rom.length >= 0x4000) {
-      fixedBankOffset = rom.length - 0x4000;
+    if (wepOffset < 0) {
+      for (let o = prgStart; o < rom.length - 160; o++) {
+        if (rom[o] === 0 && rom[o+1] === 12 && rom[o+4] === 10 && rom[o+5] === 5 && rom[o+8] === 0 && rom[o+9] === 6) {
+          wepOffset = o;
+          break;
+        }
+      }
+    }
+    if (wepOffset >= 0) {
+      this.romData.weapons = [];
+      let wepDiff = false;
+      for (let i = 0; i < 40; i++) {
+        const o = wepOffset + (i * 4);
+        const hit = rom[o];
+        const atk = rom[o+1];
+        const base = BASE_WEAPONS_DATA[i];
+        this.romData.weapons.push({ atk, hit });
+        if (atk !== base.atk || hit !== base.hit) wepDiff = true;
+      }
+      if (wepDiff) this.romData.diffList.push("武器性能");
+    }
+
+    // --- 防具データ抽出 (Bank C: 40防具、各4バイト [Def, Wt, Resist, Special]) ---
+    let armOffset = -1;
+    if (bankCOffset + 0x4000 <= rom.length) {
+      for (let i = 0; i < 0x4000 - 160; i++) {
+        const o = bankCOffset + i;
+        if (rom[o] === 1 && rom[o+1] === 2 && rom[o+4] === 4 && rom[o+5] === 8 && rom[o+8] === 15 && rom[o+9] === 15) {
+          armOffset = o;
+          break;
+        }
+      }
+    }
+    if (armOffset < 0) {
+      for (let o = prgStart; o < rom.length - 160; o++) {
+        if (rom[o] === 1 && rom[o+1] === 2 && rom[o+4] === 4 && rom[o+5] === 8 && rom[o+8] === 15 && rom[o+9] === 15) {
+          armOffset = o;
+          break;
+        }
+      }
+    }
+    if (armOffset >= 0) {
+      this.romData.armors = [];
+      let armDiff = false;
+      for (let i = 0; i < 40; i++) {
+        const o = armOffset + (i * 4);
+        const def = rom[o];
+        const wt = rom[o+1];
+        const base = BASE_ARMORS_DATA[i];
+        this.romData.armors.push({ def, wt });
+        if (def !== base.def || wt !== base.wt) armDiff = true;
+      }
+      if (armDiff) this.romData.diffList.push("防具性能");
     }
 
     let palTableOffset = -1;
@@ -925,7 +1341,7 @@ function initUI() {
     conContainer.innerHTML += `
       <div class="field">
         <label>${item.name}</label>
-        <input type="number" id="con_${item.addr.toString(16)}" class="w-2digit" min="0" max="99">
+        <input type="number" id="con_${item.id}" class="w-2digit" min="0" max="99">
       </div>`;
   });
 
@@ -933,7 +1349,7 @@ function initUI() {
   KEY_ITEMS.forEach(item => {
     keyContainer.innerHTML += `
       <label class="field-check">
-        <input type="checkbox" id="key_${item.addr.toString(16)}"> ${item.name}
+        <input type="checkbox" id="key_${item.id}"> ${item.name}
       </label>`;
   });
 
@@ -992,14 +1408,14 @@ function createCharTabHTML(c) {
 
     <div class="auto-grid">
       <!-- 基本ステータス -->
-      <div class="card">
+      <div class="card card-basic">
         <div class="card-title">基本ステータス</div>
-        <div class="field"><label>レベル (1〜50)</label><input type="number" id="c${c}_lv" class="w-2digit" min="1" max="50" oninput="onLevelChange(${c})"></div>
-        <div class="field"><label>現在HP</label><input type="number" id="c${c}_curHp" class="w-3digit" min="0" max="999"></div>
-        <div class="field"><label>最大HP</label><input type="number" id="c${c}_maxHp" class="w-3digit" min="1" max="999"></div>
+        <div class="field"><label>レベル</label><input type="number" id="c${c}_lv" class="w-2digit" min="1" max="50" oninput="onLevelChange(${c})"></div>
+        <div class="field"><label>現在HP</label><input type="number" id="c${c}_curHp" class="w-4digit" min="0" max="999"></div>
+        <div class="field"><label>最大HP</label><input type="number" id="c${c}_maxHp" class="w-4digit" min="1" max="999"></div>
         <div class="field"><label>経験値</label><input type="number" id="c${c}_exp" class="w-6digit" min="0" max="999999"></div>
         <div class="field">
-          <label>状態異常</label>
+          <label>状態</label>
           <select id="c${c}_status" class="w-select">
             <option value="0">正常</option>
             <option value="1">死亡 (戦闘不能)</option>
@@ -1012,23 +1428,23 @@ function createCharTabHTML(c) {
       <!-- 能力値・戦闘パラメータ -->
       <div class="card">
         <div class="card-title">能力値・戦闘パラメータ</div>
-        <div style="display:flex; flex-wrap:wrap; gap:20px;">
+        <div style="display:flex; flex-wrap:wrap; gap:0px;">
           <!-- 能力値列 -->
-          <div style="flex:1; min-width:140px;">
+          <div style="flex:1; min-width:120px;">
             <div style="color:#a0c0ff; font-weight:bold; margin-bottom:8px; font-size:13px; border-bottom:1px dashed #ffffff44; padding-bottom:2px;">能力値</div>
-            <div class="field"><label style="width:80px;">ちから</label><input type="number" id="c${c}_str" class="w-2digit" min="1" max="99" oninput="onStatChange(${c})"></div>
-            <div class="field"><label style="width:80px;">すばやさ</label><input type="number" id="c${c}_agi" class="w-2digit" min="1" max="99" oninput="onStatChange(${c})"></div>
-            <div class="field"><label style="width:80px;">ちせい</label><input type="number" id="c${c}_int" class="w-2digit" min="1" max="99"></div>
-            <div class="field"><label style="width:80px;">たいりょく</label><input type="number" id="c${c}_vit" class="w-2digit" min="1" max="99"></div>
-            <div class="field"><label style="width:80px;">こううん</label><input type="number" id="c${c}_luk" class="w-2digit" min="1" max="99"></div>
+            <div class="field"><label style="width:78px;">ちから</label><input type="number" id="c${c}_str" class="w-2digit" min="1" max="99" oninput="onStatChange(${c})"></div>
+            <div class="field"><label style="width:78px;">すばやさ</label><input type="number" id="c${c}_agi" class="w-2digit" min="1" max="99" oninput="onStatChange(${c})"></div>
+            <div class="field"><label style="width:78px;">ちせい</label><input type="number" id="c${c}_int" class="w-2digit" min="1" max="99"></div>
+            <div class="field"><label style="width:78px;">たいりょく</label><input type="number" id="c${c}_vit" class="w-2digit" min="1" max="99"></div>
+            <div class="field"><label style="width:78px;">こううん</label><input type="number" id="c${c}_luk" class="w-2digit" min="1" max="99"></div>
           </div>
           <!-- 戦闘パラメータ列 -->
-          <div style="flex:1; min-width:140px;">
+          <div style="flex:1; min-width:174px;">
             <div style="color:#a0c0ff; font-weight:bold; margin-bottom:8px; font-size:13px; border-bottom:1px dashed #ffffff44; padding-bottom:2px;">戦闘パラメータ</div>
-            <div class="field"><label style="width:85px;">こうげき力</label><input type="number" id="c${c}_atk" class="w-3digit" min="0" max="255"></div>
-            <div class="field"><label style="width:85px;">めいちゅう率</label><input type="number" id="c${c}_hit" class="w-3digit" min="0" max="255"></div>
-            <div class="field"><label style="width:85px;">ぼうぎょ力</label><input type="number" id="c${c}_def" class="w-3digit" min="0" max="255"></div>
-            <div class="field"><label style="width:85px;">かいひ率</label><input type="number" id="c${c}_eva" class="w-3digit" min="0" max="255"></div>
+            <div class="field"><label style="width:110px;">ウェポン</label><input type="number" id="c${c}_atk" class="w-3digit" min="0" max="255"></div>
+            <div class="field"><label style="width:110px;">めいちゅうりつ</label><input type="number" id="c${c}_hit" class="w-3digit" min="0" max="255"></div>
+            <div class="field"><label style="width:110px;">アーマー</label><input type="number" id="c${c}_def" class="w-3digit" min="0" max="255"></div>
+            <div class="field"><label style="width:110px;">かいひりつ</label><input type="number" id="c${c}_eva" class="w-3digit" min="0" max="255"></div>
           </div>
         </div>
       </div>
@@ -1039,7 +1455,7 @@ function createCharTabHTML(c) {
         ${[0,1,2,3].map(w => `
           <div class="equip-row">
             <select id="c${c}_wep_${w}" class="w-equip" onchange="onWeaponChange(${c}, ${w})">
-              ${WEAPONS.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}
+              ${activeWeaponTable.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}
             </select>
             <label id="c${c}_wepEquipLabel_${w}"><input type="checkbox" id="c${c}_wepEquip_${w}" onchange="onWeaponEquipToggle(${c}, ${w})"> 装備</label>
             <span class="equip-stat" id="c${c}_wepStat_${w}">-</span>
@@ -1053,7 +1469,7 @@ function createCharTabHTML(c) {
         ${[0,1,2,3].map(a => `
           <div class="equip-row">
             <select id="c${c}_arm_${a}" class="w-equip" onchange="onArmorChange(${c}, ${a})">
-              ${ARMORS.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}
+              ${activeArmorTable.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}
             </select>
             <label id="c${c}_armEquipLabel_${a}"><input type="checkbox" id="c${c}_armEquip_${a}" onchange="onArmorEquipToggle(${c}, ${a})"> 装備</label>
             <span class="equip-stat" id="c${c}_armStat_${a}">-</span>
@@ -1110,21 +1526,23 @@ function updateAllEquipStatsAndRestrictions(c) {
   // 1. 武器スロットの処理
   let wepEquippedSlot = -1;
   for (let w = 0; w < 4; w++) {
-    const wepId = parseInt(document.getElementById(`c${c}_wep_${w}`).value) || 0;
-    const wep = WEAPONS.find(i => i.id === wepId) || WEAPONS[0];
+    const selEl = document.getElementById(`c${c}_wep_${w}`);
+    const itemId = parseInt(selEl.value) || 0;
+    const item = activeWeaponTable[itemId] || activeWeaponTable[0];
     const chk = document.getElementById(`c${c}_wepEquip_${w}`);
     const lbl = document.getElementById(`c${c}_wepEquipLabel_${w}`);
     const statEl = document.getElementById(`c${c}_wepStat_${w}`);
 
-    const canEquip = (wep.id !== 0) && (!isRestricted || wep.jobs.includes(job));
+    // ジョブ適性の判定（制限チェックのON/OFFに関わらず純粋な仕様として判定）
+    const isJobCompatible = (itemId === 0) || (item.category === 'weapon' && item.jobs && item.jobs.includes(job));
 
-    if (wep.id === 0) {
+    if (itemId === 0) {
       statEl.textContent = "-";
       statEl.className = "equip-stat";
     } else {
-      statEl.textContent = `攻 ${wep.atk} / 命 ${wep.hit}`;
-      if (isRestricted && !wep.jobs.includes(job)) {
-        statEl.textContent += " (不可)";
+      statEl.textContent = `攻 ${item.atk} / 命 ${item.hit}`;
+      if (!isJobCompatible) {
+        statEl.textContent += " 🆖";
         statEl.className = "equip-stat incompatible";
       } else {
         statEl.className = "equip-stat";
@@ -1132,14 +1550,15 @@ function updateAllEquipStatsAndRestrictions(c) {
     }
 
     if (isRestricted) {
-      if (!canEquip) {
+      if (!isJobCompatible) {
         chk.checked = false;
         chk.disabled = true;
         lbl.classList.add('disabled');
       } else {
-        chk.disabled = false;
-        lbl.classList.remove('disabled');
-        // 単一装備制限: 既に装備があれば後続を解除
+        chk.disabled = (itemId === 0);
+        if (chk.disabled) lbl.classList.add('disabled');
+        else lbl.classList.remove('disabled');
+
         if (chk.checked) {
           if (wepEquippedSlot === -1) {
             wepEquippedSlot = w;
@@ -1149,8 +1568,9 @@ function updateAllEquipStatsAndRestrictions(c) {
         }
       }
     } else {
-      chk.disabled = (wep.id === 0);
-      if (wep.id === 0) chk.checked = false;
+      // 制限OFF時: 🆖であっても強制装備を許可
+      chk.disabled = (itemId === 0);
+      if (itemId === 0) chk.checked = false;
       if (chk.disabled) lbl.classList.add('disabled');
       else lbl.classList.remove('disabled');
     }
@@ -1159,23 +1579,25 @@ function updateAllEquipStatsAndRestrictions(c) {
   // 2. 防具スロットの処理
   const equippedArmorTypes = new Set();
   for (let a = 0; a < 4; a++) {
-    const armId = parseInt(document.getElementById(`c${c}_arm_${a}`).value) || 0;
-    const arm = ARMORS.find(i => i.id === armId) || ARMORS[0];
+    const selEl = document.getElementById(`c${c}_arm_${a}`);
+    const itemId = parseInt(selEl.value) || 0;
+    const item = activeArmorTable[itemId] || activeArmorTable[0];
     const chk = document.getElementById(`c${c}_armEquip_${a}`);
     const lbl = document.getElementById(`c${c}_armEquipLabel_${a}`);
     const statEl = document.getElementById(`c${c}_armStat_${a}`);
 
-    const canEquip = (arm.id !== 0) && (!isRestricted || arm.jobs.includes(job));
+    // ジョブ適性の判定（制限チェックのON/OFFに関わらず純粋な仕様として判定）
+    const isJobCompatible = (itemId === 0) || (item.category === 'armor' && item.jobs && item.jobs.includes(job));
 
-    if (arm.id === 0) {
+    if (itemId === 0) {
       statEl.textContent = "-";
       statEl.className = "equip-stat";
     } else {
-      const typeStr = ARMOR_TYPE_NAMES[arm.type] ? `[${ARMOR_TYPE_NAMES[arm.type]}] ` : "";
-      const evaModStr = arm.wt === 0 ? "±0" : `-${arm.wt}`;
-      statEl.textContent = `${typeStr}防 ${arm.def} / 回 ${evaModStr}`;
-      if (isRestricted && !arm.jobs.includes(job)) {
-        statEl.textContent += " (不可)";
+      const typeStr = ARMOR_TYPE_NAMES[item.type] ? `${ARMOR_TYPE_NAMES[item.type]} ` : "";
+      const evaModStr = item.wt === 0 ? "±0" : `-${item.wt}`;
+      statEl.textContent = `${typeStr}防 ${item.def} / 回 ${evaModStr}`;
+      if (!isJobCompatible) {
+        statEl.textContent += " 🆖";
         statEl.className = "equip-stat incompatible";
       } else {
         statEl.className = "equip-stat";
@@ -1183,25 +1605,27 @@ function updateAllEquipStatsAndRestrictions(c) {
     }
 
     if (isRestricted) {
-      if (!canEquip) {
+      if (!isJobCompatible) {
         chk.checked = false;
         chk.disabled = true;
         lbl.classList.add('disabled');
       } else {
-        chk.disabled = false;
-        lbl.classList.remove('disabled');
-        // 部位別重複制限: 既に同部位が装備されていれば後続を解除
+        chk.disabled = (itemId === 0);
+        if (chk.disabled) lbl.classList.add('disabled');
+        else lbl.classList.remove('disabled');
+
         if (chk.checked) {
-          if (!equippedArmorTypes.has(arm.type)) {
-            equippedArmorTypes.add(arm.type);
+          if (!equippedArmorTypes.has(item.type)) {
+            equippedArmorTypes.add(item.type);
           } else {
             chk.checked = false;
           }
         }
       }
     } else {
-      chk.disabled = (arm.id === 0);
-      if (arm.id === 0) chk.checked = false;
+      // 制限OFF時: 🆖であっても強制装備を許可
+      chk.disabled = (itemId === 0);
+      if (itemId === 0) chk.checked = false;
       if (chk.disabled) lbl.classList.add('disabled');
       else lbl.classList.remove('disabled');
     }
@@ -1250,13 +1674,13 @@ function onArmorEquipToggle(c, a) {
   const chk = document.getElementById(`c${c}_armEquip_${a}`);
   if (isRestricted && chk.checked) {
     const curId = parseInt(document.getElementById(`c${c}_arm_${a}`).value) || 0;
-    const curArm = ARMORS.find(i => i.id === curId);
+    const curArm = activeArmorTable[curId] || null;
     if (curArm && curArm.type !== 'none') {
       // 同じ部位（type）を持つ他の防具スロットの装備を解除（排他制御）
       for (let i = 0; i < 4; i++) {
         if (i !== a) {
           const otherId = parseInt(document.getElementById(`c${c}_arm_${i}`).value) || 0;
-          const otherArm = ARMORS.find(item => item.id === otherId);
+          const otherArm = activeArmorTable[otherId] || null;
           if (otherArm && otherArm.type === curArm.type) {
             document.getElementById(`c${c}_armEquip_${i}`).checked = false;
           }
@@ -1273,6 +1697,7 @@ function onArmorEquipToggle(c, a) {
  */
 function onRestrictEquipToggle() {
   for (let c = 0; c < 4; c++) {
+    rebuildCharEquipOptions(c);
     updateAllEquipStatsAndRestrictions(c);
     recalculateParameters(c);
   }
@@ -1283,6 +1708,7 @@ function onRestrictEquipToggle() {
  */
 function onJobChange(c) {
   renderCharSprite(c);
+  rebuildCharEquipOptions(c);
   updateAllEquipStatsAndRestrictions(c);
   if (document.getElementById('autoCalcCheckbox').checked) {
     simulateLevelStats(c);
@@ -1391,7 +1817,7 @@ function recalculateParameters(c) {
   for (let w = 0; w < 4; w++) {
     if (document.getElementById(`c${c}_wepEquip_${w}`).checked) {
       const wepId = parseInt(document.getElementById(`c${c}_wep_${w}`).value) || 0;
-      equippedWep = WEAPONS.find(item => item.id === wepId) || null;
+      if (wepId > 0) equippedWep = activeWeaponTable[wepId] || null;
       break;
     }
   }
@@ -1418,11 +1844,13 @@ function recalculateParameters(c) {
   for (let a = 0; a < 4; a++) {
     if (document.getElementById(`c${c}_armEquip_${a}`).checked) {
       const armId = parseInt(document.getElementById(`c${c}_arm_${a}`).value) || 0;
-      const arm = ARMORS.find(item => item.id === armId);
-      if (arm && arm.id > 0) {
-        totalDef += arm.def;
-        totalWt += arm.wt;
-        hasArmor = true;
+      if (armId > 0) {
+        const armItem = activeArmorTable[armId] || null;
+        if (armItem) {
+          totalDef += armItem.def;
+          totalWt += armItem.wt;
+          hasArmor = true;
+        }
       }
     }
   }
@@ -1501,15 +1929,25 @@ function handleLoadedFile(file) {
   } else {
     reader.onload = (evt) => {
       const buf = new Uint8Array(evt.target.result);
-      if (buf.length < 8192) {
-        alert("ファイルサイズが8KB未満です。有効なセーブデータではありません。");
-        return;
-      }
-      savData = buf;
       loadedSavFileName = file.name;
-      loadSavToUI();
-      document.getElementById('fileStatus').innerText = `【SAV】${file.name} (${savData.length} bytes)`;
-      document.getElementById('exportBtn').disabled = false;
+
+      if (ext === 'dsk' || buf.length >= 360 * 1024) {
+        // MSX版 ユーザーディスク (720KB / 360KB)
+        savData = buf;
+        setPlatform('msx');
+        loadSavToUI();
+        document.getElementById('fileStatus').innerText = `【DSK】MSX版 ユーザーディスク: ${file.name} (${buf.length} bytes)`;
+        document.getElementById('exportBtn').disabled = false;
+      } else if (buf.length >= 8192) {
+        // FC版 セーブデータ (8KB)
+        savData = buf;
+        setPlatform('fc');
+        loadSavToUI();
+        document.getElementById('fileStatus').innerText = `【SAV】FC版 セーブデータ: ${file.name} (${savData.length} bytes)`;
+        document.getElementById('exportBtn').disabled = false;
+      } else {
+        alert("有効なセーブデータ (.sav 8KB以上) または ユーザーディスク (.dsk) ではありません。");
+      }
     };
     reader.readAsArrayBuffer(file);
   }
@@ -1520,29 +1958,34 @@ function handleLoadedFile(file) {
  */
 function loadSavToUI() {
   if (!savData) return;
-  const view = new DataView(savData.buffer);
+  const layout = SAVE_LAYOUTS[activePlatform];
 
-  // 所持金: 0x001C〜0x001E (3バイト リトルエンディアン)
-  document.getElementById('goldInput').value = savData[0x001C] | (savData[0x001D] << 8) | (savData[0x001E] << 16);
-  // 乗り物・イベントフラグ (0x0000: 船=0x01, 0x0004: 飛空艇=0x1F, 0x0008: 北の橋=0x01, 0x0016: OPデモ=0x01)
-  document.getElementById('shipFlag').checked = (savData[0x0000] === 0x01);
-  document.getElementById('airshipFlag').checked = (savData[0x0004] === 0x1F);
-  document.getElementById('bridgeFlag').checked = (savData[0x0008] === 0x01);
-  document.getElementById('introSceneFlag').checked = (savData[0x0016] === 0x01);
+  // 所持金
+  document.getElementById('goldInput').value = readVal(savData, layout.goldAddr, layout.goldBytes, layout.goldEndian);
+  // 乗り物・イベントフラグ
+  document.getElementById('shipFlag').checked = (savData[layout.shipAddr] === 0x01);
+  document.getElementById('nitroFlag').checked = (savData[layout.nitroAddr] === 0x01);
+  document.getElementById('airshipFlag').checked = (savData[layout.airshipAddr] === layout.airshipVal);
+  document.getElementById('bridgeFlag').checked = (savData[layout.bridgeAddr] === 0x01);
+  document.getElementById('introSceneFlag').checked = (savData[layout.introSceneAddr] === 0x01);
 
-  // 消費アイテム (各1バイト, 個数0〜99)
-  CONSUMABLES.forEach(c => { document.getElementById(`con_${c.addr.toString(16)}`).value = savData[c.addr]; });
-  // 重要アイテム (各1バイトフラグ, 所持=0x01)
-  KEY_ITEMS.forEach(k => { document.getElementById(`key_${k.addr.toString(16)}`).checked = (savData[k.addr] === 0x01); });
+  // 消費アイテム
+  CONSUMABLES.forEach((c, idx) => {
+    document.getElementById(`con_${c.id}`).value = savData[layout.consumableAddr + idx];
+  });
+  // 重要アイテム (0でなければ所持)
+  KEY_ITEMS.forEach((k, idx) => {
+    document.getElementById(`key_${k.id}`).checked = (savData[layout.keyItemAddr + idx] !== 0x00);
+  });
 
-  // キャラクタデータ (キャラ1〜4: 各64バイト, base=0x0100 + c*0x40, 魔法ベース: 0x0300 + c*0x40)
+  // キャラクタデータ
   for (let c = 0; c < 4; c++) {
-    const base = 0x0100 + (c * 0x40);
-    const mBase = 0x0300 + (c * 0x40);
+    const base = layout.charBase + (c * layout.charStride);
+    const mBase = layout.magicBase + (c * layout.magicStride);
 
     const job = savData[base + 0x00]; // 0x00: ジョブ (0〜11)
     document.getElementById(`c${c}_job`).value = job;
-    document.getElementById(`c${c}_status`).value = savData[base + 0x01]; // 0x01: 状態異常
+    document.getElementById(`c${c}_status`).value = savData[base + 0x01]; // 0x01: 状態
 
     // 0x02〜0x05: 名前 (4文字、FF1独自文字コード)
     let nameStr = "";
@@ -1551,11 +1994,11 @@ function loadSavToUI() {
     }
     document.getElementById(`c${c}_name`).value = nameStr.trim();
 
-    // 0x07〜0x09: 経験値 (3バイト リトルエンディアン)
-    document.getElementById(`c${c}_exp`).value = savData[base + 0x07] | (savData[base + 0x08] << 8) | (savData[base + 0x09] << 16);
+    // 0x07〜0x09: 経験値 (エンディアン指定読み込み)
+    document.getElementById(`c${c}_exp`).value = readVal(savData, base + 0x07, 3, layout.expEndian);
     // 0x0A〜0x0D: 現在HP / 最大HP (各2バイト リトルエンディアン)
-    document.getElementById(`c${c}_curHp`).value = view.getUint16(base + 0x0A, true);
-    document.getElementById(`c${c}_maxHp`).value = view.getUint16(base + 0x0C, true);
+    document.getElementById(`c${c}_curHp`).value = readVal(savData, base + 0x0A, 2, 'LE');
+    document.getElementById(`c${c}_maxHp`).value = readVal(savData, base + 0x0C, 2, 'LE');
 
     // 0x10〜0x14: 基本能力値 (力, 早, 知, 体, 運)
     document.getElementById(`c${c}_str`).value = savData[base + 0x10];
@@ -1564,23 +2007,24 @@ function loadSavToUI() {
     document.getElementById(`c${c}_vit`).value = savData[base + 0x13];
     document.getElementById(`c${c}_luk`).value = savData[base + 0x14];
 
-    // 0x20〜0x23: 戦闘パラメータ (攻撃力, 命中率, 防御力, 回避率)
+    // 0x20〜0x23: 戦闘パラメータ (ウェポン, めいちゅうりつ, アーマー, かいひりつ)
     document.getElementById(`c${c}_atk`).value = savData[base + 0x20];
     document.getElementById(`c${c}_hit`).value = savData[base + 0x21];
     document.getElementById(`c${c}_def`).value = savData[base + 0x22];
     document.getElementById(`c${c}_eva`).value = savData[base + 0x23];
 
-    // 0x26: レベル (内部値は 0〜49 なので +1 して Lv1〜50)
-    document.getElementById(`c${c}_lv`).value = savData[base + 0x26] + 1;
+    // レベル (FC版: 内部値0=Lv1, MSX版: 内部値そのまま)
+    const rawLv = savData[base + layout.lvOffset];
+    document.getElementById(`c${c}_lv`).value = layout.lvZeroBased ? (rawLv + 1) : rawLv;
 
-    // 0x18〜0x1B: 武器スロット4つ (最上位ビット0x80が装備中フラグ、下位7ビットがアイテムID)
+    // 0x18〜0x1B: 武器スロット4つ (機種ネイティブコード直結)
     for (let w = 0; w < 4; w++) {
       const raw = savData[base + 0x18 + w];
       document.getElementById(`c${c}_wep_${w}`).value = (raw & 0x7F);
       document.getElementById(`c${c}_wepEquip_${w}`).checked = ((raw & 0x80) !== 0);
     }
 
-    // 0x1C〜0x1F: 防具スロット4つ (最上位ビット0x80が装備中フラグ、下位7ビットがアイテムID)
+    // 0x1C〜0x1F: 防具スロット4つ (機種ネイティブコード直結)
     for (let a = 0; a < 4; a++) {
       const raw = savData[base + 0x1C + a];
       document.getElementById(`c${c}_arm_${a}`).value = (raw & 0x7F);
@@ -1591,10 +2035,14 @@ function loadSavToUI() {
     for (let lv = 1; lv <= 8; lv++) {
       const spOffset = mBase + ((lv - 1) * 4);
       for (let s = 0; s < 3; s++) {
-        document.getElementById(`c${c}_spell_${lv}_${s}`).value = savData[spOffset + s];
+        let spVal = savData[spOffset + s];
+        if (activePlatform === 'msx' && spVal >= 0xB0 && spVal <= 0xEF) {
+          spVal = ((spVal - 0xB0) % 8) + 1;
+        }
+        document.getElementById(`c${c}_spell_${lv}_${s}`).value = spVal;
       }
-      document.getElementById(`c${c}_curMp_${lv}`).value = savData[mBase + 0x20 + (lv - 1)];
-      document.getElementById(`c${c}_maxMp_${lv}`).value = savData[mBase + 0x28 + (lv - 1)];
+      document.getElementById(`c${c}_curMp_${lv}`).value = savData[mBase + layout.curMpOffset + (lv - 1)];
+      document.getElementById(`c${c}_maxMp_${lv}`).value = savData[mBase + layout.maxMpOffset + (lv - 1)];
     }
 
     renderCharSprite(c);
@@ -1604,35 +2052,35 @@ function loadSavToUI() {
 
 function applyUIToSav() {
   if (!savData) return;
-  const view = new DataView(savData.buffer);
+  const layout = SAVE_LAYOUTS[activePlatform];
 
-  // 所持金 (3バイト リトルエンディアン)
+  // 所持金 (指定エンディアン・バイト数で書き込み)
   let gold = parseInt(document.getElementById('goldInput').value) || 0;
-  gold = Math.min(999999, Math.max(0, gold));
-  savData[0x001C] = gold & 0xFF;
-  savData[0x001D] = (gold >> 8) & 0xFF;
-  savData[0x001E] = (gold >> 16) & 0xFF;
+  gold = Math.min(getLimit('gold'), Math.max(0, gold));
+  writeVal(savData, layout.goldAddr, layout.goldBytes, gold, layout.goldEndian);
 
   // 乗り物・イベントフラグ
-  savData[0x0000] = document.getElementById('shipFlag').checked ? 0x01 : 0x00;
-  savData[0x0004] = document.getElementById('airshipFlag').checked ? 0x1F : 0x00;
-  savData[0x0008] = document.getElementById('bridgeFlag').checked ? 0x01 : 0x00;
-  savData[0x0016] = document.getElementById('introSceneFlag').checked ? 0x01 : 0x00;
+  savData[layout.shipAddr] = document.getElementById('shipFlag').checked ? 0x01 : 0x00;
+  savData[layout.nitroAddr] = document.getElementById('nitroFlag').checked ? 0x01 : 0x00;
+  savData[layout.airshipAddr] = document.getElementById('airshipFlag').checked ? layout.airshipVal : 0x00;
+  savData[layout.bridgeAddr] = document.getElementById('bridgeFlag').checked ? 0x01 : 0x00;
+  savData[layout.introSceneAddr] = document.getElementById('introSceneFlag').checked ? 0x01 : 0x00;
 
   // 消費アイテム
-  CONSUMABLES.forEach(c => {
-    savData[c.addr] = Math.min(99, Math.max(0, parseInt(document.getElementById(`con_${c.addr.toString(16)}`).value) || 0));
+  CONSUMABLES.forEach((c, idx) => {
+    const val = parseInt(document.getElementById(`con_${c.id}`).value) || 0;
+    savData[layout.consumableAddr + idx] = Math.min(getLimit('item'), Math.max(0, val));
   });
 
-  // 重要アイテム
-  KEY_ITEMS.forEach(k => {
-    savData[k.addr] = document.getElementById(`key_${k.addr.toString(16)}`).checked ? 0x01 : 0x00;
+  // 重要アイテム (FC版は0x01, MSX版は0xFF)
+  KEY_ITEMS.forEach((k, idx) => {
+    savData[layout.keyItemAddr + idx] = document.getElementById(`key_${k.id}`).checked ? layout.keyItemVal : 0x00;
   });
 
   // 各キャラクタデータ書き込み
   for (let c = 0; c < 4; c++) {
-    const base = 0x0100 + (c * 0x40);
-    const mBase = 0x0300 + (c * 0x40);
+    const base = layout.charBase + (c * layout.charStride);
+    const mBase = layout.magicBase + (c * layout.magicStride);
 
     savData[base + 0x00] = parseInt(document.getElementById(`c${c}_job`).value);
     savData[base + 0x01] = parseInt(document.getElementById(`c${c}_status`).value);
@@ -1644,41 +2092,44 @@ function applyUIToSav() {
       savData[base + 0x02 + n] = (char && REVERSE_CHAR_MAP[char] !== undefined) ? REVERSE_CHAR_MAP[char] : 0xFF;
     }
 
-    // 経験値 (3バイト)
-    const exp = Math.min(999999, Math.max(0, parseInt(document.getElementById(`c${c}_exp`).value) || 0));
-    savData[base + 0x07] = exp & 0xFF;
-    savData[base + 0x08] = (exp >> 8) & 0xFF;
-    savData[base + 0x09] = (exp >> 16) & 0xFF;
+    // 経験値 (指定エンディアンで書き込み)
+    const exp = Math.min(getLimit('exp'), Math.max(0, parseInt(document.getElementById(`c${c}_exp`).value) || 0));
+    writeVal(savData, base + 0x07, 3, exp, layout.expEndian);
 
-    // 現在HP / 最大HP (各2バイト)
-    view.setUint16(base + 0x0A, Math.min(999, parseInt(document.getElementById(`c${c}_curHp`).value) || 0), true);
-    view.setUint16(base + 0x0C, Math.min(999, parseInt(document.getElementById(`c${c}_maxHp`).value) || 1), true);
+    // 現在HP / 最大HP (各2バイト リトルエンディアン)
+    const curHp = Math.min(getLimit('hp'), Math.max(0, parseInt(document.getElementById(`c${c}_curHp`).value) || 0));
+    const maxHp = Math.min(getLimit('hp'), Math.max(1, parseInt(document.getElementById(`c${c}_maxHp`).value) || 1));
+    writeVal(savData, base + 0x0A, 2, curHp, 'LE');
+    writeVal(savData, base + 0x0C, 2, maxHp, 'LE');
 
-    // 基本能力値
-    savData[base + 0x10] = Math.max(1, Math.min(99, parseInt(document.getElementById(`c${c}_str`).value) || 1));
-    savData[base + 0x11] = Math.max(1, Math.min(99, parseInt(document.getElementById(`c${c}_agi`).value) || 1));
-    savData[base + 0x12] = Math.max(1, Math.min(99, parseInt(document.getElementById(`c${c}_int`).value) || 1));
-    savData[base + 0x13] = Math.max(1, Math.min(99, parseInt(document.getElementById(`c${c}_vit`).value) || 1));
-    savData[base + 0x14] = Math.max(1, Math.min(99, parseInt(document.getElementById(`c${c}_luk`).value) || 1));
+    // 基本能力値 (力, 早, 知, 体, 運)
+    savData[base + 0x10] = Math.max(1, Math.min(getLimit('stat'), parseInt(document.getElementById(`c${c}_str`).value) || 1));
+    savData[base + 0x11] = Math.max(1, Math.min(getLimit('stat'), parseInt(document.getElementById(`c${c}_agi`).value) || 1));
+    savData[base + 0x12] = Math.max(1, Math.min(getLimit('stat'), parseInt(document.getElementById(`c${c}_int`).value) || 1));
+    savData[base + 0x13] = Math.max(1, Math.min(getLimit('stat'), parseInt(document.getElementById(`c${c}_vit`).value) || 1));
+    savData[base + 0x14] = Math.max(1, Math.min(getLimit('stat'), parseInt(document.getElementById(`c${c}_luk`).value) || 1));
 
-    // 戦闘パラメータ
-    savData[base + 0x20] = Math.max(0, Math.min(255, parseInt(document.getElementById(`c${c}_atk`).value) || 0));
-    savData[base + 0x21] = Math.max(0, Math.min(255, parseInt(document.getElementById(`c${c}_hit`).value) || 0));
-    savData[base + 0x22] = Math.max(0, Math.min(255, parseInt(document.getElementById(`c${c}_def`).value) || 0));
-    savData[base + 0x23] = Math.max(0, Math.min(255, parseInt(document.getElementById(`c${c}_eva`).value) || 0));
+    // 戦闘パラメータ (ウェポン, めいちゅうりつ, アーマー, かいひりつ)
+    savData[base + 0x20] = Math.max(0, Math.min(getLimit('combat'), parseInt(document.getElementById(`c${c}_atk`).value) || 0));
+    savData[base + 0x21] = Math.max(0, Math.min(getLimit('combat'), parseInt(document.getElementById(`c${c}_hit`).value) || 0));
+    savData[base + 0x22] = Math.max(0, Math.min(getLimit('combat'), parseInt(document.getElementById(`c${c}_def`).value) || 0));
+    savData[base + 0x23] = Math.max(0, Math.min(getLimit('combat'), parseInt(document.getElementById(`c${c}_eva`).value) || 0));
 
-    // レベル (Lv - 1)
+    // レベル (FC版: 内部値0=Lv1, MSX版: 内部値そのまま)
     const lv = parseInt(document.getElementById(`c${c}_lv`).value) || 1;
-    savData[base + 0x26] = Math.max(0, Math.min(49, lv - 1));
+    const lvRaw = layout.lvZeroBased
+      ? Math.max(0, Math.min(getLimit('lv') - 1, lv - 1))
+      : Math.max(1, Math.min(getLimit('lv'), lv));
+    savData[base + layout.lvOffset] = lvRaw;
 
-    // 武器 (装備中なら最上位ビット 0x80 を付与)
+    // 武器 (機種ネイティブコードをそのままスロットに書き込み)
     for (let w = 0; w < 4; w++) {
       let id = parseInt(document.getElementById(`c${c}_wep_${w}`).value) || 0;
       if (id > 0 && document.getElementById(`c${c}_wepEquip_${w}`).checked) id |= 0x80;
       savData[base + 0x18 + w] = id;
     }
 
-    // 防具 (装備中なら最上位ビット 0x80 を付与)
+    // 防具 (機種ネイティブコードをそのままスロットに書き込み)
     for (let a = 0; a < 4; a++) {
       let id = parseInt(document.getElementById(`c${c}_arm_${a}`).value) || 0;
       if (id > 0 && document.getElementById(`c${c}_armEquip_${a}`).checked) id |= 0x80;
@@ -1689,20 +2140,25 @@ function applyUIToSav() {
     for (let lv = 1; lv <= 8; lv++) {
       const spOffset = mBase + ((lv - 1) * 4);
       for (let s = 0; s < 3; s++) {
-        savData[spOffset + s] = parseInt(document.getElementById(`c${c}_spell_${lv}_${s}`).value) || 0;
+        let spVal = parseInt(document.getElementById(`c${c}_spell_${lv}_${s}`).value) || 0;
+        if (activePlatform === 'msx' && spVal >= 1 && spVal <= 8) {
+          spVal = 0xB0 + ((lv - 1) * 8) + (spVal - 1);
+        }
+        savData[spOffset + s] = spVal;
       }
-      savData[mBase + 0x20 + (lv - 1)] = Math.min(9, Math.max(0, parseInt(document.getElementById(`c${c}_curMp_${lv}`).value) || 0));
-      savData[mBase + 0x28 + (lv - 1)] = Math.min(9, Math.max(0, parseInt(document.getElementById(`c${c}_maxMp_${lv}`).value) || 0));
+      savData[mBase + layout.curMpOffset + (lv - 1)] = Math.min(9, Math.max(0, parseInt(document.getElementById(`c${c}_curMp_${lv}`).value) || 0));
+      savData[mBase + layout.maxMpOffset + (lv - 1)] = Math.min(9, Math.max(0, parseInt(document.getElementById(`c${c}_maxMp_${lv}`).value) || 0));
     }
   }
 }
 
 document.getElementById('exportBtn').addEventListener('click', () => {
   applyUIToSav();
+  const defaultName = (activePlatform === 'msx') ? "FINAL_FANTASY_1_USER_DISK.dsk" : "FINAL_FANTASY_1.sav";
   const blob = new Blob([savData], { type: 'application/octet-stream' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = loadedSavFileName || "FINAL_FANTASY_1_EDITED.sav";
+  a.download = loadedSavFileName || defaultName;
   a.click();
   URL.revokeObjectURL(a.href);
 });
@@ -1733,7 +2189,7 @@ function renderCharSprite(c) {
 
   if (!nesRom) return;
 
-  const baseOffset = 0x25010 + (job * 0x200);
+  const baseOffset = GameDataManager.getBankOffset(nesRom, 9) + 0x1000 + (job * 0x200);
   const imgData = ctx.createImageData(16, 24);
 
   const assign = GameDataManager.activeJobPaletteAssignment;
