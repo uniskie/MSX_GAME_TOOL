@@ -1,0 +1,4 @@
+[
+  { "from": "./index.html", "to": "./docs" },
+  { "from": "./FF1SaveEditor", "to": "./docs/FF1SaveEditor" }
+]
