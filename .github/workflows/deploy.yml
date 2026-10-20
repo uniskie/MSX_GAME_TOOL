@@ -1,0 +1,59 @@
+name: Dynamic Folder and File Sync
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # 直前コミット（HEAD~1）との差分を比較可能にするため履歴を2世代取得
+          fetch-depth: 2 
+
+      - name: Sync modified folders or files from hidden JSON
+        run: |
+          # .github/ フォルダ内に配置された設定ファイルを指定してループ処理を実行
+          jq -c '.[]' .github/sync-config.json | while read -r set; do
+            # jqコマンドを用いて個別のオブジェクトから設定値を取得
+            SRC=$(echo "$set" | jq -r '.from')
+            DEST=$(echo "$set" | jq -r '.to')
+            
+            # 指定した監視対象（フォルダまたはファイル）に変更があったか検証
+            if git diff --name-only HEAD~1 | grep -q "^${SRC}"; then
+              echo "Changes detected in ${SRC}. Syncing to ${DEST}..."
+              mkdir -p "./${DEST}"
+              
+              # 対象がファイルかフォルダかを判定してコピーコマンドを分岐
+              if [ -f "${SRC}" ]; then
+                # ファイル単体を直接指定のディレクトリへコピー
+                cp "${SRC}" "./${DEST}/"
+              elif [ -d "${SRC}" ]; then
+                # フォルダ内のすべての中身を再帰的にコピー
+                cp -r ${SRC}/* "./${DEST}/"
+              fi
+            fi
+          done
+
+      - name: Push synchronized changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          
+          git add .
+          
+          # インデックス（ステージングエリア）に差分が存在する場合のみ処理を実行
+          # [skip ci] タグを付与して本コミットによるActionsの無限ループを防止
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: auto-sync updated assets [skip ci]"
+            git push origin main
+          else
+            echo "No changes detected. Skipping push."
+          fi
