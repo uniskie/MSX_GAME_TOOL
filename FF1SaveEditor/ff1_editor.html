@@ -182,10 +182,9 @@
   }
   .w-name   { width: 72px; }
   /*.w-2digit { width: 50px; text-align: center; }*/
-  .w-2digit { width: 64px; text-align: center; } /*1byteなので制限なしでは3桁*/
-  .w-3digit { width: 64px; text-align: center; }
-  .w-4digit { width: 80px; text-align: center; }
-  .w-6digit { width: 94px; text-align: center; }
+  .w-byte1  { width: 64px; text-align: center; }  /* 1byte値（最大3桁: 255） */
+  .w-byte2  { width: 78px; text-align: center; }  /* 2byte値（最大5桁: 65535） */
+  .w-byte3  { width: 100px; text-align: center; } /* 3byte値（最大8桁: 16777215） */
   .w-select { width: 145px; }
   .w-equip  { width: 135px; }
 
@@ -218,6 +217,29 @@
   }
   #paramSourceSelect:focus {
     background: #000000;
+  }
+  .github-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 12px;
+    padding: 3px 8px;
+    border: 2px solid var(--ff-border-white);
+    border-radius: 4px;
+    background: var(--ff-dark-blue);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .github-link:hover {
+    background: #002470;
+    border-color: var(--accent-yellow);
+    color: var(--accent-yellow);
+  }
+  .github-link svg {
+    fill: currentColor;
+    width: 14px;
+    height: 14px;
   }
   .field-check { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; cursor: pointer; font-size: 14px; font-weight: bold; color:#fff; }
   .field-check input { cursor: pointer; width: 15px; height: 15px; }
@@ -334,6 +356,10 @@
       <label style="font-size:12px; font-weight:normal; display:flex; align-items:center; gap:6px; cursor:pointer;">
         <input type="checkbox" id="paramLimitCheckbox" checked onchange="onParamLimitToggle()"> パラメータ制限
       </label>
+      <a href="https://github.com/uniskie/MSX_GAME_TOOL/tree/main/FF1SaveEditor" target="_blank" rel="noopener noreferrer" class="github-link" title="GitHubリポジトリを開く">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+        <span>GitHub</span>
+      </a>
     </div>
   </h1>
 
@@ -379,7 +405,7 @@
         <div class="card-title">基本・乗り物フラグ</div>
         <div class="field">
           <label style="width: 100px; white-space: nowrap;">所持金（ギル）</label>
-          <input type="number" id="goldInput" class="w-6digit" min="0" max="999999">
+          <input type="number" id="goldInput" class="w-byte3" min="0" max="999999">
         </div>
         <div style="margin-top:12px;">
           <label class="field-check"><input type="checkbox" id="bridgeFlag"> 北の橋 架橋済み</label>
@@ -735,6 +761,7 @@ for (let i = 0; i <= 9; i++) {
 }
 
 function sanitizeNameInput(input) {
+  if (input.isComposing) return;
   let val = input.value.replace(/　/g, " ");
   let filtered = "";
   for (const ch of val) {
@@ -1341,7 +1368,7 @@ function initUI() {
     conContainer.innerHTML += `
       <div class="field">
         <label>${item.name}</label>
-        <input type="number" id="con_${item.id}" class="w-2digit" min="0" max="99">
+        <input type="number" id="con_${item.id}" class="w-byte1" min="0" max="99">
       </div>`;
   });
 
@@ -1394,7 +1421,7 @@ function createCharTabHTML(c) {
         <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:center;">
           <div class="field" style="margin-bottom:0;">
             <label style="width:auto; margin-right:8px;">名前</label>
-            <input type="text" id="c${c}_name" class="w-name" maxlength="4" oninput="sanitizeNameInput(this)">
+            <input type="text" id="c${c}_name" class="w-name" oninput="sanitizeNameInput(this)" oncompositionend="sanitizeNameInput(this)">
           </div>
           <div class="field" style="margin-bottom:0;">
             <label style="width:auto; margin-right:8px;">ジョブ</label>
@@ -1410,10 +1437,10 @@ function createCharTabHTML(c) {
       <!-- 基本ステータス -->
       <div class="card card-basic">
         <div class="card-title">基本ステータス</div>
-        <div class="field"><label>レベル</label><input type="number" id="c${c}_lv" class="w-2digit" min="1" max="50" oninput="onLevelChange(${c})"></div>
-        <div class="field"><label>現在HP</label><input type="number" id="c${c}_curHp" class="w-4digit" min="0" max="999"></div>
-        <div class="field"><label>最大HP</label><input type="number" id="c${c}_maxHp" class="w-4digit" min="1" max="999"></div>
-        <div class="field"><label>経験値</label><input type="number" id="c${c}_exp" class="w-6digit" min="0" max="999999"></div>
+        <div class="field"><label>レベル</label><input type="number" id="c${c}_lv" class="w-byte1" min="1" max="50" oninput="onLevelChange(${c})"></div>
+        <div class="field"><label>現在HP</label><input type="number" id="c${c}_curHp" class="w-byte2" min="0" max="999"></div>
+        <div class="field"><label>最大HP</label><input type="number" id="c${c}_maxHp" class="w-byte2" min="1" max="999"></div>
+        <div class="field"><label>経験値</label><input type="number" id="c${c}_exp" class="w-byte3" min="0" max="999999"></div>
         <div class="field">
           <label>状態</label>
           <select id="c${c}_status" class="w-select">
@@ -1432,19 +1459,19 @@ function createCharTabHTML(c) {
           <!-- 能力値列 -->
           <div style="flex:1; min-width:120px;">
             <div style="color:#a0c0ff; font-weight:bold; margin-bottom:8px; font-size:13px; border-bottom:1px dashed #ffffff44; padding-bottom:2px;">能力値</div>
-            <div class="field"><label style="width:78px;">ちから</label><input type="number" id="c${c}_str" class="w-2digit" min="1" max="99" oninput="onStatChange(${c})"></div>
-            <div class="field"><label style="width:78px;">すばやさ</label><input type="number" id="c${c}_agi" class="w-2digit" min="1" max="99" oninput="onStatChange(${c})"></div>
-            <div class="field"><label style="width:78px;">ちせい</label><input type="number" id="c${c}_int" class="w-2digit" min="1" max="99"></div>
-            <div class="field"><label style="width:78px;">たいりょく</label><input type="number" id="c${c}_vit" class="w-2digit" min="1" max="99"></div>
-            <div class="field"><label style="width:78px;">こううん</label><input type="number" id="c${c}_luk" class="w-2digit" min="1" max="99"></div>
+            <div class="field"><label style="width:78px;">ちから</label><input type="number" id="c${c}_str" class="w-byte1" min="1" max="99" oninput="onStatChange(${c})"></div>
+            <div class="field"><label style="width:78px;">すばやさ</label><input type="number" id="c${c}_agi" class="w-byte1" min="1" max="99" oninput="onStatChange(${c})"></div>
+            <div class="field"><label style="width:78px;">ちせい</label><input type="number" id="c${c}_int" class="w-byte1" min="1" max="99"></div>
+            <div class="field"><label style="width:78px;">たいりょく</label><input type="number" id="c${c}_vit" class="w-byte1" min="1" max="99"></div>
+            <div class="field"><label style="width:78px;">こううん</label><input type="number" id="c${c}_luk" class="w-byte1" min="1" max="99"></div>
           </div>
           <!-- 戦闘パラメータ列 -->
           <div style="flex:1; min-width:174px;">
             <div style="color:#a0c0ff; font-weight:bold; margin-bottom:8px; font-size:13px; border-bottom:1px dashed #ffffff44; padding-bottom:2px;">戦闘パラメータ</div>
-            <div class="field"><label style="width:110px;">ウェポン</label><input type="number" id="c${c}_atk" class="w-3digit" min="0" max="255"></div>
-            <div class="field"><label style="width:110px;">めいちゅうりつ</label><input type="number" id="c${c}_hit" class="w-3digit" min="0" max="255"></div>
-            <div class="field"><label style="width:110px;">アーマー</label><input type="number" id="c${c}_def" class="w-3digit" min="0" max="255"></div>
-            <div class="field"><label style="width:110px;">かいひりつ</label><input type="number" id="c${c}_eva" class="w-3digit" min="0" max="255"></div>
+            <div class="field"><label style="width:110px;">ウェポン</label><input type="number" id="c${c}_atk" class="w-byte1" min="0" max="255"></div>
+            <div class="field"><label style="width:110px;">めいちゅうりつ</label><input type="number" id="c${c}_hit" class="w-byte1" min="0" max="255"></div>
+            <div class="field"><label style="width:110px;">アーマー</label><input type="number" id="c${c}_def" class="w-byte1" min="0" max="255"></div>
+            <div class="field"><label style="width:110px;">かいひりつ</label><input type="number" id="c${c}_eva" class="w-byte1" min="0" max="255"></div>
           </div>
         </div>
       </div>
