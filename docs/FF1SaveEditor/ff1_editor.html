@@ -381,16 +381,38 @@
     box-shadow: inset 0 0 0 1px var(--ff-border-gray);
     border-radius: 4px;
     padding: 8px;
-    cursor: pointer;
+    cursor: grab;
+    user-select: none;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
+    min-height: 118px;
+    gap: 6px;
     transition: background-color 0.15s, border-color 0.15s;
   }
   .party-member-card:hover {
     background: var(--ff-focus-blue);
     border-color: var(--accent-yellow);
+  }
+  .party-member-card:active {
+    cursor: grabbing;
+  }
+  .party-member-card.dragging {
+    opacity: 0.4;
+    border-style: dashed !important;
+  }
+  .party-member-card.drag-over {
+    border-color: var(--accent-yellow) !important;
+    background: var(--ff-focus-blue) !important;
+  }
+  .party-member-card * {
+    pointer-events: none;
+  }
+  .party-member-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
   }
   .party-member-info {
     display: flex;
@@ -415,6 +437,14 @@
     font-size: 16px;
     color: #ffffff;
     white-space: nowrap;
+  }
+  .party-member-mp {
+    font-size: 16px;
+    color: #ffffff;
+    white-space: nowrap;
+    font-family: inherit;
+    min-height: 1.4em;
+    line-height: 1.4;
   }
 
   .char-preview-box { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
@@ -510,37 +540,49 @@
       <div class="card">
         <div class="card-title">パーティメンバー</div>
         <div class="party-members-grid">
-          <div class="party-member-card" onclick="switchTab('char0Tab')">
-            <div class="party-member-info">
-              <span class="party-member-name" id="pCharName_0">----</span>
-              <span class="party-member-sub" id="pCharSub_0">戦士 L1</span>
-              <span class="party-member-hp" id="pCharHp_0">HP 35/35</span>
+          <div class="party-member-card" id="partyCard_0" draggable="true" onclick="onPartyCardClick(0)">
+            <div class="party-member-top">
+              <div class="party-member-info">
+                <span class="party-member-name" id="pCharName_0">----</span>
+                <span class="party-member-sub" id="pCharSub_0">戦士 L1</span>
+                <span class="party-member-hp" id="pCharHp_0">HP 35/35</span>
+              </div>
+              <canvas id="partyCanvas_0" class="char-canvas" width="16" height="24"></canvas>
             </div>
-            <canvas id="partyCanvas_0" class="char-canvas" width="16" height="24"></canvas>
+            <div class="party-member-mp" id="pCharMp_0"></div>
           </div>
-          <div class="party-member-card" onclick="switchTab('char1Tab')">
-            <div class="party-member-info">
-              <span class="party-member-name" id="pCharName_1">----</span>
-              <span class="party-member-sub" id="pCharSub_1">シーフ L1</span>
-              <span class="party-member-hp" id="pCharHp_1">HP 30/30</span>
+          <div class="party-member-card" id="partyCard_1" draggable="true" onclick="onPartyCardClick(1)">
+            <div class="party-member-top">
+              <div class="party-member-info">
+                <span class="party-member-name" id="pCharName_1">----</span>
+                <span class="party-member-sub" id="pCharSub_1">シーフ L1</span>
+                <span class="party-member-hp" id="pCharHp_1">HP 30/30</span>
+              </div>
+              <canvas id="partyCanvas_1" class="char-canvas" width="16" height="24"></canvas>
             </div>
-            <canvas id="partyCanvas_1" class="char-canvas" width="16" height="24"></canvas>
+            <div class="party-member-mp" id="pCharMp_1"></div>
           </div>
-          <div class="party-member-card" onclick="switchTab('char2Tab')">
-            <div class="party-member-info">
-              <span class="party-member-name" id="pCharName_2">----</span>
-              <span class="party-member-sub" id="pCharSub_2">モンク L1</span>
-              <span class="party-member-hp" id="pCharHp_2">HP 33/33</span>
+          <div class="party-member-card" id="partyCard_2" draggable="true" onclick="onPartyCardClick(2)">
+            <div class="party-member-top">
+              <div class="party-member-info">
+                <span class="party-member-name" id="pCharName_2">----</span>
+                <span class="party-member-sub" id="pCharSub_2">モンク L1</span>
+                <span class="party-member-hp" id="pCharHp_2">HP 33/33</span>
+              </div>
+              <canvas id="partyCanvas_2" class="char-canvas" width="16" height="24"></canvas>
             </div>
-            <canvas id="partyCanvas_2" class="char-canvas" width="16" height="24"></canvas>
+            <div class="party-member-mp" id="pCharMp_2"></div>
           </div>
-          <div class="party-member-card" onclick="switchTab('char3Tab')">
-            <div class="party-member-info">
-              <span class="party-member-name" id="pCharName_3">----</span>
-              <span class="party-member-sub" id="pCharSub_3">赤魔術士 L1</span>
-              <span class="party-member-hp" id="pCharHp_3">HP 30/30</span>
+          <div class="party-member-card" id="partyCard_3" draggable="true" onclick="onPartyCardClick(3)">
+            <div class="party-member-top">
+              <div class="party-member-info">
+                <span class="party-member-name" id="pCharName_3">----</span>
+                <span class="party-member-sub" id="pCharSub_3">赤魔術士 L1</span>
+                <span class="party-member-hp" id="pCharHp_3">HP 30/30</span>
+              </div>
+              <canvas id="partyCanvas_3" class="char-canvas" width="16" height="24"></canvas>
             </div>
-            <canvas id="partyCanvas_3" class="char-canvas" width="16" height="24"></canvas>
+            <div class="party-member-mp" id="pCharMp_3"></div>
           </div>
         </div>
 
@@ -1765,6 +1807,8 @@ function initUI() {
     charTabsRoot.innerHTML += createCharTabHTML(c);
   }
 
+  initPartyDragAndDrop();
+
   for (let c = 0; c < 4; c++) {
     renderCharSprite(c);
     updateAllEquipStatsAndRestrictions(c);
@@ -1788,6 +1832,134 @@ function initUI() {
         updatePartyOverview(parseInt(match[1], 10));
       }
     }
+  });
+}
+
+let isDraggingPartyCard = false;
+let draggedCardIndex = null;
+
+function onPartyCardClick(c) {
+  if (isDraggingPartyCard) return;
+  switchTab(`char${c}Tab`);
+}
+
+function initPartyDragAndDrop() {
+  for (let i = 0; i < 4; i++) {
+    const card = document.getElementById(`partyCard_${i}`);
+    if (!card) continue;
+
+    card.addEventListener('dragstart', (e) => {
+      isDraggingPartyCard = true;
+      draggedCardIndex = i;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', i.toString());
+    });
+
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      document.querySelectorAll('.party-member-card').forEach(c => c.classList.remove('drag-over'));
+      setTimeout(() => { isDraggingPartyCard = false; }, 50);
+    });
+
+    card.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (isDraggingPartyCard && draggedCardIndex !== i && !card.classList.contains('drag-over')) {
+        card.classList.add('drag-over');
+      }
+    });
+
+    card.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+      if (isDraggingPartyCard && draggedCardIndex !== i) {
+        card.classList.add('drag-over');
+      }
+    });
+
+    card.addEventListener('dragleave', (e) => {
+      if (!card.contains(e.relatedTarget)) {
+        card.classList.remove('drag-over');
+      }
+    });
+
+    card.addEventListener('drop', (e) => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+      const toIdx = i;
+      if (!isNaN(fromIdx) && fromIdx !== toIdx) {
+        swapPartyMembers(fromIdx, toIdx);
+      }
+    });
+  }
+}
+
+/**
+ * パーティメンバーの全ステータス・装備・魔法をスワップ
+ */
+function swapPartyMembers(src, dst) {
+  const fields = [
+    'name', 'job', 'lv', 'curHp', 'maxHp', 'exp', 'status',
+    'str', 'agi', 'int', 'vit', 'luk',
+    'atk', 'hit', 'def', 'eva'
+  ];
+
+  fields.forEach(f => {
+    const el1 = document.getElementById(`c${src}_${f}`);
+    const el2 = document.getElementById(`c${dst}_${f}`);
+    if (el1 && el2) {
+      const tmp = el1.value;
+      el1.value = el2.value;
+      el2.value = tmp;
+    }
+  });
+
+  // 武器・防具スロット
+  for (let s = 0; s < 4; s++) {
+    const wep1 = document.getElementById(`c${src}_wep_${s}`);
+    const wep2 = document.getElementById(`c${dst}_wep_${s}`);
+    const wEq1 = document.getElementById(`c${src}_wepEquip_${s}`);
+    const wEq2 = document.getElementById(`c${dst}_wepEquip_${s}`);
+    if (wep1 && wep2) {
+      const tmpVal = wep1.value; wep1.value = wep2.value; wep2.value = tmpVal;
+      const tmpChk = wEq1.checked; wEq1.checked = wEq2.checked; wEq2.checked = tmpChk;
+    }
+
+    const arm1 = document.getElementById(`c${src}_arm_${s}`);
+    const arm2 = document.getElementById(`c${dst}_arm_${s}`);
+    const aEq1 = document.getElementById(`c${src}_armEquip_${s}`);
+    const aEq2 = document.getElementById(`c${dst}_armEquip_${s}`);
+    if (arm1 && arm2) {
+      const tmpVal = arm1.value; arm1.value = arm2.value; arm2.value = tmpVal;
+      const tmpChk = aEq1.checked; aEq1.checked = aEq2.checked; aEq2.checked = tmpChk;
+    }
+  }
+
+  // 魔法・MP
+  for (let lv = 1; lv <= 8; lv++) {
+    const curMp1 = document.getElementById(`c${src}_curMp_${lv}`);
+    const curMp2 = document.getElementById(`c${dst}_curMp_${lv}`);
+    const maxMp1 = document.getElementById(`c${src}_maxMp_${lv}`);
+    const maxMp2 = document.getElementById(`c${dst}_maxMp_${lv}`);
+    if (curMp1 && curMp2) {
+      const tCur = curMp1.value; curMp1.value = curMp2.value; curMp2.value = tCur;
+      const tMax = maxMp1.value; maxMp1.value = maxMp2.value; maxMp2.value = tMax;
+    }
+    for (let slot = 0; slot < 3; slot++) {
+      const sp1 = document.getElementById(`c${src}_spell_${lv}_${slot}`);
+      const sp2 = document.getElementById(`c${dst}_spell_${lv}_${slot}`);
+      if (sp1 && sp2) {
+        const tmp = sp1.value; sp1.value = sp2.value; sp2.value = tmp;
+      }
+    }
+  }
+
+  [src, dst].forEach(c => {
+    rebuildCharEquipOptions(c);
+    renderCharSprite(c);
+    updateAllEquipStatsAndRestrictions(c);
+    updatePartyOverview(c);
   });
 }
 
@@ -2302,9 +2474,17 @@ function onLevelChange(c) {
 /**
  * ドラッグ＆ドロップおよびファイル読み込み
  */
+function isFileDragEvent(e) {
+  if (isDraggingPartyCard) return false;
+  if (!e.dataTransfer || !e.dataTransfer.types) return false;
+  return Array.from(e.dataTransfer.types).includes('Files');
+}
+
 window.addEventListener('dragover', (e) => {
   e.preventDefault();
-  document.body.classList.add('dragover');
+  if (isFileDragEvent(e)) {
+    document.body.classList.add('dragover');
+  }
 });
 window.addEventListener('dragleave', (e) => {
   if (e.relatedTarget === null) document.body.classList.remove('dragover');
@@ -2312,7 +2492,7 @@ window.addEventListener('dragleave', (e) => {
 window.addEventListener('drop', (e) => {
   e.preventDefault();
   document.body.classList.remove('dragover');
-  if (e.dataTransfer.files.length > 0) {
+  if (isFileDragEvent(e) && e.dataTransfer.files.length > 0) {
     handleLoadedFile(e.dataTransfer.files[0]);
   }
 });
@@ -2820,6 +3000,30 @@ function updatePartyOverview(c) {
   nameEl.textContent = name;
   subEl.textContent = `${jobName} L${lv}`;
   hpEl.textContent = `HP ${curHp}/${maxHp}`;
+
+  const mpEl = document.getElementById(`pCharMp_${c}`);
+  if (mpEl) {
+    let curMps = [];
+    let maxMps = [];
+    let totalMaxMp = 0;
+    for (let lvIdx = 1; lvIdx <= 8; lvIdx++) {
+      const cMpEl = document.getElementById(`c${c}_curMp_${lvIdx}`);
+      const mMpEl = document.getElementById(`c${c}_maxMp_${lvIdx}`);
+      const cur = cMpEl ? parseInt(cMpEl.value, 10) || 0 : 0;
+      const max = mMpEl ? parseInt(mMpEl.value, 10) || 0 : 0;
+      curMps.push(cur);
+      maxMps.push(max);
+      totalMaxMp += max;
+    }
+
+    if (totalMaxMp > 0) {
+      mpEl.textContent = `まほう ${curMps.join('/')}`;
+      mpEl.style.visibility = "visible";
+    } else {
+      mpEl.textContent = "";
+      mpEl.style.visibility = "hidden";
+    }
+  }
 }
 
 window.onload = initUI;
