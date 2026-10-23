@@ -370,10 +370,18 @@
   }
 
   /* パーティ共通画面 キャラクタ一覧用レイアウト (2x2) */
+  .party-members-panel {
+    container-type: inline-size;
+  }
   .party-members-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
+  }
+  @container (max-width: 340px) {
+    .party-members-grid {
+      grid-template-columns: 1fr;
+    }
   }
   .party-member-card {
     background: var(--ff-blue);
@@ -386,6 +394,7 @@
     display: flex;
     flex-direction: column;
     min-height: 118px;
+    min-width: 0;
     gap: 6px;
     transition: background-color 0.15s, border-color 0.15s;
   }
@@ -442,6 +451,8 @@
     font-size: 16px;
     color: #ffffff;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-family: inherit;
     min-height: 1.4em;
     line-height: 1.4;
@@ -537,7 +548,7 @@
   <div id="partyTab" class="content-panel active">
     <div class="auto-grid">
       <!-- パーティメンバー一覧 (クリックで各キャラタブへ移動) -->
-      <div class="card">
+      <div class="card party-members-panel">
         <div class="card-title">パーティメンバー</div>
         <div class="party-members-grid">
           <div class="party-member-card" id="partyCard_0" draggable="true" onclick="onPartyCardClick(0)">
@@ -603,7 +614,7 @@
             </div>
           </div>
           <div class="vehicle-row">
-            <button type="button" class="btn-move" onclick="applyPlayerPreset()">位置を移動</button>
+            <button type="button" class="btn-move" onclick="applyPlayerPreset()">プリセットへ移動 ▶</button>
             <select id="playerPreset" style="flex:1;">
               <!-- 機種別に動的生成 -->
             </select>
@@ -632,11 +643,9 @@
             </div>
           </div>
           <div class="vehicle-row">
-            <button type="button" class="btn-move" onclick="applyShipPreset()">船を移動</button>
+            <button type="button" class="btn-move" onclick="applyShipPreset()">プリセットへ移動 ▶</button>
             <select id="shipPreset" style="flex:1;">
-              <option value="157,106">プラボカの港（初期）</option>
-              <option value="123,113">コーネリア南の港</option>
-              <option value="221,130">エルフ領の運河・河口</option>
+              <!-- 機種別に動的生成 -->
             </select>
           </div>
         </div>
@@ -653,12 +662,9 @@
             </div>
           </div>
           <div class="vehicle-row">
-            <button type="button" class="btn-move" onclick="applyAirshipPreset()">飛空艇を移動</button>
+            <button type="button" class="btn-move" onclick="applyAirshipPreset()">プリセットへ移動 ▶</button>
             <select id="airshipPreset" style="flex:1;">
-              <option value="123,108">コーネリア城南（平原）</option>
-              <option value="221,237">リュカーンの砂漠（初期）</option>
-              <option value="218,130">エルフ城南（平原）</option>
-              <option value="152,103">プラボカ西（平原）</option>
+              <!-- 機種別に動的生成 -->
             </select>
           </div>
         </div>
@@ -907,19 +913,20 @@ const FC_CAMERA_OFFSET = { x: -7, y: -7 };
 const LOCATION_PRESETS = {
   ship: [
     { name: "プラボカの港（初期）", pos: { x: 210, y: 153 } },
-    { name: "コーネリア南の港",     pos: { x: 152, y: 169 } },
-    { name: "エルフ領の運河・河口", pos: { x: 137, y: 227 } }
+    { name: "コーネリアの港",       pos: { x: 152, y: 169 } },
+    { name: "エルフ城の北（内海）", pos: { x: 141, y: 211 } },
+    { name: "エルフ城の港",         pos: { x: 137, y: 227 } },
   ],
   airship: [
     { name: "リュカーンの砂漠（初期）", pos: { x: 221, y: 237 } },
-    { name: "コーネリア南（平原）",     pos: { x: 153, y: 165 } },
-    { name: "エルフ城南（平原）",       pos: { x: 137, y: 224 } },
-    { name: "プラボカ西（平原）",       pos: { x: 159, y: 109 } }
+    { name: "コーネリア",               pos: { x: 153, y: 165 } },
+    { name: "エルフ城",                 pos: { x: 137, y: 224 } },
+    { name: "プラボカ",                 pos: { x: 208, y: 152 } },
   ],
   player: [
-    { name: "コーネリア前（初期）", pos: { x: 153, y: 164 } },
-    { name: "エルフ城南（橋付近）", pos: { x: 136, y: 226 } },
-    { name: "プラボカ前",           pos: { x: 154, y: 209 } }
+    { name: "コーネリア（初期）", pos: { x: 153, y: 164 } },
+    { name: "エルフ城",           pos: { x: 136, y: 226 } },
+    { name: "プラボカ",           pos: { x: 210, y: 152 } },
   ]
 };
 
@@ -1078,11 +1085,19 @@ for (let i = 0; i <= 9; i++) {
   REVERSE_CHAR_MAP[String.fromCharCode(0xFF10 + i)] = 0x80 + i;
 }
 
-function sanitizeNameInput(input) {
-  if (input.isComposing) return;
+const KANA_NORMALIZE = {
+  "ぁ":"あ", "ぃ":"い", "ぅ":"う", "ぇ":"え", "ぉ":"お", "ゎ":"わ",
+  "ァ":"ア", "ィ":"イ", "ゥ":"ウ", "ェ":"エ", "ォ":"オ", "ヮ":"ワ",
+  "ッ":"っ", "ャ":"ゃ", "ュ":"ゅ", "ョ":"ょ"
+};
+
+function sanitizeNameInput(input, ev) {
+  if (ev && ev.isComposing) return;
+  if (input._isComposing) return;
   let val = input.value.replace(/　/g, " ");
   let filtered = "";
-  for (const ch of val) {
+  for (let ch of val) {
+    if (KANA_NORMALIZE[ch]) ch = KANA_NORMALIZE[ch];
     if (REVERSE_CHAR_MAP[ch] !== undefined) {
       filtered += ch;
     }
@@ -1979,7 +1994,10 @@ function createCharTabHTML(c) {
         <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:center;">
           <div class="field" style="margin-bottom:0;">
             <label style="width:auto; margin-right:8px;">名前</label>
-            <input type="text" id="c${c}_name" class="w-name" oninput="sanitizeNameInput(this); updatePartyOverview(${c});" oncompositionend="sanitizeNameInput(this); updatePartyOverview(${c});">
+            <input type="text" id="c${c}_name" class="w-name"
+              oncompositionstart="this._isComposing = true;"
+              oncompositionend="this._isComposing = false; sanitizeNameInput(this); updatePartyOverview(${c});"
+              oninput="sanitizeNameInput(this, event); updatePartyOverview(${c});">
           </div>
           <div class="field" style="margin-bottom:0;">
             <label style="width:auto; margin-right:8px;">ジョブ</label>
@@ -2978,7 +2996,7 @@ function updatePartyOverview(c) {
 
   if (!nameEl || !subEl || !hpEl) return;
 
-  const name = (nameInput && nameInput.value.trim() !== "") ? nameInput.value : "(なまえなし)";
+  const name = (nameInput && nameInput.value.trim() !== "") ? nameInput.value : "(EMPTY)";
   const jobIdx = jobSelect ? parseInt(jobSelect.value, 10) || 0 : 0;
   const jobName = JOBS[jobIdx] || "";
 
@@ -3017,7 +3035,7 @@ function updatePartyOverview(c) {
     }
 
     if (totalMaxMp > 0) {
-      mpEl.textContent = `まほう ${curMps.join('/')}`;
+      mpEl.textContent = `MP ${curMps.join('/')}`;
       mpEl.style.visibility = "visible";
     } else {
       mpEl.textContent = "";
