@@ -4,9 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ＦＣ版／ＭＳＸ版 ファイナルファンタジーⅠ セーブデータエディター</title>
+<!--
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+-->
 <style>
   :root {
     --bg-color: #000000;
@@ -63,7 +65,7 @@
     border: 3px solid var(--ff-border-white) !important;
     border-radius: 8px !important;
     box-shadow: inset 0 0 0 2px var(--ff-border-gray) !important;
-    padding: 14px;
+    padding: 12px;
     margin-bottom: 12px;
   }
 
@@ -77,13 +79,15 @@
   }
   .file-inputs { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   .file-btn {
-    background: var(--ff-blue);
+    /*background: var(--ff-blue);*/
+    background: #665481;
     border: 2px solid var(--ff-border-white);
     color: #fff;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
+    font-size: 14px;
     font-weight: bold;
+    border-radius: 4px;
+    padding: 8px 8px;
+    cursor: pointer;
     display: inline-flex;
     align-items: center;
     user-select: none;
@@ -96,9 +100,9 @@
     background: #008800;
     border: 2px solid var(--ff-border-white);
     color: white;
-    padding: 8px 24px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: bold;
+    padding: 3px 8px;
     border-radius: 4px;
     cursor: pointer;
   }
@@ -477,6 +481,168 @@
     font-weight: bold;
   }
   .tag-diff { background: #b05000; border: 1px solid #ffcc00; color: #ffffaa; padding: 1px 6px; border-radius: 3px; font-size: 11px; margin-left: 6px; }
+
+  /* ワールドマップモーダル用スタイル */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-dialog {
+    background: var(--ff-blue);
+    border: 3px solid var(--ff-border-white);
+    box-shadow: inset 0 0 0 2px var(--ff-border-gray), 0 0 24px rgba(0,0,0,0.8);
+    border-radius: 8px;
+    padding: 14px;
+    width: 95vw;
+    max-width: 920px;
+    max-height: 94vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .debug-pane {
+    /*
+    border-top: 2px dashed rgba(255, 255, 255, 0.4);
+    margin-top: 10px;
+    padding-top: 10px;
+    */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .debug-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    background: var(--ff-dark-blue);
+    padding: 8px 12px;
+    border: 2px solid #ffffff;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .debug-previews-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-around;
+  }
+  .debug-preview-card {
+    background: var(--ff-dark-blue);
+    border: 2px solid #ffffff;
+    border-radius: 4px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .debug-preview-card canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    background: #000000;
+    border: 1px solid #ffffff;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--ff-border-white);
+    padding-bottom: 6px;
+  }
+  .modal-title { font-weight: bold; font-size: 16px; color: #ffffff; }
+  .modal-close-btn {
+    background: #c00000;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 2px 8px;
+  }
+  .modal-close-btn:hover { background: #e00000; }
+  .map-workspace {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .map-canvas-container {
+    position: relative;
+    border: 2px solid #ffffff;
+    background: #000000;
+    cursor: crosshair;
+    flex-shrink: 0;
+  }
+  #worldMapCanvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    width: 512px;
+    height: 512px;
+  }
+  .map-marker {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 4px #000000;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: bold;
+  }
+  .marker-player { background: #ff2222; color: #ffffff; }
+  .marker-ship   { background: #00bbff; color: #ffffff; }
+  .marker-airship{ background: #ffcc00; color: #000000; }
+  .map-info-pane {
+    flex: 1;
+    min-width: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  /* デバッグUI非表示制御 */
+  body.hide-debug .debug-pane,
+  body.hide-debug .debug-only {
+    display: none !important;
+  }
+  .preview-box {
+    border: 2px solid #ffffff;
+    background: #000088;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 240px;
+    height: 240px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+  #mapZoomCanvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    width: 240px;
+    height: 240px;
+    cursor: crosshair;
+  }
 </style>
 </head>
 <body>
@@ -519,7 +685,7 @@
           <input type="file" id="savInput" accept=".sav,.bin,.dsk">
         </label>
         <label class="file-btn" style="border-style:dashed;">
-          🎮 NES ROM 読込 (任意・テーブル抽出)
+          🎮 NES ROM 読込 (任意：テーブル・マップ抽出)
           <input type="file" id="nesInput" accept=".nes">
         </label>
       </div>
@@ -614,7 +780,8 @@
             </div>
           </div>
           <div class="vehicle-row">
-            <button type="button" class="btn-move" onclick="applyPlayerPreset()">プリセットへ移動 ▶</button>
+            <button type="button" class="btn-move" onclick="WorldMapViewer.open('player')">地図</button>
+            <button type="button" class="btn-move" onclick="applyPlayerPreset()">移動 ▶</button>
             <select id="playerPreset" style="flex:1;">
               <!-- 機種別に動的生成 -->
             </select>
@@ -643,7 +810,8 @@
             </div>
           </div>
           <div class="vehicle-row">
-            <button type="button" class="btn-move" onclick="applyShipPreset()">プリセットへ移動 ▶</button>
+            <button type="button" class="btn-move" onclick="WorldMapViewer.open('ship')">地図</button>
+            <button type="button" class="btn-move" onclick="applyShipPreset()">移動 ▶</button>
             <select id="shipPreset" style="flex:1;">
               <!-- 機種別に動的生成 -->
             </select>
@@ -662,7 +830,8 @@
             </div>
           </div>
           <div class="vehicle-row">
-            <button type="button" class="btn-move" onclick="applyAirshipPreset()">プリセットへ移動 ▶</button>
+            <button type="button" class="btn-move" onclick="WorldMapViewer.open('airship')">地図</button>
+            <button type="button" class="btn-move" onclick="applyAirshipPreset()">移動 ▶</button>
             <select id="airshipPreset" style="flex:1;">
               <!-- 機種別に動的生成 -->
             </select>
@@ -693,7 +862,101 @@
 
 </div>
 
+<!-- ワールドマップ座標選択モーダル -->
+<div id="mapModal" class="modal-overlay" onclick="WorldMapViewer.onBackdropClick(event)">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <span class="modal-title" id="mapModalTitle">📚 ワールドマップ位置指定</span>
+      <button type="button" class="modal-close-btn" onclick="WorldMapViewer.cancel()">✕</button>
+    </div>
+    <div class="map-workspace">
+      <!-- 512x512表示キャンバス (256x256タイル) -->
+      <div class="map-canvas-container" id="mapContainer"
+           onmousedown="WorldMapViewer.onCanvasMouseDown(event)"
+           onmousemove="WorldMapViewer.onCanvasMouseMove(event)"
+           ondblclick="WorldMapViewer.onCanvasDblClick(event)"
+           onmouseenter="WorldMapViewer.onCanvasEnter(event)"
+           onmouseleave="WorldMapViewer.onCanvasLeave(event)">
+        <canvas id="worldMapCanvas" width="256" height="256"></canvas>
+        <div id="markerPlayer" class="map-marker marker-player" title="プレイヤー">P</div>
+        <div id="markerShip" class="map-marker marker-ship" title="船">S</div>
+        <div id="markerAirship" class="map-marker marker-airship" title="飛空艇">A</div>
+      </div>
+      <div class="map-info-pane">
+    <div style="background:var(--ff-dark-blue); padding:8px; border:2px solid #ffffff; border-radius:4px;">
+      <div>カーソル座標: <span id="hoverCoordsText" style="font-weight:bold; color:#ffffaa;">X: --- / Y: ---</span></div>
+      <div><span id="hoverTileId" class="debug-only" style="color:#ffffaa; font-weight:bold; margin-right:6px;">[$--]</span>地形: <span id="hoverTerrainText" style="color:#ffffff;">---</span></div>
+    </div>
+        <div style="text-align:center;">
+          <div style="font-size:12px; margin-bottom:4px; color:#a0c0ff;">周辺拡大プレビュー (15x15)</div>
+          <div class="preview-box">
+            <canvas id="mapZoomCanvas" width="240" height="240"
+                    onclick="WorldMapViewer.onZoomCanvasClick(event)"
+                    onmousedown="WorldMapViewer.onZoomCanvasMouseDown(event)"
+                    onmouseenter="WorldMapViewer.onZoomCanvasEnter(event)"
+                    onmouseleave="WorldMapViewer.onZoomCanvasLeave(event)"></canvas>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:auto;">
+          <button type="button" class="btn-move" style="flex:1; padding:8px;" onclick="WorldMapViewer.commit()">決定</button>
+          <button type="button" class="btn-move" style="flex:1; padding:8px; background:#665481;" onclick="WorldMapViewer.cancel()">キャンセル</button>
+        </div>
+        <div style="background:var(--ff-dark-blue); padding:6px 8px; border:1px solid rgba(255,255,255,0.6); border-radius:4px; font-size:11px; line-height:1.45; color:#dddddd;">
+          <div style="margin-bottom:4px;">
+            <span style="color:#a0c0ff; font-weight:bold;">◆ 全体マップ 操作</span><br>
+            ・ドラッグ / クリック：カーソル移動（プレビュー探索）<br>
+            ・ダブルクリック：指定位置へアイコン配置
+          </div>
+          <div>
+            <span style="color:#a0c0ff; font-weight:bold;">◆ マップ共通（マウスホバー時）キー・マウス操作</span><br>
+            ・カーソル移動：カーソルキー / テンキー[8 2 4 6] / 拡大マップクリック<br>
+            　<span style="color:#88bbff;">(Shift: 5倍速 / 同時押し: 斜め移動)</span><br>
+            ・アイコン配置：中央枠クリック / [SPACE] / [ENTER]<br>
+            ・カーソル復帰：ホイールボタン / [H] / [Home] / テンキー[5]
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- デバッグ解析・タイル検証用パネル -->
+    <div class="debug-pane">
+      <div class="debug-controls">
+        <span style="font-weight:bold; color:#ffea70;">🛠️ デバッグ設定:</span>
+        <span style="margin-left:8px; font-weight:bold; color:#ffea70;">判定モード:</span>
+        <select id="debugMapMode" style="width:auto; padding:2px 4px;" onchange="WorldMapViewer.onModeChange()">
+          <option value="mix" selected>ミックス (ROM優先+補完)</option>
+          <option value="preset">内蔵データのみ</option>
+          <option value="rom">ROMデータのみ</option>
+          <option value="check">差異チェック (不一致に❌)</option>
+        </select>
+      </div>
+      <div class="debug-previews-container">
+        <!-- 8x8 CHRキャラクタ一覧 (256キャラクタ: 16x16配置 = 128x128px, 2倍表示256x256px) -->
+        <div class="debug-preview-card">
+          <div style="font-size:13px; font-weight:bold; color:#a0c0ff;">8x8 CHRキャラクタ一覧 (0x00〜0xFF)</div>
+          <canvas id="debugChrCanvas" width="128" height="128" style="width:256px; height:256px; cursor:crosshair;"
+                  onmousemove="WorldMapViewer.onChrCanvasHover(event)" onmouseleave="WorldMapViewer.onChrCanvasLeave()"></canvas>
+          <div id="debugChrInfo" style="font-size:12px; color:#ffffff; min-height:1.2em;">キャラクタ: ---</div>
+        </div>
+        <!-- 16x16 タイル一覧 (128タイル: 16x8配置 = 256x128px, 2倍表示512x256px) -->
+        <div class="debug-preview-card">
+          <div style="font-size:13px; font-weight:bold; color:#a0c0ff;">16x16 タイル合成一覧 (0x00〜0x7F)</div>
+          <canvas id="debugMetaCanvas" width="256" height="128" style="width:512px; height:256px; cursor:crosshair;"
+                  onmousedown="WorldMapViewer.onMetaCanvasMouseDown(event)" onmouseup="WorldMapViewer.onMetaCanvasMouseUp(event)"
+                  onmousemove="WorldMapViewer.onMetaCanvasHover(event)" onmouseleave="WorldMapViewer.onMetaCanvasLeave()"></canvas>
+          <div id="debugMetaInfo" style="font-size:12px; color:#ffffff; min-height:1.2em;">タイル: ---</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+/**
+ * デバッグ機能表示フラグ (falseで解析パネルおよびタイルID表示を抑止)
+ */
+const ENABLE_DEBUG_TOOLS = true;
+
 /**
  * データベース定義
  */
@@ -911,6 +1174,12 @@ const MSX_CAMERA_OFFSET = { x: -7, y: -6 };
 const FC_CAMERA_OFFSET = { x: -7, y: -7 };
 
 const LOCATION_PRESETS = {
+  player: [
+    { name: "コーネリア（初期）",     pos: { x: 153, y: 164 } },
+    { name: "エルフ城",               pos: { x: 136, y: 226 } },
+    { name: "プラボカ",               pos: { x: 210, y: 152 } },
+    { name: "クレセントムーンレイク", pos: { x: 219, y: 220 } },
+  ],
   ship: [
     { name: "プラボカの港（初期）", pos: { x: 210, y: 153 } },
     { name: "コーネリアの港",       pos: { x: 152, y: 169 } },
@@ -922,12 +1191,8 @@ const LOCATION_PRESETS = {
     { name: "コーネリア",               pos: { x: 153, y: 165 } },
     { name: "エルフ城",                 pos: { x: 137, y: 224 } },
     { name: "プラボカ",                 pos: { x: 208, y: 152 } },
+    { name: "クレセントムーンレイク",   pos: { x: 219, y: 220 } },
   ],
-  player: [
-    { name: "コーネリア（初期）", pos: { x: 153, y: 164 } },
-    { name: "エルフ城",           pos: { x: 136, y: 226 } },
-    { name: "プラボカ",           pos: { x: 210, y: 152 } },
-  ]
 };
 
 /**
@@ -1280,10 +1545,10 @@ const SAVE_LAYOUTS = {
     expEndian: 'LE',
 
     // 魔法データ
-    magicBase: SAV_ADDR_FC + 0x0200,
+    magicBase: SAV_ADDR_FC + 0x0300,
     magicStride: 0x40,
-    curMpOffset: 0x20,
-    maxMpOffset: 0x28,
+    curMpOffset: 0x28,
+    maxMpOffset: 0x20,
  },
   msx: {
     // --------------------------------
@@ -1800,6 +2065,11 @@ class GameDataManager {
 GameDataManager.applyDummyRom();
 
 function initUI() {
+  // デバッグ機能の表示／非表示を定数に基づき一括反映
+  if (!ENABLE_DEBUG_TOOLS) {
+    document.body.classList.add('hide-debug');
+  }
+
   const conContainer = document.getElementById('consumablesContainer');
   CONSUMABLES.forEach(item => {
     conContainer.innerHTML += `
@@ -1846,6 +2116,31 @@ function initUI() {
       if (match) {
         updatePartyOverview(parseInt(match[1], 10));
       }
+    }
+  });
+
+  // キー入力イベント（ESCキャンセルおよび拡大プレビュー操作）
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('mapModal');
+      if (modal && modal.classList.contains('open')) {
+        WorldMapViewer.cancel();
+      }
+      return;
+    }
+    WorldMapViewer.handleKeyDown(e);
+  });
+
+  window.addEventListener('keyup', (e) => {
+    WorldMapViewer.handleKeyUp(e);
+  });
+
+  // キャンバス外でマウスボタンが離された場合でもデバッグ点滅およびマップドラッグを確実に解除
+  window.addEventListener('mouseup', () => {
+    WorldMapViewer.clearDebugHighlightTile();
+    if (WorldMapViewer.isDraggingMap) {
+      WorldMapViewer.isDraggingMap = false;
+      WorldMapViewer.renderSpecialPoints();
     }
   });
 }
@@ -2532,6 +2827,7 @@ function handleLoadedFile(file) {
       if (buf[0] === 0x4E && buf[1] === 0x45 && buf[2] === 0x53 && buf[3] === 0x1A) {
         nesRom = buf;
         GameDataManager.extractFromROM(nesRom);
+        WorldMapViewer.loadFromROM(nesRom);
         
         const romStatusEl = document.getElementById('romStatus');
         if (GameDataManager.romData.diffDetected) {
@@ -2581,7 +2877,7 @@ function loadSavToUI() {
   if (!savData) return;
   const layout = SAVE_LAYOUTS[activePlatform];
   const playerOffset = (activePlatform === 'msx') ? MSX_CAMERA_OFFSET : FC_CAMERA_OFFSET;
-  const vehicleOffset = (activePlatform === 'msx') ? MSX_CAMERA_OFFSET : {X:0, y:0};
+  const vehicleOffset = (activePlatform === 'msx') ? MSX_CAMERA_OFFSET : {x:0, y:0};
 
   // プレイヤー座標 (MSX版は32タイル分割を8bitへパッキング: 1631H〜1632H=X, 1633H〜1634H=Y)
   let pX = 0, pY = 0;
@@ -2697,6 +2993,8 @@ function loadSavToUI() {
     renderCharSprite(c);
     updateAllEquipStatsAndRestrictions(c);
     updatePartyOverview(c);
+
+    WorldMapViewer.onLoadSavFile();
   }
 }
 
@@ -2971,12 +3269,1295 @@ function renderCharSprite(c) {
 
   ctx.putImageData(imgData, 0, 0);
 
-  // パーティ共通画面のサムネイルキャンバスへも描画
+  // パーティ共通タブ内のキャラクタカード表示を更新
   const pCanvas = document.getElementById(`partyCanvas_${c}`);
   if (pCanvas) {
     const pCtx = pCanvas.getContext('2d');
     pCtx.clearRect(0, 0, 16, 24);
     pCtx.putImageData(imgData, 0, 0);
+  }
+}
+
+/**
+ * FC版ワールドマップ表示管理クラス
+ */
+class WorldMapViewer {
+  // PRG-ROM内オフセット定数 (ヘッダ16バイトを除く純粋なPRGデータ基準)
+  static TILE_ATTRIBUTE_TABLE = 0x0000;             // ワールドマップタイル属性データ (128タイル×2バイト: 256バイト)
+  static MAP_LINEPTR_TABLE = 0x4000;                // 行ごとのポインタテーブル (256行分: 512バイト)
+  static MAP_LINEPTR_OFFSET = -0x4000;              // CPUアドレス($8000〜)からのオフセットへの補正値
+  static TILE_CHARACTER_ASSIGNMENT_TABLE = 0x0100;  // タイルに対するCHR割り当てテーブル開始位置 (512バイト)
+  static TILE_PALETTE_ASSIGNMENT_TABLE = 0x0300;    // 各タイルのパレットセット割り当てテーブル開始位置 (128バイト)
+  static PALETTE_RABLE = 0x0380;                    // ワールドマップパレットデータ本体開始位置 (32バイト)
+  static CHARACTER_PATTERN_TABLE = 0x8000;          // ワールドマップCHRグラフィックデータ開始位置
+
+  // スプライトグラフィックPRGオフセット (各16x16px: 4キャラクタ=64バイト)
+  static MAPMANGRAPHIC_OFFSET = 0x9000;             // プレイヤー歩行グラフィック
+  static CANOEGRAPHIC_OFFSET  = 0xA000 + 0x40 * 4;  // カヌーグラフィック
+  static BRIDGEGRAPHIC_OFFSET = 0x9C40;             // コーネリアの北の橋グラフィック
+  static CANALGRAPHIC_OFFSET  = 0x9C80;             // 運河グラフィック
+  static SHIPGRAPHIC_OFFSET   = 0x9E40;             // 船グラフィック
+  static AIRSHIPGRAPHIC_OFFSET= 0x9F80;             // 飛空艇グラフィック
+  static AIRSHIPSHADOWGRAPHIC_OFFSET= 0x9C00;       // 飛空艇の影グラフィック
+  static MAPMANPALETTE_OFFSET = 0x03A0;             // プレイヤーパレット置換オフセット
+
+  // 固定設置物座標 (絶対タイル座標)
+  static COORD_BRIDGE = { x: 152, y: 152 };         // コーネリアの北の橋
+  static COORD_CANAL  = { x: 102, y: 164 };         // 運河（海峡）
+
+  static currentMetaTableOffset = this.TILE_CHARACTER_ASSIGNMENT_TABLE;  // 現在のタイル割り当てPRGオフセット
+  static currentChrOffset = this.CHARACTER_PATTERN_TABLE;                // 現在のCHRデータPRGオフセット
+
+  static mapData = null; // 256x256タイル配列 (65536 bytes)
+  static metatile16Bitmaps = new Map(); // タイルID(0〜127)ごとの16x16ピクセルRGBデータ
+  static sprites = new Map();           // スプライトIDごとの16x16 ImageDataキャッシュ
+  static currentTarget = 'player'; // 'player' | 'ship' | 'airship'
+  static origPos = { x: 0, y: 0 }; // キャンセル時の復元用座標バッファ
+  static initialized = false;
+
+  // カーソル位置
+  static curPos = {x:0, y:0};
+  static selectedPos = {x:0, y:0}; // モーダル内で一時保持する選択位置（位置アイコン配置座標）
+  static isDraggingMap = false;   // 全体マップのドラッグ中フラグ
+  static isHoveringMap = false;   // 全体マップ上のホバー判定フラグ
+  static isHoveringZoom = false;  // 拡大プレビュー上のホバー判定フラグ
+  static activeKeys = new Set();  // 押下中のキー状態
+
+  // 点滅アニメーション管理
+  static blinkTimer = null;
+  static blinkState = false;
+  static specialPoints = [];      // 点滅マーカー座標リスト: [{x, y, type}]
+  static baseMapImageData = null; // 地形ベースマップのキャッシュImageData
+  static debugHighlightTileId = null;  // デバッグ点滅対象タイルID（クリック中のみ保持）
+  static debugHighlightPoints = null;  // デバッグ点滅対象タイルの座標リスト
+
+  // 点滅カラーテーブル (黒 → 赤 → 橙 → 黄 → 橙 → 赤 → 黒)
+  static BLINK_CYCLE = [
+    '#000000', // Step 0: 黒
+    '#880000', // Step 1: 暗赤
+    '#E40010', // Step 2: 赤
+    '#F87800', // Step 3: オレンジ
+    '#FFFF00', // Step 4: 黄色
+    '#F87800', // Step 5: オレンジ
+    '#E40010', // Step 6: 赤
+    '#880000'  // Step 7: 暗赤
+  ];
+  static blinkStep = 0;
+  static currentMode = 'mix'; // 'preset' | 'rom' | 'mix' | 'check'
+
+  // 地形名
+  static TILE_TYPE_NAMES = {
+    water:  '海・川',
+    plains: '平地',
+    forest: '森林',
+    wall:   '山・壁',
+    desert: '砂漠',
+  }
+
+  // （埋め込み）地形マスターテーブル (128タイル)
+  static PRESET_TILE_TYPES = {
+    // 海（海洋戦闘 d1=0x42 かつ 船可 !(d0 & 0x04)）
+    0x07: 'water', 0x16: 'water', 0x17: 'water', 0x18: 'water', 0x27: 'water',
+
+    // 川（河川戦闘 d1=0x41 かつ カヌー可 !(d0 & 0x02)）
+    0x40: 'water', 0x41: 'water', 0x44: 'water', 0x50: 'water', 0x51: 'water',
+
+    // 森林（森林フラグ d0 & 0x10 !== 0 および樹木パーツ）
+    //0x03: 'forest', 0x04: 'forest', 0x05: 'forest',
+    //0x13: 'forest', 0x14: 'forest', 0x15: 'forest',
+    //0x23: 'forest', 0x24: 'forest', 0x25: 'forest',
+    0x03: 'plains', 0x04: 'forest', 0x05: 'plains',
+    0x13: 'plains', 0x14: 'forest', 0x15: 'plains',
+    0x23: 'plains', 0x24: 'plains', 0x25: 'plains',
+
+
+    // 砂漠（パレット1 $27/$37 が割り当てられている砂漠タイル群）
+    0x1D: 'desert',
+    0x36: 'desert', 0x37: 'desert',
+    0x42: 'desert', 0x43: 'desert', 0x45: 'desert',
+    0x52: 'desert', 0x53: 'desert',
+
+    // 山岳・壁（進入不可 d0=0x0F の山・壁パーツ群: 灰色 $10）
+    0x09: 'wall', 0x0A: 'wall', 0x0B: 'wall', 0x0C: 'wall', 0x0D: 'wall',
+    0x10: 'wall', 0x11: 'wall', 0x12: 'wall',
+    0x20: 'wall', 0x21: 'wall', 0x22: 'wall', 0x2C: 'wall', 0x2D: 'wall', 0x2E: 'wall',
+    0x30: 'wall', 0x31: 'wall', 0x33: 'wall',
+    0x3E: 'wall',
+    0x19: 'wall', 0x1A: 'wall', 0x3C: 'wall',
+    0x47: 'wall', 0x48: 'wall', 0x4B: 'wall', 0x4F: 'wall',
+    0x5B: 'wall', 0x5C: 'wall', 0x5E: 'wall', 0x5F: 'wall',
+    0x6B: 'wall', 0x6F: 'wall',
+    0x7B: 'wall', 0x7C: 'wall', 0x7D: 'wall', 0x7E: 'wall', 0x7F: 'wall'
+
+    // ※上記以外のすべてのタイル(海岸線、砂漠境界、岩山境界、平原等)は、
+    //   平原緑 'plains' (黄緑 $2A) として描画。
+  };
+
+  // 地形ベースカラー (NESパレットコード)
+  static TYPE_COLORS = {
+    water:  0x12, // 濃青 (海・川)
+    plains: 0x2A, // 黄緑 (草原・海岸線・各境界パーツ・陸地全般)
+    forest: 0x1A, // 深緑 (森林)
+    wall:   0x10, // 灰色 (山岳・岩肌: 実機カラー $10)
+    desert: 0x38  // 薄黄・ベージュ (砂漠)
+  };
+
+  // 点滅表示対象タイルID (マップ移動ポイント)
+  static FLASH_TILE_IDS = new Set([
+    0x01, 0x02, 0x0E,
+    0x1B, 0x1C, 0x1D,
+    0x29, 0x2A, 0x2B, 0x2F,
+    0x32, 0x34, 0x35, 0x36, 0x38, 0x39, 0x3A,
+    0x46, 0x49, 0x4A, 0x4C, 0x4D, 0x4E,
+    0x57, 0x58, 0x5A, 0x5D,
+    0x66, 0x67, 0x68, 0x69, 0x6A, 0x6C, 0x6D, 0x6E,
+    0x74, 0x75
+  ]);
+
+    /**
+   *  ROMからの点滅対象タイル判定
+   */
+  static isFlashTileFromRom(rom, prgStart, tileId) {
+    const offset = prgStart + this.TILE_ATTRIBUTE_TABLE + (tileId * 2);
+    const d0 = rom[offset];
+    const d1 = rom[offset + 1];
+
+    // テレポート進入マス (d1 & 0x80)
+    if ((d1 & 0x80) !== 0) return true;
+
+    // オアシス入口(キャラバン: d0の上位2ビットが 0x80)
+    if ((d0 & 0xC0) === 0x80) return true;
+
+    return false;
+  }
+
+  /**
+   * ROMのタイル属性およびパレット割り当てから地形タイプを動的に判定
+   */
+  static evaluateTileFromRom(rom, prgStart, tileId) {
+    const tileDataOffset = prgStart + this.TILE_ATTRIBUTE_TABLE;
+    const palAssignOffset = prgStart + this.TILE_PALETTE_ASSIGNMENT_TABLE;
+
+    if (tileDataOffset + 256 > rom.length || palAssignOffset + 128 > rom.length) {
+      return this.PRESET_TILE_TYPES[tileId] || 'plains';
+    }
+
+    const d0 = rom[tileDataOffset + (tileId * 2)];
+    const d1 = rom[tileDataOffset + (tileId * 2) + 1];
+    const pal = rom[palAssignOffset + tileId] & 0x03;
+
+    // 海洋戦闘かつ船進入可 -> 海
+    if ((d1 & 0x43) === 0x42 && (d0 & 0x04) === 0) return 'water';
+    // 河川戦闘かつカヌー進入可 -> 川
+    if ((d1 & 0x43) === 0x41 && (d0 & 0x02) === 0) return 'water';
+
+    // 森林フラグ
+    if ((d0 & 0x10) !== 0) return 'forest';
+
+    // パレット1 ($27/$37) かつ 通常戦闘または特殊イベント -> 砂漠
+    if (pal === 1 && (((d1 & 0x40) !== 0) || ((d0 & 0xC0) !== 0))) return 'desert';
+
+    // 完全進入不可 かつ 非テレポート -> 山岳・壁
+    if (d0 === 0x0F && (d1 & 0x80) === 0) return 'wall';
+
+    // 上記以外は陸地境界・平原
+    return 'plains';
+  }
+
+  /**
+   * 現在の判定モードに応じた点滅対象タイル判定
+   */
+  static isFlashTile(tileId) {
+    if (this.currentMode === 'preset') {
+      return this.FLASH_TILE_IDS.has(tileId);
+    }
+
+    if (nesRom) {
+      const prgStart = GameDataManager.getPrgStartOffset(nesRom);
+      const romFlash = this.isFlashTileFromRom(nesRom, prgStart, tileId);
+
+      if (this.currentMode === 'rom') return romFlash;
+
+      // mix または check モード: どちらかが有効
+      return romFlash || (this.FLASH_TILE_IDS.has(tileId));
+    }
+
+    return this.FLASH_TILE_IDS.has(tileId);
+  }
+
+  /**
+   * タイル属性から下半身クリッピング（森林・深草）対象かを判定
+   * 実機仕様: data[0] ビット4 (0x10) が立っている場合に下半身スプライトの描画を抑止
+   */
+  static isForestTile(tileId) {
+    if (nesRom) {
+      const prgStart = GameDataManager.getPrgStartOffset(nesRom);
+      const offset = prgStart + this.TILE_ATTRIBUTE_TABLE + (tileId * 2);
+      if (offset < nesRom.length) {
+        return (nesRom[offset] & 0x10) !== 0;
+      }
+    }
+    return this.PRESET_TILE_TYPES[tileId] === 'forest';
+  }
+
+  /**
+   * 現在の判定モードに応じたタイルの地形タイプを取得
+   */
+  static getTileType(tileId) {
+    if (this.currentMode === 'preset') {
+      return this.PRESET_TILE_TYPES[tileId] || 'plains';
+    }
+
+    if (nesRom) {
+      const prgStart = GameDataManager.getPrgStartOffset(nesRom);
+      const romType = this.evaluateTileFromRom(nesRom, prgStart, tileId);
+
+      if (this.currentMode === 'rom') return romType;
+      // mix または check モード: 壁や森以外はROMデータ優先
+      if (this.PRESET_TILE_TYPES[tileId] === 'forest' && romType === 'plains') return 'forest';
+      if (this.PRESET_TILE_TYPES[tileId] === 'desert' && romType === 'plains') return 'desert';
+      return romType;
+    }
+
+    return this.PRESET_TILE_TYPES[tileId] || 'plains';
+  }
+
+  /**
+   * ROMデータからワールドマップデータ展開取得、キャラクタパターン、パレット取得
+   * @param {Uint8Array} rom 
+   */
+  static loadFromROM(rom) {
+    if (!rom || rom.length < 0x8000) return;
+    const prgStart = GameDataManager.getPrgStartOffset(rom);
+    const chrOffset = prgStart + this.currentChrOffset;
+
+    // ワールドマップ行ポインタテーブルから256行のRLE圧縮データを展開
+    this.mapData = new Uint8Array(256 * 256);
+    for (let y = 0; y < 256; y++) {
+      const pIdx = prgStart + this.MAP_LINEPTR_TABLE + (y * 2);
+      const ptr = rom[pIdx] | (rom[pIdx + 1] << 8);
+      let readOffset = prgStart + (ptr + this.MAP_LINEPTR_OFFSET);
+
+      let x = 0;
+      while (x < 256 && readOffset < rom.length) {
+        const b = rom[readOffset++];
+        if (b === 0xFF) {
+          // 行末終端: 残り行を海(0x00)で埋める
+          while (x < 256) {
+            this.mapData[y * 256 + x++] = 0x00;
+          }
+          break;
+        }
+        if ((b & 0x80) === 0) {
+          this.mapData[y * 256 + x++] = b;
+        } else {
+          const tileId = b & 0x7F;
+          const countByte = rom[readOffset++];
+          const count = (countByte === 0) ? 256 : countByte;
+          for (let i = 0; i < count && x < 256; i++) {
+            this.mapData[y * 256 + x++] = tileId;
+          }
+        }
+      }
+    }
+
+    // ROM内タイル割り当てテーブル、キャラクタパターン、パレットから各16x16タイルを合成
+    this.decodeMetatiles(rom, prgStart, chrOffset);
+    this.decodeSprites(rom, prgStart);
+    this.renderFullWorldMap();
+    this.renderDebugChrCanvas();
+    this.renderDebugMetaCanvas();
+    this.updateCursorInfo(this.curPos.x, this.curPos.y);
+    this.initialized = true;
+  }
+
+  /**
+   * ROM内スプライトグラフィックおよびパレットを展開してImageDataキャッシュを構築
+   */
+  static decodeSprites(rom, prgStart) {
+    this.sprites.clear();
+    const nesPalette = NES_PALETTE;
+    const palDataOffset = prgStart + this.PALETTE_RABLE;
+
+    // スプライトパレット定義 (PRG $0390〜$039F: 4色×4パレット)
+    // 実機PPU仕様: 各スプライトパレットの先頭(色0)は透明
+    const sprPalOffset = palDataOffset + 0x10;
+    const getSpritePal = (palIndex) => {
+      const base = sprPalOffset + (palIndex * 4);
+      return [
+        [0, 0, 0, 0], // 透明
+        nesPalette[rom[base + 1] & 0x3F],
+        nesPalette[rom[base + 2] & 0x3F],
+        nesPalette[rom[base + 3] & 0x3F]
+      ];
+    };
+
+    const palSpr0 = getSpritePal(0);
+    const palSpr1 = getSpritePal(1);
+    const palSpr2 = getSpritePal(2);
+    const palSpr3 = getSpritePal(3);
+
+    // プレイヤー専用パレット置換 (PRG $03A0: MAPMANPALETTE_OFFSET)
+    const mapManPalOffset = prgStart + this.MAPMANPALETTE_OFFSET;
+    if (mapManPalOffset + 2 <= rom.length) {
+      palSpr0[2] = nesPalette[rom[mapManPalOffset + 0] & 0x3F];
+      palSpr1[2] = nesPalette[rom[mapManPalOffset + 1] & 0x3F];
+    }
+
+    const decode16x16Sprite = (offset, palTop, palBottom) => {
+      const img = new ImageData(16, 16);
+      const decodeQuarter = (chrOffset, startX, startY, pal) => {
+        if (chrOffset + 16 > rom.length) return;
+        for (let y = 0; y < 8; y++) {
+          const p0 = rom[chrOffset + y];
+          const p1 = rom[chrOffset + y + 8];
+          for (let x = 0; x < 8; x++) {
+            const bit = 7 - x;
+            const colorIdx = ((p0 >> bit) & 1) | (((p1 >> bit) & 1) << 1);
+            const p = ((startY + y) * 16 + (startX + x)) * 4;
+            if (colorIdx === 0) {
+              img.data[p + 3] = 0;
+            } else {
+              const rgb = pal[colorIdx];
+              img.data[p + 0] = rgb[0];
+              img.data[p + 1] = rgb[1];
+              img.data[p + 2] = rgb[2];
+              img.data[p + 3] = 255;
+            }
+          }
+        }
+      };
+      // 左上・右上（上半身）
+      decodeQuarter(offset + 0,  0, 0, palTop);
+      decodeQuarter(offset + 16, 8, 0, palTop);
+      // 左下・右下（下半身）
+      decodeQuarter(offset + 32, 0, 8, palBottom || palTop);
+      decodeQuarter(offset + 48, 8, 8, palBottom || palTop);
+      return img;
+    };
+
+    // 各スプライトのデコード
+    // プレイヤー: 上半身パレット0 / 下半身パレット1
+    this.sprites.set('player',  decode16x16Sprite(prgStart + this.MAPMANGRAPHIC_OFFSET, palSpr0, palSpr1));
+    // 橋: パレット3
+    this.sprites.set('bridge',  decode16x16Sprite(prgStart + this.BRIDGEGRAPHIC_OFFSET, palSpr3, palSpr3));
+    // 運河: パレット3
+    this.sprites.set('canal',   decode16x16Sprite(prgStart + this.CANALGRAPHIC_OFFSET, palSpr3, palSpr3));
+    // 船: パレット2
+    this.sprites.set('ship',    decode16x16Sprite(prgStart + this.SHIPGRAPHIC_OFFSET, palSpr2, palSpr2));
+    // 飛空艇: パレット2
+    this.sprites.set('airship', decode16x16Sprite(prgStart + this.AIRSHIPGRAPHIC_OFFSET, palSpr2, palSpr2));
+    // カヌー: パレット2
+    this.sprites.set('canoe', decode16x16Sprite(prgStart + this.CANOEGRAPHIC_OFFSET, palSpr2, palSpr2));
+    // 飛空艇影: パレット0
+    this.sprites.set('airship_shadow', decode16x16Sprite(prgStart + this.AIRSHIPSHADOWGRAPHIC_OFFSET, palSpr0, palSpr0));
+  }
+
+  /**
+   * 4つの8x8 CHRキャラクタ（左上・右上・左下・右下）とROM内パレットを合成して16x16タイルを復元
+   * 6502CPU向けプレーン構造: 128バイト単位のプレーン配置 (UL: +0, UR: +128, LL: +256, LR: +384)
+   * パレット属性: TILE_PALETTE_ASSIGNMENT_TABLE (0x0300) から取得し、PALETTE_RABLE (0x0380) のパレットを適用
+   */
+  static decodeMetatiles(rom, prgStart, chrBase) {
+    this.metatile16Bitmaps.clear();
+    const nesPalette = NES_PALETTE;
+    const metaTableOffset = prgStart + this.currentMetaTableOffset;
+    const palAssignOffset = prgStart + this.TILE_PALETTE_ASSIGNMENT_TABLE;
+    const palDataOffset = prgStart + this.PALETTE_RABLE;
+
+    // パレット共通背景色 (PPU仕様準拠: PALETTE_RABLE + 0x10)
+    const commonBgColor = (palDataOffset + 0x10 < rom.length) ? rom[palDataOffset + 0x10] : 0x0F;
+
+    for (let tileId = 0; tileId < 128; tileId++) {
+      let tl, tr, bl, br;
+
+      if (metaTableOffset + 512 <= rom.length) {
+        // 128バイトプレーン構造 (左上、右上、左下、右下の順)
+        tl = rom[metaTableOffset + 0 + tileId];
+        tr = rom[metaTableOffset + 128 + tileId];
+        bl = rom[metaTableOffset + 256 + tileId];
+        br = rom[metaTableOffset + 384 + tileId];
+      } else {
+        tl = tileId; tr = tileId; bl = tileId; br = tileId;
+      }
+
+      // パレットセット番号の抽出 (0, 4, 8, 12)
+      let usepalette = 0;
+      if (palAssignOffset + tileId < rom.length) {
+        usepalette = (rom[palAssignOffset + tileId] & 0x03) << 2;
+      }
+
+      // ROM内パレットデータ(4色1セット)の構築 (色0は共通背景色で置換)
+      const rgbPal = [
+        nesPalette[commonBgColor & 0x3F],
+        nesPalette[((palDataOffset + usepalette + 1 < rom.length) ? rom[palDataOffset + usepalette + 1] : 0x00) & 0x3F],
+        nesPalette[((palDataOffset + usepalette + 2 < rom.length) ? rom[palDataOffset + usepalette + 2] : 0x10) & 0x3F],
+        nesPalette[((palDataOffset + usepalette + 3 < rom.length) ? rom[palDataOffset + usepalette + 3] : 0x30) & 0x3F]
+      ];
+
+      const bmp16 = new Uint8Array(16 * 16 * 3);
+
+      // 8x8 CHR (2bpp, 16バイト) を描画バッファへ転送
+      const renderSub8x8 = (chrIndex, startX, startY) => {
+        const offset = chrBase + (chrIndex * 16);
+        if (offset + 16 <= rom.length) {
+          for (let y = 0; y < 8; y++) {
+            const p0 = rom[offset + y];
+            const p1 = rom[offset + y + 8];
+            for (let x = 0; x < 8; x++) {
+              const bit = 7 - x;
+              const colorIdx = ((p0 >> bit) & 1) | (((p1 >> bit) & 1) << 1);
+              const rgb = rgbPal[colorIdx];
+              const p = ((startY + y) * 16 + (startX + x)) * 3;
+              bmp16[p + 0] = rgb[0];
+              bmp16[p + 1] = rgb[1];
+              bmp16[p + 2] = rgb[2];
+            }
+          }
+        }
+      };
+
+      // 16x16タイル（左上・右上・左下・右下）の描画
+      renderSub8x8(tl, 0, 0); // 左上 (8x8)
+      renderSub8x8(tr, 8, 0); // 右上 (8x8)
+      renderSub8x8(bl, 0, 8); // 左下 (8x8)
+      renderSub8x8(br, 8, 8); // 右下 (8x8)
+
+      this.metatile16Bitmaps.set(tileId, bmp16);
+    }
+  }
+
+  /**
+   * 256x256タイル全体の地形ベースマップをレンダリングし、点滅マーカー座標を抽出
+   */
+  static renderFullWorldMap() {
+    const canvas = document.getElementById('worldMapCanvas');
+    if (!canvas || !this.mapData) return;
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.createImageData(256, 256);
+    const nesPalette = NES_PALETTE;
+
+    this.specialPoints = [];
+
+    // 地形ベースカラーで256x256ピクセルを描画
+    for (let y = 0; y < 256; y++) {
+      for (let x = 0; x < 256; x++) {
+        const tileId = this.mapData[y * 256 + x];
+        const idx = (y * 256 + x) * 4;
+
+        // モードに応じた純粋な地形ベースタイプの判定
+        let type = this.getTileType(tileId);
+
+        // イベントフラグによる地形変化（橋の架橋および運河開通）をミニマップに反映
+        const isBridgeBuilt = document.getElementById('bridgeFlag') ? document.getElementById('bridgeFlag').checked : false;
+        const isCanalOpen = document.getElementById('nitroFlag') ? document.getElementById('nitroFlag').checked : false;
+
+        if (x === this.COORD_BRIDGE.x && y === this.COORD_BRIDGE.y) {
+          type = isBridgeBuilt ? 'plains' : 'water'; // 架橋時は平原陸地、未架橋時は海
+        } else if (x === this.COORD_CANAL.x && y === this.COORD_CANAL.y) {
+          type = isCanalOpen ? 'water' : 'wall';     // 開通時は水路(海)、封鎖時は山・壁
+        }
+
+        const colIdx = this.TYPE_COLORS[type];
+        const rgb = nesPalette[colIdx & 0x3F];
+
+        imgData.data[idx + 0] = rgb[0];
+        imgData.data[idx + 1] = rgb[1];
+        imgData.data[idx + 2] = rgb[2];
+        imgData.data[idx + 3] = 255;
+
+        // 点滅対象IDに該当する座標をインジケータリストへ登録
+        if (this.isFlashTile(tileId)) {
+          this.specialPoints.push({ x, y, tileId });
+        }
+      }
+    }
+
+    // 地形ベースマップをキャッシュしてCanvasへ描画
+    this.baseMapImageData = imgData;
+    ctx.putImageData(this.baseMapImageData, 0, 0);
+
+    // 点滅マーカーを描画
+    this.renderSpecialPoints();
+  }
+
+  /**
+   * 地形ベースマップの上に段階的パルス点滅マーカーを描画
+   * 黒(消灯)を挟むことで強烈な輝度差を生み出す
+   * タイル一覧クリック中は指定タイルIDのみを点滅させ、通常マーカーは一時抑止する
+   */
+  static renderSpecialPoints() {
+    const canvas = document.getElementById('worldMapCanvas');
+    if (!canvas || !this.baseMapImageData) return;
+    const ctx = canvas.getContext('2d');
+
+    // キャッシュされた地形ベースマップを復元
+    ctx.putImageData(this.baseMapImageData, 0, 0);
+
+    // デバッグタイル調査（マウスプレス中）は背景全体を50%減光して点滅タイルの視認性を向上
+    if (this.debugHighlightTileId !== null) {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+      ctx.fillRect(0, 0, 256, 256);
+    }
+
+    // デバッグ指定タイルがあればそちらを優先、なければ従来の点滅対象を使用
+    const points = (this.debugHighlightTileId !== null) ? this.debugHighlightPoints : this.specialPoints;
+    if (!points || points.length === 0) return;
+
+    // 点滅カラーテーブル (黒・赤・橙・黄・橙・赤・黒)
+    const color = this.BLINK_CYCLE[this.blinkStep];
+    ctx.fillStyle = color;
+
+    for (let i = 0; i < points.length; i++) {
+      const pt = points[i];
+      ctx.fillRect(pt.x, pt.y, 1, 1);
+    }
+
+    // ミニマップ十字カーソルの描画
+    // ホバー中はパルス点滅、マップ範囲外へカーソルが外れた際は固定色（白）で現在地を維持表示
+    this.renderCrosshair(ctx);
+  }
+
+  /**
+   * ミニマップ上の指定位置に十字カーソル（＋）を描画
+   * ドラッグ中やデバッグタイル調査（長押し）中は描画を抑止
+   */
+  static renderCrosshair(ctx) {
+    if (this.isDraggingMap || this.debugHighlightTileId !== null) return;
+    if (this.curPos.x === undefined || this.curPos.y === undefined) return;
+    const cx = this.curPos.x;
+    const cy = this.curPos.y;
+
+    ctx.strokeStyle = "#ffffff";
+    const arm = 4; // 十字の腕の長さ (4ドット)
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    // 横アーム
+    ctx.moveTo(cx - arm, cy + 0.5);
+    ctx.lineTo(cx + arm + 1, cy + 0.5);
+    // 縦アーム
+    ctx.moveTo(cx + 0.5, cy - arm);
+    ctx.lineTo(cx + 0.5, cy + arm + 1);
+    ctx.stroke();
+  }
+
+  /**
+   * 点滅タイマーの開始 (120ms周期)
+   * 街マーカーの点滅とともに、飛空艇搭乗時の浮遊アニメーションもリアルタイム更新
+   */
+  static startBlinkTimer() {
+    this.stopBlinkTimer();
+    this.blinkStep = 0;
+    this.blinkTimer = setInterval(() => {
+      this.blinkStep = (this.blinkStep + 1) % this.BLINK_CYCLE.length;
+      this.renderSpecialPoints();
+      this.renderZoomPreview(this.curPos.x, this.curPos.y);
+    }, 120);
+  }
+
+  /**
+   * マップ判定モード変更イベントハンドラ
+   */
+  static onModeChange() {
+    const modeSelect = document.getElementById('debugMapMode');
+    if (modeSelect) {
+      this.currentMode = modeSelect.value;
+    }
+    this.renderFullWorldMap();
+    this.renderDebugMetaCanvas();
+
+    this.updateCursorInfo(this.curPos.x, this.curPos.y);
+  }
+
+  /**
+   * 点滅タイマーの停止
+   */
+  static stopBlinkTimer() {
+    if (this.blinkTimer !== null) {
+      clearInterval(this.blinkTimer);
+      this.blinkTimer = null;
+    }
+  }
+
+  /**
+   * マップ指定モーダルを開く
+   * @param {'player'|'ship'|'airship'} target 
+   */
+  static open(target) {
+    this.currentTarget = target;
+    const modal = document.getElementById('mapModal');
+    if (!modal) return;
+
+    if (!this.initialized && nesRom) {
+      this.loadFromROM(nesRom);
+    }
+
+    const curX = parseInt(document.getElementById(target + 'X').value, 10) || 0;
+    const curY = parseInt(document.getElementById(target + 'Y').value, 10) || 0;
+    this.selectedPos.x = curX;
+    this.selectedPos.y = curY;
+    this.curPos.x = curX;
+    this.curPos.y = curY;
+    this.isDraggingMap = false;
+    this.isHoveringMap = false;
+    this.isHoveringZoom = false;
+    this.activeKeys.clear();
+
+    // 現在の橋・運河フラグを反映してミニマップ（全体図）を最新化
+    this.renderFullWorldMap();
+    this.updateCursorInfo(this.curPos.x, this.curPos.y);
+
+    const targetNames = { player: "プレイヤー位置", ship: "船の現在地", airship: "飛空艇の現在地" };
+    const titleEl = document.getElementById('mapModalTitle');
+    if (titleEl) {
+      titleEl.textContent = `📚 ワールドマップ位置指定 （${targetNames[target] || "プレイヤー位置"}）`;
+    }
+
+    this.updateMarkerPositions();
+    modal.classList.add('open');
+    this.startBlinkTimer();
+  }
+
+  static close() {
+    this.stopBlinkTimer();
+    this.isDraggingMap = false;
+    this.isHoveringMap = false;
+    this.isHoveringZoom = false;
+    this.activeKeys.clear();
+    const modal = document.getElementById('mapModal');
+    if (modal) modal.classList.remove('open');
+  }
+
+  /**
+   * 決定ボタン押下時：一時保持していた選択位置を入力欄へ反映して閉じる
+   */
+  static commit() {
+    document.getElementById(this.currentTarget + 'X').value = this.selectedPos.x;
+    document.getElementById(this.currentTarget + 'Y').value = this.selectedPos.y;
+    this.updateMarkerPositions();
+    this.close();
+  }
+
+  /**
+   * キャンセル時：親画面の入力欄からマーカー位置を復旧して閉じる
+   */
+  static cancel() {
+    this.selectedPos.x = parseInt(document.getElementById(this.currentTarget + 'X').value, 10) || 0;
+    this.selectedPos.y = parseInt(document.getElementById(this.currentTarget + 'Y').value, 10) || 0;
+    this.updateMarkerPositions();
+    this.close();
+  }
+
+  static onBackdropClick(e) {
+    if (e.target.id === 'mapModal') this.close();
+  }
+
+  static onLoadSavFile() {
+    const modal = document.getElementById('mapModal');
+    if (!modal) return;
+    this.updateMarkerPositions();
+  }
+
+  /**
+   * マーカーアイコンの位置を更新（操作中の対象は一時保持座標 selectedPos を反映）
+   */
+  static updateMarkerPositions() {
+    const setPos = (markerId, xId, yId, targetKey) => {
+      const el = document.getElementById(markerId);
+      let x, y;
+      if (this.currentTarget === targetKey && this.selectedPos) {
+        x = this.selectedPos.x;
+        y = this.selectedPos.y;
+      } else {
+        x = parseInt(document.getElementById(xId).value, 10) || 0;
+        y = parseInt(document.getElementById(yId).value, 10) || 0;
+      }
+      if (el) {
+        el.style.left = `${(x / 256) * 100}%`;
+        el.style.top = `${(y / 256) * 100}%`;
+      }
+    };
+    setPos('markerPlayer', 'playerX', 'playerY', 'player');
+    setPos('markerShip', 'shipX', 'shipY', 'ship');
+    setPos('markerAirship', 'airshipX', 'airshipY', 'airship');
+  }
+
+  /**
+   * 全体マップ マウスボタン押下時：カーソル移動およびドラッグ開始
+   */
+  static onCanvasMouseDown(e) {
+    if (e.button === 1) { // ホイールボタンクリック（中クリック：ブラウザスクロール抑止＆マーカー復帰）
+      e.preventDefault();
+      this.resetToMarkerPos();
+      return;
+    }
+    if (e.button !== 0) return; // 左クリック以外は無視
+    this.isDraggingMap = true;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cx = Math.max(0, Math.min(255, Math.floor(((e.clientX - rect.left) / rect.width) * 256)));
+    const cy = Math.max(0, Math.min(255, Math.floor(((e.clientY - rect.top) / rect.height) * 256)));
+
+    this.curPos.x = cx;
+    this.curPos.y = cy;
+    this.updateCursorInfo(cx, cy);
+    this.renderSpecialPoints();
+  }
+
+  static onCanvasEnter(e) {
+    this.isHoveringMap = true;
+  }
+
+  static onCanvasLeave(e) {
+    this.isHoveringMap = false;
+    this.activeKeys.clear();
+  }
+
+  /**
+   * 全体マップ マウス移動時：ドラッグ中のみカーソルを追従
+   */
+  static onCanvasMouseMove(e) {
+    if (!this.isDraggingMap && (e.buttons & 1) === 0) return;
+    this.isDraggingMap = true;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cx = Math.max(0, Math.min(255, Math.floor(((e.clientX - rect.left) / rect.width) * 256)));
+    const cy = Math.max(0, Math.min(255, Math.floor(((e.clientY - rect.top) / rect.height) * 256)));
+
+    this.curPos.x = cx;
+    this.curPos.y = cy;
+    this.updateCursorInfo(cx, cy);
+    this.renderSpecialPoints();
+  }
+
+  /**
+   * 全体マップ ダブルクリック時：指定位置へ位置アイコンを配置
+   */
+  static onCanvasDblClick(e) {
+    if (e.button !== 0) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cx = Math.max(0, Math.min(255, Math.floor(((e.clientX - rect.left) / rect.width) * 256)));
+    const cy = Math.max(0, Math.min(255, Math.floor(((e.clientY - rect.top) / rect.height) * 256)));
+
+    this.selectedPos.x = cx;
+    this.selectedPos.y = cy;
+    this.curPos.x = cx;
+    this.curPos.y = cy;
+    this.updateMarkerPositions();
+    this.updateCursorInfo(cx, cy);
+    this.renderSpecialPoints();
+  }
+
+  /**
+   * 周辺拡大プレビュー(15x15タイル)クリック時の処理
+   * 中央タイル(0, 0)クリックで位置アイコンを現在地に仮確定、周辺クリックでカーソル移動（探索）
+   */
+  static onZoomCanvasClick(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = Math.max(0, Math.min(239, Math.floor(((e.clientX - rect.left) / rect.width) * 240)));
+    const py = Math.max(0, Math.min(239, Math.floor(((e.clientY - rect.top) / rect.height) * 240)));
+
+    // クリック位置のタイル相対座標 (-7 〜 +7)
+    const mx = Math.floor(px / 16) - 7;
+    const my = Math.floor(py / 16) - 7;
+
+    if (mx === 0 && my === 0) {
+      // 中央タイルクリック：現在見ているカーソル位置に位置アイコンを移動
+      this.selectedPos.x = this.curPos.x;
+      this.selectedPos.y = this.curPos.y;
+      this.updateMarkerPositions();
+      this.renderZoomPreview(this.curPos.x, this.curPos.y);
+    } else {
+      // 周辺タイルクリック：カーソル位置のみを移動（周辺探索）
+      const nx = (this.curPos.x + mx + 256) % 256;
+      const ny = (this.curPos.y + my + 256) % 256;
+
+      this.curPos.x = nx;
+      this.curPos.y = ny;
+      this.updateCursorInfo(nx, ny);
+      this.renderSpecialPoints();
+    }
+  }
+
+  static onZoomCanvasEnter(e) {
+    this.isHoveringZoom = true;
+  }
+
+  static onZoomCanvasLeave(e) {
+    this.isHoveringZoom = false;
+    this.activeKeys.clear();
+  }
+
+  static onZoomCanvasMouseDown(e) {
+    if (e.button === 1) { // ホイールボタンクリック（中クリック）
+      e.preventDefault();
+      this.resetToMarkerPos();
+    }
+  }
+
+  /**
+   * 一時保持している選択位置（位置アイコンの場所）へカーソルを復帰
+   */
+  static resetToMarkerPos() {
+    this.curPos.x = this.selectedPos.x;
+    this.curPos.y = this.selectedPos.y;
+    this.updateCursorInfo(this.curPos.x, this.curPos.y);
+    this.renderSpecialPoints();
+  }
+
+  /**
+   * キーボードによるカーソル移動および復帰操作の処理
+   */
+  static handleKeyDown(e) {
+    const modal = document.getElementById('mapModal');
+    if (!modal || !modal.classList.contains('open')) return;
+
+    // 全体マップまたは拡大プレビュー上にカーソルがある時のみ受付
+    if (!this.isHoveringZoom && !this.isHoveringMap) return;
+
+    // 位置アイコン配置キー判定（中央タイルクリックと同等：SPACE, ENTER, テンキーENTER）
+    if (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter') {
+      e.preventDefault();
+      this.selectedPos.x = this.curPos.x;
+      this.selectedPos.y = this.curPos.y;
+      this.updateMarkerPositions();
+      this.renderZoomPreview(this.curPos.x, this.curPos.y);
+      return;
+    }
+
+    // 復帰キー判定（テンキー5, H, HOME）
+    if (e.code === 'Numpad5' || e.code === 'KeyH' || e.code === 'Home') {
+      e.preventDefault();
+      this.resetToMarkerPos();
+      return;
+    }
+
+    // 上下左右キー判定（8/2/4/6とカーソルキーのみ。7/9/1/3は除外）
+    const isUp = (e.code === 'ArrowUp' || e.code === 'Numpad8');
+    const isDown = (e.code === 'ArrowDown' || e.code === 'Numpad2');
+    const isLeft = (e.code === 'ArrowLeft' || e.code === 'Numpad4');
+    const isRight = (e.code === 'ArrowRight' || e.code === 'Numpad6');
+
+    if (isUp || isDown || isLeft || isRight) {
+      e.preventDefault();
+      this.activeKeys.add(e.code);
+
+      // 同時押し状態から方向ベクトルを合成（斜め移動対応）
+      let dx = 0;
+      let dy = 0;
+      if (this.activeKeys.has('ArrowUp') || this.activeKeys.has('Numpad8')) dy -= 1;
+      if (this.activeKeys.has('ArrowDown') || this.activeKeys.has('Numpad2')) dy += 1;
+      if (this.activeKeys.has('ArrowLeft') || this.activeKeys.has('Numpad4')) dx -= 1;
+      if (this.activeKeys.has('ArrowRight') || this.activeKeys.has('Numpad6')) dx += 1;
+
+      if (dx !== 0 || dy !== 0) {
+        const step = e.shiftKey ? 5 : 1;
+        const nx = (this.curPos.x + (dx * step) + 256) % 256;
+        const ny = (this.curPos.y + (dy * step) + 256) % 256;
+        this.curPos.x = nx;
+        this.curPos.y = ny;
+        this.updateCursorInfo(nx, ny);
+        this.renderSpecialPoints();
+      }
+    }
+  }
+
+  static handleKeyUp(e) {
+    this.activeKeys.delete(e.code);
+  }
+
+  /**
+   * 周辺プレビューと地形属性名・タイルID表示
+   */
+  static updateCursorInfo(cx, cy) {
+    document.getElementById('hoverCoordsText').textContent = `X: ${cx} / Y: ${cy}`;
+
+    if (this.mapData) {
+      const tid = this.mapData[cy * 256 + cx];
+
+      // カーソル位置のタイルID更新
+      const tidEl = document.getElementById('hoverTileId');
+      if (tidEl) {
+        tidEl.textContent = `[$${tid.toString(16).toUpperCase().padStart(2, '0')}]`;
+      }
+
+      const tType = this.getTileType(tid);
+      const tName = this.TILE_TYPE_NAMES[tType] || `地形タイル $${tid.toString(16).toUpperCase().padStart(2, '0')}`;
+      document.getElementById('hoverTerrainText').textContent = tName;
+      this.renderZoomPreview(cx, cy);
+    }
+  }
+
+  /**
+   * 周辺15x15タイル（各16x16ピクセル、合計240x240ピクセル）を実寸描画
+   */
+  static renderZoomPreview(cx, cy) {
+    const zCanvas = document.getElementById('mapZoomCanvas');
+    if (!zCanvas || !this.mapData) return;
+    const ctx = zCanvas.getContext('2d');
+    const imgData = ctx.createImageData(240, 240);
+
+    for (let my = -7; my <= 7; my++) {
+      for (let mx = -7; mx <= 7; mx++) {
+        const tx = (cx + mx + 256) % 256;
+        const ty = (cy + my + 256) % 256;
+        const tid = this.mapData[ty * 256 + tx];
+        const bmp16 = this.metatile16Bitmaps.get(tid);
+
+        const startX = (mx + 7) * 16;
+        const startY = (my + 7) * 16;
+
+        if (bmp16) {
+          for (let py = 0; py < 16; py++) {
+            for (let px = 0; px < 16; px++) {
+              const srcIdx = (py * 16 + px) * 3;
+              const dstIdx = ((startY + py) * 240 + (startX + px)) * 4;
+              imgData.data[dstIdx + 0] = bmp16[srcIdx + 0];
+              imgData.data[dstIdx + 1] = bmp16[srcIdx + 1];
+              imgData.data[dstIdx + 2] = bmp16[srcIdx + 2];
+              imgData.data[dstIdx + 3] = 255;
+            }
+          }
+        }
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    // 周辺15x15タイル範囲内のスプライト重畳描画（操作中対象は selectedPos を参照）
+    const layout = SAVE_LAYOUTS[activePlatform];
+    const vMode = parseInt(document.getElementById('vehicleMode') ? document.getElementById('vehicleMode').value : '0', 10);
+
+    const getCoord = (targetKey, inputId) => {
+      if (this.currentTarget === targetKey && this.selectedPos) {
+        return targetKey.endsWith('X') ? this.selectedPos.x : this.selectedPos.y;
+      }
+      return Math.max(0, Math.min(255, parseInt(document.getElementById(inputId).value, 10) || 0));
+    };
+
+    const pX = (this.currentTarget === 'player' && this.selectedPos) ? this.selectedPos.x : Math.max(0, Math.min(255, parseInt(document.getElementById('playerX').value, 10) || 0));
+    const pY = (this.currentTarget === 'player' && this.selectedPos) ? this.selectedPos.y : Math.max(0, Math.min(255, parseInt(document.getElementById('playerY').value, 10) || 0));
+
+    const sFlag = document.getElementById('shipFlag') ? document.getElementById('shipFlag').checked : false;
+    const sX = (this.currentTarget === 'ship' && this.selectedPos) ? this.selectedPos.x : Math.max(0, Math.min(255, parseInt(document.getElementById('shipX').value, 10) || 0));
+    const sY = (this.currentTarget === 'ship' && this.selectedPos) ? this.selectedPos.y : Math.max(0, Math.min(255, parseInt(document.getElementById('shipY').value, 10) || 0));
+
+    const aFlag = document.getElementById('airshipFlag') ? document.getElementById('airshipFlag').checked : false;
+    const aX = (this.currentTarget === 'airship' && this.selectedPos) ? this.selectedPos.x : Math.max(0, Math.min(255, parseInt(document.getElementById('airshipX').value, 10) || 0));
+    const aY = (this.currentTarget === 'airship' && this.selectedPos) ? this.selectedPos.y : Math.max(0, Math.min(255, parseInt(document.getElementById('airshipY').value, 10) || 0));
+
+    const bFlag = document.getElementById('bridgeFlag') ? document.getElementById('bridgeFlag').checked : false;
+    const nFlag = document.getElementById('nitroFlag') ? document.getElementById('nitroFlag').checked : false;
+
+    // スプライト描画リスト（背景側から順に配置）
+    const spriteList = [];
+
+    // コーネリアの北の橋
+    if (bFlag) {
+      spriteList.push({ id: 'bridge', x: this.COORD_BRIDGE.x, y: this.COORD_BRIDGE.y });
+    }
+    // 運河（海峡）
+    if (nFlag) {
+      spriteList.push({ id: 'canal', x: this.COORD_CANAL.x, y: this.COORD_CANAL.y });
+    }
+    // 船 (非搭乗時、または船搭乗時)
+    if (sFlag && vMode !== layout.vehicleModeValue.ship) {
+      spriteList.push({ id: 'ship', x: sX, y: sY });
+    }
+    // 飛空艇 (非搭乗時、または飛空艇搭乗時)
+    if (aFlag && vMode !== layout.vehicleModeValue.airship) {
+      spriteList.push({ id: 'airship', x: aX, y: aY });
+    }
+    // プレイヤー（搭乗状態に応じたスプライト描画）
+    if (vMode === layout.vehicleModeValue.ship) {
+      spriteList.push({ id: 'ship', x: pX, y: pY });
+    } else if (vMode === layout.vehicleModeValue.canoe) {
+      spriteList.push({ id: 'canoe', x: pX, y: pY });
+    } else if (vMode === layout.vehicleModeValue.airship) {
+      // 飛空艇搭乗時: 地上に影を点滅表示し、本体は2タイル上で浮遊
+      if ((this.blinkStep % 2) === 0) {
+        spriteList.push({ id: 'airship_shadow', x: pX, y: pY });
+      }
+      spriteList.push({ id: 'airship_floating', x: pX, y: pY });
+    } else {
+      // 徒歩: 現在タイルが森林マスであれば下半身消去
+      const curTile = this.mapData[pY * 256 + pX];
+      const isSubmerged = this.isForestTile(curTile);
+      spriteList.push({ id: isSubmerged ? 'player_top_only' : 'player', x: pX, y: pY });
+    }
+
+    // オフスクリーンCanvasを利用した透過描画
+    if (!this._spriteCanvas) {
+      this._spriteCanvas = document.createElement('canvas');
+      this._spriteCanvas.width = 16;
+      this._spriteCanvas.height = 16;
+      this._spriteCtx = this._spriteCanvas.getContext('2d');
+    }
+    const sCtx = this._spriteCtx;
+
+    for (const spr of spriteList) {
+      // 15x15プレビュー範囲内（ラップアラウンド考慮）の相対位置計算
+      let dx = spr.x - cx;
+      let dy = spr.y - cy;
+      if (dx > 128) dx -= 256;
+      if (dx < -128) dx += 256;
+      if (dy > 128) dy -= 256;
+      if (dy < -128) dy += 256;
+
+      if (dx >= -7 && dx <= 7 && dy >= -7 && dy <= 7) {
+        const dstX = (dx + 7) * 16;
+        let dstY = (dy + 7) * 16;
+
+        const isTopOnly = (spr.id === 'player_top_only');
+        const isFloatingAirship = (spr.id === 'airship_floating');
+        let imgKey = spr.id;
+        if (isTopOnly) imgKey = 'player';
+        if (isFloatingAirship) imgKey = 'airship';
+
+        // 飛空艇本体は2タイル上(-32px)で浮遊ボビングアニメーション
+        if (isFloatingAirship) {
+          const bobOffsets = [0, -1, -2, -3, -2, -1, 0, 1];
+          const bob = bobOffsets[this.blinkStep % bobOffsets.length];
+          dstY = dstY - 32 + bob;
+        }
+
+        const sprImg = this.sprites.get(imgKey);
+        if (sprImg) {
+          sCtx.clearRect(0, 0, 16, 16);
+          sCtx.putImageData(sprImg, 0, 0);
+          if (isTopOnly) {
+            // 上半身（上8ドット）のみ描画（下半分はスキップ）
+            ctx.drawImage(this._spriteCanvas, 0, 0, 16, 8, dstX, dstY, 16, 8);
+          } else {
+            // 全身描画
+            ctx.drawImage(this._spriteCanvas, dstX, dstY);
+          }
+        }
+      }
+    }
+
+    // 中央タイル枠（16x16ピクセル、オフセット: 7 * 16 = 112px）の枠線描画
+    ctx.strokeStyle = "#ffff00";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(112, 112, 16, 16);
+  }
+
+  /**
+   * 16進数文字列を数値にパース
+   */
+  static parseHex(str, defaultVal) {
+    if (!str) return defaultVal;
+    str = str.trim().replace(/^[\$#]/, '');
+    const val = parseInt(str, 16);
+    return isNaN(val) ? defaultVal : val;
+  }
+
+  /**
+   * [DEBUG] 8x8 CHRキャラクタを先頭(0x00)から256個すべて並べて描画
+   */
+  static renderDebugChrCanvas() {
+    const canvas = document.getElementById('debugChrCanvas');
+    if (!canvas || !nesRom) return;
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.createImageData(128, 128);
+    const prgStart = GameDataManager.getPrgStartOffset(nesRom);
+    const chrBase = prgStart + this.currentChrOffset;
+    const palDataOffset = prgStart + this.PALETTE_RABLE;
+    const commonBg = (palDataOffset + 0x10 < nesRom.length) ? nesRom[palDataOffset + 0x10] : 0x0F;
+    const pal = [
+      NES_PALETTE[commonBg & 0x3F],
+      NES_PALETTE[((palDataOffset + 1 < nesRom.length) ? nesRom[palDataOffset + 1] : 0x00) & 0x3F],
+      NES_PALETTE[((palDataOffset + 2 < nesRom.length) ? nesRom[palDataOffset + 2] : 0x10) & 0x3F],
+      NES_PALETTE[((palDataOffset + 3 < nesRom.length) ? nesRom[palDataOffset + 3] : 0x30) & 0x3F]
+    ];
+
+    for (let tid = 0; tid < 256; tid++) {
+      const tx = (tid % 16) * 8;
+      const ty = Math.floor(tid / 16) * 8;
+      const offset = chrBase + (tid * 16);
+
+      if (offset + 16 <= nesRom.length) {
+        for (let y = 0; y < 8; y++) {
+          const p0 = nesRom[offset + y];
+          const p1 = nesRom[offset + y + 8];
+          for (let x = 0; x < 8; x++) {
+            const bit = 7 - x;
+            const colorIdx = ((p0 >> bit) & 1) | (((p1 >> bit) & 1) << 1);
+            const rgb = pal[colorIdx];
+            const p = ((ty + y) * 128 + (tx + x)) * 4;
+            imgData.data[p + 0] = rgb[0];
+            imgData.data[p + 1] = rgb[1];
+            imgData.data[p + 2] = rgb[2];
+            imgData.data[p + 3] = 255;
+          }
+        }
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+  }
+
+  /**
+   * [DEBUG] タイルを使用した128個の全体タイルを順番(0x00〜0x7F)に並べて描画
+   * 差異チェックモード時は定義データとROM判定に食い違いがあるタイル上に赤い「✕」をオーバーレイ表示
+   */
+  static renderDebugMetaCanvas() {
+    const canvas = document.getElementById('debugMetaCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.createImageData(256, 128);
+
+    for (let tid = 0; tid < 128; tid++) {
+      const tx = (tid % 16) * 16;
+      const ty = Math.floor(tid / 16) * 16;
+      const bmp16 = this.metatile16Bitmaps.get(tid);
+
+      if (bmp16) {
+        for (let y = 0; y < 16; y++) {
+          for (let x = 0; x < 16; x++) {
+            const srcIdx = (y * 16 + x) * 3;
+            const dstIdx = ((ty + y) * 256 + (tx + x)) * 4;
+            imgData.data[dstIdx + 0] = bmp16[srcIdx + 0];
+            imgData.data[dstIdx + 1] = bmp16[srcIdx + 1];
+            imgData.data[dstIdx + 2] = bmp16[srcIdx + 2];
+            imgData.data[dstIdx + 3] = 255;
+          }
+        }
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    // 差異チェックモード時: 違いがあるタイルの上に赤い「✕」をオーバーレイ
+    if (this.currentMode === 'check' && nesRom) {
+      const prgStart = GameDataManager.getPrgStartOffset(nesRom);
+      ctx.strokeStyle = '#FF0000';
+      ctx.lineWidth = 2;
+
+      for (let tid = 0; tid < 128; tid++) {
+        const presetType = this.PRESET_TILE_TYPES[tid] || 'plains';
+        const romType = this.evaluateTileFromRom(nesRom, prgStart, tid);
+
+        if (presetType !== romType) {
+          const tx = (tid % 16) * 16;
+          const ty = Math.floor(tid / 16) * 16;
+          ctx.beginPath();
+          ctx.moveTo(tx + 2, ty + 2);
+          ctx.lineTo(tx + 14, ty + 14);
+          ctx.moveTo(tx + 14, ty + 2);
+          ctx.lineTo(tx + 2, ty + 14);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+    static onChrCanvasHover(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = Math.floor(((e.clientX - rect.left) / rect.width) * 16);
+    const y = Math.floor(((e.clientY - rect.top) / rect.height) * 16);
+    const tid = y * 16 + x;
+    const el = document.getElementById('debugChrInfo');
+    if (el) el.textContent = `8x8 CHR ID: $${tid.toString(16).toUpperCase().padStart(2, '0')} (${tid})`;
+  }
+
+  static onChrCanvasLeave() {
+    const el = document.getElementById('debugChrInfo');
+    if (el) el.textContent = 'キャラクタ: ---';
+  }
+
+  /**
+   * デバッグ機能: 指定タイルIDの一時点滅リストを設定
+   */
+  static setDebugHighlightTile(tid) {
+    if (this.debugHighlightTileId === tid) return;
+    this.debugHighlightTileId = tid;
+    this.debugHighlightPoints = [];
+    if (tid !== null && this.mapData) {
+      for (let y = 0; y < 256; y++) {
+        for (let x = 0; x < 256; x++) {
+          if (this.mapData[y * 256 + x] === tid) {
+            this.debugHighlightPoints.push({ x, y });
+          }
+        }
+      }
+    }
+    // マーカーアイコン（プレイヤー・船・飛空艇）を一時非表示にして視認性を確保
+    document.querySelectorAll('.map-marker').forEach(el => el.style.display = 'none');
+    this.renderSpecialPoints();
+  }
+
+  /**
+   * デバッグ機能: 指定タイルの点滅を解除し通常点滅に復帰
+   */
+  static clearDebugHighlightTile() {
+    if (this.debugHighlightTileId !== null) {
+      this.debugHighlightTileId = null;
+      this.debugHighlightPoints = null;
+      // マーカーアイコンの表示を復帰
+      document.querySelectorAll('.map-marker').forEach(el => el.style.display = '');
+      this.renderSpecialPoints();
+    }
+  }
+
+  static onMetaCanvasMouseDown(e) {
+    if (e.button !== 0) return; // 左クリックのみ
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = Math.floor(((e.clientX - rect.left) / rect.width) * 16);
+    const y = Math.floor(((e.clientY - rect.top) / rect.height) * 8);
+    if (x >= 0 && x < 16 && y >= 0 && y < 8) {
+      const tid = y * 16 + x;
+      this.setDebugHighlightTile(tid);
+    }
+  }
+
+  static onMetaCanvasMouseUp(e) {
+    this.clearDebugHighlightTile();
+  }
+
+  static onMetaCanvasHover(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = Math.floor(((e.clientX - rect.left) / rect.width) * 16);
+    const y = Math.floor(((e.clientY - rect.top) / rect.height) * 8);
+    if (x < 0 || x >= 16 || y < 0 || y >= 8) return;
+    const tid = y * 16 + x;
+
+    // クリックしたままドラッグ移動した場合は該当タイルに点滅を追従
+    if ((e.buttons & 1) !== 0) {
+      this.setDebugHighlightTile(tid);
+    }
+
+    const el = document.getElementById('debugMetaInfo');
+    if (!el) return;
+
+    if (nesRom) {
+      const prgStart = GameDataManager.getPrgStartOffset(nesRom);
+      const base = prgStart + this.currentMetaTableOffset;
+      const palAssignOffset = prgStart + this.TILE_PALETTE_ASSIGNMENT_TABLE;
+
+      const presetType = this.PRESET_TILE_TYPES[tid] || 'plains';
+      const romType = this.evaluateTileFromRom(nesRom, prgStart, tid);
+      let notice = (this.currentMode === 'rom') ?
+          ` [${this.TILE_TYPE_NAMES[romType]}]` :
+          ` [${this.TILE_TYPE_NAMES[presetType]}]`;
+      if (this.currentMode === 'check') {
+        if (presetType !== romType) {
+          notice = ` ⚠️[${this.TILE_TYPE_NAMES[presetType]} != ROM:${this.TILE_TYPE_NAMES[romType]}]`;
+        }
+      }
+
+      if (base + 512 <= nesRom.length) {
+        const tl = nesRom[base + 0 + tid].toString(16).toUpperCase().padStart(2, '0');
+        const tr = nesRom[base + 128 + tid].toString(16).toUpperCase().padStart(2, '0');
+        const bl = nesRom[base + 256 + tid].toString(16).toUpperCase().padStart(2, '0');
+        const br = nesRom[base + 384 + tid].toString(16).toUpperCase().padStart(2, '0');
+        const pal = (palAssignOffset + tid < nesRom.length) ? (nesRom[palAssignOffset + tid] & 0x03) : 0;
+        el.textContent = `タイル $${tid.toString(16).toUpperCase().padStart(2, '0')} [左上:$${tl} 右上:$${tr} 左下:$${bl} 右下:$${br} Pal:${pal}]${notice}`;
+        return;
+      }
+    }
+    el.textContent = `タイル: $${tid.toString(16).toUpperCase().padStart(2, '0')} (${tid})`;
+  }
+
+  static onMetaCanvasLeave() {
+    this.clearDebugHighlightTile();
+    const el = document.getElementById('debugMetaInfo');
+    if (el) el.textContent = 'タイル: ---';
   }
 }
 
