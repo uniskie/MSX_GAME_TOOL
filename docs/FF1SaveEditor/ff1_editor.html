@@ -4,11 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ＦＣ版／ＭＳＸ版 ファイナルファンタジーⅠ セーブデータエディター</title>
-<!--
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
--->
 <style>
   :root {
     --bg-color: #000000;
@@ -28,7 +26,7 @@
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: 'DotGothic16', monospace, "MS Gothic", sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     min-height: 100vh;
   }
   h1 {
@@ -2390,8 +2388,8 @@ function loadSavToUI() {
   // プレイヤー座標 (MSX版は32タイル分割を8bitへパッキング: 1631H〜1632H=X, 1633H〜1634H=Y)
   let pX = 0, pY = 0;
   if (activePlatform === 'msx') {
-    pX = (savData[playerXBlockAddr] * 32) + savData[playerXOffsetAddr];
-    pY = (savData[playerYBlockAddr] * 32) + savData[playerYOffsetAddr];
+    pX = (savData[layout.playerXBlockAddr] * 32) + savData[layout.playerXOffsetAddr];
+    pY = (savData[layout.playerYBlockAddr] * 32) + savData[layout.playerYOffsetAddr];
   } else {
     pX = savData[layout.playerXAddr];
     pY = savData[layout.playerYAddr];
@@ -2550,33 +2548,35 @@ function applyUIToSav() {
   savData[layout.airshipYAddr] = (airY + vehicleOffset.y) & 255;
 
   // プレイヤー座標および搭乗状態の保存
-  const plX = ((parseInt(document.getElementById('playerX').value, 10) || 0) + playerOffset.x) & 255;
-  const plY = ((parseInt(document.getElementById('playerY').value, 10) || 0) + playerOffset.y) & 255;
+  let pX = Math.max(0, Math.min(255, parseInt(document.getElementById('playerX').value, 10) || 0));
+  let pY = Math.max(0, Math.min(255, parseInt(document.getElementById('playerY').value, 10) || 0));
   const vMode = parseInt(document.getElementById('vehicleMode').value, 10) || 0;
 
+  const playX = (pX + playerOffset.x) & 255;
+  const playY = (pY + playerOffset.y) & 255;
   if (activePlatform === 'msx') {
-    savData[playerXBlockAddr] = Math.floor(plX / 32);
-    savData[playerXOffsetAddr] = plX % 32;
-    savData[playerYBlockAddr] = Math.floor(plY / 32);
-    savData[playerYOffsetAddr] = plY % 32;
+    savData[layout.playerXBlockAddr] = Math.floor(playX / 32);
+    savData[layout.playerXOffsetAddr] = playX % 32;
+    savData[layout.playerYBlockAddr] = Math.floor(playY / 32);
+    savData[layout.playerYOffsetAddr] = playY % 32;
   } else {
-    savData[layout.playerXAddr] = plX;
-    savData[layout.playerYAddr] = plY;
+    savData[layout.playerXAddr] = playX;
+    savData[layout.playerYAddr] = playY;
   }
   if (layout.vehicleModeAddr !== undefined) {
     savData[layout.vehicleModeAddr] = vMode;
 
     // 船(1) または 飛空艇(3) に搭乗中の場合は乗り物座標も同期
     if (vMode === layout.vehicleModeValue.ship) {
-      savData[layout.shipXAddr] = (plX + vehicleOffset.x) & 255;
-      savData[layout.shipYAddr] = (plY + vehicleOffset.y) & 255;
-      document.getElementById('shipX').value = plX;
-      document.getElementById('shipY').value = plY;
+      savData[layout.shipXAddr] = (pX + vehicleOffset.x) & 255;
+      savData[layout.shipYAddr] = (pY + vehicleOffset.y) & 255;
+      document.getElementById('shipX').value = pX;
+      document.getElementById('shipY').value = pY;
     } else if (vMode === layout.vehicleModeValue.airship) {
-      savData[layout.airshipXAddr] = (plX + vehicleOffset.x) & 255;
-      savData[layout.airshipYAddr] = (plY + vehicleOffset.y) & 255;
-      document.getElementById('airshipX').value = plX;
-      document.getElementById('airshipY').value = plY;
+      savData[layout.airshipXAddr] = (pX + vehicleOffset.x) & 255;
+      savData[layout.airshipYAddr] = (pY + vehicleOffset.y) & 255;
+      document.getElementById('airshipX').value = pX;
+      document.getElementById('airshipY').value = pY;
     }
   }
 
