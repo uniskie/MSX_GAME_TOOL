@@ -21,8 +21,9 @@ foreach ($item in $syncMap) {
     $destFullPath = Join-Path $PSScriptRoot $item.to
 
     # コピー先ディレクトリが存在しない場合は自動的に階層を作成
-    if (-not (Test-Path $destFullPath)) {
-        New-Item -ItemType Directory -Force -Path $destFullPath | Out-Null
+    $destParent = if ($item.to -match '\.[^\\/]+$') { Split-Path $destFullPath -Parent } else { $destFullPath }
+    if (-not (Test-Path $destParent)) {
+        New-Item -ItemType Directory -Force -Path $destParent | Out-Null
     }
 
     # 対象アイテムの属性（ファイルかディレクトリか）を判定してコピーを実行
