@@ -1,7 +1,7 @@
 ﻿# 設定ファイル（.github/sync-config.json）の絶対パスを組み立てて存在検証
 $configPath = Join-Path $PSScriptRoot ".github\sync-config.json"
 if (-not (Test-Path $configPath)) {
-    Write-Error "Configuration file not found at $configPath"
+    Write-Output "[ERROR] Configuration file not found at $configPath"
     exit 1
 }
 
@@ -13,7 +13,7 @@ foreach ($item in $syncMap) {
     # 監視元（from）の相対パスを絶対パスへ変換
     $srcFullPath = Resolve-Path (Join-Path $PSScriptRoot $item.from) -ErrorAction SilentlyContinue
     if (-not $srcFullPath) {
-        Write-Warning "Source path not found: $($item.from)"
+        Write-Output "[WARNING] Source path not found: $($item.from)"
         continue
     }
 
@@ -27,13 +27,16 @@ foreach ($item in $syncMap) {
     }
 
     # 対象アイテムの属性（ファイルかディレクトリか）を判定してコピーを実行
-    if (Test-Path $srcFullPath -PathType Leaf) {
-        # ファイル単体を指定ディレクトリへ上書きコピー
-        Copy-Item -Path $srcFullPath -Destination $destFullPath -Force
-        Write-Host "➔ File copied: $($item.from) to $($item.to)"
-    } else {
-        # ディレクトリ配下のすべての構成要素を再帰的に上書きコピー
-        Copy-Item -Path "$srcFullPath\*" -Destination $destFullPath -Recurse -Force
-        Write-Host "➔ Directory synced: $($item.from) to $($item.to)"
+    try {
+        if (Test-Path $srcFullPath -PathType Leaf) {
+            # ファイル単体をコピー（-Verbose の詳細ログは Write-Output と同様に標準出力として流れます）
+            Copy-Item -Path $srcFullPath -Destination $destFullPath -Force -ErrorAction Stop -Verbose
+        } else {
+            # ディレクトリ配下のすべての構成要素を再帰的にコピー（ファイル毎のログが出ます）
+            Copy-Item -Path "$srcFullPath\*" -Destination $destFullPath -Recurse -Force -ErrorAction Stop -Verbose
+        }
+    } catch {
+        Write-Output "[ERROR] Failed to copy: $($item.from). Reason: $_"
+        exit 1
     }
 }

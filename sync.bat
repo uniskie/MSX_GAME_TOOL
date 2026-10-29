@@ -1,17 +1,17 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 
-rem PowerShellの終了コードをバッチの %errorlevel% に確実に引き継ぐため、-Command 経由で実行
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& '%~dp0sync.ps1'; exit $LASTEXITCODE"
+rem 通常の呼び出し。標準出力（Write-Output）ならエラーレベルは汚されません
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0sync.ps1"
 
-rem エラーコードが0以外（異常終了）だった場合の判定
 if %errorlevel% neq 0 (
     echo.
-    echo [ERROR] 同期処理中にエラーが発生しました。(ErrorLevel: %errorlevel%)
+    echo [ERROR] 同期処理中にエラーが発生しました。
     pause
     exit /b %errorlevel%
 )
 
 echo.
 echo 同期処理が正常に完了しました。
+rem キー入力でいつでもスキップして閉じられる、通常のtimeoutに戻します
 timeout /t 10
