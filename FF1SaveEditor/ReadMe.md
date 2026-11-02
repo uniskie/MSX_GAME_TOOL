@@ -43,49 +43,101 @@ https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/ff1_editor.html
 - [地図]ボタンで表示されるワールドマップが正確に表示できるようになります。
 
 ---
+# MSX版推奨パッチの紹介
 
-# おまけ
+## Final Fantasy MSX Performance Patch
 
-## FFHackSterEX のための 日本版向け文字定義ファイル
+https://github.com/abekermsx/Final-Fantasy-MSX-Performance-Patch
 
-FFHackSterEX は英語版向けの為、
-ゲーム中の文字コードを適切に表示出来ません。
-これは、日本語版の文字定義ファイルに変更することで解決できます。
+フレームレート制限の解除と速度最適化により、移動が快適になるパッチです。  
+MSX2/2+でも大きな効果がありますが、MSX turboRではさらに快適になります。
 
-### 手順
+メッセージウィンドウの表示速度まで高速になるので、会話ウィンドウ開閉時の音に違和感は出ますが、
+基本的に全体が快適になります。
 
-ROMを読み込んで作成されたプロジェクトフォルダに
+## BGM割り当て修正パッチ
 
-1. 日本語版向け 文字定義ファイル
-   - FinalFantasy1.dte.tbl
-   - FinalFantasy1.std.tbl
+MSX2版ファイナルファンタジーはダンジョンのBGMがファミコン版と異なる曲が鳴る場所がいくつかあります。
 
-   をコピー。
+| マップ                 | MSX2版       | ファミコン版 |
+|------------------------|--------------|--------------|
+| 沼の洞窟 B1F、B2F、B3F | MATOOYA.BGM  | RANCHON.BGM  |
+| 巨人の洞窟 東、西      | KAOSS.BGM    | GURUGU.BGM   |
 
-2. 元からあった英語版向け 文字定義ファイル
-   - (ROMファイル名).dte.tbl
-   - (ROMファイル名).std.tbl
+---
 
-   を、バックアップ用サブフォルダを作ってそこに移動するか、
-   別のファイル名にリネーム。
+# ファミコン版用ROMエディタの紹介
 
-3. 先ほどコピーしてきた日本語版向け 文字定義ファイル
-   - FinalFantasy1.dte.tbl --> (ROMファイル名).dte.tbl
-   - FinalFantasy1.std.tbl --> (ROMファイル名).std.tbl
-   
-   にリネームして、置き換えてください。
+## HAKKINFF1 (推奨) 
 
-これで、このプロジェクトで文字が正常に表示されるようになります。
+https://hakkinff1.digitaldreamers.org/index.html
 
-`●●.dte.tbl` と `●●.std.tbl` は、UTF-8ではなくSJISテキストファイルです。  
-（OSのデフォルトエンコードを使用するようです。）
+FFHackSterEXにインスパイアされたROMエディタ。
 
-### 注意事項
+FFHackSterEXでは動かない機能もこちらでは動きますので、こちらを推奨します。
 
-- ROMファイルパスには日本語を使わないでください。  
-  フォルダ名等も日本語禁止です。
-  
-  ROMファイル名をを使用してプロジェクトフォルダが作成されるのですが、
-  日本語が化けてエラーになります。
-  
-- OverworldMapは選択すると落ちます。
+- **日本版向け文字定義ファイル**
+
+  [for_HAKKINFF1/](for_HAKKINFF1/)
+
+  ROMを読み込んで作成されたプロジェクトフォルダにある  
+  `(プロジェクト名).ff1d`  
+  の中に、文字コードに対する文字リストがあります。
+
+  `for_HAKKINFF1/FinalFantasy1.ff1d`を
+  プロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。
+
+  プロジェクトで文字が正常に表示されるようになります。
+
+  メニュー等も日本語化したい場合はff1dファイルを弄れば出来ると思われます。
+
+
+## FFHackSterEX (非推奨)
+
+https://ffhacksterex.digitaldreamers.org/
+
+FFHackSterのC#版
+
+幾つかの機能がexeごと落ちるので非推奨です。  
+一応WorldMap(Preview)は動作します。
+
+- **日本版向け文字定義ファイル**
+
+  [for_FFHackSterEX/](for_FFHackSterEX/)
+
+  ROMを読み込んで作成されたプロジェクトフォルダにある  
+  `(プロジェクト名).dte.tbl`  
+  `(プロジェクト名).std.tbl`  
+  に、文字コードに対する文字リストがあります。
+
+  'for_FFHackSterEX/FinalFantasy1.dte.tbl`  
+  'for_FFHackSterEX/FinalFantasy1.std.tbl`  
+  をプロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。
+
+  プロジェクトで文字が正常に表示されるようになります。
+
+  （`●●.dte.tbl` と `●●.std.tbl` は、UTF-8ではなくSJISテキストファイルです。）
+
+- 注意事項
+
+   ROMファイル名やパスには日本語を使わないでください。エラーになります。
+
+---
+
+# Binary Editor Bz - MSX Custom 向け エンコード定義ファイル
+
+**Binary Editor Bz - MSX Custom**  
+https://github.com/uniskie/MSX_MISC_TOOLS/tree/main/BinaryEditorBz_for_MSX
+
+「ツール」→「カスタムエンコードの編集」でフォルダが開くので、
+そこへ
+
+[for_BzEditor_MSX_Custom/](for_BzEditor_MSX_Custom/) の中にあるファイル
+
+- FF1.def
+- FF1_oped_FC.def
+- FF1_oped_MSX.def
+
+をコピー。
+
+

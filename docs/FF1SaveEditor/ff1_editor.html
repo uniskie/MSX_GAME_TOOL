@@ -1107,12 +1107,44 @@ const BASE_ARMORS_DATA = [
   { name: "まもりのゆびわ", def: 8, wt: 1, type: "arm", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] }
 ];
 
-const CONSUMABLE_NAMES = ["ねぶくろ", "テント", "コテージ", "ポーション", "どくけし", "きんのはり"];
-const KEY_NAMES = [
-  "リュート", "クラウン", "すいしょうのめ", "めざめのくすり", "しんぴのかぎ", "ニトロのかやく",
-  "アダマンタイト", "ロゼッタいし", "スタールビー", "つちのつえ", "ふゆうせき", "チャイム",
-  "ねずみのしっぽ", "ワープキューブ", "ようせいのビン", "くうきのみず", "カヌー",
-  "つちのクリスタル", "ひのクリスタル", "みずのクリスタル", "かぜのクリスタル"
+/**
+ * 消費アイテムテーブル
+ */
+const CONSUMABLES = [
+  { id: 0, name: "ねぶくろ" },
+  { id: 1, name: "テント" },
+  { id: 2, name: "コテージ" },
+  { id: 3, name: "ポーション" },
+  { id: 4, name: "どくけし" },
+  { id: 5, name: "きんのはり" }
+];
+
+/**
+ * 重要アイテムテーブル
+ */
+
+const KEY_ITEMS = [
+  { id: 0, name: "リュート" },
+  { id: 1, name: "クラウン" },
+  { id: 2, name: "すいしょうのめ" },
+  { id: 3, name: "めざめのくすり" },
+  { id: 4, name: "しんぴのかぎ" },
+  { id: 5, name: "ニトロのかやく" },
+  { id: 6, name: "アダマンタイト" },
+  { id: 7, name: "ロゼッタいし" },
+  { id: 8, name: "スタールビー" },
+  { id: 9, name: "つちのつえ" },
+  { id: 10, name: "ふゆうせき" },
+  { id: 11, name: "チャイム" },
+  { id: 12, name: "ねずみのしっぽ" },
+  { id: 13, name: "ワープキューブ" },
+  { id: 14, name: "ようせいのビン" },
+  { id: 15, name: "くうきのみず" },
+  { id: 16, name: "カヌー" },
+  { id: 17, name: "つちのクリスタル" },
+  { id: 18, name: "ひのクリスタル" },
+  { id: 19, name: "みずのクリスタル" },
+  { id: 20, name: "かぜのクリスタル" }
 ];
 
 /**
@@ -1142,10 +1174,10 @@ const PLATFORM_ARMORS = {
     PLATFORM_WEAPONS.fc.push({ id: 41 + i, name: a.name, category: "armor", atk: a.wt, hit: a.def, def: 0, wt: 0, type: "none", jobs: a.jobs });
   }
   for (let i = 0; i < 6; i++) {
-    PLATFORM_WEAPONS.fc.push({ id: 81 + i, name: CONSUMABLE_NAMES[i], category: "item", atk: (81 + i) & 0x3F, hit: 10, def: 0, wt: 0, type: "none", jobs: [] });
+    PLATFORM_WEAPONS.fc.push({ id: 81 + i, name: CONSUMABLES[i].name, category: "item", atk: (81 + i) & 0x3F, hit: 10, def: 0, wt: 0, type: "none", jobs: [] });
   }
   for (let i = 0; i < 21; i++) {
-    PLATFORM_WEAPONS.fc.push({ id: 87 + i, name: KEY_NAMES[i], category: "key", atk: (87 + i) & 0x3F, hit: 15, def: 0, wt: 0, type: "none", jobs: [] });
+    PLATFORM_WEAPONS.fc.push({ id: 87 + i, name: KEY_ITEMS[i].name, category: "key", atk: (87 + i) & 0x3F, hit: 15, def: 0, wt: 0, type: "none", jobs: [] });
   }
   for (let i = 108; i <= 127; i++) {
     PLATFORM_WEAPONS.fc.push({ id: i, name: `[未定義 $${i.toString(16).toUpperCase()}]`, category: "unknown", atk: (i * 3) & 0xFF, hit: (i * 7) & 0xFF, def: 0, wt: 0, type: "none", jobs: [] });
@@ -1158,10 +1190,10 @@ const PLATFORM_ARMORS = {
     PLATFORM_ARMORS.fc.push({ id: 1 + i, name: a.name, category: "armor", atk: 0, hit: 0, def: a.def, wt: a.wt, type: a.type, jobs: a.jobs });
   }
   for (let i = 0; i < 6; i++) {
-    PLATFORM_ARMORS.fc.push({ id: 41 + i, name: CONSUMABLE_NAMES[i], category: "item", atk: 0, hit: 0, def: (41 + i) & 0x1F, wt: 0, type: "body", jobs: [] });
+    PLATFORM_ARMORS.fc.push({ id: 41 + i, name: CONSUMABLES[i].name, category: "item", atk: 0, hit: 0, def: (41 + i) & 0x1F, wt: 0, type: "body", jobs: [] });
   }
   for (let i = 0; i < 21; i++) {
-    PLATFORM_ARMORS.fc.push({ id: 47 + i, name: KEY_NAMES[i], category: "key", atk: 0, hit: 0, def: (47 + i) & 0x1F, wt: 0, type: "body", jobs: [] });
+    PLATFORM_ARMORS.fc.push({ id: 47 + i, name: KEY_ITEMS[i].name, category: "key", atk: 0, hit: 0, def: (47 + i) & 0x1F, wt: 0, type: "body", jobs: [] });
   }
   for (let i = 68; i <= 127; i++) {
     PLATFORM_ARMORS.fc.push({ id: i, name: `[未定義 $${i.toString(16).toUpperCase()}]`, category: "unknown", atk: 0, hit: 0, def: (i * 5) & 0xFF, wt: (i * 2) & 0x7F, type: "body", jobs: [] });
@@ -1171,10 +1203,10 @@ const PLATFORM_ARMORS = {
   const msxMaster = [];
   msxMaster.push({ id: 0, name: "(なし)", category: "none", atk: 0, hit: 0, def: 0, wt: 0, type: "none", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] });
   for (let i = 0; i < 21; i++) {
-    msxMaster.push({ id: 1 + i, name: KEY_NAMES[i], category: "key", atk: (1 + i) * 2, hit: 5, def: (1 + i), wt: 0, type: "body", jobs: [] });
+    msxMaster.push({ id: 1 + i, name: KEY_ITEMS[i].name, category: "key", atk: (1 + i) * 2, hit: 5, def: (1 + i), wt: 0, type: "body", jobs: [] });
   }
   for (let i = 0; i < 6; i++) {
-    msxMaster.push({ id: 22 + i, name: CONSUMABLE_NAMES[i], category: "item", atk: (22 + i), hit: 10, def: Math.floor((22 + i) / 2), wt: 0, type: "body", jobs: [] });
+    msxMaster.push({ id: 22 + i, name: CONSUMABLES[i].name, category: "item", atk: (22 + i), hit: 10, def: Math.floor((22 + i) / 2), wt: 0, type: "body", jobs: [] });
   }
   for (let i = 0; i < 40; i++) {
     const w = BASE_WEAPONS_DATA[i];
@@ -1309,26 +1341,6 @@ function rebuildAllEquipSelectOptions() {
     updateAllEquipStatsAndRestrictions(c);
   }
 }
-
-const CONSUMABLES = [
-  { id: 0, name: "ねぶくろ" }, { id: 1, name: "テント" },
-  { id: 2, name: "コテージ" }, { id: 3, name: "ポーション" },
-  { id: 4, name: "どくけし" }, { id: 5, name: "きんのはり" }
-];
-
-const KEY_ITEMS = [
-  { id: 0, name: "リュート" }, { id: 1, name: "クラウン" },
-  { id: 2, name: "すいしょうのめ" }, { id: 3, name: "めざめのくすり" },
-  { id: 4, name: "しんぴのかぎ" }, { id: 5, name: "ニトロのかやく" },
-  { id: 6, name: "アダマンタイト" }, { id: 7, name: "ロゼッタいし" },
-  { id: 8, name: "スタールビー" }, { id: 9, name: "つちのつえ" },
-  { id: 10, name: "ふゆうせき" }, { id: 11, name: "チャイム" },
-  { id: 12, name: "ねずみのしっぽ" }, { id: 13, name: "ワープキューブ" },
-  { id: 14, name: "ようせいのビン" }, { id: 15, name: "くうきのみず" },
-  { id: 16, name: "カヌー" }, { id: 17, name: "つちのクリスタル" },
-  { id: 18, name: "ひのクリスタル" }, { id: 19, name: "みずのクリスタル" },
-  { id: 20, name: "かぜのクリスタル" }
-];
 
 const SPELLS_BY_LV = [
   [ { val: 0x01, name: "ケアル" }, { val: 0x02, name: "ディア" }, { val: 0x03, name: "プロテス" }, { val: 0x04, name: "ブリンク" },
@@ -1576,9 +1588,10 @@ let loadedSavFileName = "FINAL_FANTASY_1.sav";
 
 /**
  * セーブデータ定義
+ * +0x0000〜+0x13FF はゲーム実行中のワークRAM（セーブ未実行や電源断で状態が不定となる領域）。
  */
-const SAV_ADDR_MSX = 0x1400;
-const SAV_ADDR_FC  = 0x0400;
+const SAV_ADDR_MSX = 0x1400;  // MSX版セーブデータ開始アドレス(実行時はRAM 0xC000H〜0xC3FFH)
+const SAV_ADDR_FC  = 0x0400;  // FC版セーブデータ開始アドレス
 
 /**
  * セーブデータ構造体（レイアウト定義）
@@ -3249,7 +3262,7 @@ function applyUIToSav() {
     savData[layout.consumableAddr + idx] = Math.min(getLimit('item'), Math.max(0, val));
   });
 
-  // 重要アイテム (FC版は0x01, MSX版は0xFF)
+  // 重要アイテム
   KEY_ITEMS.forEach((k, idx) => {
     savData[layout.keyItemAddr + idx] = document.getElementById(`key_${k.id}`).checked ? layout.keyItemVal : 0x00;
   });
@@ -3539,116 +3552,116 @@ class PresetResource {
   // ワールドマップ SpecialPoint プリセット定義 (全62箇所)
   static SPECIAL_POINTS = [
     { x: 222, y:  27, tileId: 0x5A, locId: 0x06 }, // ガイアの町
-  { x: 223, y:  27, tileId: 0x5A, locId: 0x06 }, // ガイアの町
-  { x: 221, y:  28, tileId: 0x5A, locId: 0x06 }, // ガイアの町
-  { x: 222, y:  28, tileId: 0x5A, locId: 0x06 }, // ガイアの町
-  { x:  54, y:  29, tileId: 0x46, locId: 0x13 }, // 滝裏の洞窟
-  { x: 129, y:  45, tileId: 0x38, locId: 0x0C }, // 試練の城
-  { x: 130, y:  45, tileId: 0x39, locId: 0x0C }, // 試練の城
-  { x:  92, y:  48, tileId: 0x6A, locId: 0x00 }, // ドラゴンの洞窟 1
-  { x:  29, y:  49, tileId: 0x36, locId: 0x1E }, // キャラバン（オアシス）
-  { x:  79, y:  49, tileId: 0x66, locId: 0x11 }, // ドラゴンの洞窟 2
-  { x:  96, y:  51, tileId: 0x6C, locId: 0x12 }, // バハムートの部屋
-  { x:  61, y:  57, tileId: 0x5D, locId: 0x07 }, // オンラクの町
-  { x:  62, y:  57, tileId: 0x5D, locId: 0x07 }, // オンラクの町
-  { x:  61, y:  58, tileId: 0x5D, locId: 0x07 }, // オンラクの町
-  { x:  62, y:  58, tileId: 0x5D, locId: 0x07 }, // オンラクの町
-  { x:  93, y:  58, tileId: 0x67, locId: 0x1B }, // ドラゴンの洞窟 3
-  { x: 194, y:  58, tileId: 0x1D, locId: 0x18 }, // ミラージュの塔
-  { x: 105, y:  59, tileId: 0x68, locId: 0x1C }, // ドラゴンの洞窟 4
-  { x: 116, y:  66, tileId: 0x69, locId: 0x1D }, // ドラゴンの洞窟 5
-  { x: 235, y:  98, tileId: 0x6D, locId: 0x08 }, // ルフェイン人の町
-  { x: 234, y:  99, tileId: 0x6D, locId: 0x08 }, // ルフェイン人の町
-  { x: 235, y:  99, tileId: 0x6D, locId: 0x08 }, // ルフェイン人の町
-  { x: 236, y:  99, tileId: 0x6D, locId: 0x08 }, // ルフェイン人の町
-  { x: 168, y: 117, tileId: 0x32, locId: 0x15 }, // マトーヤの洞窟
-  { x: 129, y: 123, tileId: 0x57, locId: 0x0D }, // カオスの神殿
-  { x: 130, y: 123, tileId: 0x58, locId: 0x0D }, // カオスの神殿
-  { x: 210, y: 149, tileId: 0x4A, locId: 0x02 }, // 港町プラボカ
-  { x: 209, y: 150, tileId: 0x4A, locId: 0x02 }, // 港町プラボカ
-  { x: 211, y: 150, tileId: 0x4A, locId: 0x02 }, // 港町プラボカ
-  { x: 100, y: 155, tileId: 0x2F, locId: 0x14 }, // ドワーフの洞窟
-  { x:  81, y: 159, tileId: 0x4D, locId: 0x04 }, // メルモンドの町
-  { x: 152, y: 159, tileId: 0x01, locId: 0x09 }, // コーネリア城
-  { x: 153, y: 159, tileId: 0x02, locId: 0x09 }, // コーネリア城
-  { x:  81, y: 160, tileId: 0x4D, locId: 0x04 }, // メルモンドの町
-  { x:  82, y: 160, tileId: 0x4D, locId: 0x04 }, // メルモンドの町
-  { x: 151, y: 160, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
-  { x: 154, y: 160, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
-  { x: 151, y: 161, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
-  { x: 154, y: 161, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
-  { x: 151, y: 162, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
-  { x: 154, y: 162, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
-  { x:  42, y: 174, tileId: 0x34, locId: 0x19 }, // 巨人の洞窟（東）
-  { x:  30, y: 175, tileId: 0x35, locId: 0x1A }, // 巨人の洞窟（西）
-  { x: 197, y: 183, tileId: 0x2B, locId: 0x10 }, // 氷の洞窟
-  { x:  65, y: 186, tileId: 0x0E, locId: 0x0E }, // アースの洞窟
-  { x: 102, y: 186, tileId: 0x29, locId: 0x0B }, // 西の城（アストス城）
-  { x: 103, y: 186, tileId: 0x2A, locId: 0x0B }, // 西の城（アストス城）
-  { x:  30, y: 190, tileId: 0x3A, locId: 0x16 }, // 賢者の洞窟
-  { x: 188, y: 203, tileId: 0x64, locId: 0x0F }, // グルグ火山
-  { x: 189, y: 203, tileId: 0x65, locId: 0x0F }, // グルグ火山
-  { x: 219, y: 216, tileId: 0x4E, locId: 0x05 }, // クレセントレイクの町
-  { x: 220, y: 216, tileId: 0x4E, locId: 0x05 }, // クレセントレイクの町
-  { x: 218, y: 217, tileId: 0x4E, locId: 0x05 }, // クレセントレイクの町
-  { x: 220, y: 217, tileId: 0x4E, locId: 0x05 }, // クレセントレイクの町
-  { x: 218, y: 218, tileId: 0x4E, locId: 0x05 }, // クレセントレイクの町
-  { x: 134, y: 221, tileId: 0x4C, locId: 0x03 }, // エルフの町
-  { x: 135, y: 221, tileId: 0x1B, locId: 0x0A }, // エルフ城
-  { x: 136, y: 221, tileId: 0x1C, locId: 0x0A }, // エルフ城
-  { x: 137, y: 221, tileId: 0x4C, locId: 0x03 }, // エルフの町
-  { x: 134, y: 222, tileId: 0x4C, locId: 0x03 }, // エルフの町
-  { x: 137, y: 222, tileId: 0x4C, locId: 0x03 }, // エルフの町
-  { x: 216, y: 234, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 217, y: 234, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 218, y: 234, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 215, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 216, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 217, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 218, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 219, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 220, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 221, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 102, y: 236, tileId: 0x6E, locId: 0x17 }, // 沼の洞窟
-  { x: 214, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 215, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 216, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 217, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 218, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 219, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 220, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 221, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 222, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 214, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 215, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 216, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 217, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 218, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 219, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 220, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 221, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 222, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 223, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 215, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 216, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 217, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 218, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 219, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 220, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 221, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 222, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 223, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 216, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 217, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 218, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 219, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 220, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 221, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 222, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 217, y: 240, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 218, y: 240, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 219, y: 240, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
-  { x: 220, y: 240, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 223, y:  27, tileId: 0x5A, locId: 0x06 }, // ガイアの町
+    { x: 221, y:  28, tileId: 0x5A, locId: 0x06 }, // ガイアの町
+    { x: 222, y:  28, tileId: 0x5A, locId: 0x06 }, // ガイアの町
+    { x:  54, y:  29, tileId: 0x46, locId: 0x13 }, // 滝裏の洞窟
+    { x: 129, y:  45, tileId: 0x38, locId: 0x0C }, // 試練の城
+    { x: 130, y:  45, tileId: 0x39, locId: 0x0C }, // 試練の城
+    { x:  92, y:  48, tileId: 0x6A, locId: 0x00 }, // ドラゴンの洞窟 1
+    { x:  29, y:  49, tileId: 0x36, locId: 0x1E }, // キャラバン（オアシス）
+    { x:  79, y:  49, tileId: 0x66, locId: 0x11 }, // ドラゴンの洞窟 2
+    { x:  96, y:  51, tileId: 0x6C, locId: 0x12 }, // バハムートの部屋
+    { x:  61, y:  57, tileId: 0x5D, locId: 0x07 }, // オンラクの町
+    { x:  62, y:  57, tileId: 0x5D, locId: 0x07 }, // オンラクの町
+    { x:  61, y:  58, tileId: 0x5D, locId: 0x07 }, // オンラクの町
+    { x:  62, y:  58, tileId: 0x5D, locId: 0x07 }, // オンラクの町
+    { x:  93, y:  58, tileId: 0x67, locId: 0x1B }, // ドラゴンの洞窟 3
+    { x: 194, y:  58, tileId: 0x1D, locId: 0x18 }, // ミラージュの塔
+    { x: 105, y:  59, tileId: 0x68, locId: 0x1C }, // ドラゴンの洞窟 4
+    { x: 116, y:  66, tileId: 0x69, locId: 0x1D }, // ドラゴンの洞窟 5
+    { x: 235, y:  98, tileId: 0x6D, locId: 0x08 }, // ルフェイン人の町
+    { x: 234, y:  99, tileId: 0x6D, locId: 0x08 }, // ルフェイン人の町
+    { x: 235, y:  99, tileId: 0x6D, locId: 0x08 }, // ルフェイン人の町
+    { x: 236, y:  99, tileId: 0x6D, locId: 0x08 }, // ルフェイン人の町
+    { x: 168, y: 117, tileId: 0x32, locId: 0x15 }, // マトーヤの洞窟
+    { x: 129, y: 123, tileId: 0x57, locId: 0x0D }, // カオスの神殿
+    { x: 130, y: 123, tileId: 0x58, locId: 0x0D }, // カオスの神殿
+    { x: 210, y: 149, tileId: 0x4A, locId: 0x02 }, // 港町プラボカ
+    { x: 209, y: 150, tileId: 0x4A, locId: 0x02 }, // 港町プラボカ
+    { x: 211, y: 150, tileId: 0x4A, locId: 0x02 }, // 港町プラボカ
+    { x: 100, y: 155, tileId: 0x2F, locId: 0x14 }, // ドワーフの洞窟
+    { x:  81, y: 159, tileId: 0x4D, locId: 0x04 }, // メルモンドの町
+    { x: 152, y: 159, tileId: 0x01, locId: 0x09 }, // コーネリア城
+    { x: 153, y: 159, tileId: 0x02, locId: 0x09 }, // コーネリア城
+    { x:  81, y: 160, tileId: 0x4D, locId: 0x04 }, // メルモンドの町
+    { x:  82, y: 160, tileId: 0x4D, locId: 0x04 }, // メルモンドの町
+    { x: 151, y: 160, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
+    { x: 154, y: 160, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
+    { x: 151, y: 161, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
+    { x: 154, y: 161, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
+    { x: 151, y: 162, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
+    { x: 154, y: 162, tileId: 0x49, locId: 0x01 }, // コーネリア城下町
+    { x:  42, y: 174, tileId: 0x34, locId: 0x19 }, // 巨人の洞窟（東）
+    { x:  30, y: 175, tileId: 0x35, locId: 0x1A }, // 巨人の洞窟（西）
+    { x: 197, y: 183, tileId: 0x2B, locId: 0x10 }, // 氷の洞窟
+    { x:  65, y: 186, tileId: 0x0E, locId: 0x0E }, // アースの洞窟
+    { x: 102, y: 186, tileId: 0x29, locId: 0x0B }, // 西の城（アストス城）
+    { x: 103, y: 186, tileId: 0x2A, locId: 0x0B }, // 西の城（アストス城）
+    { x:  30, y: 190, tileId: 0x3A, locId: 0x16 }, // 賢者の洞窟
+    { x: 188, y: 203, tileId: 0x64, locId: 0x0F }, // グルグ火山
+    { x: 189, y: 203, tileId: 0x65, locId: 0x0F }, // グルグ火山
+    { x: 219, y: 216, tileId: 0x4E, locId: 0x05 }, // クレセントレイクの町
+    { x: 220, y: 216, tileId: 0x4E, locId: 0x05 }, // クレセントレイクの町
+    { x: 218, y: 217, tileId: 0x4E, locId: 0x05 }, // クレセントレイクの町
+    { x: 220, y: 217, tileId: 0x4E, locId: 0x05 }, // クレセントレイクの町
+    { x: 218, y: 218, tileId: 0x4E, locId: 0x05 }, // クレセントレイクの町
+    { x: 134, y: 221, tileId: 0x4C, locId: 0x03 }, // エルフの町
+    { x: 135, y: 221, tileId: 0x1B, locId: 0x0A }, // エルフ城
+    { x: 136, y: 221, tileId: 0x1C, locId: 0x0A }, // エルフ城
+    { x: 137, y: 221, tileId: 0x4C, locId: 0x03 }, // エルフの町
+    { x: 134, y: 222, tileId: 0x4C, locId: 0x03 }, // エルフの町
+    { x: 137, y: 222, tileId: 0x4C, locId: 0x03 }, // エルフの町
+    { x: 216, y: 234, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 217, y: 234, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 218, y: 234, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 215, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 216, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 217, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 218, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 219, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 220, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 221, y: 235, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 102, y: 236, tileId: 0x6E, locId: 0x17 }, // 沼の洞窟
+    { x: 214, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 215, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 216, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 217, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 218, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 219, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 220, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 221, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 222, y: 236, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 214, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 215, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 216, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 217, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 218, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 219, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 220, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 221, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 222, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 223, y: 237, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 215, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 216, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 217, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 218, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 219, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 220, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 221, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 222, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 223, y: 238, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 216, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 217, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 218, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 219, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 220, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 221, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 222, y: 239, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 217, y: 240, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 218, y: 240, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 219, y: 240, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
+    { x: 220, y: 240, tileId: 0x37, locId: 0x1F }, // リュカーン砂漠
   ];
 
   static _coordMap = null;
@@ -3805,7 +3818,7 @@ class WorldMapViewer {
   static currentMetaTableOffset = this.TILE_CHARACTER_ASSIGNMENT_TABLE;  // 現在のタイル割り当てPRGオフセット
   static currentChrOffset = this.CHARACTER_PATTERN_TABLE;                // 現在のCHRデータPRGオフセット
 
-    static mapData = null; // 256x256タイル配列 (65536 bytes)
+  static mapData = null;                // 256x256タイル配列 (65536 bytes)
   static chrAtlasCanvas = null;         // 8x8 キャラクタ全256個を保持する共通Canvas (128x128px)
   static chrAtlasCtx = null;
   static tileAtlasCanvas = null;        // 16x16 メタタイル全128個を保持する共通Canvas (256x128px)
@@ -3816,8 +3829,8 @@ class WorldMapViewer {
   static sprites = new Map();           // スプライトIDごとの16x16 オフスクリーンCanvasキャッシュ
   static romTileEventList = null;       // ROM属性テーブルから生成したタイルイベント辞書 (タイルID -> 地名ID)
   static detectedLocations = [];        // 展開マップ走査で検出した地点リスト: [{x, y, tileId, locId}]
-  static currentTarget = 'player'; // 'player' | 'ship' | 'airship'
-  static origPos = { x: 0, y: 0 }; // キャンセル時の復元用座標バッファ
+  static currentTarget = 'player';      // 'player' | 'ship' | 'airship'
+  static origPos = { x: 0, y: 0 };      // キャンセル時の復元用座標バッファ
   static initialized = false;
 
   static debugChrPaletteIndex = 0;      // 0〜3: BG0〜BG3, 4〜7: SPR0〜SPR3
@@ -3825,11 +3838,11 @@ class WorldMapViewer {
 
   // カーソル位置
   static curPos = {x:0, y:0};
-  static selectedPos = {x:0, y:0}; // モーダル内で一時保持する選択位置（位置アイコン配置座標）
-  static isDraggingMap = false;   // 全体マップのドラッグ中フラグ
-  static isHoveringMap = false;   // 全体マップ上のホバー判定フラグ
-  static isHoveringZoom = false;  // 拡大ビュー上のホバー判定フラグ
-  static activeKeys = new Set();  // 押下中のキー状態
+  static selectedPos = {x:0, y:0};  // モーダル内で一時保持する選択位置（位置アイコン配置座標）
+  static isDraggingMap = false;     // 全体マップのドラッグ中フラグ
+  static isHoveringMap = false;     // 全体マップ上のホバー判定フラグ
+  static isHoveringZoom = false;    // 拡大ビュー上のホバー判定フラグ
+  static activeKeys = new Set();    // 押下中のキー状態
 
   static zoomViewWidth  = 17;
   static zoomViewHeight = 15;

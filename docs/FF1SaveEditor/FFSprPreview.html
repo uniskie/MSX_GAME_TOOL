@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSX FF SPR Manager</title>
+<style>
+  :root {
+    --bg-main: #f0f2f5;
+    --bg-panel: #ffffff;
+    --bg-card: #ffffff;
+    --border: #d0d7de;
+    --border-hover: #8c959f;
+    --accent: #0969da;
+    --accent-hover: #0854b0;
+    --text: #1f2328;
+    --text-dim: #656d76;
+    --diff: #bc4c00;
+    --diff-bg: #fff8c5;
+
+    /* パレット内の黒(0), 濃灰(109), 明灰(182), 白(255)と明確に区別できるスレートグレー */
+    --canvas-bg-1: #7c8594;
+    --canvas-bg-2: #929ba8;
+    --canvas-border: #687180;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-main);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", Meiryo, monospace;
+    font-size: 13px;
+    user-select: none;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .title {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
+  .file-badge {
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .file-badge b { color: var(--text); }
+  .diff-status {
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    display: inline-block;
+    margin-left: 6px;
+  }
+  .diff-status.has-diff {
+    background: var(--diff-bg);
+    color: var(--diff);
+    border: 1px solid var(--diff);
+  }
+  .diff-status.no-diff {
+    background: #dafbe1;
+    color: #1a7f37;
+    border: 1px solid #1a7f37;
+  }
+
+  .palette-strip {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .palette-cell {
+    width: 14px;
+    height: 24px;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  select, button {
+    background: #f6f8fa;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: 0.15s;
+  }
+  select:hover, button:hover {
+    background: #eef1f4;
+    border-color: var(--border-hover);
+  }
+  button.primary {
+    background: var(--accent);
+    color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  button.primary:hover { background: var(--accent-hover); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  main {
+    flex: 1;
+    padding: 16px;
+    width: 100%;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  .sprite-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 4px 4px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transition: transform 0.1s, border-color 0.1s, box-shadow 0.1s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+  .sprite-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+  }
+  .sprite-card.has-diff {
+    border-color: var(--diff);
+    box-shadow: 0 0 0 1px var(--diff);
+  }
+
+  .badge-diff {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: var(--diff);
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 1px 3px;
+    border-radius: 3px;
+    line-height: 1;
+  }
+
+  .checker-bg {
+    background-image: 
+      linear-gradient(45deg, var(--canvas-bg-1) 25%, transparent 25%), 
+      linear-gradient(-45deg, var(--canvas-bg-1) 25%, transparent 25%), 
+      linear-gradient(45deg, transparent 75%, var(--canvas-bg-1) 75%), 
+      linear-gradient(-45deg, transparent 75%, var(--canvas-bg-1) 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+    background-color: var(--canvas-bg-2);
+    border: 1px solid var(--canvas-border);
+    border-radius: 3px;
+  }
+  canvas { image-rendering: pixelated; display: block; }
+
+  .sprite-id {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  #dropOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.85);
+    border: 3px dashed var(--accent);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  #dropOverlay.active { display: flex; }
+  #dropOverlay h2 { font-size: 22px; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="title">MSX SPR VIEWER</div>
+    <div class="file-badge" id="fileInfo">ファイルを画面にドロップ</div>
+    <div class="palette-strip" id="paletteStrip" title="パレット 0〜15"></div>
+  </div>
+
+  <div class="controls">
+    <select id="viewMode">
+      <option value="set" selected>3つセット重ね合わせ</option>
+      <option value="single">個別スプライト (バラ)</option>
+    </select>
+    <button id="btnOpen">ファイル選択</button>
+    <input type="file" id="fileInput" accept=".spr,.bin,*.*" style="display:none">
+    <button class="primary" id="btnExportBMP" disabled>BMP出力</button>
+  </div>
+</header>
+
+<main>
+  <div class="grid" id="spriteGrid"></div>
+</main>
+
+<div id="dropOverlay">
+  <h2>ファイルをドロップ</h2>
+</div>
+
+<script>
+// パレットテーブル定義 (JOBS_L1.json)
+const PALETTE = [
+  { index: 0,  rgb: [109, 109, 109] },
+  { index: 1,  rgb: [0, 0, 0] },
+  { index: 2,  rgb: [36, 36, 255] },
+  { index: 3,  rgb: [255, 255, 255] },
+  { index: 4,  rgb: [255, 182, 146] },
+  { index: 5,  rgb: [255, 36, 36] },
+  { index: 6,  rgb: [255, 146, 0] },
+  { index: 7,  rgb: [219, 73, 182] },
+  { index: 8,  rgb: [73, 146, 255] },
+  { index: 9,  rgb: [146, 219, 255] },
+  { index: 10, rgb: [0, 182, 0] },
+  { index: 11, rgb: [73, 255, 73] },
+  { index: 12, rgb: [219, 219, 36] },
+  { index: 13, rgb: [182, 182, 182] },
+  { index: 14, rgb: [0, 146, 0] },
+  { index: 15, rgb: [182, 255, 255] }
+];
+
+/**
+ * 単一スプライト管理クラス (40バイト)
+ * パターン: 32バイト (左8x16: 16バイト + 右8x16: 16バイト)
+ * カラーテーブル: 8バイト (偶数ライン: 上位4bit, 奇数ライン: 下位4bit)
+ */
+class SpriteItem {
+  constructor(index, patternBytes, colorBytes) {
+    this.index = index;
+    this.pattern = patternBytes;
+    this.colorTable = new Uint8Array(8);
+    this.originalColorTable = new Uint8Array(8);
+    this.colors = new Uint8Array(16);
+    this.hasDiff = false;
+
+    this.colorTable.set(colorBytes);
+    this.originalColorTable.set(colorBytes);
+    this.decodeColors();
+  }
+
+  updateColorTable(newColorBytes) {
+    let diff = false;
+    for (let i = 0; i < 8; i++) {
+      if (this.originalColorTable[i] !== newColorBytes[i]) {
+        diff = true;
+        break;
+      }
+    }
+    this.hasDiff = diff;
+    this.colorTable.set(newColorBytes);
+    this.decodeColors();
+  }
+
+  decodeColors() {
+    for (let i = 0; i < 8; i++) {
+      const b = this.colorTable[i];
+      this.colors[i * 2]     = (b >> 4) & 0x0F;
+      this.colors[i * 2 + 1] = b & 0x0F;
+    }
+  }
+
+  getDot(x, y) {
+    if (x < 8) {
+      return (this.pattern[y] >> (7 - x)) & 1;
+    } else {
+      return (this.pattern[16 + y] >> (7 - (x - 8))) & 1;
+    }
+  }
+
+  getColor(y) {
+    return this.colors[y] || 0;
+  }
+}
+
+/**
+ * 3スプライト1セット管理オブジェクト
+ * 手前プレーン (plane0) -> 中間 (plane1) -> 奥 (plane2) の順で重ね合わせ、
+ * 16x16ピクセルの4bpp合成画像データを生成・保持する
+ */
+class SpriteSet {
+  constructor(setIndex, plane0, plane1, plane2) {
+    this.setIndex = setIndex;
+    this.planes = [plane0, plane1, plane2];
+    this.pixels = new Uint8Array(16 * 16);
+    this.compose();
+  }
+
+  get hasDiff() {
+    return this.planes.some(sp => sp && sp.hasDiff);
+  }
+
+  compose() {
+    // MSX版ファイナルファンタジーではOR（CCビット）は使用していない。
+    // 手前プレーン優先（通常のスプライト重ね合わせ：plane0 > plane1 > plane2）
+    for (let y = 0; y < 16; y++) {
+      for (let x = 0; x < 16; x++) {
+        let pixelColor = 0;
+
+        for (const sp of this.planes) {
+          if (sp && sp.getDot(x, y)) {
+            const c = sp.getColor(y);
+            if (c !== 0) {
+              pixelColor = c;
+              break;
+            }
+          }
+        }
+
+        this.pixels[y * 16 + x] = pixelColor;
+      }
+    }
+  }
+
+  getPixel(x, y) {
+    return this.pixels[y * 16 + x];
+  }
+}
+
+// アプリケーション状態
+let rawSprites = [];
+let spriteSets = [];
+let currentFilename = "";
+let extra2Applied = false;
+
+// DOM要素参照
+const spriteGrid = document.getElementById('spriteGrid');
+const fileInfo = document.getElementById('fileInfo');
+const dropOverlay = document.getElementById('dropOverlay');
+const fileInput = document.getElementById('fileInput');
+const btnOpen = document.getElementById('btnOpen');
+const btnExportBMP = document.getElementById('btnExportBMP');
+const viewMode = document.getElementById('viewMode');
+const paletteStrip = document.getElementById('paletteStrip');
+
+// パレットカラーバー描画
+PALETTE.forEach(p => {
+  const d = document.createElement('div');
+  d.className = 'palette-cell';
+  d.style.backgroundColor = `rgb(${p.rgb.join(',')})`;
+  paletteStrip.appendChild(d);
+});
+
+/**
+ * ファイル受付・特殊処理ルーティング
+ */
+function handleFile(buffer, filename) {
+  const upperCurrent = currentFilename.toUpperCase();
+  const upperNew = filename.toUpperCase();
+
+  // EXTRA.SPR読み込み済み状態でEXTRA2.SPRがドロップされた場合のカラーテーブル上書き
+  if (upperCurrent.includes("EXTRA.SPR") && upperNew.includes("EXTRA2.SPR") && rawSprites.length > 0) {
+    applyExtra2ColorTable(buffer, filename);
+    return;
+  }
+
+  // 通常のSPRファイル読み込み
+  loadBuffer(buffer, filename);
+}
+
+/**
+ * EXTRA2.SPRによるカラーテーブル上書き処理 (1スプライト毎8バイト)
+ * 元のカラーテーブルとの差異検出も行う
+ */
+function applyExtra2ColorTable(buffer, filename) {
+  const bytes = new Uint8Array(buffer);
+  const colorTableSize = 8;
+  const count = Math.min(rawSprites.length, Math.floor(bytes.length / colorTableSize));
+  let diffCount = 0;
+
+  for (let i = 0; i < count; i++) {
+    const colBytes = bytes.subarray(i * colorTableSize, (i + 1) * colorTableSize);
+    rawSprites[i].updateColorTable(colBytes);
+    if (rawSprites[i].hasDiff) {
+      diffCount++;
+    }
+  }
+
+  // セット合成画像を再生成
+  spriteSets.forEach(set => set.compose());
+
+  extra2Applied = true;
+
+  // 差異状態ラベルの生成
+  let diffLabel = "";
+  if (diffCount > 0) {
+    diffLabel = `<span class="diff-status has-diff">カラーテーブル差異あり: ${diffCount} / ${count} スプライト変更</span>`;
+  } else {
+    diffLabel = `<span class="diff-status no-diff">カラーテーブル差異なし (完全一致)</span>`;
+  }
+
+  fileInfo.innerHTML = `<b>${currentFilename} + ${filename}</b> (${spriteSets.length}セット / 計${spriteSets.length * 3}スプライト) ${diffLabel}`;
+  renderGrid();
+}
+
+/**
+ * SPRバイナリデータ読み込み
+ * 1スプライト = 40バイト (パターン32B + カラー8B)
+ */
+function loadBuffer(buffer, filename) {
+  const bytes = new Uint8Array(buffer);
+  rawSprites = [];
+  spriteSets = [];
+  extra2Applied = false;
+
+  const SPRITE_SIZE = 40;
+  const totalSprites = Math.floor(bytes.length / SPRITE_SIZE);
+
+  for (let i = 0; i < totalSprites; i++) {
+    const offset = i * SPRITE_SIZE;
+    const pat = bytes.subarray(offset, offset + 32);
+    const col = bytes.subarray(offset + 32, offset + 40);
+    rawSprites.push(new SpriteItem(i, pat, col));
+  }
+
+  // 3スプライト1セットの構築（3の倍数を超えた末尾余剰分は無視）
+  const setCount = Math.floor(totalSprites / 3);
+  for (let s = 0; s < setCount; s++) {
+    const p0 = rawSprites[s * 3];
+    const p1 = rawSprites[s * 3 + 1];
+    const p2 = rawSprites[s * 3 + 2];
+    spriteSets.push(new SpriteSet(s, p0, p1, p2));
+  }
+
+  currentFilename = filename || "SPRITES.SPR";
+  fileInfo.innerHTML = `<b>${currentFilename}</b> (${setCount}セット / 計${setCount * 3}スプライト)`;
+  btnExportBMP.disabled = (setCount === 0);
+
+  renderGrid();
+}
+
+/**
+ * スプライトグリッド描画
+ * 差異がある場合は DIFF バッジおよび枠線ハイライトを表示
+ */
+function renderGrid() {
+  spriteGrid.innerHTML = '';
+  const isSetMode = (viewMode.value === 'set');
+
+  if (isSetMode) {
+    // 3つセット重ね合わせ表示
+    spriteSets.forEach((set) => {
+      const card = document.createElement('div');
+      card.className = 'sprite-card';
+      if (extra2Applied && set.hasDiff) {
+        card.classList.add('has-diff');
+        const diffBadge = document.createElement('div');
+        diffBadge.className = 'badge-diff';
+        diffBadge.textContent = 'DIFF';
+        card.appendChild(diffBadge);
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'checker-bg';
+      canvas.width = 48; // 16px * 3倍表示
+      canvas.height = 48;
+      const ctx = canvas.getContext('2d');
+
+      for (let y = 0; y < 16; y++) {
+        for (let x = 0; x < 16; x++) {
+          const col = set.getPixel(x, y);
+          if (col !== 0) {
+            const rgb = PALETTE[col].rgb;
+            ctx.fillStyle = `rgb(${rgb.join(',')})`;
+            ctx.fillRect(x * 3, y * 3, 3, 3);
+          }
+        }
+      }
+
+      const idLabel = document.createElement('div');
+      idLabel.className = 'sprite-id';
+      idLabel.textContent = `Set #${set.setIndex}`;
+
+      card.appendChild(canvas);
+      card.appendChild(idLabel);
+      spriteGrid.appendChild(card);
+    });
+  } else {
+    // 個別スプライト表示（有効セット分）
+    const validCount = spriteSets.length * 3;
+    for (let i = 0; i < validCount; i++) {
+      const sp = rawSprites[i];
+      const card = document.createElement('div');
+      card.className = 'sprite-card';
+      if (extra2Applied && sp.hasDiff) {
+        card.classList.add('has-diff');
+        const diffBadge = document.createElement('div');
+        diffBadge.className = 'badge-diff';
+        diffBadge.textContent = 'DIFF';
+        card.appendChild(diffBadge);
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'checker-bg';
+      canvas.width = 48;
+      canvas.height = 48;
+      const ctx = canvas.getContext('2d');
+
+      for (let y = 0; y < 16; y++) {
+        const col = sp.getColor(y);
+        if (col === 0) continue;
+        const rgb = PALETTE[col].rgb;
+        ctx.fillStyle = `rgb(${rgb.join(',')})`;
+
+        for (let x = 0; x < 16; x++) {
+          if (sp.getDot(x, y)) {
+            ctx.fillRect(x * 3, y * 3, 3, 3);
+          }
+        }
+      }
+
+      const idLabel = document.createElement('div');
+      idLabel.className = 'sprite-id';
+      idLabel.textContent = `#${sp.index}`;
+
+      card.appendChild(canvas);
+      card.appendChild(idLabel);
+      spriteGrid.appendChild(card);
+    }
+  }
+}
+
+/**
+ * 横256px 4bitカラーBMP保存
+ */
+function exportBMP() {
+  const isSetMode = (viewMode.value === 'set');
+  const itemCount = isSetMode ? spriteSets.length : spriteSets.length * 3;
+  if (itemCount === 0) return;
+
+  const bmpW = 256;
+  const spriteW = 16;
+  const spriteH = 16;
+  const perRow = bmpW / spriteW;
+  const rows = Math.ceil(itemCount / perRow);
+  const bmpH = rows * spriteH;
+
+  const rowBytes = bmpW / 2;
+  const imageSize = rowBytes * bmpH;
+  const totalSize = 54 + 64 + imageSize;
+
+  const buffer = new ArrayBuffer(totalSize);
+  const view = new DataView(buffer);
+
+  // BITMAPFILEHEADER
+  view.setUint16(0, 0x4D42, true);
+  view.setUint32(2, totalSize, true);
+  view.setUint16(6, 0, true);
+  view.setUint16(8, 0, true);
+  view.setUint32(10, 54 + 64, true);
+
+  // BITMAPINFOHEADER
+  view.setUint32(14, 40, true);
+  view.setInt32(18, bmpW, true);
+  view.setInt32(22, bmpH, true);
+  view.setUint16(26, 1, true);
+  view.setUint16(28, 4, true);
+  view.setUint32(30, 0, true);
+  view.setUint32(34, imageSize, true);
+  view.setInt32(38, 2835, true);
+  view.setInt32(42, 2835, true);
+  view.setUint32(46, 16, true);
+  view.setUint32(50, 16, true);
+
+  // パレットテーブル (BGR0形式)
+  let pOff = 54;
+  for (let i = 0; i < 16; i++) {
+    const rgb = PALETTE[i].rgb;
+    view.setUint8(pOff++, rgb[2]); // B
+    view.setUint8(pOff++, rgb[1]); // G
+    view.setUint8(pOff++, rgb[0]); // R
+    view.setUint8(pOff++, 0);
+  }
+
+  // フレームバッファ展開
+  const frame = new Uint8Array(bmpW * bmpH);
+
+  if (isSetMode) {
+    spriteSets.forEach((set, idx) => {
+      const col = idx % perRow;
+      const row = Math.floor(idx / perRow);
+      const bx = col * spriteW;
+      const by = row * spriteH;
+
+      for (let y = 0; y < 16; y++) {
+        for (let x = 0; x < 16; x++) {
+          frame[(by + y) * bmpW + (bx + x)] = set.getPixel(x, y);
+        }
+      }
+    });
+  } else {
+    for (let idx = 0; idx < itemCount; idx++) {
+      const sp = rawSprites[idx];
+      const col = idx % perRow;
+      const row = Math.floor(idx / perRow);
+      const bx = col * spriteW;
+      const by = row * spriteH;
+
+      for (let y = 0; y < 16; y++) {
+        const c = sp.getColor(y);
+        for (let x = 0; x < 16; x++) {
+          if (sp.getDot(x, y)) {
+            frame[(by + y) * bmpW + (bx + x)] = c;
+          }
+        }
+      }
+    }
+  }
+
+  // ボトムアップ形式書き込み
+  let dOff = 54 + 64;
+  for (let y = bmpH - 1; y >= 0; y--) {
+    for (let x = 0; x < bmpW; x += 2) {
+      const hi = frame[y * bmpW + x] & 0x0F;
+      const lo = frame[y * bmpW + x + 1] & 0x0F;
+      view.setUint8(dOff++, (hi << 4) | lo);
+    }
+  }
+
+  const blob = new Blob([buffer], { type: 'image/bmp' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const baseName = currentFilename.replace(/\.[^/.]+$/, "");
+  const suffix = (extra2Applied ? "_EXTRA2" : "") + (isSetMode ? "_sets" : "_single");
+  a.download = baseName + suffix + ".bmp";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// 全画面ドラッグ＆ドロップ制御
+let dragCounter = 0;
+window.addEventListener('dragenter', e => {
+  e.preventDefault();
+  dragCounter++;
+  dropOverlay.classList.add('active');
+});
+window.addEventListener('dragleave', e => {
+  e.preventDefault();
+  dragCounter--;
+  if (dragCounter <= 0) {
+    dragCounter = 0;
+    dropOverlay.classList.remove('active');
+  }
+});
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => {
+  e.preventDefault();
+  dragCounter = 0;
+  dropOverlay.classList.remove('active');
+  if (e.dataTransfer.files.length > 0) {
+    const file = e.dataTransfer.files[0];
+    const reader = new FileReader();
+    reader.onload = () => handleFile(reader.result, file.name);
+    reader.readAsArrayBuffer(file);
+  }
+});
+
+// コントロールイベント
+btnOpen.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => {
+  if (e.target.files.length > 0) {
+    const f = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => handleFile(reader.result, f.name);
+    reader.readAsArrayBuffer(f);
+  }
+});
+
+viewMode.addEventListener('change', renderGrid);
+btnExportBMP.addEventListener('click', exportBMP);
+</script>
+</body>
+</html>
