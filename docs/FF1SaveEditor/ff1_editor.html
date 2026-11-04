@@ -196,7 +196,7 @@
     box-sizing: border-box;
     transition: background-color 0.15s, border-color 0.15s;
   }
-  .w-name   { width: 72px; }
+  .w-name   { width: 78px; }
   /*.w-2digit { width: 50px; text-align: center; }*/
   .w-byte1  { width: 64px; text-align: center; }  /* 1byte値（最大3桁: 255） */
   .w-byte2  { width: 78px; text-align: center; }  /* 2byte値（最大5桁: 65535） */
@@ -1036,13 +1036,13 @@ const BASE_WEAPONS_DATA = [
   { name: "サーベル", atk: 13, hit: 5, jobs: [0, 1, 3, 6, 7, 9] },
   { name: "ロングソード", atk: 20, hit: 10, jobs: [0, 3, 6, 7, 9] },
   { name: "グレートアクス", atk: 22, hit: 5, jobs: [0, 6, 7] },
-  { name: "フォールチョン", atk: 16, hit: 10, jobs: [0, 1, 3, 6, 7, 9] },
+  { name: "フォールチョン", atk: 15, hit: 10, jobs: [0, 1, 3, 6, 7, 9] },
   { name: "ミスリルナイフ", atk: 10, hit: 15, jobs: [0, 1, 2, 3, 5, 6, 7, 8, 9, 11] },
   { name: "ミスリルソード", atk: 23, hit: 15, jobs: [0, 3, 6, 7, 9] },
   { name: "ミスリルハンマ", atk: 12, hit: 5, jobs: [0, 4, 6, 7, 10] },
   { name: "ミスリルアクス", atk: 25, hit: 10, jobs: [0, 6, 7] },
   { name: "フレームソード", atk: 26, hit: 20, jobs: [0, 3, 6, 7, 9] },
-  { name: "アイスブランド", atk: 23, hit: 25, jobs: [0, 3, 6, 7, 9] },
+  { name: "アイスブランド", atk: 29, hit: 25, jobs: [0, 3, 6, 7, 9] },
   { name: "ウィルムキラー", atk: 19, hit: 15, jobs: [0, 1, 3, 6, 7, 9] },
   { name: "グレートソード", atk: 21, hit: 20, jobs: [0, 3, 6, 7, 9] },
   { name: "サンブレード", atk: 32, hit: 30, jobs: [0, 3, 6, 7, 9] },
@@ -1071,10 +1071,10 @@ const BASE_ARMORS_DATA = [
   { name: "てつよろい", def: 24, wt: 23, type: "body", jobs: [0, 6, 7] },
   { name: "ナイトのよろい", def: 34, wt: 33, type: "body", jobs: [0, 6] },
   { name: "ミスリルメイル", def: 18, wt: 8, type: "body", jobs: [0, 3, 6, 7, 9] },
-  { name: "フレイムメイル", def: 34, wt: 23, type: "body", jobs: [0, 6, 7] },
-  { name: "アイスアーマー", def: 34, wt: 23, type: "body", jobs: [0, 6, 7] },
-  { name: "ダイヤアーマー", def: 58, wt: 23, type: "body", jobs: [6] },
-  { name: "ドラゴンメイル", def: 56, wt: 23, type: "body", jobs: [6] },
+  { name: "フレイムメイル", def: 34, wt: 10, type: "body", jobs: [0, 6, 7] },
+  { name: "アイスアーマー", def: 34, wt: 10, type: "body", jobs: [0, 6, 7] },
+  { name: "ダイヤアーマー", def: 42, wt: 10, type: "body", jobs: [6] },
+  { name: "ドラゴンメイル", def: 42, wt: 10, type: "body", jobs: [6] },
   { name: "どうのうでわ", def: 4, wt: 1, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
   { name: "ぎんのうでわ", def: 15, wt: 1, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
   { name: "ルビーのうでわ", def: 24, wt: 1, type: "body", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
@@ -1093,17 +1093,17 @@ const BASE_ARMORS_DATA = [
   { name: "かわのぼうし", def: 1, wt: 1, type: "head", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
   { name: "かぶと", def: 3, wt: 3, type: "head", jobs: [0, 6, 7] },
   { name: "おおかぶと", def: 5, wt: 5, type: "head", jobs: [0, 6, 7] },
-  { name: "ミスリルヘルム", def: 8, wt: 3, type: "head", jobs: [0, 6, 7] },
-  { name: "ダイヤのかぶと", def: 15, wt: 3, type: "head", jobs: [6] },
+  { name: "ミスリルヘルム", def: 6, wt: 3, type: "head", jobs: [0, 6, 7] },
+  { name: "ダイヤのかぶと", def: 8, wt: 3, type: "head", jobs: [6] },
   { name: "いやしのかぶと", def: 6, wt: 3, type: "head", jobs: [6, 7] },
   { name: "リボン", def: 1, wt: 1, type: "head", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
   { name: "かわてぶくろ", def: 1, wt: 1, type: "arm", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] },
   { name: "せいどうのこて", def: 2, wt: 3, type: "arm", jobs: [0, 6, 7] },
   { name: "はがねのこて", def: 4, wt: 5, type: "arm", jobs: [0, 6, 7] },
   { name: "ミスリルのこて", def: 6, wt: 3, type: "arm", jobs: [0, 6, 7] },
-  { name: "ガントレット", def: 4, wt: 5, type: "arm", jobs: [6, 7] },
-  { name: "きょじんのこて", def: 5, wt: 5, type: "arm", jobs: [6, 7, 8] },
-  { name: "ダイヤのこて", def: 13, wt: 3, type: "arm", jobs: [6] },
+  { name: "ガントレット", def: 6, wt: 3, type: "arm", jobs: [6, 7] },
+  { name: "きょじんのこて", def: 6, wt: 3, type: "arm", jobs: [6, 7, 8] },
+  { name: "ダイヤのこて", def: 8, wt: 3, type: "arm", jobs: [6] },
   { name: "まもりのゆびわ", def: 8, wt: 1, type: "arm", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] }
 ];
 
@@ -1775,8 +1775,8 @@ class GameDataManager {
   static standard = {
     expTable: [
            0,     40,    196,    547,   1171,   2146,   3550,   5461,   7957,  11116,
-       15016,  19735,  25331,  31942,  39586,  48361,  58345,  69617,  82253,  96332,
-      111932, 129131, 148007, 168639, 191103, 215478, 241843, 270275, 300851, 333651,
+       15016,  19735,  25351,  31942,  39586,  48361,  58345,  69617,  82253,  96332,
+      111932, 129131, 148008, 168639, 191103, 215479, 241843, 270275, 300851, 333651,
       366450, 399250, 432049, 464849, 497648, 530448, 563247, 596047, 628846, 661646,
       694445, 727245, 760044, 792844, 825643, 858443, 891242, 924042, 956841, 989641
     ],
@@ -2106,12 +2106,10 @@ class GameDataManager {
 
     let startStatsOffset = -1;
     for (let i = 0; i < rom.length - 96; i++) {
-      if (rom[i] === 0x00 && rom[i+16] === 0x01 && rom[i+32] === 0x02 &&
-          rom[i+48] === 0x03 && rom[i+64] === 0x04 && rom[i+80] === 0x05) {
-        if (rom[i+1] >= 20 && rom[i+1] <= 100 && rom[i+2] >= 10 && rom[i+2] <= 50) {
-          startStatsOffset = i;
-          break;
-        }
+      if (rom[i] === 35 && rom[i+1] === 20 && rom[i+2] === 5 && rom[i+3] === 1 && rom[i+4] === 10 && rom[i+5] === 5 &&
+          rom[i+16] === 30 && rom[i+17] === 5 && rom[i+18] === 10) {
+        startStatsOffset = i;
+        break;
       }
     }
 
@@ -2121,12 +2119,12 @@ class GameDataManager {
       for (let job = 0; job < 6; job++) {
         const offset = startStatsOffset + (job * 16);
         const st = [
+          rom[offset + 0x00],
           rom[offset + 0x01],
           rom[offset + 0x02],
           rom[offset + 0x03],
           rom[offset + 0x04],
-          rom[offset + 0x05],
-          rom[offset + 0x06]
+          rom[offset + 0x05]
         ];
         this.romData.initialStats.push(st);
         const std = this.standard.initialStats[job];

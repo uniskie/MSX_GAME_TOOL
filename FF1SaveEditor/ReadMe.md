@@ -1,7 +1,7 @@
 # FC版・MSX版対応 ファイナルファンタジーⅠ セーブデータエディタ
 
-オンラインから実行：
-https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/ff1_editor.html
+オンラインから実行：  
+<https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/ff1_editor.html>
 
 - MSX版 : ユーザーディスクをエディタウィンドウにドロップしてください。
 - FC版  : SAVファイルをエディタウィンドウにドロップしてください。  
@@ -9,6 +9,10 @@ https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/ff1_editor.html
           　 たとえばレトフリのセーブデータは余計なものがついてます。
 
 編集が終わったら保存ボタンをおすとダウンロードフォルダに編集後のセーブデータが保存されます。
+
+![screenshot](screenshot.png)
+
+## 簡易ガイド
 
 ### 名前入力
 
@@ -22,7 +26,8 @@ https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/ff1_editor.html
 
 初期状態では簡易的なマップ表示ですが、ROMを読み込ませると正確なマップが表示できます。
 
-簡易表示の場合、
+簡易表示の場合
+
 - ff1_editor_world_map.png
 - ff1_editor_world_sprites.png
 
@@ -36,45 +41,65 @@ https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/ff1_editor.html
 
 ### ファミコン版カートリッジを所有していてダンプ出来る方
 
-ダンプしたNESロムファイルをドロップすると、
+ダンプしたNESロムファイルをドロップすると（本当に）ちょっとした機能が強化されます。
 
 - グラフィックがROMから読み込んだものに変わります。
 - 成長テーブルやアイテムテーブルがROMから読み込んだものに変わります。
 - [地図]ボタンで表示されるワールドマップが正確に表示できるようになります。
 
 ---
+
 # MSX版推奨パッチの紹介
 
 ## Final Fantasy MSX Performance Patch
 
-https://github.com/abekermsx/Final-Fantasy-MSX-Performance-Patch
+<https://github.com/abekermsx/Final-Fantasy-MSX-Performance-Patch>
 
-フレームレート制限の解除と速度最適化により、移動が快適になるパッチです。  
+MSX2版がフレームレート制限の解除と速度最適化により、移動が快適になるパッチです。  
+
 MSX2/2+でも大きな効果がありますが、MSX turboRではさらに快適になります。
+場所によっては速すぎて困るケースも？
 
 メッセージウィンドウの表示速度まで高速になるので、会話ウィンドウ開閉時の音に違和感は出ますが、
 基本的に全体が快適になります。
 
-## BGM割り当て修正パッチ
+VDPの処理がボトルネックなので、もともと処理落ちするところはやっぱり処理落ちします。（無改造よりマシですが）
 
-MSX2版ファイナルファンタジーはダンジョンのBGMがファミコン版と異なる曲が鳴る場所がいくつかあります。
+---
 
-| マップ                 | MSX2版       | ファミコン版 |
-|------------------------|--------------|--------------|
-| 沼の洞窟 B1F、B2F、B3F | MATOOYA.BGM  | RANCHON.BGM  |
-| 巨人の洞窟 東、西      | KAOSS.BGM    | GURUGU.BGM   |
+## MSX2版 BGM割り当て修正パッチ
+
+[FF1-1-BGM_Fix.ips](FF1-1-BGM_Fix.ips)
+
+MSX2版ファイナルファンタジーは
+ダンジョンのBGMがファミコン版と異なる曲が鳴る場所がいくつかあります。
+
+ファミコン版を遊んだ人は、それなりに違和感を感じると思うので、
+ファミコン版準拠のBGM割り当てに修正するパッチを作りました。
+
+| マップ         | MSX2版      | ファミコン版 |
+| :------------- | :---------- | :----------- |
+| カオスの神殿   | KAITEI.BGM  | KAOSS.BGM    |
+| 沼の洞窟       | MATOOYA.BGM | RANCHON.BGM  |
+| ミラージュの塔 | GURUGU.BGM  | RANCHON.BGM  |
+| 海底神殿       | KAITEI.BGM  | KAOSS.BGM    |
+| ラスダン       | KAOSS.BGM   | KAITEI.BGM   |
+| 巨人の洞窟     | KAOSS.BGM   | GURUGU.BGM   |
+
+解析の詳細を知りたい物好きは[ff1_msx_bgm_memo.md](ff1_msx_bgm_memo.md) をどうぞ。
 
 ---
 
 # ファミコン版用ROMエディタの紹介
 
-## HAKKINFF1 (推奨) 
+## HAKKINFF1
 
-https://hakkinff1.digitaldreamers.org/index.html
+<https://hakkinff1.digitaldreamers.org/index.html>
 
 FFHackSterEXにインスパイアされたROMエディタ。
 
-FFHackSterEXでは動かない機能もこちらでは動きますので、こちらを推奨します。
+FFHackSterEXでは動かないマップ系機能がこちらでは動きます。
+その代わり、**Armor**、**Weapon**、**Magic**が**日本語版ROMではエラー**になるようです。
 
 - **日本版向け文字定義ファイル**
 
@@ -91,27 +116,30 @@ FFHackSterEXでは動かない機能もこちらでは動きますので、こ�
 
   メニュー等も日本語化したい場合はff1dファイルを弄れば出来ると思われます。
 
+## FFHackSterEX
 
-## FFHackSterEX (非推奨)
+<https://ffhacksterex.digitaldreamers.org/>
 
-https://ffhacksterex.digitaldreamers.org/
+FFHackSterの後継版
 
-FFHackSterのC#版
+Map系機能や幾つかの機能がエラーで落ちますが、
+**HAKKIN FF1では動かない**、**Armor**、**Weapon**、**Magic**がこちらではエラーなく動きます。
 
-幾つかの機能がexeごと落ちるので非推奨です。  
-一応WorldMap(Preview)は動作します。
 
 - **日本版向け文字定義ファイル**
 
   [for_FFHackSterEX/](for_FFHackSterEX/)
 
   ROMを読み込んで作成されたプロジェクトフォルダにある  
-  `(プロジェクト名).dte.tbl`  
-  `(プロジェクト名).std.tbl`  
+
+  - `(プロジェクト名).dte.tbl`  
+  - `(プロジェクト名).std.tbl`  
+
   に、文字コードに対する文字リストがあります。
 
-  'for_FFHackSterEX/FinalFantasy1.dte.tbl`  
-  'for_FFHackSterEX/FinalFantasy1.std.tbl`  
+  - `for_FFHackSterEX/FinalFantasy1.dte.tbl`  
+  - `for_FFHackSterEX/FinalFantasy1.std.tbl`  
+
   をプロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。
 
   プロジェクトで文字が正常に表示されるようになります。
@@ -127,7 +155,7 @@ FFHackSterのC#版
 # Binary Editor Bz - MSX Custom 向け エンコード定義ファイル
 
 **Binary Editor Bz - MSX Custom**  
-https://github.com/uniskie/MSX_MISC_TOOLS/tree/main/BinaryEditorBz_for_MSX
+<https://github.com/uniskie/MSX_MISC_TOOLS/tree/main/BinaryEditorBz_for_MSX>
 
 「ツール」→「カスタムエンコードの編集」でフォルダが開くので、
 そこへ
