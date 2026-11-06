@@ -67,17 +67,27 @@
 <p>オンラインから実行：<br>
 <a href="https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/ff1_editor.html">https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/ff1_editor.html</a></p>
 <ul>
-<li>MSX版 : ユーザーディスクをエディタウィンドウにドロップしてください。</li>
-<li>FC版  : SAVファイルをエディタウィンドウにドロップしてください。<br>
-※ 特殊なヘッダがついたセーブデータの場合は、ヘッダを除去したものをドロップしてください。
-　 たとえばレトフリのセーブデータは余計なものがついてます。</li>
+<li>
+<p><strong>MSX版</strong> : ユーザーディスクイメージ（DSKファイル）をエディタウィンドウにドロップしてください。</p>
+</li>
+<li>
+<p><strong>FC版</strong>  : SAVファイルをエディタウィンドウにドロップしてください。</p>
+<p>※ 注） RetroFreakのSAVファイルなどの、特殊なヘッダがついたセーブデータの場合は、ヘッダを除去したものをドロップしてください。</p>
+</li>
 </ul>
 <p>編集が終わったら保存ボタンをおすとダウンロードフォルダに編集後のセーブデータが保存されます。</p>
 <p><img src="screenshot.png" alt="screenshot"></p>
+<h2 id="ファイル構成">ファイル構成 </h2>
+<ul>
+<li>ff1_editor.html</li>
+<li>ff1_editor_world_map.png</li>
+<li>ff1_editor_world_sprites.png</li>
+</ul>
 <h2 id="簡易ガイド">簡易ガイド </h2>
 <h3 id="名前入力">名前入力 </h3>
-<p>ゲーム中で使用できる文字を受け付けるのでカタカナも使えます。</p>
-<p>カタカナの小さい「ゥ」などはゲーム中にフォントが存在しないので「ウ」などに強制変更されます。</p>
+<p>ゲーム中のフォントで使用できる文字を受け付けます。</p>
+<p>カタカナも使えますが、カタカナの小さい「ゥ」はゲーム中にフォントが存在しないので「ウ」に強制変更されます。</p>
+<p>アルファベットは<code>L</code>、<code>E</code>、<code>H</code>、<code>P</code>のみ受け付けます。</p>
 <h3 id="地図">[地図] </h3>
 <p>おまけ的な機能です。</p>
 <p>初期状態では簡易的なマップ表示ですが、ROMを読み込ませると正確なマップが表示できます。</p>
@@ -155,55 +165,61 @@
 </tr>
 </tbody>
 </table>
-<p>解析の詳細を知りたい物好きは<a href="ff1_msx_bgm_memo.md">ff1_msx_bgm_memo.md</a> をどうぞ。</p>
+<p>解析の詳細を知りたい物好きは<a href="doc/ff1_msx_bgm_memo.md">doc/ff1_msx_bgm_memo.md</a> をどうぞ。</p>
 <hr>
 <h1 id="ファミコン版用romエディタの紹介">ファミコン版用ROMエディタの紹介 </h1>
-<h2 id="hakkinff1">HAKKINFF1 </h2>
-<p><a href="https://hakkinff1.digitaldreamers.org/index.html">https://hakkinff1.digitaldreamers.org/index.html</a></p>
+<h2 id="hakkinff1">HakkinFF1 </h2>
+<p><a href="https://HakkinFF1.digitaldreamers.org/index.html">https://HakkinFF1.digitaldreamers.org/index.html</a></p>
 <p>FFHackSterEXにインスパイアされたROMエディタ。</p>
-<p>FFHackSterEXでは動かないマップ系機能がこちらでは動きます。
-その代わり、<strong>Armor</strong>、<strong>Weapon</strong>、<strong>Magic</strong>が<strong>日本語版ROMではエラー</strong>になるようです。</p>
-<ul>
-<li>
-<p><strong>日本版向け文字定義ファイル</strong></p>
-<p><a href="for_HAKKINFF1/">for_HAKKINFF1/</a></p>
-<p>ROMを読み込んで作成されたプロジェクトフォルダにある<br>
-<code>(プロジェクト名).ff1d</code><br>
-の中に、文字コードに対する文字リストがあります。</p>
-<p><code>for_HAKKINFF1/FinalFantasy1.ff1d</code>を
-プロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。</p>
-<p>プロジェクトで文字が正常に表示されるようになります。</p>
-<p>メニュー等も日本語化したい場合はff1dファイルを弄れば出来ると思われます。</p>
-</li>
-</ul>
-<h2 id="ffhacksterex">FFHackSterEX </h2>
-<p><a href="https://ffhacksterex.digitaldreamers.org/">https://ffhacksterex.digitaldreamers.org/</a></p>
-<p>FFHackSterの後継版</p>
-<p>Map系機能や幾つかの機能がエラーで落ちますが、
-<strong>HAKKIN FF1では動かない</strong>、<strong>Armor</strong>、<strong>Weapon</strong>、<strong>Magic</strong>がこちらではエラーなく動きます。</p>
-<ul>
-<li>
-<p><strong>日本版向け文字定義ファイル</strong></p>
-<p><a href="for_FFHackSterEX/">for_FFHackSterEX/</a></p>
+<p>FFHackSterEXでは動かないマップ系機能がこちらでは動きます。</p>
+<p>US版と一部データのアドレスが違うため、そのままでは<strong>Armor</strong>、<strong>Weapon</strong>、<strong>Magic</strong>が<strong>日本語版ROMではエラー</strong>になり開くことができませんが、日本語ROM用の設定ファイルに置き換えれば日本版ROMでも使用することができます。</p>
+<h3 id="日本版rom用-文字定義--アドレス設定">日本版ROM用 文字定義 &amp; アドレス設定 </h3>
 <p>ROMを読み込んで作成されたプロジェクトフォルダにある</p>
+<ul>
+<li><code>(プロジェクト名).ff1d</code></li>
+</ul>
+<p>に、文字定義やアドレス設定が入っています。</p>
+<ul>
+<li><a href="for_HakkinFF1/FinalFantasy1.ff1d">for_HakkinFF1/FinalFantasy1.ff1d</a></li>
+</ul>
+<p>を、プロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。<br>
+プロジェクトで文字やパラメータが正常に表示されるようになり、<strong>Armor</strong>、<strong>Weapon</strong>、<strong>Magic</strong> エディタも開けるようになります。</p>
+<p>どういった修正がされているのか、詳細を知りたい場合は、<a href="for_HakkinFF1/HakkinFF1_for_JP_ROM.md">for_HakkinFF1/HakkinFF1_for_JP_ROM.md</a> を参照ください。</p>
+<h2 id="ffhacksterex-非推奨">FFHackSterEX (※非推奨) </h2>
+<p><a href="https://ffhacksterex.digitaldreamers.org/">https://ffhacksterex.digitaldreamers.org/</a></p>
+<p><strong>FFHackSter</strong> の後継版です。</p>
+<p>こちらはマップのスクロールがスクロールボタン非対応など、UIや操作性は <strong>HakkinFF1</strong> より古いものとなっています。</p>
+<p>XP世代のまま開発途中で止まっており、ローカルマップ系機能や幾つかの機能がエラーで落ちます。</p>
+<p><a href="https://github.com/ffhacksterex/FFHacksterEx/tree/v0.9.8.2-beta">github</a>にあるソースコードを <a href="for_FFHackSterEX/ffhacksterex-0.9.8.2-win64-x64-v141_xp_vs2019.zip">Visual C++2019 + プラットフォームツールセット Visuall Studio 2017 - Windows XP(v141_xp) でビルド</a>すれば落ちなくなります。</p>
+<p>どうも古いプラットフォームツールセットをVS2022以降でビルドすると発生する問題が関係するように思えますが、英語版ROMだと問題が無かったりするので、良く分かりません。</p>
+<h3 id="日本版rom用-文字定義ファイル">日本版ROM用 文字定義ファイル </h3>
+<p>US版向けに作られたツールなので、文字コードに対する文字の割り当てがJP版と異なります。</p>
+<p>New ProjectからROMを読み込んで作成されたプロジェクトフォルダにある</p>
 <ul>
 <li><code>(プロジェクト名).dte.tbl</code></li>
 <li><code>(プロジェクト名).std.tbl</code></li>
 </ul>
 <p>に、文字コードに対する文字リストがあります。</p>
 <ul>
-<li><code>for_FFHackSterEX/FinalFantasy1.dte.tbl</code></li>
-<li><code>for_FFHackSterEX/FinalFantasy1.std.tbl</code></li>
+<li><a href="for_FFHackSterEX/FinalFantasy1.dte.tbl">for_FFHackSterEX/FinalFantasy1.dte.tbl</a></li>
+<li><a href="for_FFHackSterEX/FinalFantasy1.std.tbl">for_FFHackSterEX/FinalFantasy1.std.tbl</a></li>
+</ul>
+<p>をプロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。<br>
+プロジェクトで文字が正常に表示されるようになります。<br>
+（<code>●●.dte.tbl</code> と <code>●●.std.tbl</code> は、UTF-8ではなくSJISテキストファイルです。）</p>
+<h3 id="日本版rom用-アドレス設定ファイル">日本版ROM用 アドレス設定ファイル </h3>
+<p>Bank 0E～0FがUS版とJP版で異なるため、アドレス設定を修正しないと不正なデータを読み込んでしまいます。</p>
+<p>New ProjectからROMを読み込んで作成されたプロジェクトフォルダにある</p>
+<ul>
+<li><code>(プロジェクト名).values</code></li>
+</ul>
+<p>に、文字コードに対する文字リストがあります。</p>
+<ul>
+<li><a href="for_FFHackSterEX/FinalFantasy1.values">for_FFHackSterEX/FinalFantasy1.values</a></li>
 </ul>
 <p>をプロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。</p>
-<p>プロジェクトで文字が正常に表示されるようになります。</p>
-<p>（<code>●●.dte.tbl</code> と <code>●●.std.tbl</code> は、UTF-8ではなくSJISテキストファイルです。）</p>
-</li>
-<li>
-<p>注意事項</p>
+<h4 id="注意事項">注意事項 </h4>
 <p>ROMファイル名やパスには日本語を使わないでください。エラーになります。</p>
-</li>
-</ul>
 <hr>
 <h1 id="binary-editor-bz---msx-custom-向け-エンコード定義ファイル">Binary Editor Bz - MSX Custom 向け エンコード定義ファイル </h1>
 <p><strong>Binary Editor Bz - MSX Custom</strong><br>
@@ -224,6 +240,9 @@
 <summary class="md-toc-link-wrapper" data-level="0">
   <a href="#fc版msx版対応-ファイナルファンタジーi-セーブデータエディタ" class="md-toc-link">FC版・MSX版対応 ファイナルファンタジーⅠ セーブデータエディタ</a>
 </summary>
+<div class="md-toc-link-wrapper" data-level="1">
+  <a href="#ファイル構成" class="md-toc-link">ファイル構成</a>
+</div>
 <details open="" class="md-toc-details">
 <summary class="md-toc-link-wrapper" data-level="1">
   <a href="#簡易ガイド" class="md-toc-link">簡易ガイド</a>
@@ -257,12 +276,30 @@
 <summary class="md-toc-link-wrapper" data-level="0">
   <a href="#ファミコン版用romエディタの紹介" class="md-toc-link">ファミコン版用ROMエディタの紹介</a>
 </summary>
-<div class="md-toc-link-wrapper" data-level="1">
-  <a href="#hakkinff1" class="md-toc-link">HAKKINFF1</a>
+<details open="" class="md-toc-details">
+<summary class="md-toc-link-wrapper" data-level="1">
+  <a href="#hakkinff1" class="md-toc-link">HakkinFF1</a>
+</summary>
+<div class="md-toc-link-wrapper" data-level="2">
+  <a href="#日本版rom用-文字定義--アドレス設定" class="md-toc-link">日本版ROM用 文字定義 &amp; アドレス設定</a>
 </div>
-<div class="md-toc-link-wrapper" data-level="1">
-  <a href="#ffhacksterex" class="md-toc-link">FFHackSterEX</a>
+</details>
+<details open="" class="md-toc-details">
+<summary class="md-toc-link-wrapper" data-level="1">
+  <a href="#ffhacksterex-非推奨" class="md-toc-link">FFHackSterEX (※非推奨)</a>
+</summary>
+<div class="md-toc-link-wrapper" data-level="2">
+  <a href="#日本版rom用-文字定義ファイル" class="md-toc-link">日本版ROM用 文字定義ファイル</a>
 </div>
+<details open="" class="md-toc-details">
+<summary class="md-toc-link-wrapper" data-level="2">
+  <a href="#日本版rom用-アドレス設定ファイル" class="md-toc-link">日本版ROM用 アドレス設定ファイル</a>
+</summary>
+<div class="md-toc-link-wrapper" data-level="3">
+  <a href="#注意事項" class="md-toc-link">注意事項</a>
+</div>
+</details>
+</details>
 </details>
 <div class="md-toc-link-wrapper" data-level="0">
   <a href="#binary-editor-bz---msx-custom-向け-エンコード定義ファイル" class="md-toc-link">Binary Editor Bz - MSX Custom 向け エンコード定義ファイル</a>

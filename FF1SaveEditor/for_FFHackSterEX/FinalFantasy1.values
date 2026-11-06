@@ -1,0 +1,1914 @@
+[RESERVED_LISTS]
+refonly=true
+ROMINIT_VARNAMES_SECTIONS=1
+RAM_NAMES=1
+EDITOR_NAME_FILTER=1
+[RESERVED_FILTERS]
+refonly=true
+PREFIX_FILTER=1
+
+
+
+[ROM_SIZE]
+value=0x40010
+desc=Expected size of the ROM being edited
+type=bword
+group=system
+reserved=true
+[BANK_SIZE]
+value=0x4000
+desc=The size of each bank in the ROM
+type=bword
+group=system
+reserved=true
+[STAMPEDROM_OFFSET]
+value=0x3FFFF
+desc=Description of STAMPEDROM_OFFSET
+type=bword
+group=system
+[TINT_VARIANT]
+value=32
+desc=Description of TINT_VARIANT
+type=uint8
+group=system
+reserved=true
+[TRANSPARENTCOLOR]
+value=0xFF00FF
+desc=Description of TRANSPARENTCOLOR
+type=rgb
+group=system
+reserved=true
+[TRANSPARENTCOLORREPLACEMENT]
+value=0xE600E6
+desc=Description of TRANSPARENTCOLORREPLACEMENT
+type=rgb
+group=system
+reserved=true
+
+
+
+[BANK00_OFFSET]
+value=0x00010
+desc=Offset to the start of bank 00
+type=bword
+group=Bank/Binary Offsets
+[BINBANK01DATA_OFFSET]
+value=0x04010
+desc=Offset to the start of binary data in bank 01
+type=bword
+group=Bank/Binary Offsets
+[BANK02_OFFSET]
+value=0x08010
+desc=Offset to the start of bank 02
+type=bword
+group=Bank/Binary Offsets
+[BANK03_OFFSET]
+value=0x0C010
+desc=Offset to the start of bank 03
+type=bword
+group=Bank/Binary Offsets
+[BANK04_OFFSET]
+value=0x10010
+desc=Offset to the start of bank 04
+type=bword
+group=Bank/Binary Offsets
+[BANK05_OFFSET]
+value=0x14010
+desc=Offset to the start of bank 05
+type=bword
+group=Bank/Binary Offsets
+[BANK06_OFFSET]
+value=0x18010
+desc=Offset to the start of bank 06
+type=bword
+group=Bank/Binary Offsets
+[BANK07_OFFSET]
+value=0x1C010
+desc=Offset to the start of bank 07
+type=bword
+group=Bank/Binary Offsets
+[BANK08_OFFSET]
+value=0x20010
+desc=Offset to the start of bank 08
+type=bword
+group=Bank/Binary Offsets
+[BINBANK09DATA_OFFSET]
+value=0x24010
+desc=Offset to binary daya in bank 09
+type=bword
+group=Bank/Binary Offsets
+[BINBANK09GFXDATA_OFFSET]
+value=0x26010
+desc=Offset to graphics binary data in bank 09
+type=bword
+group=Bank/Binary Offsets
+[BANK0A_OFFSET]
+value=0x28010
+desc=Offset to the start of bank 0A
+type=bword
+group=Bank/Binary Offsets
+[BINPRICEDATA_OFFSET]
+value=0x37B9E
+desc=Offset to the start of the pricedata binary file
+type=bword
+group=Bank/Binary Offsets
+[BINFIENDTSA_OFFSET]
+value=0x2D2F0
+desc=Description of BIN_FIENDTSA
+type=bword
+group=Bank/Binary Offsets
+[BINCHAOSTSA_OFFSET]
+value=0x2D430
+desc=Description of BIN_CHAOSTSA
+type=bword
+group=Bank/Binary Offsets
+[BINBATTLEPALETTES_OFFSET]
+value=0x30F30
+desc=Description of BIN_BATTLEPALETTES
+type=bword
+group=Bank/Binary Offsets
+[BINBATTLEFORMATIONS_OFFSET]
+value=0x2C410
+desc=Description of BIN_BATTLEFORMATIONS
+type=bword
+group=Bank/Binary Offsets
+[BINENEMYNAMES_OFFSET]
+value=0x2D4F0
+desc=String table containing enemy names
+type=bword
+group=Bank/Binary Offsets
+
+
+
+[CLASS_OFFSET]
+value=0x3050
+desc=Description of CLASS_OFFSET
+type=bword
+group=Class Info
+[CLASS_BYTES]
+value=16
+desc=Description of CLASS_BYTES
+type=uint8
+group=Class Info
+[STARTINGMP_OFFSET]
+value=0x3C7E6
+desc=Description of STARTINGMP_OFFSET
+type=bword
+group=Class Info
+[MPCAP_OFFSET]
+value=0x2DCA6
+desc=Maximum spell charges for all characters
+type=bword
+group=Class Info
+[MAGICMIN_OFFSET]
+value=0x3C7DE
+desc=Description of MAGICMIN_OFFSET
+type=bword
+group=Class Info
+[MAGICMAX_OFFSET]
+value=0x3C7E2
+desc=Description of MAGICMAX_OFFSET
+type=bword
+group=Class Info
+[HPMAX_OFFSET]
+value=0x02D9B6
+group=Class Info
+type=bword
+desc=Offset to the HP max + 1 value
+[HPRANGEMIN_OFFSET]
+value=0x2DCD8
+desc=Description of HPRANGEMIN_OFFSET
+type=bword
+group=Class Info
+[HPRANGEMAX_OFFSET]
+value=0x2DCDA
+desc=Description of HPRANGEMAX_OFFSET
+type=bword
+group=Class Info
+[LEVELUP_OFFSET]
+value=0x2D0A4
+desc=Offset to level up data for base classes 1-6, shared by clsses 7-12
+type=bword
+group=Class Info
+[EXP_OFFSET]
+value=0x2D010
+desc=Description of EXP_OFFSET
+type=bword
+group=Class Info
+[HITPCTINCREASE_OFFSET]
+value=0x2DDEC
+desc=Offset of LUT defining Hit% increases on level-up
+type=bword
+group=Class Info
+[MAGDEFINCREASE_OFFSET]
+value=0x2DDF8
+desc=Offset of LUT defining MagDef% increases on level-up
+type=bword
+group=Class Info
+
+
+
+[MAPMANPALETTE_OFFSET]
+value=0x3B0
+desc=Description of MAPMANPALETTE_OFFSET
+type=bword
+group=Overworld
+[MAPMANGRAPHIC_OFFSET]
+value=0x9010
+desc=Player OW sprite
+type=bword
+group=Overworld
+[SHIPGRAPHIC_OFFSET]
+value=0x9E50
+desc=Ship OW sprite
+type=bword
+group=Overworld
+[AIRSHIPGRAPHIC_OFFSET]
+value=0x9F90
+desc=Airship OW sprite
+type=bword
+group=Overworld
+[BRIDGEGRAPHIC_OFFSET]
+value=0x9C50
+desc=Bridge OW sprite
+type=bword
+group=Overworld
+[CANALGRAPHIC_OFFSET]
+value=0x9C90
+desc=Canal OW sprite
+type=bword
+group=Overworld
+[BATTLEDOMAIN_OFFSET]
+value=0x2C010
+desc=Description of BATTLEDOMAIN_OFFSET
+type=bword
+group=Overworld
+[BATTLEPROBABILITY_OFFSET]
+value=0x3C59C
+desc=Description of BATTLEPROBABILITY_OFFSET
+type=bword
+group=Overworld
+[MAPPALETTE_OFFSET]
+value=0x2010
+desc=Description of MAPPALETTE_OFFSET
+type=bword
+group=Overworld
+[MAPTILESET_ASSIGNMENT]
+value=0x2CD0
+desc=Description of MAPTILESET_ASSIGNMENT
+type=bword
+group=Overworld
+[TILESETPATTERNTABLE_OFFSET]
+value=0xC010
+desc=Description of TILESETPATTERNTABLE_OFFSET
+type=bword
+group=Overworld
+[TILESETPATTERNTABLE_ASSIGNMENT]
+value=0x1010
+desc=Description of TILESETPATTERNTABLE_ASSIGNMENT
+type=bword
+group=Overworld
+[TILESETPALETTE_ASSIGNMENT]
+value=0x410
+desc=Description of TILESETPALETTE_ASSIGNMENT
+type=bword
+group=Overworld
+[TILESET_TILEDATA]
+value=0x810
+desc=Description of TILESET_TILEDATA
+type=bword
+group=Overworld
+[OVERWORLDPALETTE_OFFSET]
+value=0x390
+desc=Description of OVERWORLDPALETTE_OFFSET
+type=bword
+group=Overworld
+[OVERWORLDPALETTE_ASSIGNMENT]
+value=0x310
+desc=Description of OVERWORLDPALETTE_ASSIGNMENT
+type=bword
+group=Overworld
+[OVERWORLDPATTERNTABLE_OFFSET]
+value=0x8010
+desc=Description of OVERWORLDPATTERNTABLE_OFFSET
+type=bword
+group=Overworld
+[OVERWORLDPATTERNTABLE_ASSIGNMENT]
+value=0x110
+desc=Description of OVERWORLDPATTERNTABLE_ASSIGNMENT
+type=bword
+group=Overworld
+[OVERWORLD_TILEDATA]
+value=0x10
+desc=Description of OVERWORLD_TILEDATA
+type=bword
+group=Overworld
+[BATTLEBACKDROPASSIGNMENT_OFFSET]
+value=0x3310
+desc=Description of BATTLEBACKDROPASSIGNMENT_OFFSET
+type=bword
+group=Overworld
+[BATTLEBACKDROPPALETTE_OFFSET]
+value=0x3210
+desc=Description of BATTLEBACKDROPPALETTE_OFFSET
+type=bword
+group=Overworld
+[MAPSPRITEPATTERNTABLE_OFFSET]
+value=0xA210
+desc=Description of MAPSPRITEPATTERNTABLE_OFFSET
+type=bword
+group=Overworld
+[MAPSPRITEPATTERNTABLE_COUNT]
+value=30
+desc=Description of MAPSPRITEPATTERNTABLE_COUNT
+type=uint8
+group=Overworld
+[BATTLEBACKDROP_COUNT]
+value=16
+desc=Description of BATTLEBACKDROP_COUNT
+type=uint8
+group=Overworld
+[OVERWORLDMAP_OFFSET]
+value=0x4010
+desc=Description of OVERWORLDMAP_OFFSET
+type=bword
+group=Overworld
+[OVERWORLDMAP_PTRADD]
+value=-0x3FF0
+desc=Description of OVERWORLDMAP_PTRADD
+type=bword
+group=Overworld
+[OVERWORLDMAP_START]
+value=0x4210
+desc=Description of OVERWORLDMAP_START
+type=bword
+group=Overworld
+[OVERWORLDMAP_END]
+value=0x7F50
+desc=Description of OVERWORLDMAP_END
+type=bword
+group=Overworld
+[COORD_STARTING_OFFSET]
+value=0x3020
+desc=Description of COORD_STARTING_OFFSET
+type=bword
+group=Overworld
+[COORD_SHIP_OFFSET]
+value=0x3011
+desc=Description of COORD_SHIP_OFFSET
+type=bword
+group=Overworld
+[COORD_AIRSHIP_OFFSET]
+value=0x3015
+desc=Description of COORD_AIRSHIP_OFFSET
+type=bword
+group=Overworld
+[COORD_BRIDGE_OFFSET]
+value=0x3019
+desc=Description of COORD_BRIDGE_OFFSET
+type=bword
+group=Overworld
+[COORD_CANAL_OFFSET]
+value=0x301D
+desc=Description of COORD_CANAL_OFFSET
+type=bword
+group=Overworld
+[MISCCOORDOFFSET_COUNT]
+value=5
+desc=Description of MISCCOORDOFFSET_COUNT
+type=uint8
+group=Overworld
+[OWBATTLERATE_LAND_OFFSET]
+value=0x3C50E
+desc=Hardcoded x/255 chance for overworld land battle
+type=bword
+group=Overworld
+[OWBATTLERATE_SEA_OFFSET]
+value=0x3C516
+desc=Hardcoded x/255 chance for ship battle
+type=bword
+group=Overworld
+
+
+
+[MAP_OFFSET]
+value=0x10010
+desc=Description of MAP_OFFSET
+type=bword
+group=Standard Maps
+[MAP_PTRADD]
+value=0x10010
+desc=Description of MAP_PTRADD
+type=bword
+group=Standard Maps
+[MAP_START]
+value=0x10090
+desc=Description of MAP_START
+type=bword
+group=Standard Maps
+[MAP_END]
+value=0x1C010
+desc=Description of MAP_END
+type=bword
+group=Standard Maps
+[MAPSPRITE_COUNT]
+value=16
+desc=Description of MAPSPRITE_COUNT
+type=uint8
+group=Standard Maps
+[MAPSPRITE_PICASSIGNMENT]
+value=0x2E10
+desc=Description of MAPSPRITE_PICASSIGNMENT
+type=bword
+group=Standard Maps
+[MAPSPRITE_OFFSET]
+value=0x3410
+desc=Description of MAPSPRITE_OFFSET
+type=bword
+group=Standard Maps
+[SPRITE_COUNT]
+value=208
+desc=Number of sprite objects
+type=uint8
+group=Standard Maps
+[MAPSPRITEGRAPHIC_COUNT]
+value=30
+desc=Number of sprite graphics definitions
+type=uint8
+group=Standard Maps
+[ONTELEPORT_COUNT]
+value=32
+desc=Description of ONTELEPORT_COUNT
+type=uint8
+group=Standard Maps
+[ONTELEPORT_OFFSET]
+value=0x2C10
+desc=Description of ONTELEPORT_OFFSET
+type=bword
+group=Standard Maps
+[NOTELEPORT_COUNT]
+value=16
+desc=Description of NOTELEPORT_COUNT
+type=uint8
+group=Standard Maps
+[NOTELEPORT_OFFSET]
+value=0x2C70
+desc=Description of NOTELEPORT_OFFSET
+type=bword
+group=Standard Maps
+[NNTELEPORT_COUNT]
+value=64
+desc=Description of NNTELEPORT_COUNT
+type=uint8
+group=Standard Maps
+[NNTELEPORT_OFFSET]
+value=0x2D10
+desc=Description of NNTELEPORT_OFFSET
+type=bword
+group=Standard Maps
+[MAP_COUNT]
+value=61
+desc=Description of MAP_COUNT
+type=uint8
+group=Standard Maps
+[TREASURE_OFFSET]
+value=0x3110
+desc=Description of TREASURE_OFFSET
+type=bword
+group=Standard Maps
+[TREASURE_COUNT]
+value=256
+desc=Description of TREASURE_COUNT
+type=uint8
+group=Standard Maps
+[TILESET_COUNT]
+value=8
+desc=Description of TILESET_COUNT
+type=uint8
+group=Standard Maps
+[SPECIAL_COUNT]
+value=13
+desc=Number of Special tiles (Open Rooms, Close Rooms, Need Crown, etc.)
+type=uint8
+group=Standard Maps
+[MAPBATTLERATE_OFFSET]
+value=0x2CC10
+desc=Table of encounter rates for standard maps
+type=bword
+group=Standard Maps
+
+
+
+[BASICTEXT_OFFSET]
+value=0x2B712
+desc=Description of BASICTEXT_OFFSET
+type=bword
+group=In-Game Text
+[BASICTEXT_PTRADD]
+value=0x20010
+desc=Description of BASICTEXT_PTRADD
+type=bword
+group=In-Game Text
+[ATTACKTEXT_OFFSET]
+value=0x2B610
+desc=Description of ATTACKTEXT_OFFSET
+type=bword
+group=In-Game Text
+[ATTACKTEXT_PTRADD]
+value=0x20010
+desc=Description of ATTACKTEXT_PTRADD
+type=bword
+group=In-Game Text
+[ENEMYTEXT_OFFSET]
+value=0x2D4F0
+desc=Description of ENEMYTEXT_OFFSET
+type=bword
+group=In-Game Text
+[ENEMYTEXT_PTRADD]
+value=0x24010
+desc=Description of ENEMYTEXT_PTRADD
+type=bword
+group=In-Game Text
+[NOTHINGHAPPENS_OFFSET]
+value=0x2CFFC
+desc=The last battle message (appears AFTER the pointer table)
+type=bword
+group=In-Game Text
+[BATTLEMESSAGETEXT_OFFSET]
+value=0x2CF60
+desc=Description of BATTLEMESSAGETEXT_OFFSET
+type=bword
+group=In-Game Text
+[BATTLEMESSAGETEXT_PTRADD]
+value=0x24010
+desc=Description of BATTLEMESSAGETEXT_PTRADD
+type=bword
+group=In-Game Text
+[DIALOGUE_OFFSET]
+value=0x28010
+desc=Description of DIALOGUE_OFFSET
+type=bword
+group=In-Game Text
+[DIALOGUE_PTRADD]
+value=0x20010
+desc=Description of DIALOGUE_PTRADD
+type=bword
+group=In-Game Text
+[BASICTEXT_START]
+value=0x2B910
+desc=Description of BASICTEXT_START
+type=bword
+group=In-Game Text
+[BASICTEXT_END]
+value=0x2BFB3
+desc=Description of BASICTEXT_END
+type=bword
+group=In-Game Text
+[ATTACKTEXT_START]
+value=0x2B644
+desc=Description of ATTACKTEXT_START
+type=bword
+group=In-Game Text
+[ATTACKTEXT_END]
+value=0x2B6F5
+desc=Description of ATTACKTEXT_END
+type=bword
+group=In-Game Text
+[ENEMYTEXT_START]
+value=0x2D5F0
+desc=Description of ENEMYTEXT_START
+type=bword
+group=In-Game Text
+[ENEMYTEXT_END]
+value=0x2D957
+desc=Description of ENEMYTEXT_END
+type=bword
+group=In-Game Text
+[DIALOGUE_START]
+value=0x28210
+desc=Description of DIALOGUE_START
+type=bword
+group=In-Game Text
+[DIALOGUE_END]
+value=0x2B610
+desc=Description of DIALOGUE_END
+type=bword
+group=In-Game Text
+[BATTLEMESSAGETEXT_START]
+value=0x2CC50
+desc=Description of BATTLEMESSAGETEXT_START
+type=bword
+group=In-Game Text
+[BATTLEMESSAGETEXT_END]
+value=0x2CF60
+desc=Description of BATTLEMESSAGETEXT_END
+type=bword
+group=In-Game Text
+[INTROTEXT_OFFSET]
+value=0x37F30
+desc=Description of INTROTEXT_OFFSET
+type=bword
+group=In-Game Text
+[INTROTEXT_START]
+value=0x37F30
+desc=Description of INTROTEXT_START
+type=bword
+group=In-Game Text
+[INTROTEXT_END]
+value=0x38010
+desc=Description of INTROTEXT_END
+type=bword
+group=In-Game Text
+[SHOPTEXTPTR_OFFSET]
+value=0x38010
+desc=Description of SHOPTEXTPTR_OFFSET
+type=bword
+group=In-Game Text
+[SHOPTEXT_OFFSET]
+value=0x38010
+desc=Description of SHOPTEXT_OFFSET
+type=bword
+group=In-Game Text
+[SHOPTEXT_PTRADD]
+value=0x30010
+desc=Description of SHOPTEXT_PTRADD
+type=bword
+group=In-Game Text
+[SHOPTEXT_START]
+value=0x3805C
+desc=Description of SHOPTEXT_START
+type=bword
+group=In-Game Text
+[SHOPTEXT_END]
+value=0x38310
+desc=Description of SHOPTEXT_END
+type=bword
+group=In-Game Text
+[SHOPTEXT_COUNT]
+value=38
+desc=Description of SHOPTEXT_COUNT
+type=uint8
+group=In-Game Text
+[STATUSMENUTEXTPTR_OFFSET]
+value=0x38510
+desc=Description of STATUSMENUTEXTPTR_OFFSET
+type=bword
+group=In-Game Text
+[STATUSMENUTEXT_OFFSET]
+value=0x38510
+desc=Description of STATUSMENUTEXT_OFFSET
+type=bword
+group=In-Game Text
+[STATUSMENUTEXT_PTRADD]
+value=0x30010
+desc=Description of STATUSMENUTEXT_PTRADD
+type=bword
+group=In-Game Text
+[STATUSMENUTEXT_START]
+value=0x38590
+desc=Description of STATUSMENUTEXT_START
+type=bword
+group=In-Game Text
+[STATUSMENUTEXT_END]
+value=0x38D80
+desc=Description of STATUSMENUTEXT_END
+type=bword
+group=In-Game Text
+[STATUSMENUTEXT_COUNT]
+value=64
+desc=Description of STATUSMENUTEXT_COUNT
+type=uint8
+group=In-Game Text
+[STORYTEXTPTR_OFFSET]
+value=0x36810
+desc=Description of STORYTEXTPTR_OFFSET
+type=bword
+group=In-Game Text
+[STORYTEXT_OFFSET]
+value=0x36810
+desc=Description of STORYTEXT_OFFSET
+type=bword
+group=In-Game Text
+[STORYTEXT_PTRADD]
+value=0x2C010
+desc=Description of STORYTEXT_PTRADD
+type=bword
+group=In-Game Text
+[STORYTEXT_START]
+value=0x36842
+desc=Description of STORYTEXT_START
+type=bword
+group=In-Game Text
+[STORYTEXT_END]
+value=0x36E10
+desc=Description of STORYTEXT_END
+type=bword
+group=In-Game Text
+[STORYTEXT_COUNT]
+value=25
+desc=Description of STORYTEXT_COUNT
+type=uint8
+group=In-Game Text
+[PROLOGUELASTPAGE_OFFSET]
+value=0x36E10
+desc=Description of PROLOGUELASTPAGE_OFFSET
+type=bword
+group=In-Game Text
+[EPILOGUELASTPAGE_OFFSET]
+value=0x36E11
+desc=Description of EPILOGUELASTPAGE_OFFSET
+type=bword
+group=In-Game Text
+[CREDITTEXTPTR_OFFSET]
+value=0x37B10
+desc=Description of CREDITTEXTPTR_OFFSET
+type=bword
+group=In-Game Text
+[CREDITTEXT_OFFSET]
+value=0x37B10
+desc=Description of CREDITTEXT_OFFSET
+type=bword
+group=In-Game Text
+[CREDITTEXT_PTRADD]
+value=0x2C010
+desc=Description of CREDITTEXT_PTRADD
+type=bword
+group=In-Game Text
+[CREDITTEXT_START]
+value=0x37B18
+desc=Description of CREDITTEXT_START
+type=bword
+group=In-Game Text
+[CREDITTEXT_END]
+value=0x37B9E
+desc=Description of CREDITTEXT_END
+type=bword
+group=In-Game Text
+[CREDITTEXT_COUNT]
+value=4
+desc=Number of pages of credits text on the bridge scene
+type=uint8
+group=In-Game Text
+
+
+
+[ITEM_COUNT]
+value=27
+desc=Number of items
+type=uint8
+group=Inventory and Counts
+[WEAPON_COUNT]
+value=40
+desc=Number of weapons
+type=uint8
+group=Inventory and Counts
+[ARMOR_COUNT]
+value=40
+desc=Number of armors
+type=uint8
+group=Inventory and Counts
+[ARMORTYPE_COUNT]
+value=4
+desc=Number of types of armor (e.g Body, Shield, etc.)
+type=uint8
+group=Inventory and Counts
+[GOLDITEM_COUNT]
+value=68
+desc=Number of gold items
+type=uint8
+group=Inventory and Counts
+[MAGIC_COUNT]
+value=64
+desc=Number of spells of each type
+type=uint8
+group=Inventory and Counts
+[POTION_COUNT]
+value=2
+desc=Number of potions
+type=uint8
+group=Inventory and Counts
+[CLASS_COUNT]
+value=12
+desc=Number of classes
+type=uint8
+group=Inventory and Counts
+[BASICTEXT_COUNT]
+value=251
+desc=Description of BASICTEXT_COUNT
+type=uint8
+group=Inventory and Counts
+[ATTACK_COUNT]
+value=26
+desc=Description of ATTACK_COUNT
+type=uint8
+group=Inventory and Counts
+[ENEMY_COUNT]
+value=128
+desc=Description of ENEMY_COUNT
+type=uint8
+group=Inventory and Counts
+[BATTLEMESSAGE_COUNT]
+value=78
+desc=Description of BATTLEMESSAGE_COUNT
+type=uint8
+group=Inventory and Counts
+[DIALOGUE_COUNT]
+value=256
+desc=Description of DIALOGUE_COUNT
+type=uint8
+group=Inventory and Counts
+[SPELLLEVEL_COUNT]
+value=8
+desc=Number of spell levels in the magic engine
+type=uint8
+group=Inventory and Counts
+[SPELLSPERLEVEL_COUNT]
+value=8
+desc=Number of spells on a single magic level
+type=uint8
+group=Inventory and Counts
+[POTIONSTART_INDEX]
+value=24
+desc=0-based index iof the first potion item
+type=uint8
+group=Inventory and Counts
+[WEAPONTEXT_OFFSET]
+value=0x2B748
+desc=Description of WEAPONTEXT_OFFSET
+type=bword
+group=Inventory and Counts
+[ARMORTEXT_OFFSET]
+value=0x2B798
+desc=Description of ARMORTEXT_OFFSET
+type=bword
+group=Inventory and Counts
+[GOLDITEMTEXT_OFFSET]
+value=0x2B7E8
+desc=Description of GOLDITEMTEXT_OFFSET
+type=bword
+group=Inventory and Counts
+[MAGICTEXT_OFFSET]
+value=0x2B870
+desc=Description of MAGICTEXT_OFFSET
+type=bword
+group=Inventory and Counts
+[CLASSTEXT_OFFSET]
+value=0x2B8F0
+desc=Description of CLASSTEXT_OFFSET
+type=bword
+group=Inventory and Counts
+[PRICEDATA_OFFSET]
+value=0x37B9E
+desc=Base address for the master price table (dupe of BINPRICEDATA_OFFSET)
+type=bword
+group=Inventory and Counts
+group=Prices
+[ITEMPRICE_OFFSET]
+value=0x37C12
+desc=Description of ITEMPRICE_OFFSET
+type=bword
+group=Inventory and Counts
+group=Prices
+[ARMOR_OFFSET]
+value=0x30150
+desc=Description of ARMOR_OFFSET
+type=bword
+group=Inventory and Counts
+[ARMORTYPE_OFFSET]
+value=0x3BCF4
+desc=Table of armor type settings for all pieces of armor
+type=bword
+group=Inventory and Counts
+[ARMORPERMISSIONS_OFFSET]
+value=0x3BFB0
+desc=Description of ARMORPERMISSIONS_OFFSET
+type=bword
+group=Inventory and Counts
+[ARMORPRICE_OFFSET]
+value=0x37C98
+desc=Description of ARMORPRICE_OFFSET
+type=bword
+group=Inventory and Counts
+group=Prices
+[ARMOR_BYTES]
+value=4
+desc=Description of ARMOR_BYTES
+type=uint8
+group=Inventory and Counts
+[WEAPON_OFFSET]
+value=0x30010
+desc=Description of WEAPON_OFFSET
+type=bword
+group=Inventory and Counts
+[WEAPONPERMISSIONS_OFFSET]
+value=0x3BF60
+desc=Description of WEAPONPERMISSIONS_OFFSET
+type=bword
+group=Inventory and Counts
+[WEAPONPRICE_OFFSET]
+value=0x37C48
+desc=Description of WEAPONPRICE_OFFSET
+type=bword
+group=Inventory and Counts
+group=Prices
+[WEAPON_BYTES]
+value=8
+desc=Description of WEAPON_BYTES
+type=uint8
+group=Inventory and Counts
+[WEAPONMAGICGRAPHIC_OFFSET]
+value=0x26810
+desc=Description of WEAPONMAGICGRAPHIC_OFFSET
+type=bword
+group=Inventory and Counts
+[WEAPONMAGICGRAPHIC_COUNT]
+value=28
+desc=Description of WEAPONMAGICGRAPHIC_COUNT
+type=uint8
+group=Inventory and Counts
+[FINGERGRAPHIC_OFFSET]
+value=0x26F10
+desc=Description of FINGERGRAPHIC_OFFSET
+type=bword
+group=Inventory and Counts
+[AI_COUNT]
+value=44
+desc=Description of AI_COUNT
+type=uint8
+group=Inventory and Counts
+[AI_OFFSET]
+value=0x31030
+desc=Description of AI_OFFSET
+type=bword
+group=Inventory and Counts
+[ENEMY_OFFSET]
+value=0x30530
+desc=Description of ENEMY_OFFSET
+type=bword
+group=Inventory and Counts
+[ENEMY_BYTES]
+value=20
+desc=Description of ENEMY_BYTES
+type=uint8
+group=Inventory and Counts
+[ATTACK_OFFSET]
+value=0x30400
+desc=Description of ATTACK_OFFSET
+type=bword
+group=Inventory and Counts
+[ATTACK_BYTES]
+value=8
+desc=Description of ATTACK_BYTES
+type=uint8
+group=Inventory and Counts
+[MAGIC_OFFSET]
+value=0x301F0
+desc=Description of MAGIC_OFFSET
+type=bword
+group=Inventory and Counts
+[MAGIC_BYTES]
+value=8
+desc=Description of MAGIC_BYTES
+type=uint8
+group=Inventory and Counts
+[MAGICPRICE_OFFSET]
+value=0x37D70
+desc=Description of MAGICPRICE_OFFSET
+type=bword
+group=Inventory and Counts
+group=Prices
+[MAGICPERMISSIONS_OFFSET]
+value=0x3AD3B
+desc=Description of MAGICPERMISSIONS_OFFSET
+type=bword
+group=Inventory and Counts
+[BATTLEMESSAGE_OFFSET]
+value=0x304D0
+desc=Description of BATTLEMESSAGE_OFFSET
+type=bword
+group=Inventory and Counts
+[BINSHOPSTRINGS_OFFSET]
+value=0x38010
+desc=Offset to stock shop text
+type=bword
+group=Inventory and Counts
+[BINSHOPDATA_OFFSET]
+value=0x38310
+desc=Offset to start of all binary shop data (includes pointer tables)
+type=bword
+group=Inventory and Counts
+[SHOP_OFFSET]
+value=0x38312
+desc=Description of SHOP_OFFSET
+type=bword
+group=Inventory and Counts
+[SHOP_PTRADD]
+value=0x30010
+desc=Description of SHOP_PTRADD
+type=bword
+group=Inventory and Counts
+[SHOP_START]
+value=0x3839E
+desc=Description of SHOP_START
+type=bword
+group=Inventory and Counts
+[SHOP_END]
+value=0x38490
+desc=Description of SHOP_END
+type=bword
+group=Inventory and Counts
+[SHOP_COUNT]
+value=70
+desc=Description of SHOP_COUNT
+type=uint8
+group=Inventory and Counts
+[SHOP_MAXDATALENGTH]
+value=0x10000
+desc=Max length of the range shop data can occupy
+type=bword
+group=Inventory and Counts
+[ELEMENT_COUNT]
+value=8
+type=uint8
+group=Inventory and Counts
+desc=The number of elements
+[ENEMYCATEGORY_COUNT]
+value=8
+type=uint8
+group=Inventory and Counts
+desc=The number of enemy hurt categories
+[AILEFFECT_COUNT]
+value=8
+type=uint8
+group=Inventory and Counts
+desc=The number of enemy hurt categories
+
+
+
+[BATTLE_COUNT]
+value=128
+desc=Description of BATTLE_COUNT
+type=uint8
+group=Battles
+[BATTLEPATTERNTABLE_COUNT]
+value=16
+desc=Description of BATTLEPATTERNTABLE_COUNT
+type=uint8
+group=Battles
+[BATTLE_OFFSET]
+value=0x2C410
+desc=Description of BATTLE_OFFSET
+type=bword
+group=Battles
+[BATTLE_BYTES]
+value=0x10
+desc=Description of BATTLE_BYTES
+type=bword
+group=Battles
+[BATTLEPALETTE_OFFSET]
+value=0x30F30
+desc=Description of BATTLEPALETTE_OFFSET
+type=bword
+group=Battles
+[BATTLEPATTERNTABLE_OFFSET]
+value=0x1C010
+desc=Description of BATTLEPATTERNTABLE_OFFSET
+type=bword
+group=Battles
+[FIENDDRAW_TABLE]
+value=0x2D2F0
+desc=Description of FIENDDRAW_TABLE
+type=bword
+group=Battles
+[FIENDPALETTE_TABLE]
+value=0x2D330
+desc=Description of FIENDPALETTE_TABLE
+type=bword
+group=Battles
+[FIENDDRAW_SHIFT]
+value=0x50
+desc=Description of FIENDDRAW_SHIFT
+type=bword
+group=Battles
+[CHAOSDRAW_TABLE]
+value=0x2D430
+desc=Description of CHAOSDRAW_TABLE
+type=bword
+group=Battles
+[CHAOSPALETTE_TABLE]
+value=0x2D4D8
+desc=Description of CHAOSPALETTE_TABLE
+type=bword
+group=Battles
+[CHARBATTLEPIC_OFFSET]
+value=0x25010
+desc=Description of CHARBATTLEPIC_OFFSET
+type=bword
+group=Battles
+[CHARBATTLEPALETTE_OFFSET]
+value=0x3EC44
+desc=Description of CHARBATTLEPALETTE_OFFSET
+type=bword
+group=Battles
+[CHARBATTLEPALETTE_ASSIGNMENT1]
+value=0x3204C
+desc=Description of CHARBATTLEPALETTE_ASSIGNMENT1
+type=bword
+group=Battles
+[CHARBATTLEPALETTE_ASSIGNMENT2]
+value=0x3ED43
+desc=Description of CHARBATTLEPALETTE_ASSIGNMENT2
+type=bword
+group=Battles
+
+
+
+[OOBMAGIC_COUNT]
+value=13
+desc=Number of out-of-battle spells
+type=uint8
+group=Out Of Battle Magic
+[OOBMAGIC_SYMNAMES]
+value=str[]{ MG_CURE MG_CUR2 MG_CUR3 MG_CUR4 MG_HEAL MG_HEL3 MG_HEL2 MG_PURE MG_LIFE MG_LIF2 MG_WARP MG_SOFT MG_EXIT }
+desc=Space-separated list of OOB spell symbolic names
+type=str[]
+group=Out Of Battle Magic
+[MG_START]
+value=0xB0
+desc=Value added to the indexes stored at the MG_XXX offsets
+type=byte
+group=Out Of Battle Magic
+[MG_CURE]
+value=0x3AF1D
+desc=MG_CURE out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_CUR2]
+value=0x3AF24
+desc=MG_CUR2 out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_CUR3]
+value=0x3AF2B
+desc=MG_CUR3 out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_CUR4]
+value=0x3AF32
+desc=MG_CUR4 out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_HEAL]
+value=0x3AF39
+desc=MG_HEAL out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_HEL3]
+value=0x3AF47
+desc=MG_HEL3 out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_HEL2]
+value=0x3AF40
+desc=MG_HEL2 out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_PURE]
+value=0x3AF4E
+desc=MG_PURE out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_LIFE]
+value=0x3AF55
+desc=MG_LIFE out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_LIF2]
+value=0x3AF5C
+desc=MG_LIF2 out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_WARP]
+value=0x3AF63
+desc=MG_WARP out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_SOFT]
+value=0x3AF6A
+desc=MG_SOFT out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MG_EXIT]
+value=0x3AF71
+desc=MG_EXIT out-of-battle
+type=bword
+group=Out Of Battle Magic 
+[OOBMAGICRANGE_COUNT]
+value=7
+desc=Number of spells with out-of-battle ranges
+type=uint8
+group=Out Of Battle Magic 
+[MGRANGEMIN_CURE]
+value=0x3AF71
+desc=Mimimum range for CURE when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMAX_CURE]
+value=0x3AF6F
+desc=Maximum range for CURE when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMIN_CUR2]
+value=0x3AF79
+desc=Mimimum range for CUR2 when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMAX_CUR2]
+value=0x3AF77
+desc=Maximum range for CUR2 when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMIN_CUR3]
+value=0x3AF81
+desc=Mimimum range for CUR3 when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMAX_CUR3]
+value=0x3AF7F
+desc=Maximum range for CUR3 when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMIN_CUREP]
+value=0x3B332
+desc=Mimimum range for CUREP when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMAX_CUREP]
+value=0x3B332
+desc=Maximum range for CUREP when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMIN_HEAL]
+value=0x3AFF2
+desc=Mimimum range for HEAL when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMAX_HEAL]
+value=0x3AFEF
+desc=Maximum range for HEAL when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMIN_HEL2]
+value=0x3AFFB
+desc=Mimimum range for HEL2 when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMAX_HEL2]
+value=0x3AFF8
+desc=Maximum range for HEL2 when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMIN_HEL3]
+value=0x3B004
+desc=Mimimum range for HEL3 when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+[MGRANGEMAX_HEL3]
+value=0x3B001
+desc=Maximum range for HEL3 when cast out-of-battle
+type=bword
+group=Out Of Battle Magic
+
+
+
+[STARTINGGOLD_OFFSET]
+value=0x302C
+desc=Gold pieces when starting a new game
+type=bword
+group=Starting
+[HASCANOE_OFFSET]
+value=0x3022
+desc=Offset to the has_canoe ROM init value
+type=bword
+group=Starting
+[SHIPVIS_OFFSET]
+value=0x3010
+desc=Offset to the ship visibility init value
+type=bword
+group=Starting
+[AIRSHIPVIS_OFFSET]
+value=0x3014
+desc=Offset to the airship visibility ROM init value
+type=bword
+group=Starting
+[BRIDGEVIS_OFFSET]
+value=0x3018
+desc=Offset to the bridge visibility ROM init value
+type=bword
+group=Starting
+[CANALVIS_OFFSET]
+value=0x301c
+desc=Offset to the canal visibility ROM init value
+type=bword
+group=Starting
+[BRIDGESCENE_OFFSET]
+value=0x3026
+desc=Offset of the bridgescene ROM init value
+type=bword
+group=Starting
+[STARTINGITEMS_OFFSET]
+value=0x3031
+desc=Offset of the starting items ROM init values
+type=bword
+group=Starting
+[STARTINGCONSUMABLES_OFFSET]
+value=0x3046
+desc=Offset of the first consumable starting item ROM init value
+type=bword
+group=Starting
+[STARTINGITEMS_LAST]
+value=0x304B
+desc=Offset of the last starting items ROM init value
+type=bword
+group=Starting
+
+
+
+[NEWPARTYCLASSINC_OFFSET]
+value=0x39d4a
+type=bword
+desc=Offset to the byte determining if classes can be selected
+group=Class Info
+[NEWPARTYCLASSCOUNT_OFFSET]
+value=0x39d4c
+type=bword
+desc=Offset to the byte determine the number of available classes
+group=Class Info
+[PTYGEN_OFFSET]
+value=0x3a0be
+type=bword
+desc=Offset of the starting stats tables for all 12 classes
+group=Class Info
+
+[BBMACLASS1STATS_OFFSET]
+value=0x2D97B
+type=bword
+desc=Offset to the first BBMA class ID when adjusting stats
+group=Class Info
+[BBMACLASS2STATS_OFFSET]
+value=0x2D97F
+type=bword
+desc=Offset to the second BBMA class ID when adjusting stats
+group=Class Info
+[BBMACLASS1UNADJ_OFFSET]
+value=0x3EF62
+type=bword
+desc=Offset to the first BBMA class ID when unadjusting equipment
+group=Class Info
+[BBMACLASS2UNADJ_OFFSET]
+value=0x3EF66
+type=bword
+desc=Offset to the second BBMA class ID when unadjusting equipment
+group=Class Info
+[BBMACLASS1READJ_OFFSET]
+value=0x3EF80
+type=bword
+desc=Offset to the first BBMA class ID when readjusting equipment
+group=Class Info
+[BBMACLASS2READJ_OFFSET]
+value=0x3EF84
+type=bword
+desc=Offset to the second BBMA class ID when readjusting equipment
+group=Class Info
+[BBMACLASS1HITS_OFFSET]
+value=0x32DD0
+type=bword
+desc=Offset to the first BBMA class ID for doubling hitcount
+group=Class Info
+[BBMACLASS2HITS_OFFSET]
+value=0x32DD4
+type=bword
+desc=Offset to the second BBMA class ID for doubling hitcount
+group=Class Info
+
+
+
+[HoldMPCode]
+value=byte[]{ 0xF0 0x40 0xC9 0x01 0xF0 0x3C }
+desc=Code to prevent MP gains for two classes (0 and a user-defined class ID)
+type=byte[]
+group=Class MP Settings
+[HoldMPCodeLength]
+value=6
+desc=Number of bytes in HoldMPCode
+type=uint8
+group=Class MP Settings
+[HOLDMPCODE_OFFSET]
+value=0x2DC7D
+desc=Offset to the HoldMP code
+type=bword
+group=Class MP Settings
+[HOLDMPCLASS1_OFFSET]
+value=0x2DC7D
+desc=Offset into HoldMPCode for first class' check to skip MP gains
+type=bword
+group=Class MP Settings
+[HOLDMPCLASSID2_OFFSET]
+value=0x2DC80
+desc=Offset into HoldMPCode for second class' check to skip MP gains
+type=bword
+group=Class MP Settings
+[HOLDMPCLASS2_OFFSET]
+value=0x2DC81
+desc=Offset into HoldMPCode of second class' ID (class 1 unavailable)
+type=bword
+group=Class MP Settings
+
+[CapMPCode]
+value=byte[]{ 0xC9 0x06 0xF0 0x08 0xC9 0x07 0xF0 0x04 }
+desc=Code to limit MP gains for two classes (both user-defined class IDs)
+type=byte[]
+group=Class MP Settings
+[CapMPCodeLength]
+value=8
+desc=Number of bytes in CapMPCode
+type=uint8
+group=Class MP Settings
+[CAPMPCODE_OFFSET]
+value=0x2DC9D
+desc=Offset to the CapMP code
+type=bword
+group=Class MP Settings
+[CAPMPCLASS1_OFFSET]
+value=0x2DC9F
+desc=Offset into CapMPCode of first class' ID
+type=bword
+group=Class MP Settings
+[CAPMPCLASS2_OFFSET]
+value=0x2DCA3
+desc=Offset into CapMPCode of second class' ID
+type=bword
+group=Class MP Settings
+[CAPMPCLASSID1_OFFSET]
+value=0x2DC9E
+desc=Offset into CapMPCode of first class ID whose MP gains are capped
+type=bword
+group=Class MP Settings
+[CAPMPCLASSID2_OFFSET]
+value=0x2DCA2
+desc=Offset into CapMPCode of second class ID whose MP gains are capped
+type=bword
+group=Class MP Settings
+[CAPMPLIMIT_OFFSET]
+value=0x2DCAA
+desc=Offset to the spell cap limit for capped classes (defaults to 4)
+type=bword
+group=Class MP Settings
+
+
+
+[TENTHP_OFFSET]
+value=0x3829D
+desc=Offset to the HP value restored by a tent
+type=bword
+group=Items
+[CABINHP_OFFSET]
+value=0x3B2BA
+desc=Offset to the HP value restored by a cabin
+type=bword
+group=Items
+[HOUSEHP_OFFSET]
+value=0x3B2D7
+desc=Offset to the HP value restored by a house
+type=bword
+group=Items
+
+
+
+[unsram]
+value=$6000
+type=addr
+desc=Base address of non-save (work) RAM
+group=Ram Values
+reserved=true
+[bridgescene]
+value=$6016
+type=addr
+desc=Address of bridge scene flag
+group=Ram Values
+reserved=true
+[gold]
+value=$601C
+type=addr
+desc=Base address of gold count
+group=Ram Values
+reserved=true
+[items]
+value=$6020
+type=addr
+desc=Base address of items
+group=Ram Values
+reserved=true
+[item_orb_start]
+value=$6032
+type=addr
+desc=Base address of the Orb items
+group=Ram Values
+[item_orb_last]
+value=$6035
+type=addr
+desc=Address of the last Orb item
+group=Ram Values
+[item_qty_start]
+value=$6036
+type=addr
+desc=Base address of the first consumable item
+group=Ram Values
+[item_qty_last]
+value=$603B
+type=addr
+desc=Address of the last consumable item
+group=Ram Values
+[item_last]
+value=$603B
+type=addr
+desc=Address of the last valid item
+group=Ram Values
+[item_stop]
+value=$603C
+type=addr
+desc=Address after the last valid item address
+group=Ram Values
+[ship_vis]
+value=$6000
+type=addr
+desc=Address of ship visibility flag
+label=Ship
+group=Ram Values
+[airship_vis]
+value=$6004
+type=addr
+desc=Address of airship visibility flag
+label=Airship
+group=Ram Values
+[bridge_vis]
+value=$6008
+type=addr
+desc=Address of bridge visibility flag
+label=Bridge
+group=Ram Values
+[canal_vis]
+value=$600C
+type=addr
+desc=Address of canal visibility flag
+label=Canal
+group=Ram Values
+[has_canoe]
+value=$6012
+type=addr
+desc=Address of canoe availablity flag
+label=Has Canoe
+group=Ram Values
+[item_lute]
+value=$6021
+type=addr
+desc=Lute
+label=Lute
+group=Ram Values
+[item_crown]
+value=$6022
+type=addr
+desc=Crown
+group=Ram Values
+[item_crystal]
+value=$6023
+type=addr
+desc=Matoya's Crystal
+group=Ram Values
+[item_herb]
+value=$6024
+type=addr
+desc=Herb to wake the Elf Prince
+label=Herb
+group=Ram Values
+[item_mystickey]
+value=$6025
+type=addr
+desc=Mystic Key
+group=Ram Values
+[item_tnt]
+value=$6026
+type=addr
+desc=TNT
+group=Ram Values
+[item_adamant]
+value=$6027
+type=addr
+desc=Adamant
+group=Ram Values
+[item_slab]
+value=$6028
+type=addr
+desc=Lefeinish Slab
+group=Ram Values
+[item_ruby]
+value=$6029
+type=addr
+desc=Ruby
+group=Ram Values
+[item_rod]
+value=$602A
+type=addr
+desc=Sarda's Rod
+group=Ram Values
+[item_floater]
+value=$602B
+type=addr
+desc=Floater (aka Levistone)
+group=Ram Values
+[item_chime]
+value=$602C
+type=addr
+desc=Lefeinish Chime
+group=Ram Values
+[item_tail]
+value=$602D
+type=addr
+desc=Rat's Tail
+group=Ram Values
+[item_cube]
+value=$602E
+type=addr
+desc=Transport Cube
+group=Ram Values
+[item_bottle]
+value=$602F
+type=addr
+desc=Fairy Bottle
+group=Ram Values
+[item_oxyale]
+value=$6030
+type=addr
+desc=Oxyale
+group=Ram Values
+[item_canoe]
+value=$6031
+type=addr
+desc=Canoe (shows up on the item screen)
+label=Canoe (item)
+group=Ram Values
+[orb_fire]
+value=$6032
+type=addr
+desc=Fire Orb
+group=Ram Values
+[orb_water]
+value=$6033
+type=addr
+desc=Water Orb
+group=Ram Values
+[orb_air]
+value=$6034
+type=addr
+desc=Sky Orb
+group=Ram Values
+[orb_earth]
+value=$6035
+type=addr
+desc=Earth Orb
+group=Ram Values
+[item_tent]
+value=$6036
+type=addr
+desc=Tent count
+label=Tent
+group=Ram Values
+[item_cabin]
+value=$6037
+type=addr
+desc=Cabin count
+label=Cabin
+group=Ram Values
+[item_house]
+value=$6038
+type=addr
+desc=House count
+label=House
+group=Ram Values
+[item_heal]
+value=$6039
+type=addr
+desc=Heal potion count
+label=Heal Potion
+group=Ram Values
+[item_pure]
+value=$603A
+type=addr
+desc=Pure potion count
+label=Pure Potion
+group=Ram Values
+[item_soft]
+value=$603B
+type=addr
+desc=Soft potion count
+label=Soft Potion
+group=Ram Values
+
+
+[ROMINIT_VARNAMES_SECTIONS]
+value=str[]{ RAM_NAMES MAPOBJ_NAMES KEYITEM_NAMES ORB_NAMES PROVISION_NAMES VEHICLE_NAMES CANOE_NAMES }
+desc=Names of values containing constant and variable definitions to load for ROM projects
+type=str[]
+group=Project Initialization
+reserved=true
+
+
+[RAM_NAMES]
+value=str[]{ unsram bridgescene gold items }
+desc=RAM values used to calculate other values
+type=str[]
+group=Dialogue Editor
+reserved=true
+[EDITOR_NAME_FILTER]
+value=str[]{ MAPOBJ_NAMES KEYITEM_NAMES ORB_NAMES PROVISION_NAMES VEHICLE_NAMES CANOE_NAMES }
+desc=List of name groups to read from the assembly constant and variable files
+type=str[]
+group=Dialogue Editor
+reserved=true
+[PREFIX_FILTER]
+value=str[]{ CLS_ MG_ OBJID_ WPNID_ BTL_ DLGID_ NORMTELE_ item_ }
+desc=List of name groups to read from the assembly constant and variable files
+type=str[]
+group=Dialogue Editor
+reserved=true
+
+
+[SPECIALSPRITE_NAMES]
+value=str[]{ OBJID_GARLAND OBJID_PRINCESS_1 OBJID_BIKKE OBJID_ELFPRINCE OBJID_ASTOS OBJID_NERRICK OBJID_SMITH OBJID_MATOYA OBJID_UNNE OBJID_VAMPIRE OBJID_SARDA OBJID_BAHAMUT OBJID_SUBENGINEER OBJID_PRINCESS_2 OBJID_FAIRY OBJID_TITAN OBJID_RODPLATE OBJID_LUTEPLATE OBJID_SKYWAR_FIRST OBJID_SKYWAR_LAST OBJID_PIRATETERR_1 OBJID_PIRATETERR_2 OBJID_PIRATETERR_3 OBJID_BAT OBJID_BLACKORB }
+desc=Names of special sprite IDs that we want to identify by name instead of numeric index
+type=str[]
+group=Dialogue Editor
+[MAPOBJ_NAMES]
+value=str[]{ ship_vis airship_vis bridge_vis canal_vis has_canoe item_canoe }
+desc=Map Objects available in the dialogue editor
+type=str[]
+group=Dialogue Editor
+[KEYITEM_NAMES]
+value=str[]{ items item_lute item_crown item_crystal item_herb item_mystickey item_tnt item_adamant item_slab item_ruby item_rod item_floater item_chime item_tail item_cube item_bottle item_oxyale item_canoe }
+desc=Special items available in the dialogue editor
+type=str[]
+group=Dialogue Editor
+[ORB_NAMES]
+value=str[]{ orb_fire orb_water orb_air orb_earth  }
+desc=Orbs available in the dialogue editor
+type=str[]
+group=Dialogue Editor
+[PROVISION_NAMES]
+value=str[]{ item_tent item_cabin item_house item_heal item_pure item_soft  }
+desc=Consumable items available in the dialogue editor
+type=str[]
+group=Dialogue Editor
+[VEHICLE_NAMES]
+value=str[]{ ship_vis airship_vis has_canoe item_canoe }
+desc=Vehicles available in the dialogue editor
+type=str[]
+group=Dialogue Editor
+[CANOE_NAMES]
+value=str[]{ has_canoe item_canoe }
+desc=Canoe map and item screen entries in the dialogue editor
+type=str[]
+group=Dialogue Editor
+[TALKROUTINE_COUNT]
+value=208
+desc=Description of TALKROUTINE_COUNT
+type=uint8
+group=Dialogue Editor
+[TALKROUTINEDATA_OFFSET]
+value=0x395E5
+desc=Description of TALKROUTINEDATA_OFFSET
+type=bword
+group=Dialogue Editor
+[TALKROUTINEDATA_BYTES]
+value=4
+desc=Description of TALKROUTINEDATA_BYTES
+type=uint8
+group=Dialogue Editor
+
+
+
+[talkfanfare]
+value=0x7DE6
+desc=talkfanfare description
+type=word
+label=Dialogue Play Fanfare
+group=ROM-specific Dialogue Editor
+reserved=true
+[notalksnd]
+value=0xEAEA
+desc=notalksnd description
+type=word
+label=No Dialogue Sound
+group=ROM-specific Dialogue Editor
+reserved=true
+
+[TALKROUTINEPTRTABLE_OFFSET]
+value=0x390E3
+desc=Description of TALKROUTINEPTRTABLE_OFFSET
+type=bword
+group=ROM-specific Dialogue Editor
+[TALKROUTINEPTRTABLE_BYTES]
+value=2
+desc=Description of TALKROUTINEPTRTABLE_BYTES
+type=uint8
+group=ROM-specific Dialogue Editor
+[TALKROUTINEPTRTABLE_PTRADD]
+value=0x30010
+desc=Description of TALKROUTINEPTRTABLE_PTRADD
+type=bword
+group=ROM-specific Dialogue Editor
+[TALKROUTINECODE_START]
+value=0x39283
+desc=Description of TALKROUTINECODE_START
+type=bword
+group=ROM-specific Dialogue Editor
+[TALKROUTINE_MAPPING_STARTLABEL]
+value=lut_MapObjTalkJumpTbl
+desc=The assembly label at which the talk routine table begins
+type=str
+[TALKROUTINE_MAPPING_ENDMARKER]
+value=|:endtalkparsing
+desc=Optional marker at which scanning for talkroutines stops
+type=str
+
+[BATTLESPRITETILE_COUNT]
+value=32
+type=uint8
+group=Graphics
+desc=The number of tiles in a battle character composite graphic
+[BATTLESPRITETILE_BYTES]
+value=16
+type=uint8
+group=Graphics
+desc=The size of each battle character composite tile in bytes
+[MAPMANSPRITETILE_COUNT]
+value=16
+type=uint8
+group=Graphics
+desc=The number of tiles in a mapman character composite graphic
+[MAPMANSPRITETILE_BYTES]
+value=16
+type=uint8
+group=Graphics
+desc=The size of each mapman character composite tile in bytes
+
+
+[TESTBOOL]
+value=bool[]{ true true false true true false true true }
+type=bool[]
+desc=Sample bool array
+group=Samples
+[TESTBYTES]
+value=byte[]{ 0x12 0xAB 0xB7 0xFF }
+type=byte[]
+desc=Sample byte array
+group=Samples
+[TESTSTRING]
+value=A sample string
+type=str
+desc=Sample string
+group=Samples
+[TESTUINT8]
+value=0
+type=uint8
+desc=Sample uint8
+group=Samples
+[TESTINT8]
+value=0
+type=int8
+desc=Sample int8
+group=Samples
+[TESTADDR]
+value=$12AB
+type=addr
+desc=Sample addr
+group=Samples
+[TESTCOLOR]
+value=0xFF00FF
+type=rgb
+desc=Sample color
+group=Samples
+[TESTHEX2]
+value=0x1A2B
+type=word
+desc=Sample HEX 2-byte
+group=Samples
+[TESTHEX3]
+value=0x1A2B3C
+type=bword
+desc=Sample HEX 3-byte
+group=Samples
+[TESTHEX4]
+value=0x1A2B3C4D
+type=dword
+desc=Sample HEX 4-byte
+group=Samples

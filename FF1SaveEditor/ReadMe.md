@@ -3,22 +3,30 @@
 オンラインから実行：  
 <https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/ff1_editor.html>
 
-- MSX版 : ユーザーディスクをエディタウィンドウにドロップしてください。
-- FC版  : SAVファイルをエディタウィンドウにドロップしてください。  
-          ※ 特殊なヘッダがついたセーブデータの場合は、ヘッダを除去したものをドロップしてください。
-          　 たとえばレトフリのセーブデータは余計なものがついてます。
+- **MSX版** : ユーザーディスクイメージ（DSKファイル）をエディタウィンドウにドロップしてください。
+- **FC版**  : SAVファイルをエディタウィンドウにドロップしてください。
+
+  ※ 注） RetroFreakのSAVファイルなどの、特殊なヘッダがついたセーブデータの場合は、ヘッダを除去したものをドロップしてください。
 
 編集が終わったら保存ボタンをおすとダウンロードフォルダに編集後のセーブデータが保存されます。
 
 ![screenshot](screenshot.png)
 
+## ファイル構成
+
+- ff1_editor.html
+- ff1_editor_world_map.png
+- ff1_editor_world_sprites.png
+
 ## 簡易ガイド
 
 ### 名前入力
 
-ゲーム中で使用できる文字を受け付けるのでカタカナも使えます。
+ゲーム中のフォントで使用できる文字を受け付けます。
 
-カタカナの小さい「ゥ」などはゲーム中にフォントが存在しないので「ウ」などに強制変更されます。
+カタカナも使えますが、カタカナの小さい「ゥ」はゲーム中にフォントが存在しないので「ウ」に強制変更されます。
+
+アルファベットは`L`、`E`、`H`、`P`のみ受け付けます。
 
 ### [地図]
 
@@ -86,67 +94,84 @@ MSX2版ファイナルファンタジーは
 | ラスダン       | KAOSS.BGM   | KAITEI.BGM   |
 | 巨人の洞窟     | KAOSS.BGM   | GURUGU.BGM   |
 
-解析の詳細を知りたい物好きは[ff1_msx_bgm_memo.md](ff1_msx_bgm_memo.md) をどうぞ。
+解析の詳細を知りたい物好きは[doc/ff1_msx_bgm_memo.md](doc/ff1_msx_bgm_memo.md) をどうぞ。
 
 ---
 
 # ファミコン版用ROMエディタの紹介
 
-## HAKKINFF1
+## HakkinFF1
 
-<https://hakkinff1.digitaldreamers.org/index.html>
+<https://HakkinFF1.digitaldreamers.org/index.html>
 
 FFHackSterEXにインスパイアされたROMエディタ。
 
 FFHackSterEXでは動かないマップ系機能がこちらでは動きます。
-その代わり、**Armor**、**Weapon**、**Magic**が**日本語版ROMではエラー**になるようです。
 
-- **日本版向け文字定義ファイル**
+US版と一部データのアドレスが違うため、そのままでは**Armor**、**Weapon**、**Magic**が**日本語版ROMではエラー**になり開くことができませんが、日本語ROM用の設定ファイルに置き換えれば日本版ROMでも使用することができます。
 
-  [for_HAKKINFF1/](for_HAKKINFF1/)
+### 日本版ROM用 文字定義 & アドレス設定
 
-  ROMを読み込んで作成されたプロジェクトフォルダにある  
-  `(プロジェクト名).ff1d`  
-  の中に、文字コードに対する文字リストがあります。
+ROMを読み込んで作成されたプロジェクトフォルダにある
 
-  `for_HAKKINFF1/FinalFantasy1.ff1d`を
-  プロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。
+- `(プロジェクト名).ff1d`  
 
-  プロジェクトで文字が正常に表示されるようになります。
+に、文字定義やアドレス設定が入っています。
 
-  メニュー等も日本語化したい場合はff1dファイルを弄れば出来ると思われます。
+- [for_HakkinFF1/FinalFantasy1.ff1d](for_HakkinFF1/FinalFantasy1.ff1d)
 
-## FFHackSterEX
+を、プロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。  
+プロジェクトで文字やパラメータが正常に表示されるようになり、**Armor**、**Weapon**、**Magic** エディタも開けるようになります。
+
+どういった修正がされているのか、詳細を知りたい場合は、[for_HakkinFF1/HakkinFF1_for_JP_ROM.md](for_HakkinFF1/HakkinFF1_for_JP_ROM.md) を参照ください。
+
+## FFHackSterEX (※非推奨)
 
 <https://ffhacksterex.digitaldreamers.org/>
 
-FFHackSterの後継版
+**FFHackSter** の後継版です。  
 
-Map系機能や幾つかの機能がエラーで落ちますが、
-**HAKKIN FF1では動かない**、**Armor**、**Weapon**、**Magic**がこちらではエラーなく動きます。
+こちらはマップのスクロールがスクロールボタン非対応など、UIや操作性は **HakkinFF1** より古いものとなっています。
 
+XP世代のまま開発途中で止まっており、ローカルマップ系機能や幾つかの機能がエラーで落ちます。  
 
-- **日本版向け文字定義ファイル**
+[github](https://github.com/ffhacksterex/FFHacksterEx/tree/v0.9.8.2-beta)にあるソースコードを [Visual C++2019 + プラットフォームツールセット Visuall Studio 2017 - Windows XP(v141_xp) でビルド](for_FFHackSterEX/ffhacksterex-0.9.8.2-win64-x64-v141_xp_vs2019.zip)すれば落ちなくなります。
 
-  [for_FFHackSterEX/](for_FFHackSterEX/)
+どうも古いプラットフォームツールセットをVS2022以降でビルドすると発生する問題が関係するように思えますが、英語版ROMだと問題が無かったりするので、良く分かりません。
 
-  ROMを読み込んで作成されたプロジェクトフォルダにある  
+### 日本版ROM用 文字定義ファイル
 
-  - `(プロジェクト名).dte.tbl`  
-  - `(プロジェクト名).std.tbl`  
+US版向けに作られたツールなので、文字コードに対する文字の割り当てがJP版と異なります。
 
-  に、文字コードに対する文字リストがあります。
+New ProjectからROMを読み込んで作成されたプロジェクトフォルダにある
 
-  - `for_FFHackSterEX/FinalFantasy1.dte.tbl`  
-  - `for_FFHackSterEX/FinalFantasy1.std.tbl`  
+- `(プロジェクト名).dte.tbl`  
+- `(プロジェクト名).std.tbl`  
 
-  をプロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。
+に、文字コードに対する文字リストがあります。
 
-  プロジェクトで文字が正常に表示されるようになります。
+- [for_FFHackSterEX/FinalFantasy1.dte.tbl](for_FFHackSterEX/FinalFantasy1.dte.tbl)
+- [for_FFHackSterEX/FinalFantasy1.std.tbl](for_FFHackSterEX/FinalFantasy1.std.tbl)
 
-  （`●●.dte.tbl` と `●●.std.tbl` は、UTF-8ではなくSJISテキストファイルです。）
+をプロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。  
+プロジェクトで文字が正常に表示されるようになります。  
+（`●●.dte.tbl` と `●●.std.tbl` は、UTF-8ではなくSJISテキストファイルです。）
 
-- 注意事項
+### 日本版ROM用 アドレス設定ファイル
+
+Bank 0E～0FがUS版とJP版で異なるため、アドレス設定を修正しないと不正なデータを読み込んでしまいます。
+
+New ProjectからROMを読み込んで作成されたプロジェクトフォルダにある
+
+- `(プロジェクト名).values`  
+
+に、文字コードに対する文字リストがあります。
+
+- [for_FFHackSterEX/FinalFantasy1.values](for_FFHackSterEX/FinalFantasy1.values)
+
+をプロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。
+
+#### 注意事項
 
    ROMファイル名やパスには日本語を使わないでください。エラーになります。
 

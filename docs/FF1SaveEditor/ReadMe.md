@@ -92,7 +92,7 @@ MSX2版ファイナルファンタジーは
 
 # ファミコン版用ROMエディタの紹介
 
-## HAKKINFF1
+## HAKKINFF1 (※推奨)
 
 <https://hakkinff1.digitaldreamers.org/index.html>
 
@@ -116,14 +116,15 @@ FFHackSterEXでは動かないマップ系機能がこちらでは動きます�
 
   メニュー等も日本語化したい場合はff1dファイルを弄れば出来ると思われます。
 
-## FFHackSterEX
+## FFHackSterEX (※非推奨)
 
 <https://ffhacksterex.digitaldreamers.org/>
 
-FFHackSterの後継版
+FFHackSterの後継版です。
 
-Map系機能や幾つかの機能がエラーで落ちますが、
-**HAKKIN FF1では動かない**、**Armor**、**Weapon**、**Magic**がこちらではエラーなく動きます。
+開発途中で止まっており、
+ローカルマップ系機能や幾つかの機能がエラーで落ちます。  
+
 
 
 - **日本版向け文字定義ファイル**
