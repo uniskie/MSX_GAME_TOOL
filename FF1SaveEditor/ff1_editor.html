@@ -662,7 +662,7 @@
 </head>
 <body class="no-rom">
 
-<div id="dropOverlay">ここにファイルをドロップ (.SAV または .NES)</div>
+<div id="dropOverlay">ここにファイルをドロップ (.SAV / .DSK / .NES)</div>
 
 <div class="container">
   <h1>
@@ -682,8 +682,8 @@
           <input type="file" id="savInput" accept=".sav,.bin,.dsk">
         </label>
         <label class="file-btn" style="border-style:dashed;">
-          🎮 NES ROM 読込 (任意：テーブル・マップ抽出)
-          <input type="file" id="nesInput" accept=".nes">
+          🎮 ROM / DSK 読込 (任意：テーブル・マップ抽出)
+          <input type="file" id="nesInput" accept=".nes,.dsk,.bin">
         </label>
       </div>
       <button class="save-btn" id="exportBtn" disabled>💾 SAVを保存</button>
@@ -693,7 +693,7 @@
         <span id="fileStatus" style="color:#ffffff;">【SAV】ファイルを画面にドロップ または 選択してください</span>
       </div>
       <div class="status-line">
-        <span id="romStatus" style="color:#a0c0ff;">【ROM】未読込 (デフォルトの標準テーブルを使用中)</span>
+        <span id="romStatus" style="color:#a0c0ff;">【ROM/DSK】未読込 (デフォルトの標準テーブルを使用中)</span>
       </div>
     </div>
 <div class="io-options">
@@ -703,7 +703,7 @@
           <span>パラメータ基準:</span>
           <select id="paramSourceSelect" style="width:auto; padding:1px 6px;" onchange="onParamSourceChange()">
             <option value="standard">デフォルト (標準)</option>
-            <option value="rom" id="optRomSource" disabled>読み込みROM準拠 (未読込)</option>
+            <option value="rom" id="optRomSource" disabled>読込ROM/DSK準拠 (未読込)</option>
           </select>
         </span>
         <span style="display:flex; align-items:center; gap:6px;">
@@ -1584,7 +1584,297 @@ function onUnlockLimitsToggle() {
 
 let savData = null;
 let nesRom = null;
+let msxDskData = null;
+let msxDskFs = null;
 let loadedSavFileName = "FINAL_FANTASY_1.sav";
+let loadedRomOrDskFileName = "";
+
+/**
+ * MSX2版 Say DOS ファイルシステム解析クラス
+ */
+class SayDosFileSystem {
+  constructor(buffer) {
+    this.data = buffer;
+    this.entries = [];
+    this.fileMap = new Map();
+    this.parse();
+  }
+
+  parse() {
+    this.entries = [];
+    this.fileMap.clear();
+    const sectorSize = 512;
+    const startSector = 10;
+    const endSector = 100; // セクタ10〜99 (計90セクタ)
+
+    if (this.data.length < endSector * sectorSize) return;
+
+    let fileId = 0;
+    for (let s = startSector; s < endSector; s++) {
+      const secOffset = s * sectorSize;
+      for (let e = 0; e < sectorSize / 16; e++) {
+        const off = secOffset + (e * 16);
+        const b0 = this.data[off];
+        let isEmpty = true;
+        for (let i = 1; i < 16; i++) {
+          if (this.data[off + i] !== b0) {
+            isEmpty = false;
+            break;
+          }
+        }
+
+        if (!isEmpty) {
+          let name = "";
+          for (let i = 0; i < 8; i++) {
+            name += String.fromCharCode(this.data[off + i]);
+          }
+          name = name.trim();
+
+          let ext = "";
+          for (let i = 0; i < 4; i++) {
+            ext += String.fromCharCode(this.data[off + 8 + i]);
+          }
+          ext = ext.trim();
+
+          const fullName = ext ? `${name}${ext.startsWith('.') ? '' : '.'}${ext}` : name;
+          const startSec = this.data[off + 12] | (this.data[off + 13] << 8);
+          const endSec = this.data[off + 14] | (this.data[off + 15] << 8);
+          const secCount = (endSec >= startSec) ? (endSec - startSec + 1) : 0;
+
+          const entry = {
+            fileId: fileId,
+            name: fullName.toUpperCase(),
+            startSector: startSec,
+            endSector: endSec,
+            sectorCount: secCount,
+            sizeBytes: secCount * sectorSize
+          };
+          this.entries.push(entry);
+          this.fileMap.set(entry.name, entry);
+        }
+        fileId++;
+      }
+    }
+  }
+
+  hasFile(filename) {
+    return this.fileMap.has(filename.toUpperCase());
+  }
+
+  isGameDsk() {
+    return this.hasFile("MAIN.COM") || this.hasFile("BDATA.TBL");
+  }
+
+  getFileEntry(filename) {
+    return this.fileMap.get(filename.toUpperCase()) || null;
+  }
+
+  getFile(filename) {
+    const entry = this.getFileEntry(filename);
+    if (!entry) return null;
+    const startByte = entry.startSector * 512;
+    const endByte = (entry.endSector + 1) * 512;
+    if (endByte > this.data.length) return null;
+    return this.data.subarray(startByte, endByte);
+  }
+}
+
+/**
+ * MSX2 SCREEN 5 展開画像アセットクラス
+ */
+class MsxPicAsset {
+  constructor(header, palette, pixels) {
+    this.header = header;
+    this.palette = palette;
+    this.pixels = pixels;
+  }
+
+  // 指定矩形 (sx, sy, sw, sh) を context の (dx, dy) へ描画 (色番号0は透明扱い)
+  drawToContext(ctx, sx, sy, sw, sh, dx = 0, dy = 0) {
+    const imgData = ctx.createImageData(sw, sh);
+    const nx = this.header.widthBytes;
+
+    for (let y = 0; y < sh; y++) {
+      const srcY = sy + y;
+      if (srcY >= this.header.heightLines) break;
+      const rowOffset = srcY * nx;
+
+      for (let x = 0; x < sw; x++) {
+        const srcX = sx + x;
+        if (srcX >= this.header.widthPixels) break;
+
+        const byteVal = this.pixels[rowOffset + Math.floor(srcX / 2)];
+        const colorIdx = (srcX % 2 === 0) ? ((byteVal >> 4) & 0x0F) : (byteVal & 0x0F);
+
+        const pIdx = (y * sw + x) * 4;
+        if (colorIdx === 0) {
+          imgData.data[pIdx + 3] = 0;
+        } else {
+          const rgb = this.palette[colorIdx];
+          imgData.data[pIdx + 0] = rgb[0];
+          imgData.data[pIdx + 1] = rgb[1];
+          imgData.data[pIdx + 2] = rgb[2];
+          imgData.data[pIdx + 3] = 255;
+        }
+      }
+    }
+    ctx.putImageData(imgData, dx, dy);
+  }
+}
+
+/**
+ * MSX2 SCREEN 5形式 PICファイル デコーダ
+ */
+class MsxPicDecoder {
+  static decode(picBytes) {
+    if (!picBytes || picBytes.length < 48) return null;
+
+    // 1. 制御ヘッダ (16バイト)
+    const screenMode = picBytes[0] | (picBytes[1] << 8);
+    const destX = picBytes[2] | (picBytes[3] << 8);
+    const destY = picBytes[4] | (picBytes[5] << 8);
+    const widthBytes = picBytes[6] | (picBytes[7] << 8);
+    const heightLines = picBytes[8] | (picBytes[9] << 8);
+
+    // 2. V9938 パレット (32バイト: 16色×2バイト)
+    const palette = [];
+    for (let i = 0; i < 16; i++) {
+      const b0 = picBytes[16 + (i * 2)];
+      const b1 = picBytes[16 + (i * 2) + 1];
+      const r3 = (b0 >> 4) & 0x07;
+      const b3 = b0 & 0x07;
+      const g3 = b1 & 0x07;
+      palette.push([
+        Math.round(r3 * 255 / 7),
+        Math.round(g3 * 255 / 7),
+        Math.round(b3 * 255 / 7)
+      ]);
+    }
+
+    // 3. 走査線単位 RLE 伸長 (+48バイト〜)
+    const totalPixels = widthBytes * heightLines;
+    const pixels = new Uint8Array(totalPixels);
+    let pos = 48;
+    const dataLen = picBytes.length;
+    let outIdx = 0;
+
+    for (let line = 0; line < heightLines; line++) {
+      let rowBytes = 0;
+      while (rowBytes < widthBytes && pos < dataLen) {
+        const b1 = picBytes[pos++];
+        pixels[outIdx++] = b1;
+        rowBytes++;
+
+        if (rowBytes >= widthBytes || pos >= dataLen) break;
+
+        const b2 = picBytes[pos];
+        if (b1 === b2) {
+          pos++; // 2バイト目を消費
+          if (pos >= dataLen) break;
+          const count = picBytes[pos++];
+          const remainingRun = count - 1;
+          if (remainingRun > 0) {
+            const needed = widthBytes - rowBytes;
+            const toWrite = Math.min(remainingRun, needed);
+            for (let i = 0; i < toWrite; i++) {
+              pixels[outIdx++] = b1;
+            }
+            rowBytes += toWrite;
+          }
+        }
+      }
+    }
+
+    return new MsxPicAsset(
+      { screenMode, destX, destY, widthBytes, heightLines, widthPixels: widthBytes * 2, heightPixels: heightLines },
+      palette,
+      pixels
+    );
+  }
+}
+
+/**
+ * MSX2 SPRスプライト デコーダ
+ */
+class MsxSprDecoder {
+  static PALETTE = [
+    [109, 109, 109], // 0: 透明
+    [0, 0, 0],       // 1: 黒
+    [36, 36, 255],   // 2: 青
+    [255, 255, 255], // 3: 白
+    [255, 182, 146], // 4: 肌色
+    [255, 36, 36],   // 5: 赤
+    [255, 146, 0],   // 6: 橙
+    [219, 73, 182],  // 7: 赤紫
+    [73, 146, 255],  // 8: 水色
+    [146, 219, 255], // 9: 明水色
+    [0, 182, 0],     // 10: 緑
+    [73, 255, 73],   // 11: 明緑
+    [219, 219, 36],  // 12: 黄
+    [182, 182, 182], // 13: 灰
+    [0, 146, 0],     // 14: 暗緑
+    [182, 255, 255]  // 15: 白緑
+  ];
+
+  // スプライト3枚重ね合わせ (120バイト) から 16x16 Canvas を合成生成
+  static decode16x16(sprBytes, offset = 0) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 16;
+    canvas.height = 16;
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.createImageData(16, 16);
+
+    if (!sprBytes || offset + 120 > sprBytes.length) return canvas;
+
+    const planes = [
+      { pat: sprBytes.subarray(offset + 0, offset + 32),   col: sprBytes.subarray(offset + 32, offset + 40) },
+      { pat: sprBytes.subarray(offset + 40, offset + 72),  col: sprBytes.subarray(offset + 72, offset + 80) },
+      { pat: sprBytes.subarray(offset + 80, offset + 112), col: sprBytes.subarray(offset + 112, offset + 120) }
+    ];
+
+    const getDot = (pat, x, y) => {
+      if (x < 8) {
+        return (pat[y] >> (7 - x)) & 1;
+      } else {
+        return (pat[16 + y] >> (7 - (x - 8))) & 1;
+      }
+    };
+
+    const getColor = (col, y) => {
+      const byteVal = col[Math.floor(y / 2)];
+      return (y % 2 === 0) ? ((byteVal >> 4) & 0x0F) : (byteVal & 0x0F);
+    };
+
+    for (let y = 0; y < 16; y++) {
+      for (let x = 0; x < 16; x++) {
+        let pixelColor = 0;
+        for (let p = 0; p < 3; p++) {
+          if (getDot(planes[p].pat, x, y)) {
+            const c = getColor(planes[p].col, y);
+            if (c !== 0) {
+              pixelColor = c;
+              break;
+            }
+          }
+        }
+
+        const pIdx = (y * 16 + x) * 4;
+        if (pixelColor === 0) {
+          imgData.data[pIdx + 3] = 0;
+        } else {
+          const rgb = MsxSprDecoder.PALETTE[pixelColor];
+          imgData.data[pIdx + 0] = rgb[0];
+          imgData.data[pIdx + 1] = rgb[1];
+          imgData.data[pIdx + 2] = rgb[2];
+          imgData.data[pIdx + 3] = 255;
+        }
+      }
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+    return canvas;
+  }
+}
 
 /**
  * セーブデータ定義
@@ -1792,10 +2082,10 @@ class GameDataManager {
     growth: [
       // 0: 戦士系
       [ [0x3A,0x00],[0x3B,0x00],[0x3D,0x00],[0x3A,0x00],[0x3B,0x00],[0x3D,0x00],[0x3A,0x00],[0x3B,0x00],[0x3D,0x00],[0x3A,0x00],
-        [0x1B,0x00],[0x3D,0x00],[0x3A,0x07],[0x1B,0x00],[0x3D,0x07],[0x3A,0x00],[0x13,0x07],[0x3D,0x00],[0x3A,0x07],[0x13,0x00],
-        [0x1D,0x07],[0x3A,0x00],[0x13,0x07],[0x1D,0x00],[0x3A,0x07],[0x13,0x00],[0x1D,0x07],[0x32,0x00],[0x19,0x07],[0x16,0x00],
-        [0x39,0x07],[0x12,0x00],[0x1D,0x07],[0x32,0x00],[0x19,0x07],[0x16,0x00],[0x38,0x07],[0x10,0x00],[0x1C,0x07],[0x30,0x00],
-        [0x18,0x07],[0x10,0x00],[0x38,0x07],[0x10,0x00],[0x18,0x07],[0x30,0x00],[0x10,0x00],[0x18,0x07],[0x30,0x00] ],
+        [0x1B,0x00],[0x3D,0x00],[0x3A,0x00],[0x1B,0x07],[0x3D,0x00],[0x3A,0x07],[0x1B,0x00],[0x3D,0x07],[0x3A,0x00],[0x13,0x07],
+        [0x3D,0x00],[0x3A,0x07],[0x13,0x00],[0x1D,0x07],[0x3A,0x00],[0x13,0x07],[0x1D,0x00],[0x3A,0x07],[0x13,0x00],[0x1D,0x07],
+        [0x32,0x00],[0x19,0x07],[0x16,0x00],[0x39,0x07],[0x12,0x00],[0x1D,0x07],[0x32,0x00],[0x19,0x07],[0x16,0x00],[0x38,0x07],
+        [0x10,0x00],[0x1C,0x07],[0x30,0x00],[0x18,0x07],[0x10,0x00],[0x38,0x07],[0x10,0x00],[0x18,0x07],[0x30,0x00] ],
       // 1: シーフ系
       [ [0x39,0x00],[0x37,0x00],[0x39,0x00],[0x35,0x00],[0x1B,0x00],[0x35,0x00],[0x19,0x00],[0x33,0x00],[0x1D,0x00],[0x21,0x00],
         [0x1B,0x00],[0x35,0x00],[0x09,0x00],[0x33,0x0F],[0x1D,0x00],[0x09,0x0F],[0x33,0x00],[0x1D,0x0F],[0x09,0x00],[0x33,0x0F],
@@ -1877,6 +2167,9 @@ class GameDataManager {
     jobPaletteAssignment: null
   };
 
+  static msxMenuL1 = null;
+  static msxMenuL2 = null;
+
   static currentSource = 'standard';
 
   static get activeExpTable() {
@@ -1919,28 +2212,31 @@ class GameDataManager {
   }
 
   static updateRuntimeTables() {
-    if (activePlatform !== 'fc') return;
     const isRom = (this.currentSource === 'rom');
     for (let i = 0; i < 40; i++) {
-      const wep = PLATFORM_WEAPONS.fc[i + 1];
-      if (wep) {
-        if (isRom && this.romData.weapons && this.romData.weapons[i]) {
-          wep.atk = this.romData.weapons[i].atk;
-          wep.hit = this.romData.weapons[i].hit;
-        } else {
-          wep.atk = BASE_WEAPONS_DATA[i].atk;
-          wep.hit = BASE_WEAPONS_DATA[i].hit;
-        }
+      const atk = (isRom && this.romData.weapons && this.romData.weapons[i]) ? this.romData.weapons[i].atk : BASE_WEAPONS_DATA[i].atk;
+      const hit = (isRom && this.romData.weapons && this.romData.weapons[i]) ? this.romData.weapons[i].hit : BASE_WEAPONS_DATA[i].hit;
+      const def = (isRom && this.romData.armors && this.romData.armors[i]) ? this.romData.armors[i].def : BASE_ARMORS_DATA[i].def;
+      const wt  = (isRom && this.romData.armors && this.romData.armors[i]) ? this.romData.armors[i].wt : BASE_ARMORS_DATA[i].wt;
+
+      // FC版テーブル
+      if (PLATFORM_WEAPONS.fc[i + 1]) {
+        PLATFORM_WEAPONS.fc[i + 1].atk = atk;
+        PLATFORM_WEAPONS.fc[i + 1].hit = hit;
       }
-      const arm = PLATFORM_ARMORS.fc[i + 1];
-      if (arm) {
-        if (isRom && this.romData.armors && this.romData.armors[i]) {
-          arm.def = this.romData.armors[i].def;
-          arm.wt = this.romData.armors[i].wt;
-        } else {
-          arm.def = BASE_ARMORS_DATA[i].def;
-          arm.wt = BASE_ARMORS_DATA[i].wt;
-        }
+      if (PLATFORM_ARMORS.fc[i + 1]) {
+        PLATFORM_ARMORS.fc[i + 1].def = def;
+        PLATFORM_ARMORS.fc[i + 1].wt = wt;
+      }
+
+      // MSX版テーブル (武器: ID 28〜67, 防具: ID 68〜107)
+      if (PLATFORM_WEAPONS.msx[28 + i]) {
+        PLATFORM_WEAPONS.msx[28 + i].atk = atk;
+        PLATFORM_WEAPONS.msx[28 + i].hit = hit;
+      }
+      if (PLATFORM_ARMORS.msx[68 + i]) {
+        PLATFORM_ARMORS.msx[68 + i].def = def;
+        PLATFORM_ARMORS.msx[68 + i].wt = wt;
       }
     }
     for (let c = 0; c < 4; c++) {
@@ -1955,111 +2251,150 @@ class GameDataManager {
     if (sel.value !== source) sel.value = source;
 
     this.updateRuntimeTables();
-
-    if (document.getElementById('autoCalcCheckbox').checked) {
-      for (let c = 0; c < 4; c++) {
-        simulateLevelStats(c);
-      }
-    }
   }
 
-  static extractFromROM(rom) {
+  static extractFromROM(rom, fileName = "") {
     this.romData.loaded = true;
     this.romData.diffList = [];
     this.romData.diffDetected = false;
+    this.lastDiffFileName = fileName || loadedRomOrDskFileName || "";
+    this.lastDiffSourceTitle = "FC版 ROM";
 
     const prgStart = this.getPrgStartOffset(rom);
-    const fixedBankOffset = this.getBankOffset(rom, 15);
-    const bankCOffset = this.getBankOffset(rom, 12);
+    const diffReports = { weapons: [], armors: [], exp: [], growth: [], stats: [], palettes: [] };
 
-    // --- 武器データ抽出 (Bank C: 40武器、各4バイト [Hit%, Atk, Crit%, Elem/Status]) ---
-    let wepOffset = -1;
-    if (bankCOffset + 0x4000 <= rom.length) {
-      for (let i = 0; i < 0x4000 - 160; i++) {
-        const o = bankCOffset + i;
-        if (rom[o] === 0 && rom[o+1] === 12 && rom[o+4] === 10 && rom[o+5] === 5 && rom[o+8] === 0 && rom[o+9] === 6) {
-          wepOffset = o;
-          break;
-        }
-      }
-    }
-    if (wepOffset < 0) {
-      for (let o = prgStart; o < rom.length - 160; o++) {
-        if (rom[o] === 0 && rom[o+1] === 12 && rom[o+4] === 10 && rom[o+5] === 5 && rom[o+8] === 0 && rom[o+9] === 6) {
-          wepOffset = o;
-          break;
-        }
-      }
-    }
-    if (wepOffset >= 0) {
+    // 1. 武器性能データ (Bank 0C: PRG 0x30000, 40個 × 8バイト [Hit%, Atk, Crit%, Elem, 装備フラグ等])
+    const wepOffset = prgStart + 0x30000;
+    if (wepOffset + (40 * 8) <= rom.length) {
       this.romData.weapons = [];
-      let wepDiff = false;
       for (let i = 0; i < 40; i++) {
-        const o = wepOffset + (i * 4);
+        const o = wepOffset + (i * 8);
         const hit = rom[o];
-        const atk = rom[o+1];
+        const atk = rom[o + 1];
         const base = BASE_WEAPONS_DATA[i];
         this.romData.weapons.push({ atk, hit });
-        if (atk !== base.atk || hit !== base.hit) wepDiff = true;
+        if (atk !== base.atk || hit !== base.hit) {
+          diffReports.weapons.push({
+            "ID": i + 1, "名前": base.name,
+            "標準 攻撃": base.atk, "ROM 攻撃": atk,
+            "標準 命中": base.hit, "ROM 命中": hit
+          });
+        }
       }
-      if (wepDiff) this.romData.diffList.push("武器性能");
+      if (diffReports.weapons.length > 0) this.romData.diffList.push("武器性能");
+    } else {
+      console.warn("FC ROM内 武器データ領域が範囲外です:", wepOffset);
     }
 
-    // --- 防具データ抽出 (Bank C: 40防具、各4バイト [Def, Wt, Resist, Special]) ---
-    let armOffset = -1;
-    if (bankCOffset + 0x4000 <= rom.length) {
-      for (let i = 0; i < 0x4000 - 160; i++) {
-        const o = bankCOffset + i;
-        if (rom[o] === 1 && rom[o+1] === 2 && rom[o+4] === 4 && rom[o+5] === 8 && rom[o+8] === 15 && rom[o+9] === 15) {
-          armOffset = o;
-          break;
-        }
-      }
-    }
-    if (armOffset < 0) {
-      for (let o = prgStart; o < rom.length - 160; o++) {
-        if (rom[o] === 1 && rom[o+1] === 2 && rom[o+4] === 4 && rom[o+5] === 8 && rom[o+8] === 15 && rom[o+9] === 15) {
-          armOffset = o;
-          break;
-        }
-      }
-    }
-    if (armOffset >= 0) {
+    // 2. 防具性能データ (Bank 0C: PRG 0x30140 = NES 0x30150, 40個 × 4バイト [重量(Wt), 防御(Def), 耐性, 特殊])
+    const armOffset = prgStart + 0x30140;
+    if (armOffset + (40 * 4) <= rom.length) {
       this.romData.armors = [];
-      let armDiff = false;
       for (let i = 0; i < 40; i++) {
         const o = armOffset + (i * 4);
-        const def = rom[o];
-        const wt = rom[o+1];
+        const wt = rom[o];
+        const def = rom[o + 1];
         const base = BASE_ARMORS_DATA[i];
         this.romData.armors.push({ def, wt });
-        if (def !== base.def || wt !== base.wt) armDiff = true;
-      }
-      if (armDiff) this.romData.diffList.push("防具性能");
-    }
-
-    let palTableOffset = -1;
-    if (fixedBankOffset >= 0) {
-      const standardPalOffset = fixedBankOffset + 0x2C34;
-      if (standardPalOffset + 16 <= rom.length) {
-        let valid = true;
-        for (let k = 0; k < 16; k++) {
-          if (rom[standardPalOffset + k] > 0x3F) { valid = false; break; }
-        }
-        if (valid) palTableOffset = standardPalOffset;
-      }
-    }
-    if (palTableOffset < 0) {
-      for (let i = 0; i < rom.length - 16; i++) {
-        if (rom[i] === 0x0F && rom[i+1] === 0x28 && rom[i+2] === 0x18 && rom[i+3] === 0x21 &&
-            rom[i+4] === 0x0F && rom[i+5] === 0x16 && rom[i+6] === 0x30 && rom[i+7] === 0x36) {
-          palTableOffset = i;
-          break;
+        if (def !== base.def || wt !== base.wt) {
+          diffReports.armors.push({
+            "ID": i + 1, "名前": base.name,
+            "標準 防御": base.def, "ROM 防御": def,
+            "標準 重量": base.wt, "ROM 重量": wt
+          });
         }
       }
+      if (diffReports.armors.length > 0) this.romData.diffList.push("防具性能");
+    } else {
+      console.warn("FC ROM内 防具データ領域が範囲外です:", armOffset);
     }
 
-    if (palTableOffset >= 0 && palTableOffset + 16 <= rom.length) {
+    // 3. 必要経験値テーブル (Bank 0B: PRG 0x2CFFD = NES 0x02D00D, 50レベル × 3バイト)
+    const expOffset = prgStart + 0x2CFFD;
+    if (expOffset + 150 <= rom.length) {
+      this.romData.expTable = [];
+      for (let lv = 0; lv < 50; lv++) {
+        const o = expOffset + (lv * 3);
+        const val = rom[o] | (rom[o + 1] << 8) | (rom[o + 2] << 16);
+        this.romData.expTable.push(val);
+        const stdVal = this.standard.expTable[lv];
+        if (val !== stdVal) {
+          diffReports.exp.push({
+            "Lv": lv + 1, "標準 EXP": stdVal, "ROM EXP": val, "差分": val - stdVal
+          });
+        }
+      }
+      if (diffReports.exp.length > 0) this.romData.diffList.push("必要EXPテーブル");
+    } else {
+      console.warn("FC ROM内 必要EXPデータ領域が範囲外です:", expOffset);
+    }
+
+    // 4. 成長テーブル (Bank 0B: PRG 0x2D094 = NES 0x02D0A4, 6ジョブ × 49エントリ × 2バイト)
+    const growthOffset = prgStart + 0x2D094;
+    if (growthOffset + (6 * 49 * 2) <= rom.length) {
+      this.romData.growth = [];
+      for (let job = 0; job < 6; job++) {
+        const jobGrowth = [];
+        const jobBase = growthOffset + (job * 49 * 2);
+        for (let lv = 0; lv < 49; lv++) {
+          const o = jobBase + (lv * 2);
+          const statByte = rom[o];
+          const mpByte = rom[o + 1];
+          jobGrowth.push([statByte, mpByte]);
+
+          const stdEntry = this.standard.growth[job][lv];
+          if (statByte !== stdEntry[0] || mpByte !== stdEntry[1]) {
+            diffReports.growth.push({
+              "ジョブ": JOBS[job], "Lv": lv + 2,
+              "標準 ステータス上昇": "0x" + stdEntry[0].toString(16).toUpperCase().padStart(2, '0'),
+              "ROM ステータス上昇": "0x" + statByte.toString(16).toUpperCase().padStart(2, '0'),
+              "標準 MP上昇": "0x" + stdEntry[1].toString(16).toUpperCase().padStart(2, '0'),
+              "ROM MP上昇": "0x" + mpByte.toString(16).toUpperCase().padStart(2, '0')
+            });
+          }
+        }
+        this.romData.growth.push(jobGrowth);
+      }
+      if (diffReports.growth.length > 0) this.romData.diffList.push("成長テーブル");
+    } else {
+      console.warn("FC ROM内 成長テーブル領域が範囲外です:", growthOffset);
+    }
+
+    // 5. 初期能力値データ (Bank 00: PRG 0x003041, 6ジョブ × 16バイト)
+    const statsBase = prgStart + 0x003041;
+    if (statsBase + 96 <= rom.length) {
+      this.romData.initialStats = [];
+      const statNames = ["HP", "力", "早", "知", "体", "運"];
+      for (let job = 0; job < 6; job++) {
+        const offset = statsBase + (job * 16);
+        const st = [
+          rom[offset + 0x00],
+          rom[offset + 0x01],
+          rom[offset + 0x02],
+          rom[offset + 0x03],
+          rom[offset + 0x04],
+          rom[offset + 0x05]
+        ];
+        this.romData.initialStats.push(st);
+        const std = this.standard.initialStats[job];
+        for (let idx = 0; idx < 6; idx++) {
+          if (st[idx] !== std[idx]) {
+            diffReports.stats.push({
+              "ジョブ": JOBS[job], "パラメータ": statNames[idx],
+              "標準値": std[idx], "ROM値": st[idx]
+            });
+          }
+        }
+      }
+      if (diffReports.stats.length > 0) this.romData.diffList.push("初期能力値");
+    } else {
+      console.warn("FC ROM内 初期能力値領域が範囲外です:", statsBase);
+    }
+
+    // 6. 戦闘パレット (Bank 0F: PRG 0x3EC34)
+    const fixedBankOffset = this.getBankOffset(rom, 15);
+    const palTableOffset = fixedBankOffset + 0x2C34;
+    if (palTableOffset + 16 <= rom.length) {
       this.romData.battlePalettes = {};
       let palDiff = false;
       for (let p = 0; p < 4; p++) {
@@ -2076,112 +2411,292 @@ class GameDataManager {
       if (palDiff) this.romData.diffList.push("戦闘パレット");
     }
 
-    let jobPalOffset = -1;
-    for (let j = 0; j < rom.length - 7; j++) {
-      if (rom[j] === 0xBD && rom[j+1] === 0x00 && rom[j+2] === 0x61 && rom[j+3] === 0xA8 && rom[j+4] === 0xB9) {
-        const refAddr = rom[j+5] | (rom[j+6] << 8);
-        if (refAddr >= 0xC000 && refAddr <= 0xFFFF && fixedBankOffset >= 0) {
-          jobPalOffset = fixedBankOffset + (refAddr - 0xC000);
-          break;
-        }
-      }
-    }
-    if (jobPalOffset >= 0 && jobPalOffset + 12 <= rom.length) {
-      let valid = true;
+    // 7. ジョブ別戦闘パレット割当 (Bank 0F: PRG 0x3ED33)
+    const jobPalOffset = fixedBankOffset + 0x2D33;
+    if (jobPalOffset + 12 <= rom.length) {
+      const assign = [];
+      let assignDiff = false;
       for (let k = 0; k < 12; k++) {
-        if (rom[jobPalOffset + k] > 3) { valid = false; break; }
+        const val = rom[jobPalOffset + k];
+        assign.push(val);
+        if (val !== this.standard.jobPaletteAssignment[k]) assignDiff = true;
       }
-      if (valid) {
-        const assign = [];
-        let assignDiff = false;
-        for (let k = 0; k < 12; k++) {
-          const val = rom[jobPalOffset + k];
-          assign.push(val);
-          if (val !== this.standard.jobPaletteAssignment[k]) assignDiff = true;
+      this.romData.jobPaletteAssignment = assign;
+      if (assignDiff) this.romData.diffList.push("ジョブパレット割当");
+    }
+
+    this.romData.diffDetected = (this.romData.diffList.length > 0);
+
+    this.lastDiffReport = diffReports;
+    if (this.romData.diffDetected) {
+      this.printDiffConsoleReport("FC版 ROM", this.lastDiffFileName, diffReports);
+    }
+
+    const optRom = document.getElementById('optRomSource');
+    optRom.disabled = false;
+    optRom.innerText = `読込ROM準拠 ${this.romData.diffDetected ? '(差異あり)' : '(標準)'}`;
+
+    if (this.romData.diffDetected) {
+      this.setSource('rom');
+    } else {
+      this.updateRuntimeTables();
+    }
+  }
+
+  static extractFromMsxDsk(dsk, fs, fileName = "") {
+    this.romData.loaded = true;
+    this.romData.diffList = [];
+    this.romData.diffDetected = false;
+    this.lastDiffFileName = fileName || loadedRomOrDskFileName || "";
+    this.lastDiffSourceTitle = "MSX版 DSK";
+
+    // メニュー画面用キャラクタ画像の展開 (MENU_L1.PIC / MENU_L2.PIC)
+    this.msxMenuL1 = null;
+    this.msxMenuL2 = null;
+    const l1Bytes = fs.getFile("MENU_L1.PIC");
+    if (l1Bytes) {
+      this.msxMenuL1 = MsxPicDecoder.decode(l1Bytes);
+    }
+    const l2Bytes = fs.getFile("MENU_L2.PIC");
+    if (l2Bytes) {
+      this.msxMenuL2 = MsxPicDecoder.decode(l2Bytes);
+    }
+
+    const bdata = fs.getFile("BDATA.TBL");
+    const startup = fs.getFile("STARTUP.COM");
+    const diffReports = { weapons: [], armors: [], exp: [], growth: [], stats: [] };
+
+    // 1. 武器性能データの抽出 (BDATA.TBL: +0x0000〜, 40個 × 8バイト [Hit%, Atk, Crit%, Elem, 装備フラグ等])
+    if (bdata && bdata.length >= (40 * 8)) {
+      this.romData.weapons = [];
+      for (let i = 0; i < 40; i++) {
+        const o = i * 8;
+        const hit = bdata[o];
+        const atk = bdata[o + 1];
+        const base = BASE_WEAPONS_DATA[i];
+        this.romData.weapons.push({ atk, hit });
+        if (atk !== base.atk || hit !== base.hit) {
+          diffReports.weapons.push({
+            "ID": i + 1, "名前": base.name,
+            "標準 攻撃": base.atk, "DSK 攻撃": atk,
+            "標準 命中": base.hit, "DSK 命中": hit
+          });
         }
-        this.romData.jobPaletteAssignment = assign;
-        if (assignDiff) this.romData.diffList.push("ジョブパレット割当");
       }
+      if (diffReports.weapons.length > 0) this.romData.diffList.push("武器性能");
+    } else {
+      console.warn("BDATA.TBL 武器データ領域不足 (必要: 320バイト)");
     }
 
-    let startStatsOffset = -1;
-    for (let i = 0; i < rom.length - 96; i++) {
-      if (rom[i] === 35 && rom[i+1] === 20 && rom[i+2] === 5 && rom[i+3] === 1 && rom[i+4] === 10 && rom[i+5] === 5 &&
-          rom[i+16] === 30 && rom[i+17] === 5 && rom[i+18] === 10) {
-        startStatsOffset = i;
-        break;
+    // 2. 防具性能データの抽出 (BDATA.TBL: +0x0140〜, 40個 × 4バイト [重量(Wt), 防御(Def), 耐性, 特殊])
+    if (bdata && bdata.length >= 0x0140 + (40 * 4)) {
+      this.romData.armors = [];
+      for (let i = 0; i < 40; i++) {
+        const o = 0x0140 + (i * 4);
+        const wt = bdata[o];
+        const def = bdata[o + 1];
+        const base = BASE_ARMORS_DATA[i];
+        this.romData.armors.push({ def, wt });
+        if (def !== base.def || wt !== base.wt) {
+          diffReports.armors.push({
+            "ID": i + 1, "名前": base.name,
+            "標準 防御": base.def, "DSK 防御": def,
+            "標準 重量": base.wt, "DSK 重量": wt
+          });
+        }
       }
+      if (diffReports.armors.length > 0) this.romData.diffList.push("防具性能");
+    } else {
+      console.warn("BDATA.TBL 防具データ領域不足 (必要: 0x01E0バイト)");
     }
 
-    if (startStatsOffset >= 0) {
-      this.romData.initialStats = [];
-      let statsDiff = false;
+    // 3. 必要経験値テーブルの抽出 (BDATA.TBL: +0x197D〜, 50レベル × 3バイト リトルエンディアン)
+    if (bdata && bdata.length >= 0x197D + 150) {
+      this.romData.expTable = [];
+      for (let lv = 0; lv < 50; lv++) {
+        const o = 0x197D + (lv * 3);
+        const val = bdata[o] | (bdata[o + 1] << 8) | (bdata[o + 2] << 16);
+        this.romData.expTable.push(val);
+        const stdVal = this.standard.expTable[lv];
+        if (val !== stdVal) {
+          diffReports.exp.push({
+            "Lv": lv + 1, "標準 EXP": stdVal, "DSK EXP": val, "差分": val - stdVal
+          });
+        }
+      }
+      if (diffReports.exp.length > 0) this.romData.diffList.push("必要EXPテーブル");
+    } else {
+      console.warn("BDATA.TBL 必要EXPテーブル領域不足 (必要: 0x1A13バイト)");
+    }
+
+    // 4. 成長テーブルの抽出 (BDATA.TBL: +0x1A20〜, 6ジョブ × 49エントリ × 2バイト)
+    if (bdata && bdata.length >= 0x1A20 + (6 * 49 * 2)) {
+      this.romData.growth = [];
       for (let job = 0; job < 6; job++) {
-        const offset = startStatsOffset + (job * 16);
+        const jobGrowth = [];
+        const jobOffset = 0x1A20 + (job * 49 * 2);
+        for (let lv = 0; lv < 49; lv++) {
+          const o = jobOffset + (lv * 2);
+          const statByte = bdata[o];
+          const mpByte = bdata[o + 1];
+          jobGrowth.push([statByte, mpByte]);
+
+          const stdEntry = this.standard.growth[job][lv];
+          if (statByte !== stdEntry[0] || mpByte !== stdEntry[1]) {
+            diffReports.growth.push({
+              "ジョブ": JOBS[job], "Lv": lv + 2,
+              "標準 ステータス上昇": "0x" + stdEntry[0].toString(16).toUpperCase().padStart(2, '0'),
+              "DSK ステータス上昇": "0x" + statByte.toString(16).toUpperCase().padStart(2, '0'),
+              "標準 MP上昇": "0x" + stdEntry[1].toString(16).toUpperCase().padStart(2, '0'),
+              "DSK MP上昇": "0x" + mpByte.toString(16).toUpperCase().padStart(2, '0')
+            });
+          }
+        }
+        this.romData.growth.push(jobGrowth);
+      }
+      if (diffReports.growth.length > 0) this.romData.diffList.push("成長テーブル");
+    } else {
+      console.warn("BDATA.TBL 成長テーブル領域不足 (必要: 0x1C6Cバイト)");
+    }
+
+    // 5. 初期能力値データの抽出 (STARTUP.COM: +0x0BFA〜, 6ジョブ × 16バイト)
+    // ※STARTUP.COM 0x0BF9はジョブ0のID、能力値は0x0BFA(HP,力,早,知,体,運)から16バイト周期で配置
+    if (startup && startup.length >= 0x0BFA + 96) {
+      this.romData.initialStats = [];
+      const statNames = ["HP", "力", "早", "知", "体", "運"];
+      for (let job = 0; job < 6; job++) {
+        const offset = 0x0BFA + (job * 16);
         const st = [
-          rom[offset + 0x00],
-          rom[offset + 0x01],
-          rom[offset + 0x02],
-          rom[offset + 0x03],
-          rom[offset + 0x04],
-          rom[offset + 0x05]
+          startup[offset + 0],
+          startup[offset + 1],
+          startup[offset + 2],
+          startup[offset + 3],
+          startup[offset + 4],
+          startup[offset + 5]
         ];
         this.romData.initialStats.push(st);
         const std = this.standard.initialStats[job];
-        if (st.some((val, idx) => val !== std[idx])) statsDiff = true;
-      }
-      if (statsDiff) this.romData.diffList.push("初期能力値");
-    }
-
-    let expTableOffset = -1;
-    for (let i = 0; i < rom.length - 150; i++) {
-      if (rom[i] === 0x00 && rom[i+1] === 0x00 && rom[i+2] === 0x00 &&
-          rom[i+3] === 0x28 && rom[i+4] === 0x00 && rom[i+5] === 0x00 &&
-          rom[i+6] === 0xC4 && rom[i+7] === 0x00 && rom[i+8] === 0x00) {
-        expTableOffset = i;
-        break;
-      }
-    }
-    if (expTableOffset < 0) {
-      for (let i = 0; i < rom.length - 150; i++) {
-        if (rom[i] === 0x00 && rom[i+1] === 0x00 && rom[i+2] === 0x00) {
-          let strictlyIncreasing = true;
-          let prev = 0;
-          for (let lv = 1; lv < 50; lv++) {
-            const o = i + (lv * 3);
-            const val = rom[o] | (rom[o+1] << 8) | (rom[o+2] << 16);
-            if (val <= prev || val > 1500000) { strictlyIncreasing = false; break; }
-            prev = val;
-          }
-          if (strictlyIncreasing) {
-            expTableOffset = i;
-            break;
+        for (let idx = 0; idx < 6; idx++) {
+          if (st[idx] !== std[idx]) {
+            diffReports.stats.push({
+              "ジョブ": JOBS[job], "パラメータ": statNames[idx],
+              "標準値": std[idx], "DSK値": st[idx]
+            });
           }
         }
       }
+      if (diffReports.stats.length > 0) this.romData.diffList.push("初期能力値");
+    } else {
+      console.warn("STARTUP.COM 初期能力値領域不足 (必要: 0x0C5Aバイト)");
     }
 
-    if (expTableOffset >= 0) {
-      this.romData.expTable = [];
-      let expDiff = false;
-      for (let lv = 0; lv < 50; lv++) {
-        const o = expTableOffset + (lv * 3);
-        const val = rom[o] | (rom[o+1] << 8) | (rom[o+2] << 16);
-        this.romData.expTable.push(val);
-        if (val !== this.standard.expTable[lv]) expDiff = true;
-      }
-      if (expDiff) this.romData.diffList.push("必要EXPテーブル");
+    this.romData.diffDetected = (this.romData.diffList.length > 0);
+
+    this.lastDiffReport = diffReports;
+    if (this.romData.diffDetected) {
+      this.printDiffConsoleReport("MSX版 DSK", this.lastDiffFileName, diffReports);
     }
 
     this.romData.diffDetected = (this.romData.diffList.length > 0);
 
     const optRom = document.getElementById('optRomSource');
     optRom.disabled = false;
-    optRom.innerText = `読み込みROM準拠 ${this.romData.diffDetected ? '(差分あり)' : '(標準と一致)'}`;
+    optRom.innerText = `読込DSK準拠 ${this.romData.diffDetected ? '(差異あり)' : '(標準)'}`;
 
     if (this.romData.diffDetected) {
       this.setSource('rom');
+    } else {
+      this.updateRuntimeTables();
     }
+  }
+
+  static printDiffConsoleReport(sourceTitle, fileName, report) {
+    const lines = [];
+    lines.push(`================================================================`);
+    lines.push(`【パラメータ差異レポート】 ${sourceTitle}: ${fileName || "(ファイル名不明)"}`);
+    lines.push(`================================================================`);
+
+    if (report.weapons && report.weapons.length > 0) {
+      lines.push(`■ 武器性能の差異 (${report.weapons.length}件):`);
+      report.weapons.forEach(w => {
+        lines.push(`  ID:${w.ID.toString().padStart(2, ' ')} ${w.名前.padEnd(8, ' ')} | 攻撃: ${w["DSK 攻撃"] || w["ROM 攻撃"]} (標準: ${w["標準 攻撃"]}) | 命中: ${w["DSK 命中"] || w["ROM 命中"]} (標準: ${w["標準 命中"]})`);
+      });
+    }
+
+    if (report.armors && report.armors.length > 0) {
+      lines.push(`■ 防具性能の差異 (${report.armors.length}件):`);
+      report.armors.forEach(a => {
+        lines.push(`  ID:${a.ID.toString().padStart(2, ' ')} ${a.名前.padEnd(8, ' ')} | 防御: ${a["DSK 防御"] || a["ROM 防御"]} (標準: ${a["標準 防御"]}) | 重量: ${a["DSK 重量"] || a["ROM 重量"]} (標準: ${a["標準 重量"]})`);
+      });
+    }
+
+    if (report.exp && report.exp.length > 0) {
+      lines.push(`■ 必要経験値テーブルの差異 (${report.exp.length}件):`);
+      report.exp.forEach(e => {
+        lines.push(`  Lv.${e.Lv.toString().padStart(2, ' ')} | EXP: ${e["DSK EXP"] || e["ROM EXP"]} (標準: ${e["標準 EXP"]}, 差分: ${e["差分"]})`);
+      });
+    }
+
+    if (report.growth && report.growth.length > 0) {
+      lines.push(`■ 成長テーブルの差異 (${report.growth.length}件):`);
+      report.growth.forEach(g => {
+        lines.push(`  ${g.ジョブ.padEnd(6, ' ')} Lv.${g.Lv.toString().padStart(2, ' ')} | 能力値上昇: ${g["DSK ステータス上昇"] || g["ROM ステータス上昇"]} (標準: ${g["標準 ステータス上昇"]}) | MP上昇: ${g["DSK MP上昇"] || g["ROM MP上昇"]} (標準: ${g["標準 MP上昇"]})`);
+      });
+    }
+
+    if (report.stats && report.stats.length > 0) {
+      lines.push(`■ 初期能力値の差異 (${report.stats.length}件):`);
+      report.stats.forEach(s => {
+        lines.push(`  ${s.ジョブ.padEnd(6, ' ')} [${s.パラメータ}] -> ${s["DSK値"] || s["ROM値"]} (標準: ${s.標準値})`);
+      });
+    }
+
+    lines.push(`================================================================`);
+    console.log(lines.join("\n"));
+  }
+
+  static showDiffPopup() {
+    const report = this.lastDiffReport;
+    if (!report || !this.romData.diffDetected) {
+      alert("標準パラメータとの差異はありません。");
+      return;
+    }
+
+    const lines = [];
+    lines.push(`【パラメータ差異レポート】 ${this.lastDiffSourceTitle || "ROM/DSK"}: ${this.lastDiffFileName || ""}`);
+
+    if (report.weapons && report.weapons.length > 0) {
+      lines.push(`\n■ 武器性能の差異 (${report.weapons.length}件):`);
+      report.weapons.forEach(w => {
+        lines.push(`  ID:${w.ID} ${w.名前} -> 攻撃:${w["DSK 攻撃"] || w["ROM 攻撃"]}(標準:${w["標準 攻撃"]}), 命中:${w["DSK 命中"] || w["ROM 命中"]}(標準:${w["標準 命中"]})`);
+      });
+    }
+    if (report.armors && report.armors.length > 0) {
+      lines.push(`\n■ 防具性能の差異 (${report.armors.length}件):`);
+      report.armors.forEach(a => {
+        lines.push(`  ID:${a.ID} ${a.名前} -> 防御:${a["DSK 防御"] || a["ROM 防御"]}(標準:${a["標準 防御"]}), 重量:${a["DSK 重量"] || a["ROM 重量"]}(標準:${a["標準 重量"]})`);
+      });
+    }
+    if (report.exp && report.exp.length > 0) {
+      lines.push(`\n■ 必要経験値の差異 (${report.exp.length}件):`);
+      report.exp.forEach(e => {
+        lines.push(`  Lv.${e.Lv} -> EXP:${e["DSK EXP"] || e["ROM EXP"]}(標準:${e["標準 EXP"]})`);
+      });
+    }
+    if (report.growth && report.growth.length > 0) {
+      lines.push(`\n■ 成長テーブルの差異 (${report.growth.length}件):`);
+      report.growth.forEach(g => {
+        lines.push(`  ${g.ジョブ} Lv.${g.Lv} -> 能力値:${g["DSK ステータス上昇"] || g["ROM ステータス上昇"]}(標準:${g["標準 ステータス上昇"]}), MP:${g["DSK MP上昇"] || g["ROM MP上昇"]}(標準:${g["標準 MP上昇"]})`);
+      });
+    }
+    if (report.stats && report.stats.length > 0) {
+      lines.push(`\n■ 初期能力値の差異 (${report.stats.length}件):`);
+      report.stats.forEach(s => {
+        lines.push(`  ${s.ジョブ} [${s.パラメータ}] -> ${s["DSK値"] || s["ROM値"]}(標準:${s.標準値})`);
+      });
+    }
+
+    alert(lines.join("\n"));
   }
 }
 
@@ -2486,7 +3001,7 @@ function createCharTabHTML(c) {
         <div class="field"><label>経験値</label><input type="number" id="c${c}_exp" class="w-byte3" min="0" max="999999"></div>
         <div class="field">
           <label>状態</label>
-          <select id="c${c}_status" class="w-select">
+          <select id="c${c}_status" class="w-select" onchange="onStatusChange(${c})">
             <option value="0">正常</option>
             <option value="1">死亡 (戦闘不能)</option>
             <option value="2">石化</option>
@@ -2983,64 +3498,92 @@ window.addEventListener('drop', (e) => {
 });
 
 document.getElementById('savInput').addEventListener('change', (e) => {
-  if (e.target.files[0]) handleLoadedFile(e.target.files[0]);
+  if (e.target.files[0]) handleLoadedFile(e.target.files[0], 'sav');
 });
 document.getElementById('nesInput').addEventListener('change', (e) => {
-  if (e.target.files[0]) handleLoadedFile(e.target.files[0]);
+  if (e.target.files[0]) handleLoadedFile(e.target.files[0], 'rom');
 });
 
-function handleLoadedFile(file) {
+function handleLoadedFile(file, forceRole = null) {
   const ext = file.name.split('.').pop().toLowerCase();
   const reader = new FileReader();
 
-  if (ext === 'nes') {
-    reader.onload = (evt) => {
-      const buf = new Uint8Array(evt.target.result);
-      if (buf[0] === 0x4E && buf[1] === 0x45 && buf[2] === 0x53 && buf[3] === 0x1A) {
-        nesRom = buf;
+  reader.onload = (evt) => {
+    const buf = new Uint8Array(evt.target.result);
+
+    // 1. FC版 NES ROM 判定 (マジックナンバー "NES\x1A")
+    if (buf[0] === 0x4E && buf[1] === 0x45 && buf[2] === 0x53 && buf[3] === 0x1A) {
+      nesRom = buf;
+      msxDskData = null;
+      msxDskFs = null;
+      loadedRomOrDskFileName = file.name;
+      document.body.classList.remove('no-rom');
+      GameDataManager.extractFromROM(nesRom, file.name);
+      WorldMapViewer.loadFromROM(nesRom);
+      
+      const romStatusEl = document.getElementById('romStatus');
+      if (GameDataManager.romData.diffDetected) {
+        const diffStr = GameDataManager.romData.diffList.join(", ");
+        romStatusEl.innerHTML = `【ROM】${file.name} 読込完了 <span class="tag-diff" style="cursor:pointer;" onclick="GameDataManager.showDiffPopup()" title="クリックで差異一覧を表示">改変検知: ${diffStr}</span> [ROM準拠適用中]`;
+      } else {
+        romStatusEl.innerText = `【ROM】${file.name} 読込完了 (標準仕様と一致)`;
+      }
+
+      for (let c = 0; c < 4; c++) renderCharSprite(c);
+      return;
+    }
+
+    // 2. DSK イメージ判定 (360KB / 720KB 等)
+    if (ext === 'dsk' || buf.length >= 360 * 1024) {
+      const fs = new SayDosFileSystem(buf);
+
+      // ゲームDSK（MAIN.COM または BDATA.TBL が存在）判定
+      if (fs.isGameDsk() && forceRole !== 'sav') {
+        msxDskData = buf;
+        msxDskFs = fs;
+        loadedRomOrDskFileName = file.name;
         document.body.classList.remove('no-rom');
-        GameDataManager.extractFromROM(nesRom);
-        WorldMapViewer.loadFromROM(nesRom);
-        
+
+        GameDataManager.extractFromMsxDsk(msxDskData, msxDskFs, file.name);
+        WorldMapViewer.loadFromMsxDsk(msxDskData, msxDskFs);
+
         const romStatusEl = document.getElementById('romStatus');
         if (GameDataManager.romData.diffDetected) {
           const diffStr = GameDataManager.romData.diffList.join(", ");
-          romStatusEl.innerHTML = `【ROM】${file.name} 読込完了 <span class="tag-diff">改変検知: ${diffStr}</span> [ROM準拠適用中]`;
+          romStatusEl.innerHTML = `【DSK】${file.name} 読込完了 <span class="tag-diff" style="cursor:pointer;" onclick="GameDataManager.showDiffPopup()" title="クリックで差異一覧を表示">改変検知: ${diffStr}</span> [DSK準拠適用中]`;
         } else {
-          romStatusEl.innerText = `【ROM】${file.name} 読込完了 (標準仕様と一致)`;
+          romStatusEl.innerText = `【DSK】${file.name} 読込完了 (標準仕様と一致)`;
         }
 
         for (let c = 0; c < 4; c++) renderCharSprite(c);
-      } else {
-        alert("有効なNES ROMではありません。");
+        return;
       }
-    };
-    reader.readAsArrayBuffer(file);
-  } else {
-    reader.onload = (evt) => {
-      const buf = new Uint8Array(evt.target.result);
-      loadedSavFileName = file.name;
 
-      if (ext === 'dsk' || buf.length >= 360 * 1024) {
-        // MSX版 ユーザーディスク (720KB / 360KB)
-        savData = buf;
-        setPlatform('msx');
-        loadSavToUI();
-        document.getElementById('fileStatus').innerText = `【DSK】MSX版 ユーザーディスク: ${file.name} (${buf.length} bytes)`;
-        document.getElementById('exportBtn').disabled = false;
-      } else if (buf.length >= 8192) {
-        // FC版 セーブデータ (8KB)
-        savData = buf;
-        setPlatform('fc');
-        loadSavToUI();
-        document.getElementById('fileStatus').innerText = `【SAV】FC版 セーブデータ: ${file.name} (${savData.length} bytes)`;
-        document.getElementById('exportBtn').disabled = false;
-      } else {
-        alert("有効なセーブデータ (.sav 8KB以上) または ユーザーディスク (.dsk) ではありません。");
-      }
-    };
-    reader.readAsArrayBuffer(file);
-  }
+      // セーブデータ（ユーザーDSK）として処理
+      savData = buf;
+      loadedSavFileName = file.name;
+      setPlatform('msx');
+      loadSavToUI();
+      document.getElementById('fileStatus').innerText = `【DSK】MSX版 ユーザーDSK: ${file.name} (${buf.length} bytes)`;
+      document.getElementById('exportBtn').disabled = false;
+      return;
+    }
+
+    // 3. FC版 セーブデータ (8KB)
+    if (buf.length >= 8192) {
+      savData = buf;
+      loadedSavFileName = file.name;
+      setPlatform('fc');
+      loadSavToUI();
+      document.getElementById('fileStatus').innerText = `【SAV】FC版 セーブデータ: ${file.name} (${savData.length} bytes)`;
+      document.getElementById('exportBtn').disabled = false;
+      return;
+    }
+
+    alert("有効なセーブデータ (.sav 8KB以上)、ユーザーDSK (.dsk)、または ゲームROM / ゲームDSK ではありません。");
+  };
+
+  reader.readAsArrayBuffer(file);
 }
 
 /**
@@ -3413,13 +3956,46 @@ function decode2bppTile(rom, offset, imgData, dx, dy, paletteRGB) {
   }
 }
 
+function onStatusChange(c) {
+  renderCharSprite(c);
+  updatePartyOverview(c);
+}
+
 function renderCharSprite(c) {
   const canvas = document.getElementById(`charCanvas_${c}`);
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, 16, 24);
 
+  const pCanvas = document.getElementById(`partyCanvas_${c}`);
+  const pCtx = pCanvas ? pCanvas.getContext('2d') : null;
+  if (pCtx) pCtx.clearRect(0, 0, 16, 24);
+
   const job = parseInt(document.getElementById(`c${c}_job`).value) || 0;
 
+  // MSX版 DSKからのメニューキャラ描画
+  if (msxDskFs && (GameDataManager.msxMenuL1 || GameDataManager.msxMenuL2)) {
+    const picAsset = (job < 6) ? GameDataManager.msxMenuL1 : GameDataManager.msxMenuL2;
+    if (picAsset) {
+      const baseJob = job % 6;
+      const row = Math.floor(baseJob / 2); // 0:上段, 1:中段, 2:下段
+      const col = baseJob % 2;             // 0:左列, 1:右列
+      const status = parseInt(document.getElementById(`c${c}_status`).value) || 0;
+
+      // パターンオフセット: 0:通常(0px), 1:状態異常(16px), 2:石化(32px)
+      let patternIdx = 0;
+      if (status === 1 || status === 3) patternIdx = 1; // 死亡または毒
+      else if (status === 2) patternIdx = 2;            // 石化
+
+      const sx = (col * 48) + (patternIdx * 16);
+      const sy = row * 24;
+
+      picAsset.drawToContext(ctx, sx, sy, 16, 24, 0, 0);
+      if (pCtx) picAsset.drawToContext(pCtx, sx, sy, 16, 24, 0, 0);
+      return;
+    }
+  }
+
+  // FC版 NES ROMからの描画
   if (!nesRom) return;
 
   const baseOffset = GameDataManager.getBankOffset(nesRom, 9) + 0x1000 + (job * 0x200);
@@ -3443,10 +4019,7 @@ function renderCharSprite(c) {
   ctx.putImageData(imgData, 0, 0);
 
   // パーティ共通タブ内のキャラクタカード表示を更新
-  const pCanvas = document.getElementById(`partyCanvas_${c}`);
-  if (pCanvas) {
-    const pCtx = pCanvas.getContext('2d');
-    pCtx.clearRect(0, 0, 16, 24);
+  if (pCtx) {
     pCtx.putImageData(imgData, 0, 0);
   }
 }
@@ -3692,6 +4265,9 @@ class PresetResource {
   static updateCanalColorFromImage() {
     if (!this.mapImage || !this.mapImageLoaded) return;
     try {
+      // file:// プロトコル環境では Canvas Tainted 例外を回避
+      if (window.location.protocol === 'file:') return;
+
       const img = this.mapImage;
       const imgW = img.naturalWidth || img.width || 256;
       const imgH = img.naturalHeight || img.height || 256;
@@ -3707,8 +4283,7 @@ class PresetResource {
       const pixel = ctx.getImageData(0, 0, 1, 1).data;
       this.canalColor = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
     } catch (e) {
-      // ローカルfile://プロトコル等による画像アクセス制限時は初期値を維持
-      console.warn("海峡色の自動取得に失敗したためデフォルト色を使用します:", e);
+      // ローカル環境制限時は初期値を維持
     }
   }
 
@@ -3798,6 +4373,8 @@ class WorldMapViewer {
   static TILE_PALETTE_ASSIGNMENT_TABLE = 0x0300;    // 各タイルのパレットセット割り当てテーブル開始位置 (128バイト)
   static PALETTE_RABLE = 0x0380;                    // ワールドマップパレットデータ本体開始位置 (32バイト)
   static CHARACTER_PATTERN_TABLE = 0x8000;          // ワールドマップCHRグラフィックデータ開始位置
+  static BATTLE_BACKDROP_ASSIGNMENT_TABLE = 0x3300;  // タイル別戦闘背景割り当てテーブル (128バイト)
+  static MSX_BATTLE_BACKDROP_OFFSET = 0x0BAE;       // MSX版 BATTLE.COM内 戦闘背景割り当てテーブルオフセット
 
   // スプライトグラフィックPRGオフセット (各16x16px: 4キャラクタ=64バイト)
   static MAPMANGRAPHIC_OFFSET = 0x9000;             // プレイヤー歩行グラフィック
@@ -3815,6 +4392,32 @@ class WorldMapViewer {
 
   static currentMetaTableOffset = this.TILE_CHARACTER_ASSIGNMENT_TABLE;  // 現在のタイル割り当てPRGオフセット
   static currentChrOffset = this.CHARACTER_PATTERN_TABLE;                // 現在のCHRデータPRGオフセット
+
+  static tileAttrTable = null;          // タイル属性テーブル (128タイル×2バイト: 256バイト)
+  static tilePalTable = null;           // タイルパレット割り当てテーブル (128タイル×1バイト: 128バイト)
+  static tileBackdropTable = null;      // タイル別戦闘背景割り当てテーブル (128タイル×1バイト: 128バイト)
+  static msxPalette = null;             // MSX MAINBG.PIC カラーパレット (16色 RGB)
+  static currentDataSource = 'rom';     // 'rom' | 'msx' | 'preset'
+
+  // MSX版 MAINBG.PIC 標準カラーパレット (16色 RGB)
+  static MSX_MAINBG_PALETTE = [
+    [0, 0, 0],       // 0: 黒
+    [0, 0, 0],       // 1: 黒
+    [36, 36, 255],   // 2: 青 (海)
+    [255, 255, 255], // 3: 白
+    [255, 182, 146], // 4: 肌色
+    [255, 36, 36],   // 5: 赤 (テレポート)
+    [255, 146, 0],   // 6: 橙
+    [219, 73, 182],  // 7: 赤紫
+    [73, 146, 255],  // 8: 水色 (川)
+    [146, 219, 255], // 9: 明水色
+    [36, 182, 36],   // 10: 緑 (平地)
+    [73, 255, 73],   // 11: 明緑
+    [255, 219, 36],  // 12: 黄 (砂漠)
+    [182, 182, 182], // 13: 灰 (港・安全地帯)
+    [0, 109, 0],     // 14: 暗緑 (森林)
+    [109, 109, 109]  // 15: 暗灰 (山・壁)
+  ];
 
   static mapData = null;                // 256x256タイル配列 (65536 bytes)
   static chrAtlasCanvas = null;         // 8x8 キャラクタ全256個を保持する共通Canvas (128x128px)
@@ -3857,6 +4460,7 @@ class WorldMapViewer {
   static baseMapCtx = null;
   static debugHighlightTileId = null;  // デバッグ点滅対象タイルID（クリック中のみ保持）
   static debugHighlightPoints = null;  // デバッグ点滅対象タイルの座標リスト
+  static hoverMetaTileId = null;       // タイル一覧ホバー中のタイルID
 
   // 点滅カラーテーブル
   static BLINK_CYCLE = [
@@ -3890,18 +4494,31 @@ class WorldMapViewer {
     desert:   0x38  // 薄黄 (砂漠)
   };
 
-   /**
-   * ROMのタイル属性テーブル(PRG $0000)とテレポート定義からタイルイベント辞書を生成 (タイルID -> 地名ID)
-   */
-  static generateTileEventList(rom, prgStart) {
-    const attrOffset = prgStart + this.TILE_ATTRIBUTE_TABLE;
-    const tileEventList = {};
+    // MSX版 地形ベースカラー (MAINBG.PIC パレットインデックス)
+  static MSX_TYPE_COLORS = {
+    teleport: 5,  // 赤
+    safe:     13, // 灰
+    water:    2,  // 青
+    river:    8,  // 水色
+    port:     13, // 灰
+    plains:   10, // 緑
+    forest:   14, // 暗緑
+    //wall:     15, // 暗灰
+    wall:     11, // 明緑
+    desert:   12  // 黄
+  };
 
-    if (attrOffset + 256 > rom.length) return tileEventList;
+
+   /**
+   * タイル属性テーブル(256バイト)とテレポート定義からタイルイベント辞書を生成 (タイルID -> 地名ID)
+   */
+  static generateTileEventListFromAttr(attrBytes) {
+    const tileEventList = {};
+    if (!attrBytes || attrBytes.length < 256) return tileEventList;
 
     for (let tileId = 0; tileId < 128; tileId++) {
-      const data0 = rom[attrOffset + (tileId * 2)];
-      const data1 = rom[attrOffset + (tileId * 2) + 1];
+      const data0 = attrBytes[tileId * 2];
+      const data1 = attrBytes[tileId * 2 + 1];
 
       // テレポート判定 (data1 の Bit 7)
       if ((data1 & 0x80) !== 0) {
@@ -3918,6 +4535,15 @@ class WorldMapViewer {
       }
     }
     return tileEventList;
+  }
+
+  /**
+   * ROMのタイル属性テーブル(PRG $0000)とテレポート定義からタイルイベント辞書を生成 (タイルID -> 地名ID)
+   */
+  static generateTileEventList(rom, prgStart) {
+    const attrOffset = prgStart + this.TILE_ATTRIBUTE_TABLE;
+    if (attrOffset + 256 > rom.length) return {};
+    return this.generateTileEventListFromAttr(rom.subarray(attrOffset, attrOffset + 256));
   }
 
   /**
@@ -4119,8 +4745,14 @@ class WorldMapViewer {
     // 平地グラフィックの安全マス（街の門前等）が巻き込まれるため、城内敷石（$3D）のみ判定
     if (tileId === 0x3D) return 'safe';
 
-    // パレット1 ($27/$37) -> 砂漠
-    if (pal === 1) return 'desert';
+    const backdropOffset = prgStart + this.BATTLE_BACKDROP_ASSIGNMENT_TABLE;
+    const backdropId = (backdropOffset + tileId < rom.length) ? (rom[backdropOffset + tileId] & 0x0F) : null;
+
+    // 戦闘背景IDが取得できる場合は0x06で判定、未取得時のみパレット1でフォールバック
+    const isDesert = (backdropId !== null)
+      ? (backdropId === 0x06 || (d0 & 0xC0) === 0xC0)
+      : (pal === 1 || (d0 & 0xC0) === 0xC0);
+    if (isDesert) return 'desert';
 
     // 上記以外は陸地境界・平原
     return 'plains';
@@ -4143,6 +4775,9 @@ class WorldMapViewer {
    * 実機仕様: data[0] ビット4 (0x10) が立っている場合に下半身スプライトの描画を抑止
    */
   static isForestTile(tileId) {
+    if (this.tileAttrTable && (tileId * 2) < this.tileAttrTable.length) {
+      return (this.tileAttrTable[tileId * 2] & 0x10) !== 0;
+    }
     if (!nesRom) return false;
     const prgStart = GameDataManager.getPrgStartOffset(nesRom);
     const offset = prgStart + this.TILE_ATTRIBUTE_TABLE + (tileId * 2);
@@ -4153,6 +4788,31 @@ class WorldMapViewer {
    * タイルの地形タイプを取得
    */
   static getTileType(tileId) {
+    if (this.tileAttrTable && (tileId * 2 + 1) < this.tileAttrTable.length) {
+      const d0 = this.tileAttrTable[tileId * 2];
+      const d1 = this.tileAttrTable[tileId * 2 + 1];
+      const pal = (this.tilePalTable && tileId < this.tilePalTable.length)
+        ? (this.tilePalTable[tileId] & 0x03)
+        : null;
+      const backdropId = (this.tileBackdropTable && tileId < this.tileBackdropTable.length)
+        ? (this.tileBackdropTable[tileId] & 0x0F)
+        : null;
+
+      if ((d1 & 0x80) !== 0) return 'teleport';
+      if ((d0 & 0x0F) === 0x0F) return 'wall';
+      if ((d0 & 0x20) !== 0) return 'port';
+      if ((d1 & 0x43) === 0x42 && (d0 & 0x04) === 0) return 'water';
+      if ((d1 & 0x43) === 0x41 && (d0 & 0x02) === 0) return 'river';
+      if ((d0 & 0x10) !== 0) return 'forest';
+      if (tileId === 0x3D) return 'safe';
+      // 戦闘背景IDが取得できる場合は0x06で判定、未取得時のみパレット1でフォールバック
+      const isDesert = (backdropId !== null)
+        ? (backdropId === 0x06 || (d0 & 0xC0) === 0xC0)
+        : (pal === 1 || (d0 & 0xC0) === 0xC0);
+      if (isDesert) return 'desert';
+      return 'plains';
+    }
+
     if (!nesRom || !GameDataManager.romData.loaded) {
       return 'plains';
     }
@@ -4244,6 +4904,13 @@ class WorldMapViewer {
    * パレット切り替え時のアトラスおよびマップ再生成
    */
   static updatePalette() {
+    if (this.currentDataSource === 'msx') {
+      this.renderFullWorldMap();
+      this.renderDebugChrCanvas();
+      this.renderDebugMetaCanvas();
+      this.renderZoomPreview(this.curPos.x, this.curPos.y);
+      return;
+    }
     if (!nesRom || !GameDataManager.romData.loaded) return;
     const prgStart = GameDataManager.getPrgStartOffset(nesRom);
     const chrOffset = prgStart + this.currentChrOffset;
@@ -4265,6 +4932,13 @@ class WorldMapViewer {
     if (!rom || rom.length < 0x8000) return;
     const prgStart = GameDataManager.getPrgStartOffset(rom);
     const chrOffset = prgStart + this.currentChrOffset;
+
+    this.tileAttrTable = rom.subarray(prgStart + this.TILE_ATTRIBUTE_TABLE, prgStart + this.TILE_ATTRIBUTE_TABLE + 256);
+    this.tilePalTable = rom.subarray(prgStart + this.TILE_PALETTE_ASSIGNMENT_TABLE, prgStart + this.TILE_PALETTE_ASSIGNMENT_TABLE + 128);
+    this.tileBackdropTable = (prgStart + this.BATTLE_BACKDROP_ASSIGNMENT_TABLE + 128 <= rom.length)
+      ? rom.subarray(prgStart + this.BATTLE_BACKDROP_ASSIGNMENT_TABLE, prgStart + this.BATTLE_BACKDROP_ASSIGNMENT_TABLE + 128)
+      : null;
+    this.currentDataSource = 'rom';
 
     // ワールドマップ行ポインタテーブルから256行のRLE圧縮データを展開
     this.mapData = new Uint8Array(256 * 256);
@@ -4314,6 +4988,198 @@ class WorldMapViewer {
     this.updateCursorInfo(this.curPos.x, this.curPos.y);
     this.updateModalTitle();
     this.initialized = true;
+  }
+
+  /**
+   * MSX版 DSKからワールドマップデータ、CHR、メタタイルを展開取得
+   */
+  static loadFromMsxDsk(dsk, fs) {
+    const mmapVec = fs.getFile("MMAP.VEC");
+    const mainMap = fs.getFile("MAIN.MAP");
+    const mainChr = fs.getFile("MAIN.CHR");
+    const mainbgPic = fs.getFile("MAINBG.PIC");
+
+    if (!mmapVec || !mainMap || !mainChr || !mainbgPic) {
+      console.warn("MSX ワールドマップ展開に必要なファイルが不足しています。");
+      return;
+    }
+
+    // 1. タイル属性テーブル (256バイト) & パレットテーブル (128バイト)
+    this.tileAttrTable = mainChr.subarray(0, 256);
+    if (mainChr.length >= 0x0380) {
+      this.tilePalTable = mainChr.subarray(0x0300, 0x0380);
+    }
+    const battleCom = fs.getFile("BATTLE.COM");
+    if (battleCom && battleCom.length >= this.MSX_BATTLE_BACKDROP_OFFSET + 128) {
+      this.tileBackdropTable = battleCom.subarray(this.MSX_BATTLE_BACKDROP_OFFSET, this.MSX_BATTLE_BACKDROP_OFFSET + 128);
+    } else {
+      this.tileBackdropTable = null;
+    }
+    this.currentDataSource = 'msx';
+
+    // 2. 256x256 ワールドマップの展開 (ポインタ値 - 0x8200)
+    this.mapData = new Uint8Array(256 * 256);
+    for (let y = 0; y < 256; y++) {
+      const ptr = mmapVec[y * 2] | (mmapVec[y * 2 + 1] << 8);
+      let readOffset = ptr - 0x8200;
+
+      let x = 0;
+      while (x < 256 && readOffset < mainMap.length) {
+        const b = mainMap[readOffset++];
+        if (b === 0xFF) {
+          while (x < 256) {
+            this.mapData[y * 256 + x++] = 0x00;
+          }
+          break;
+        }
+        if ((b & 0x80) === 0) {
+          this.mapData[y * 256 + x++] = b;
+        } else {
+          const tileId = b & 0x7F;
+          const countByte = mainMap[readOffset++];
+          const count = (countByte === 0) ? 256 : countByte;
+          for (let i = 0; i < count && x < 256; i++) {
+            this.mapData[y * 256 + x++] = tileId;
+          }
+        }
+      }
+    }
+
+    // 3. タイルイベント辞書の生成とSpecialPoints走査
+    this.romTileEventList = this.generateTileEventListFromAttr(this.tileAttrTable);
+    this.scanSpecialPoints();
+
+    // 4. MAINBG.PIC から 8x8 CHRアトラス (128x128px) を生成
+    this.decodeMsxChrAtlas(mainbgPic);
+
+    // 5. MAIN.CHR (+0x0100〜) から 16x16 メタタイルアトラス (256x128px) を生成
+    this.decodeMsxMetatiles(mainChr);
+
+    // 6. MSPR.SPR からの各種スプライト展開
+    const msprBytes = fs.getFile("MSPR.SPR");
+    this.decodeMsxSprites(msprBytes, fs);
+
+    // 7. 平均色の算出
+    this.calcAverageColors();
+
+    this.renderFullWorldMap();
+    this.renderDebugChrCanvas();
+    this.renderDebugMetaCanvas();
+    this.updateCursorInfo(this.curPos.x, this.curPos.y);
+    this.updateModalTitle();
+    this.initialized = true;
+  }
+
+  /**
+   * MSX版 MAINBG.PIC から 8x8 キャラクタ全256種を128x128pxの共通アトラスへ展開
+   */
+  static decodeMsxChrAtlas(mainbgPicBytes) {
+    if (!this.chrAtlasCanvas) {
+      this.chrAtlasCanvas = document.createElement('canvas');
+      this.chrAtlasCanvas.width = 128;
+      this.chrAtlasCanvas.height = 128;
+      this.chrAtlasCtx = this.chrAtlasCanvas.getContext('2d');
+    }
+    const ctx = this.chrAtlasCtx;
+    ctx.clearRect(0, 0, 128, 128);
+
+    const asset = MsxPicDecoder.decode(mainbgPicBytes);
+    if (!asset) return;
+    this.msxPalette = asset.palette;
+
+    const charsPerRow = Math.max(1, Math.floor(asset.header.widthPixels / 8));
+    for (let tid = 0; tid < 256; tid++) {
+      const srcX = (tid % charsPerRow) * 8;
+      const srcY = Math.floor(tid / charsPerRow) * 8;
+      const dstX = (tid % 16) * 8;
+      const dstY = Math.floor(tid / 16) * 8;
+      asset.drawToContext(ctx, srcX, srcY, 8, 8, dstX, dstY);
+    }
+
+    this.updateChrTitle();
+  }
+
+  /**
+   * MSX版 MAIN.CHR (+0x0100〜) の4プレーン定義から 16x16 メタタイル全128種を256x128pxアトラスへ合成
+   */
+  static decodeMsxMetatiles(mainChrBytes) {
+    if (!this.tileAtlasCanvas) {
+      this.tileAtlasCanvas = document.createElement('canvas');
+      this.tileAtlasCanvas.width = 256;
+      this.tileAtlasCanvas.height = 128;
+      this.tileAtlasCtx = this.tileAtlasCanvas.getContext('2d');
+    }
+    const ctx = this.tileAtlasCtx;
+    ctx.clearRect(0, 0, 256, 128);
+
+    const metaOffset = 0x0100;
+    for (let tileId = 0; tileId < 128; tileId++) {
+      const tl = mainChrBytes[metaOffset + 0 + tileId];
+      const tr = mainChrBytes[metaOffset + 128 + tileId];
+      const bl = mainChrBytes[metaOffset + 256 + tileId];
+      const br = mainChrBytes[metaOffset + 384 + tileId];
+
+      const dstTileX = (tileId % 16) * 16;
+      const dstTileY = Math.floor(tileId / 16) * 16;
+
+      const drawSubChar = (chrId, dx, dy) => {
+        const srcX = (chrId % 16) * 8;
+        const srcY = Math.floor(chrId / 16) * 8;
+        ctx.drawImage(this.chrAtlasCanvas, srcX, srcY, 8, 8, dstTileX + dx, dstTileY + dy, 8, 8);
+      };
+
+      drawSubChar(tl, 0, 0);
+      drawSubChar(tr, 8, 0);
+      drawSubChar(bl, 0, 8);
+      drawSubChar(br, 8, 8);
+    }
+  }
+
+  /**
+   * MSX版 MSPR.SPR および JOBS_L1.PIC からスプライトを展開して登録
+   */
+  static decodeMsxSprites(msprBytes, fs) {
+    if (!msprBytes) return;
+
+    // MSPR.SPR 内オフセット (各120バイト: スプライト3枚合成, 方向: 上0,1 右2,3 下4,5 左6,7)
+    // 船: 0x0000〜 (右向き: パターン2 = 0x00F0)
+    this.sprites.set('ship', MsxSprDecoder.decode16x16(msprBytes, 0x0000 + (2 * 120)));
+    // 飛空艇: 0x03C0〜 (右向き: パターン2 = 0x03C0 + 240 = 0x04B0)
+    this.sprites.set('airship', MsxSprDecoder.decode16x16(msprBytes, 0x03C0 + (2 * 120)));
+    // カヌー: 0x0780〜 (右向き: パターン2 = 0x0780 + 240 = 0x0870)
+    this.sprites.set('canoe', MsxSprDecoder.decode16x16(msprBytes, 0x0780 + (2 * 120)));
+    // 飛空艇の影: 0x0B40
+    this.sprites.set('airship_shadow', MsxSprDecoder.decode16x16(msprBytes, 0x0B40));
+    // 北の橋: 0x0BB8
+    this.sprites.set('bridge', MsxSprDecoder.decode16x16(msprBytes, 0x0BB8));
+    // 海峡(運河): 0x0C30
+    this.sprites.set('canal', MsxSprDecoder.decode16x16(msprBytes, 0x0C30));
+
+    // プレイヤー歩行キャラ (JOBS_L1.PIC または MENU_L1.PIC より)
+    let playerCanvas = null;
+    const jobsL1Bytes = fs ? fs.getFile("JOBS_L1.PIC") : null;
+    if (jobsL1Bytes) {
+      const jobsAsset = MsxPicDecoder.decode(jobsL1Bytes);
+      if (jobsAsset) {
+        playerCanvas = document.createElement('canvas');
+        playerCanvas.width = 16;
+        playerCanvas.height = 16;
+        const charsPerRow = Math.max(1, Math.floor(jobsAsset.header.widthPixels / 16));
+        const patternIdx = 4; // 下向き正面
+        const sx = (patternIdx % charsPerRow) * 16;
+        const sy = Math.floor(patternIdx / charsPerRow) * 16;
+        jobsAsset.drawToContext(playerCanvas.getContext('2d'), sx, sy, 16, 16, 0, 0);
+      }
+    }
+    if (!playerCanvas && GameDataManager.msxMenuL1) {
+      playerCanvas = document.createElement('canvas');
+      playerCanvas.width = 16;
+      playerCanvas.height = 16;
+      GameDataManager.msxMenuL1.drawToContext(playerCanvas.getContext('2d'), 0, 0, 16, 16, 0, 0);
+    }
+    if (playerCanvas) {
+      this.sprites.set('player', playerCanvas);
+    }
   }
 
   /**
@@ -4373,6 +5239,7 @@ class WorldMapViewer {
    * 8x8 キャラクタ一覧クリック時：パレット切り替え (BG0〜3 -> SPR0〜3 -> BG0...)
    */
   static onChrCanvasClick() {
+    if (this.currentDataSource === 'msx') return;
     if (!nesRom) return;
     this.debugChrPaletteIndex = (this.debugChrPaletteIndex + 1) % this.CHR_PALETTE_NAMES.length;
     const prgStart = GameDataManager.getPrgStartOffset(nesRom);
@@ -4384,10 +5251,20 @@ class WorldMapViewer {
 
   static updateChrTitle() {
     const el = document.getElementById('debugChrTitle');
-    if (el) {
-      const palName = this.CHR_PALETTE_NAMES[this.debugChrPaletteIndex];
-      el.textContent = `8x8 キャラクタ一覧 (0x00〜0xFF) [${palName}]`;
+    if (!el) return;
+    const canvas = document.getElementById('debugChrCanvas');
+
+    if (this.currentDataSource === 'msx') {
+      el.textContent = `8x8 CHR一覧 (0x00〜0xFF) [MAINBG.PIC]`;
+      el.style.cursor = 'default';
+      if (canvas) canvas.style.cursor = 'default';
+      return;
     }
+
+    el.style.cursor = 'pointer';
+    if (canvas) canvas.style.cursor = 'pointer';
+    const palName = this.CHR_PALETTE_NAMES[this.debugChrPaletteIndex];
+    el.textContent = `8x8 CHR一覧 (0x00〜0xFF) [${palName}]`;
   }
 
   /**
@@ -4614,8 +5491,15 @@ class WorldMapViewer {
           } else if (x === this.COORD_CANAL.x && y === this.COORD_CANAL.y) {
             type = isCanalOpen ? 'water' : 'plains';
           }
-          const colIdx = this.TYPE_COLORS[type];
-          rgb = nesPalette[colIdx & 0x3F];
+
+          if (this.currentDataSource === 'msx') {
+            const pal = this.msxPalette || WorldMapViewer.MSX_MAINBG_PALETTE;
+            const colIdx = WorldMapViewer.MSX_TYPE_COLORS[type];
+            rgb = pal[colIdx] || pal[10];
+          } else {
+            const colIdx = this.TYPE_COLORS[type];
+            rgb = nesPalette[colIdx & 0x3F];
+          }
         }
 
         imgData.data[idx + 0] = rgb[0];
@@ -4782,6 +5666,7 @@ class WorldMapViewer {
       this.blinkStep = (this.blinkStep + 1) % 24;
       this.renderSpecialPoints();
       this.renderZoomPreview(this.curPos.x, this.curPos.y);
+      this.renderDebugMetaCanvas();
     }, 120);
   }
 
@@ -4827,8 +5712,13 @@ class WorldMapViewer {
     const titleEl = document.getElementById('mapModalTitle');
     if (!titleEl) return;
     const targetNames = { player: "プレイヤー指定", ship: "船指定", airship: "飛空艇指定" };
-    const romStatus = GameDataManager.romData.loaded ? "" : "（ROM未読み込み）";
-    titleEl.textContent = `📚 ワールドマップ${romStatus}（${targetNames[this.currentTarget] || "プレイヤー指定"}）`;
+    let statusText = "（ROM/DSK未読込）";
+    if (this.currentDataSource === 'msx') {
+      statusText = "（MSX DSKデータ適用中）";
+    } else if (GameDataManager.romData.loaded) {
+      statusText = "（NES ROMデータ適用中）";
+    }
+    titleEl.textContent = `📚 ワールドマップ${statusText}（${targetNames[this.currentTarget] || "プレイヤー指定"}）`;
   }
 
   /**
@@ -5153,6 +6043,7 @@ class WorldMapViewer {
     document.getElementById('hoverTerrainText').textContent = tName;
 
     this.renderZoomPreview(cx, cy);
+    this.renderDebugMetaCanvas();
   }
 
   /**
@@ -5319,7 +6210,7 @@ class WorldMapViewer {
     if (curidx < 2) {
       ctx.strokeStyle = cursorColors[curidx];
       ctx.lineWidth = 2;
-      ctx.strokeRect(this.zoomViewHX * 16, this.zoomViewHY * 16, 16, 16);
+      ctx.strokeRect(this.zoomViewHX * 16 - 1, this.zoomViewHY * 16 - 1, 18, 18);
     }
   }
 
@@ -5351,6 +6242,34 @@ class WorldMapViewer {
     if (!canvas || !this.tileAtlasCanvas) return;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(this.tileAtlasCanvas, 0, 0);
+
+    let tid = null;
+    if (this.hoverMetaTileId !== null) {
+      tid = this.hoverMetaTileId;
+    } else if (this.debugHighlightTileId !== null) {
+      tid = this.debugHighlightTileId;
+    } else if (this.mapData) {
+      const cx = this.curPos.x;
+      const cy = this.curPos.y;
+      if (cx !== undefined && cy !== undefined) {
+        tid = this.mapData[cy * 256 + cx];
+      }
+    }
+
+    this.updateDebugMetaInfo(tid);
+
+    if (tid === null || tid === undefined || tid < 0 || tid >= 128) return;
+
+    // 四角カーソル（該当タイル枠 16x16ピクセル）の枠線描画 (黄色 → 青色 → 消灯)
+    const cursorColors = ["#ffff00", "#0000ff"];
+    const curidx = Math.floor(this.blinkStep / 2) % 3;
+    if (curidx < 2) {
+      const tx = (tid % 16) * 16;
+      const ty = Math.floor(tid / 16) * 16;
+      ctx.strokeStyle = cursorColors[curidx];
+      ctx.lineWidth = 2;
+      ctx.strokeRect(tx - 1, ty - 1, 18, 18);
+    }
   }
 
     static onChrCanvasHover(e) {
@@ -5386,6 +6305,7 @@ class WorldMapViewer {
     // マーカーアイコン（プレイヤー・船・飛空艇）を一時非表示にして視認性を確保
     document.querySelectorAll('.map-marker').forEach(el => el.style.display = 'none');
     this.renderSpecialPoints();
+    this.renderDebugMetaCanvas();
   }
 
   /**
@@ -5398,6 +6318,7 @@ class WorldMapViewer {
       // マーカーアイコンの表示を復帰
       document.querySelectorAll('.map-marker').forEach(el => el.style.display = '');
       this.renderSpecialPoints();
+      this.renderDebugMetaCanvas();
     }
   }
 
@@ -5408,6 +6329,7 @@ class WorldMapViewer {
     const y = Math.floor(((e.clientY - rect.top) / rect.height) * 8);
     if (x >= 0 && x < 16 && y >= 0 && y < 8) {
       const tid = y * 16 + x;
+      this.hoverMetaTileId = tid;
       this.setDebugHighlightTile(tid);
     }
   }
@@ -5416,20 +6338,33 @@ class WorldMapViewer {
     this.clearDebugHighlightTile();
   }
 
-  static onMetaCanvasHover(e) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = Math.floor(((e.clientX - rect.left) / rect.width) * 16);
-    const y = Math.floor(((e.clientY - rect.top) / rect.height) * 8);
-    if (x < 0 || x >= 16 || y < 0 || y >= 8) return;
-    const tid = y * 16 + x;
-
-    // クリックしたままドラッグ移動した場合は該当タイルに点滅を追従
-    if ((e.buttons & 1) !== 0) {
-      this.setDebugHighlightTile(tid);
-    }
-
+  /**
+   * [DEBUG] タイル一覧下方のタイル情報表示更新
+   */
+  static updateDebugMetaInfo(tid) {
     const el = document.getElementById('debugMetaInfo');
     if (!el) return;
+
+    if (tid === null || tid === undefined || tid < 0 || tid >= 128) {
+      el.textContent = 'タイル: ---';
+      return;
+    }
+
+    if (this.currentDataSource === 'msx' && msxDskFs) {
+      const mainChr = msxDskFs.getFile("MAIN.CHR");
+      if (mainChr && mainChr.length >= 0x0300) {
+        const tl = mainChr[0x0100 + 0 + tid].toString(16).toUpperCase().padStart(2, '0');
+        const tr = mainChr[0x0100 + 128 + tid].toString(16).toUpperCase().padStart(2, '0');
+        const bl = mainChr[0x0100 + 256 + tid].toString(16).toUpperCase().padStart(2, '0');
+        const br = mainChr[0x0100 + 384 + tid].toString(16).toUpperCase().padStart(2, '0');
+        const tType = this.getTileType(tid);
+        const notice = ` [${PresetResource.TILE_TYPE_NAMES[tType] || '---'}]`;
+        const romLocId = this.romTileEventList ? this.romTileEventList[tid] : undefined;
+        const loc = (romLocId !== undefined) ? LOCATION_NAMES[romLocId] : '';
+        el.textContent = `$${tid.toString(16).toUpperCase().padStart(2, '0')} [左上:$${tl} 右上:$${tr} 左下:$${bl} 右下:$${br}] ${notice} ${loc}`;
+        return;
+      }
+    }
 
     if (nesRom) {
       const prgStart = GameDataManager.getPrgStartOffset(nesRom);
@@ -5454,10 +6389,28 @@ class WorldMapViewer {
     el.textContent = `$${tid.toString(16).toUpperCase().padStart(2, '0')} (${tid})`;
   }
 
+  static onMetaCanvasHover(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = Math.floor(((e.clientX - rect.left) / rect.width) * 16);
+    const y = Math.floor(((e.clientY - rect.top) / rect.height) * 8);
+    if (x < 0 || x >= 16 || y < 0 || y >= 8) return;
+    const tid = y * 16 + x;
+
+    if (this.hoverMetaTileId !== tid) {
+      this.hoverMetaTileId = tid;
+      this.renderDebugMetaCanvas();
+    }
+
+    // クリックしたままドラッグ移動した場合は該当タイルに点滅を追従
+    if ((e.buttons & 1) !== 0) {
+      this.setDebugHighlightTile(tid);
+    }
+  }
+
   static onMetaCanvasLeave() {
+    this.hoverMetaTileId = null;
     this.clearDebugHighlightTile();
-    const el = document.getElementById('debugMetaInfo');
-    if (el) el.textContent = 'タイル: ---';
+    this.renderDebugMetaCanvas();
   }
 }
 
