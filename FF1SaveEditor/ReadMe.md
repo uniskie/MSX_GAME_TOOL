@@ -15,8 +15,14 @@
 ## ファイル構成
 
 - ff1_editor.html
-- ff1_editor_world_map.png
+- ff1_editor_world_map.js
 - ff1_editor_world_sprites.png
+
+※ ff1_editor_world_map.js はローカル環境用の画像データです。ローカル環境ではjsコードから画像のピクセル情報を参照できない為、base64エンコードで用意した画像ファイルです。  
+`ff1_editor_world_map.png` を `bmp16_to_js.py` で変換しています。
+
+オンライン環境（サーバ経由）であれば、
+`ff1_editor_world_map.js` の代わりに ` ff1_editor_world_map.png` があれば問題ありません。
 
 ## 簡易ガイド
 
@@ -29,6 +35,8 @@
 アルファベットは`L`、`E`、`H`、`P`のみ受け付けます。
 
 ### [地図]
+
+![map_screenshot](map_screenshot.png)
 
 おまけ的な機能です。
 
@@ -55,6 +63,8 @@
 - 成長テーブルやアイテムテーブルがROM/DSKから読み込んだものに変わります。
 - [地図]ボタンで表示されるワールドマップROM/DSKから読み込んだものに変わり、
   拡大ビューがブロック塗りつぶしタイルではなくゲーム中のような表示になります。
+
+  ![map_screenshot2](map_screenshot2.png)
 
 ---
 

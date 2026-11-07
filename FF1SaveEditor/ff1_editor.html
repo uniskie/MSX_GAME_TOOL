@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 -->
+<script src="ff1_editor_world_map.js"></script>
 <style>
   :root {
     --bg-color: #000000;
@@ -921,7 +922,7 @@
       <div class="map-info-pane">
     <div style="background:var(--ff-dark-blue); padding:8px; border:2px solid #ffffff; border-radius:4px;">
       <span id="hoverCoordsText" style="font-weight:bold; color:#ffffaa;">X:--- Y:---</span>
-      <span id="hoverTileId" class="debug-only" style="color:#ffffaa; font-weight:bold; margin-right:6px;">[$--]</span><span id="hoverTerrainText" style="color:#ffffff;">---</span>
+      <span id="hoverTileId" class="debug-only rom-only" style="color:#ffffaa; font-weight:bold; margin-right:6px; display:none;"></span><span id="hoverTerrainText" style="color:#ffffff;">---</span>
     </div>
         <div style="text-align:center;">
           <div class="preview-box">
@@ -970,6 +971,7 @@
         <select id="mapColorMode" style="width:auto; padding:2px 4px;" onchange="WorldMapViewer.onColorModeChange()">
           <option value="average">タイル平均色</option>
           <option value="attribute" selected>地形属性カラー</option>
+          <option value="generic">汎用属性カラー</option>
         </select>
         <div style="margin-left:auto; display:flex; gap:6px;">
           <button type="button" class="btn-move" style="font-size:12px; padding:2px 8px;" onclick="WorldMapViewer.exportSpecialPoints()">📋 地点リスト出力</button>
@@ -2194,6 +2196,7 @@ class GameDataManager {
 
   static msxMenuL1 = null;
   static msxMenuL2 = null;
+  static classSprites = [];
 
   static currentSource = 'standard';
 
@@ -2234,6 +2237,7 @@ class GameDataManager {
       dummyRom.set(this.DEFAULT_SPRITES[job], offset);
     }
     nesRom = dummyRom;
+    this.buildClassSprites();
   }
 
   static updateRuntimeTables() {
@@ -2462,6 +2466,8 @@ class GameDataManager {
     optRom.disabled = false;
     optRom.innerText = `読込ROM準拠 ${this.romData.diffDetected ? '(差異あり)' : '(標準)'}`;
 
+    this.buildClassSprites();
+
     if (this.romData.diffDetected) {
       this.setSource('rom');
     } else {
@@ -2631,6 +2637,8 @@ class GameDataManager {
     optRom.disabled = false;
     optRom.innerText = `読込DSK準拠 ${this.romData.diffDetected ? '(差異あり)' : '(標準)'}`;
 
+    this.buildClassSprites();
+
     if (this.romData.diffDetected) {
       this.setSource('rom');
     } else {
@@ -2725,6 +2733,84 @@ class GameDataManager {
     }
 
     alert(lines.join("\n"));
+  }
+
+  // クラス毎キャラクタ画像キャッシュの生成
+  static buildClassSprites() {
+    this.classSprites = [];
+
+    // MSX版 DSKからのメニューキャラ展開
+    if (msxDskFs && (this.msxMenuL1 || this.msxMenuL2)) {
+      for (let job = 0; job < 12; job++) {
+        const picAsset = (job < 6) ? this.msxMenuL1 : this.msxMenuL2;
+        const baseJob = job % 6;
+        const row = Math.floor(baseJob / 2); // 0:上段, 1:中段, 2:下段
+        const col = baseJob % 2;             // 0:左列, 1:右列
+
+        const variants = [];
+        for (let pat = 0; pat < 3; pat++) {
+          const cv = document.createElement('canvas');
+          cv.width = 16;
+          cv.height = 24;
+          if (picAsset) {
+            const sx = (col * 48) + (pat * 16);
+            const sy = row * 24;
+            picAsset.drawToContext(cv.getContext('2d'), sx, sy, 16, 24, 0, 0);
+          }
+          variants.push(cv);
+        }
+        this.classSprites.push(variants);
+      }
+      return;
+    }
+
+    // FC版 NES ROM (またはダミーROM) からの展開
+    if (nesRom) {
+      const assign = this.activeJobPaletteAssignment;
+      const palettes = this.activePalettes;
+
+      for (let job = 0; job < 12; job++) {
+        const baseOffset = this.getBankOffset(nesRom, 9) + 0x1000 + (job * 0x200);
+        const cv = document.createElement('canvas');
+        cv.width = 16;
+        cv.height = 24;
+        const ctx = cv.getContext('2d');
+        const imgData = ctx.createImageData(16, 24);
+
+        const palId = assign[job] !== undefined ? assign[job] : 0;
+        const palIndices = palettes[palId] || palettes[0];
+        const paletteRGB = palIndices.map(idx => NES_PALETTE[idx & 0x3F]);
+
+        if (baseOffset + 96 <= nesRom.length) {
+          decode2bppTile(nesRom, baseOffset + 0,  imgData, 0, 0, paletteRGB);
+          decode2bppTile(nesRom, baseOffset + 16, imgData, 8, 0, paletteRGB);
+          decode2bppTile(nesRom, baseOffset + 32, imgData, 0, 8, paletteRGB);
+          decode2bppTile(nesRom, baseOffset + 48, imgData, 8, 8, paletteRGB);
+          decode2bppTile(nesRom, baseOffset + 64, imgData, 0, 16, paletteRGB);
+          decode2bppTile(nesRom, baseOffset + 80, imgData, 8, 16, paletteRGB);
+        }
+        ctx.putImageData(imgData, 0, 0);
+        // FC版は状態異常差分がないため通常パターンと同一
+        this.classSprites.push([cv, cv, cv]);
+      }
+      return;
+    }
+
+    for (let job = 0; job < 12; job++) {
+      const cv = document.createElement('canvas');
+      cv.width = 16;
+      cv.height = 24;
+      this.classSprites.push([cv, cv, cv]);
+    }
+  }
+
+  // クラス・状態に応じたキャラクタCanvasの取得
+  static getClassSprite(job, status = 0) {
+    if (!this.classSprites || !this.classSprites[job]) return null;
+    let patIdx = 0;
+    if (status === 1 || status === 3) patIdx = 1; // 死亡または毒
+    else if (status === 2) patIdx = 2;            // 石化
+    return this.classSprites[job][patIdx] || this.classSprites[job][0] || null;
   }
 }
 
@@ -2975,6 +3061,8 @@ function applyNesPalette(val) {
 
   const selModal = document.getElementById('modalNesPaletteSelect');
   if (selModal && selModal.value !== val) selModal.value = val;
+
+  GameDataManager.buildClassSprites();
 
   for (let c = 0; c < 4; c++) {
     renderCharSprite(c);
@@ -3999,61 +4087,20 @@ function renderCharSprite(c) {
   if (pCtx) pCtx.clearRect(0, 0, 16, 24);
 
   const job = parseInt(document.getElementById(`c${c}_job`).value) || 0;
+  const status = parseInt(document.getElementById(`c${c}_status`).value) || 0;
 
-  // MSX版 DSKからのメニューキャラ描画
-  if (msxDskFs && (GameDataManager.msxMenuL1 || GameDataManager.msxMenuL2)) {
-    const picAsset = (job < 6) ? GameDataManager.msxMenuL1 : GameDataManager.msxMenuL2;
-    if (picAsset) {
-      const baseJob = job % 6;
-      const row = Math.floor(baseJob / 2); // 0:上段, 1:中段, 2:下段
-      const col = baseJob % 2;             // 0:左列, 1:右列
-      const status = parseInt(document.getElementById(`c${c}_status`).value) || 0;
-
-      // パターンオフセット: 0:通常(0px), 1:状態異常(16px), 2:石化(32px)
-      let patternIdx = 0;
-      if (status === 1 || status === 3) patternIdx = 1; // 死亡または毒
-      else if (status === 2) patternIdx = 2;            // 石化
-
-      const sx = (col * 48) + (patternIdx * 16);
-      const sy = row * 24;
-
-      picAsset.drawToContext(ctx, sx, sy, 16, 24, 0, 0);
-      if (pCtx) picAsset.drawToContext(pCtx, sx, sy, 16, 24, 0, 0);
-      return;
+  const sprCanvas = GameDataManager.getClassSprite(job, status);
+  if (sprCanvas) {
+    ctx.drawImage(sprCanvas, 0, 0);
+    // パーティ共通タブ内のキャラクタカード表示を更新
+    if (pCtx) {
+      pCtx.drawImage(sprCanvas, 0, 0);
     }
-  }
-
-  // FC版 NES ROMからの描画
-  if (!nesRom) return;
-
-  const baseOffset = GameDataManager.getBankOffset(nesRom, 9) + 0x1000 + (job * 0x200);
-  const imgData = ctx.createImageData(16, 24);
-
-  const assign = GameDataManager.activeJobPaletteAssignment;
-  const palId = assign[job] !== undefined ? assign[job] : 0;
-  const palettes = GameDataManager.activePalettes;
-  const palIndices = palettes[palId] || palettes[0];
-  const paletteRGB = palIndices.map(idx => NES_PALETTE[idx & 0x3F]);
-
-  if (baseOffset + 96 <= nesRom.length) {
-    decode2bppTile(nesRom, baseOffset + 0,  imgData, 0, 0, paletteRGB);
-    decode2bppTile(nesRom, baseOffset + 16, imgData, 8, 0, paletteRGB);
-    decode2bppTile(nesRom, baseOffset + 32, imgData, 0, 8, paletteRGB);
-    decode2bppTile(nesRom, baseOffset + 48, imgData, 8, 8, paletteRGB);
-    decode2bppTile(nesRom, baseOffset + 64, imgData, 0, 16, paletteRGB);
-    decode2bppTile(nesRom, baseOffset + 80, imgData, 8, 16, paletteRGB);
-  }
-
-  ctx.putImageData(imgData, 0, 0);
-
-  // パーティ共通タブ内のキャラクタカード表示を更新
-  if (pCtx) {
-    pCtx.putImageData(imgData, 0, 0);
   }
 }
 
 /**
- * 地名マスターリスト (地名ID -> 正式名称)
+ * 地名ID -> 地名文字列
  */
 const LOCATION_NAMES = {
   0x00: "ドラゴンの洞窟 1",        // Cardia - 1
@@ -4091,7 +4138,7 @@ const LOCATION_NAMES = {
 };
 
 /**
- * テレポートID -> 地名ID マッピングテーブル（editor_label_defaults.h 準拠）
+ * テレポートID -> 地名ID
  */
 const TELEPORT_TO_LOCID = {
   0x00: 0x00, // ドラゴンの洞窟 1
@@ -4283,9 +4330,108 @@ class PresetResource {
     return this.getCoordMap().has(`${x},${y}`);
   }
 
-  // プリセットマップ画像 (1024x1024px)
+  // プリセット全体マップ (BI_RLE4圧縮BMP Base64データ)
+  static MAP_RLE4_BASE64 = ""; // Pythonツールで出力されたBase64文字列をここに配置
+
+  // プリセットマップ展開用Canvas (256x256px)
+  static mapCanvas = null;
   static mapImage = null;
   static mapImageLoaded = false;
+
+  /**
+   * BI_RLE4 圧縮BMPバイナリをデコードし、属性バッファ・マーカー座標・描画用Canvasを展開
+   */
+  static decodeRle4Bmp(base64Str) {
+    if (!base64Str) return false;
+    try {
+      const binStr = atob(base64Str);
+      const buf = new Uint8Array(binStr.length);
+      for (let i = 0; i < binStr.length; i++) {
+        buf[i] = binStr.charCodeAt(i);
+      }
+
+      const view = new DataView(buf.buffer);
+      const offBits = view.getUint32(10, true);
+      const width = view.getInt32(18, true);
+      const height = Math.abs(view.getInt32(22, true));
+
+      const palette = [];
+      for (let i = 0; i < 16; i++) {
+        const p = 54 + (i * 4);
+        palette.push([buf[p + 2], buf[p + 1], buf[p + 0]]);
+      }
+
+      this.presetTypeBuffer = new Uint8Array(width * height);
+      this.specialPoints = [];
+      const teleportIdx = WorldMapViewer.TILE_TYPES.indexOf('teleport');
+
+      this.mapCanvas = document.createElement('canvas');
+      this.mapCanvas.width = width;
+      this.mapCanvas.height = height;
+      const mCtx = this.mapCanvas.getContext('2d');
+      const imgData = mCtx.createImageData(width, height);
+
+      let x = 0;
+      let y = height - 1;
+      let ptr = offBits;
+
+      const setPixel = (px, py, col) => {
+        const idx = py * width + px;
+        this.presetTypeBuffer[idx] = col;
+        if (col === teleportIdx) {
+          this.specialPoints.push({ x: px, y: py });
+        }
+        const rgb = palette[col] || [0, 0, 0];
+        const p4 = idx * 4;
+        imgData.data[p4 + 0] = rgb[0];
+        imgData.data[p4 + 1] = rgb[1];
+        imgData.data[p4 + 2] = rgb[2];
+        imgData.data[p4 + 3] = 255;
+      };
+
+      while (ptr < buf.length && y >= 0) {
+        const b0 = buf[ptr++];
+        const b1 = buf[ptr++];
+
+        if (b0 > 0) {
+          const c0 = (b1 >> 4) & 0x0F;
+          const c1 = b1 & 0x0F;
+          for (let i = 0; i < b0 && x < width; i++) {
+            const col = (i % 2 === 0) ? c0 : c1;
+            setPixel(x, y, col);
+            x++;
+          }
+        } else {
+          if (b1 === 0) {
+            x = 0;
+            y--;
+          } else if (b1 === 1) {
+            break;
+          } else if (b1 === 2) {
+            x += buf[ptr++];
+            y -= buf[ptr++];
+          } else {
+            const count = b1;
+            for (let i = 0; i < count && x < width; i++) {
+              const byteVal = buf[ptr + Math.floor(i / 2)];
+              const col = (i % 2 === 0) ? ((byteVal >> 4) & 0x0F) : (byteVal & 0x0F);
+              setPixel(x, y, col);
+              x++;
+            }
+            ptr += Math.floor((count + 1) / 2);
+            if ((Math.floor((count + 1) / 2) % 2) !== 0) ptr++;
+          }
+        }
+      }
+
+      mCtx.putImageData(imgData, 0, 0);
+      return true;
+    } catch (e) {
+      console.warn("RLE4 BMPのデコードに失敗しました:", e);
+      this.mapCanvas = null;
+      return false;
+    }
+  }
 
   /**
    * プリセット画像から海峡の真下(X:102, Y:165)の陸地タイルの色を抽出
@@ -4315,13 +4461,97 @@ class PresetResource {
     }
   }
 
+  static presetTypeBuffer = null;
+  static specialPoints = [];
+
   /**
-   * プリセットマップ画像の非同期読み込み (ファイルが無ければグレーでフォールバック)
+   * プリセットマップ画像から各タイルの色を解析し、属性インデックスバッファおよびマーカー座標を生成
+   */
+  static parsePresetImageTypes() {
+    if (!this.mapImage || !this.mapImageLoaded) return;
+    try {
+      const img = this.mapImage;
+      const imgW = img.naturalWidth || img.width || 256;
+      const imgH = img.naturalHeight || img.height || 256;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, imgW, imgH, 0, 0, 256, 256);
+      const imgData = ctx.getImageData(0, 0, 256, 256).data;
+
+      const types = WorldMapViewer.TILE_TYPES;
+      const palette = types.map(t => WorldMapViewer.ATR_TYPE_COLORS[t]);
+
+      this.presetTypeBuffer = new Uint8Array(256 * 256);
+      this.specialPoints = [];
+      const teleportIdx = types.indexOf('teleport');
+
+      for (let y = 0; y < 256; y++) {
+        for (let x = 0; x < 256; x++) {
+          const i = y * 256 + x;
+          const r = imgData[i * 4 + 0];
+          const g = imgData[i * 4 + 1];
+          const b = imgData[i * 4 + 2];
+
+          let bestDist = Infinity;
+          let bestIdx = 0;
+          for (let c = 0; c < palette.length; c++) {
+            const col = palette[c];
+            const dr = r - col[0];
+            const dg = g - col[1];
+            const db = b - col[2];
+            const dist = dr * dr + dg * dg + db * db;
+            if (dist < bestDist) {
+              bestDist = dist;
+              bestIdx = c;
+              if (dist === 0) break;
+            }
+          }
+          this.presetTypeBuffer[i] = bestIdx;
+
+          if (bestIdx === teleportIdx) {
+            this.specialPoints.push({ x, y });
+          }
+        }
+      }
+    } catch (e) {
+      this.presetTypeBuffer = null;
+      this.specialPoints = [];
+    }
+  }
+
+  /**
+   * 指定座標の地形属性名を取得
+   */
+  static getTileTypeAt(x, y) {
+    if (this.presetTypeBuffer) {
+      const idx = this.presetTypeBuffer[((y & 255) * 256) + (x & 255)];
+      return WorldMapViewer.TILE_TYPES[idx] || null;
+    }
+    return null;
+  }
+
+  /**
+   * プリセットマップ画像の読み込み（外部JSのRLE4データ優先、無ければPNGを非同期読み込み）
    */
   static loadPresetImage() {
+    const rle4Base64 = (typeof FF1_WORLD_MAP_RLE4_BASE64 !== 'undefined') ? FF1_WORLD_MAP_RLE4_BASE64 : null;
+    if (rle4Base64) {
+      if (this.decodeRle4Bmp(rle4Base64)) {
+        this.canalColor = `rgb(${WorldMapViewer.ATR_TYPE_COLORS.plains.join(',')})`;
+        if (!GameDataManager.romData.loaded) {
+          WorldMapViewer.renderFullWorldMap();
+        }
+        return;
+      }
+    }
+
     this.mapImage = new Image();
     this.mapImage.onload = () => {
       this.mapImageLoaded = true;
+      this.parsePresetImageTypes();
       this.updateCanalColorFromImage();
       if (!GameDataManager.romData.loaded) {
         WorldMapViewer.renderFullWorldMap();
@@ -4329,6 +4559,7 @@ class PresetResource {
     };
     this.mapImage.onerror = () => {
       this.mapImageLoaded = false;
+      this.presetTypeBuffer = null;
       if (!GameDataManager.romData.loaded) {
         WorldMapViewer.renderFullWorldMap();
       }
@@ -4473,9 +4704,11 @@ class WorldMapViewer {
   static chrAtlasCtx = null;
   static tileAtlasCanvas = null;        // 16x16 メタタイル全128個を保持する共通Canvas (256x128px)
   static tileAtlasCtx = null;
+  static indexedMapData = null;         // 256x256 インデックスバッファ (Uint8Array)
+  static indexedMapPalette = null;      // 16色パレット配列 ([[r,g,b], ...])
   static averageTileColors = null;      // タイルID(0〜127)ごとの16x16ピクセル平均RGB: [[r,g,b], ...]
   static averageSpriteColors = {};      // スプライトごとの平均RGBキャッシュ
-  static mapColorMode = 'attribute';    // 全体マップ配色モード ('average' | 'attribute')
+  static mapColorMode = 'attribute';    // 全体マップ配色モード ('average' | 'attribute' | 'generic')
   static sprites = new Map();           // スプライトIDごとの16x16 オフスクリーンCanvasキャッシュ
   static romTileEventList = null;       // ROM属性テーブルから生成したタイルイベント辞書 (タイルID -> 地名ID)
   static detectedLocations = [];        // 展開マップ走査で検出した地点リスト: [{x, y, tileId, locId}]
@@ -4524,6 +4757,21 @@ class WorldMapViewer {
   ];
   static blinkStep = 0;
   static currentMode = 'rom'; // 'rom' | 'preset'
+
+  // 地形ベースカラー (属性色分け)
+  static ATR_TYPE_COLORS = {
+    teleport: [255, 64, 48],  // 赤
+    safe:     [192,192,192],  // 灰
+    water:    [  0,  0,160],  // 暗青
+    river:    [  0, 90,204],  // 明青
+    port:     [160,160,160],  // 明灰
+    plains:   [  0,165,  0],  // 緑
+    forest:   [  0, 96, 80],  // 暗緑
+    wall:     [ 80,232,128],  // 明緑
+    desert:   [255,224,138]   // 黄
+  };
+
+  static TILE_TYPES = Object.keys(this.ATR_TYPE_COLORS);
 
   // 地形ベースカラー (NESパレットコード)
   static TYPE_COLORS = {
@@ -4694,13 +4942,20 @@ class WorldMapViewer {
       }, 'image/png');
     }, 300);
 
-    // 256x256 全体マップの出力
+    // 256x256 全体マップの出力 (平均色はPNG、属性カラーは4bit BMP)
     setTimeout(() => {
-      const miniCanvas = this.buildRomWorldMapCanvas();
-      if (miniCanvas) {
-        miniCanvas.toBlob((blob256) => {
-          if (blob256) downloadBlob(blob256, "ff1_world_map_256.png");
-        }, 'image/png');
+      if (this.mapColorMode === 'average') {
+        const miniCanvas = this.buildRomWorldMapCanvas();
+        if (miniCanvas) {
+          miniCanvas.toBlob((blob256) => {
+            if (blob256) downloadBlob(blob256, "ff1_world_map_256.png");
+          }, 'image/png');
+        }
+      } else {
+        const bmpBlob = this.buildRomWorldMapBmpBlob();
+        if (bmpBlob) {
+          downloadBlob(bmpBlob, "ff1_world_map_256.bmp");
+        }
       }
     }, 600);
 
@@ -4726,6 +4981,28 @@ class WorldMapViewer {
         }
       }, 'image/png');
     }, 900);
+
+    // クラス毎キャラクタ画像 (全12種: 16x24px を横並び = 192x24px 透過PNG) の出力
+    setTimeout(() => {
+      const clsCanvas = document.createElement('canvas');
+      clsCanvas.width = 16 * 12;
+      clsCanvas.height = 24;
+      const clsCtx = clsCanvas.getContext('2d');
+
+      for (let job = 0; job < 12; job++) {
+        const spr = GameDataManager.getClassSprite(job, 0);
+        if (spr) {
+          clsCtx.drawImage(spr, job * 16, 0);
+        }
+      }
+
+      clsCanvas.toBlob((blobCls) => {
+        if (blobCls) {
+          downloadBlob(blobCls, "ff1_class_chara.png");
+          console.log("// ff1_class_chara.png 並び順:\n// " + JOBS.join(', '));
+        }
+      }, 'image/png');
+    }, 1200);
   }
 
   /**
@@ -4733,7 +5010,12 @@ class WorldMapViewer {
    */
   static isFlashTile(tileId, x, y) {
     if (this.currentMode === 'preset' || !GameDataManager.romData.loaded) {
-      return (x !== undefined && y !== undefined) ? PresetResource.hasPoint(x, y) && PresetResource.getLocId(x, y) !== 0x1F : false;
+      if (x === undefined || y === undefined) return false;
+      const type = this.getTileTypeAt(x, y);
+      if (type !== null) {
+        return type === 'teleport';
+      }
+      return PresetResource.hasPoint(x, y) && PresetResource.getLocId(x, y) !== 0x1F;
     }
 
     if (this.romTileEventList) {
@@ -4776,7 +5058,7 @@ class WorldMapViewer {
         ? (this.tileBackdropTable[tileId] & 0x0F)
         : null;
 
-      if ((d1 & 0x80) !== 0) return 'teleport';
+      if ((d1 & 0x80) !== 0 || (d0 & 0xC0) === 0x80) return 'teleport';
       if ((d0 & 0x0F) === 0x0F) return 'wall';
       if ((d0 & 0x20) !== 0) return 'port';
       if ((d1 & 0x43) === 0x42 && (d0 & 0x04) === 0) return 'water';
@@ -4792,6 +5074,17 @@ class WorldMapViewer {
     }
 
     return 'plains';
+  }
+
+  /**
+   * 指定座標の地形属性を取得（ROMデータまたはプリセット画像から判定）
+   */
+  static getTileTypeAt(x, y) {
+    if (this.mapData && this.currentMode !== 'preset') {
+      const tid = this.mapData[((y & 255) * 256) + (x & 255)];
+      return this.getTileType(tid);
+    }
+    return PresetResource.getTileTypeAt(x, y);
   }
 
   /**
@@ -5449,27 +5742,76 @@ class WorldMapViewer {
     canvas.height = 256;
     const ctx = canvas.getContext('2d');
     const imgData = ctx.createImageData(256, 256);
-    const nesPalette = NES_PALETTE;
     const isBridgeBuilt = this.isBridgeBuilt();
     const isCanalOpen = this.isCanalOpen();
 
-    for (let y = 0; y < 256; y++) {
-      for (let x = 0; x < 256; x++) {
-        const tileId = this.mapData[y * 256 + x];
-        const idx = (y * 256 + x) * 4;
-        let rgb = null;
+    if (this.mapColorMode === 'average') {
+      this.indexedMapData = null;
+      this.indexedMapPalette = null;
 
-        // タイル平均色（リアルカラー）モード判定
-        if (this.mapColorMode === 'average' && this.averageTileColors && this.averageTileColors[tileId]) {
-          if (x === this.COORD_BRIDGE.x && y === this.COORD_BRIDGE.y) {
-            rgb = isBridgeBuilt && this.averageSpriteColors.bridge ? this.averageSpriteColors.bridge : this.averageTileColors[tileId];
-          } else if (x === this.COORD_CANAL.x && y === this.COORD_CANAL.y) {
-            rgb = !isCanalOpen && this.averageSpriteColors.canal ? this.averageSpriteColors.canal : this.averageTileColors[tileId];
+      for (let y = 0; y < 256; y++) {
+        for (let x = 0; x < 256; x++) {
+          const tileId = this.mapData[y * 256 + x];
+          const idx = (y * 256 + x) * 4;
+          let rgb = null;
+
+          if (this.averageTileColors && this.averageTileColors[tileId]) {
+            if (x === this.COORD_BRIDGE.x && y === this.COORD_BRIDGE.y) {
+              rgb = isBridgeBuilt && this.averageSpriteColors.bridge ? this.averageSpriteColors.bridge : this.averageTileColors[tileId];
+            } else if (x === this.COORD_CANAL.x && y === this.COORD_CANAL.y) {
+              rgb = !isCanalOpen && this.averageSpriteColors.canal ? this.averageSpriteColors.canal : this.averageTileColors[tileId];
+            } else {
+              rgb = this.averageTileColors[tileId];
+            }
           } else {
-            rgb = this.averageTileColors[tileId];
+            rgb = [0, 0, 0];
           }
-        } else {
-          // 地形属性カラーモード
+
+          imgData.data[idx + 0] = rgb[0];
+          imgData.data[idx + 1] = rgb[1];
+          imgData.data[idx + 2] = rgb[2];
+          imgData.data[idx + 3] = 255;
+        }
+      }
+    } else {
+      // 16色インデックスカラー (地形属性カラー / 汎用属性カラー)
+      const nesPalette = NES_PALETTE;
+      const paletteRGB = [];
+      const typeToIndex = {};
+
+      if (this.mapColorMode === 'generic') {
+        this.TILE_TYPES.forEach((t, i) => {
+          typeToIndex[t] = i;
+          paletteRGB[i] = this.ATR_TYPE_COLORS[t] || [0, 0, 0];
+        });
+        for (let i = this.TILE_TYPES.length; i < 16; i++) {
+          paletteRGB[i] = [0, 0, 0];
+        }
+      } else if (this.currentDataSource === 'msx') {
+        const msxPal = this.msxPalette || WorldMapViewer.MSX_MAINBG_PALETTE;
+        for (let i = 0; i < 16; i++) {
+          paletteRGB[i] = msxPal[i] || [0, 0, 0];
+        }
+        for (const t in WorldMapViewer.MSX_TYPE_COLORS) {
+          typeToIndex[t] = WorldMapViewer.MSX_TYPE_COLORS[t];
+        }
+      } else {
+        this.TILE_TYPES.forEach((t, i) => {
+          typeToIndex[t] = i;
+          const colIdx = this.TYPE_COLORS[t];
+          paletteRGB[i] = nesPalette[colIdx & 0x3F] || [0, 0, 0];
+        });
+        for (let i = this.TILE_TYPES.length; i < 16; i++) {
+          paletteRGB[i] = [0, 0, 0];
+        }
+      }
+
+      this.indexedMapPalette = paletteRGB;
+      this.indexedMapData = new Uint8Array(256 * 256);
+
+      for (let y = 0; y < 256; y++) {
+        for (let x = 0; x < 256; x++) {
+          const tileId = this.mapData[y * 256 + x];
           let type = this.getTileType(tileId);
           if (x === this.COORD_BRIDGE.x && y === this.COORD_BRIDGE.y) {
             type = isBridgeBuilt ? 'port' : 'water';
@@ -5477,25 +5819,80 @@ class WorldMapViewer {
             type = isCanalOpen ? 'water' : 'plains';
           }
 
-          if (this.currentDataSource === 'msx') {
-            const pal = this.msxPalette || WorldMapViewer.MSX_MAINBG_PALETTE;
-            const colIdx = WorldMapViewer.MSX_TYPE_COLORS[type];
-            rgb = pal[colIdx] || pal[10];
-          } else {
-            const colIdx = this.TYPE_COLORS[type];
-            rgb = nesPalette[colIdx & 0x3F];
-          }
-        }
+          const colIdx = (typeToIndex[type] !== undefined) ? typeToIndex[type] : (typeToIndex.plains || 0);
+          const pIdx = y * 256 + x;
+          this.indexedMapData[pIdx] = colIdx & 0x0F;
 
-        imgData.data[idx + 0] = rgb[0];
-        imgData.data[idx + 1] = rgb[1];
-        imgData.data[idx + 2] = rgb[2];
-        imgData.data[idx + 3] = 255;
+          const rgb = paletteRGB[colIdx] || [0, 0, 0];
+          const imgIdx = pIdx * 4;
+          imgData.data[imgIdx + 0] = rgb[0];
+          imgData.data[imgIdx + 1] = rgb[1];
+          imgData.data[imgIdx + 2] = rgb[2];
+          imgData.data[imgIdx + 3] = 255;
+        }
       }
     }
 
     ctx.putImageData(imgData, 0, 0);
     return canvas;
+  }
+
+  /**
+   * 16色インデックスカラーの全体マップBMP(4bpp)データを生成
+   */
+  static buildRomWorldMapBmpBlob() {
+    if (!this.indexedMapData || !this.indexedMapPalette) {
+      this.buildRomWorldMapCanvas();
+    }
+    if (!this.indexedMapData || !this.indexedMapPalette) return null;
+
+    // ファイルヘッダ(14) + 情報ヘッダ(40) + パレット(64) + 画像(32768) = 32886バイト
+    const totalSize = 14 + 40 + 64 + 32768;
+    const buf = new Uint8Array(totalSize);
+    const view = new DataView(buf.buffer);
+
+    // ファイルヘッダ (14バイト)
+    buf[0] = 0x42; buf[1] = 0x4D; // "BM"
+    view.setUint32(2, totalSize, true);
+    view.setUint16(6, 0, true);
+    view.setUint16(8, 0, true);
+    view.setUint32(10, 118, true); // 画像データ開始オフセット
+
+    // 情報ヘッダ (40バイト)
+    view.setUint32(14, 40, true);
+    view.setInt32(18, 256, true);
+    view.setInt32(22, 256, true);  // 高さ (ボトムアップ)
+    view.setUint16(26, 1, true);
+    view.setUint16(28, 4, true);   // 4bit
+    view.setUint32(30, 0, true);   // BI_RGB (無圧縮)
+    view.setUint32(34, 32768, true);
+    view.setInt32(38, 0, true);
+    view.setInt32(42, 0, true);
+    view.setUint32(46, 16, true);  // 使用パレット数
+    view.setUint32(50, 0, true);
+
+    // カラーパレット (16色 × 4バイト: B, G, R, 0)
+    for (let i = 0; i < 16; i++) {
+      const pOffset = 54 + (i * 4);
+      const rgb = this.indexedMapPalette[i] || [0, 0, 0];
+      buf[pOffset + 0] = rgb[2]; // Blue
+      buf[pOffset + 1] = rgb[1]; // Green
+      buf[pOffset + 2] = rgb[0]; // Red
+      buf[pOffset + 3] = 0;
+    }
+
+    // ピクセルデータ (ボトムアップ: Y=255から0へ)
+    let outOffset = 118;
+    for (let y = 255; y >= 0; y--) {
+      const rowOffset = y * 256;
+      for (let x = 0; x < 256; x += 2) {
+        const left = this.indexedMapData[rowOffset + x] & 0x0F;
+        const right = this.indexedMapData[rowOffset + x + 1] & 0x0F;
+        buf[outOffset++] = (left << 4) | right;
+      }
+    }
+
+    return new Blob([buf], { type: 'image/bmp' });
   }
 
   /**
@@ -5521,7 +5918,9 @@ class WorldMapViewer {
 
     // --- プリセット表示モード ---
     if (isPresetView) {
-      if (PresetResource.mapImageLoaded && PresetResource.mapImage) {
+      if (PresetResource.mapCanvas) {
+        bCtx.drawImage(PresetResource.mapCanvas, 0, 0);
+      } else if (PresetResource.mapImageLoaded && PresetResource.mapImage) {
         const img = PresetResource.mapImage;
         const imgW = img.naturalWidth || img.width || 256;
         const imgH = img.naturalHeight || img.height || 256;
@@ -5544,10 +5943,17 @@ class WorldMapViewer {
         bCtx.fillRect(this.COORD_CANAL.x, this.COORD_CANAL.y, 1, 1);
       }
 
-      // プリセット地点リストからイベントマーカーを登録 (リュカーン砂漠は除外)
-      for (const pt of PresetResource.SPECIAL_POINTS) {
-        if (pt.locId !== 0x1F) {
-          this.specialPoints.push({ x: pt.x, y: pt.y, tileId: pt.tileId });
+      // 画像解析で検出された teleport 座標をイベントマーカーとして登録
+      if (PresetResource.specialPoints && PresetResource.specialPoints.length > 0) {
+        for (const pt of PresetResource.specialPoints) {
+          this.specialPoints.push({ x: pt.x, y: pt.y });
+        }
+      } else {
+        // 画像解析バッファ未生成時のフォールバック
+        for (const pt of PresetResource.SPECIAL_POINTS) {
+          if (pt.locId !== 0x1F) {
+            this.specialPoints.push({ x: pt.x, y: pt.y, tileId: pt.tileId });
+          }
         }
       }
 
@@ -5670,7 +6076,7 @@ class WorldMapViewer {
   }
 
   /**
-   * マップ配色モード変更イベントハンドラ ('average' | 'attribute')
+   * マップ配色モード変更イベントハンドラ ('average' | 'attribute' | 'generic')
    */
   static onColorModeChange() {
     const colorModeSelect = document.getElementById('mapColorMode');
@@ -6012,19 +6418,25 @@ class WorldMapViewer {
 
     const tid = this.mapData ? this.mapData[cy * 256 + cx] : null;
 
-    // カーソル位置のタイルID更新
+    // カーソル位置のタイルID更新 (ROM/DSKデータ参照時のみ表示)
     const tidEl = document.getElementById('hoverTileId');
     if (tidEl) {
-      tidEl.textContent = (tid !== null) ? `[$${tid.toString(16).toUpperCase().padStart(2, '0')}]` : '[$--]';
+      if (tid !== null && this.currentMode !== 'preset') {
+        tidEl.textContent = `[$${tid.toString(16).toUpperCase().padStart(2, '0')}]`;
+        tidEl.style.display = '';
+      } else {
+        tidEl.textContent = '';
+        tidEl.style.display = 'none';
+      }
     }
 
-    const tType = (tid !== null) ? this.getTileType(tid) : 'plains';
+    const tType = this.getTileTypeAt(cx, cy);
     const romLocId = (tid !== null && this.romTileEventList) ? this.romTileEventList[tid] : undefined;
     const presetLocId = PresetResource.getLocId(cx, cy);
     const locId = (romLocId !== undefined) ? romLocId : presetLocId;
     const tName = (locId !== undefined)
       ? LOCATION_NAMES[locId]
-      : ((tid !== null && PresetResource.TILE_TYPE_NAMES[tType]) || (tid !== null ? `地形タイル $${tid.toString(16).toUpperCase().padStart(2, '0')}` : '---'));
+      : ((tType && PresetResource.TILE_TYPE_NAMES[tType]) || (tid !== null ? `地形タイル $${tid.toString(16).toUpperCase().padStart(2, '0')}` : '--'));
     document.getElementById('hoverTerrainText').textContent = tName;
 
     this.renderZoomPreview(cx, cy);
@@ -6046,7 +6458,19 @@ class WorldMapViewer {
     const ctx = zCanvas.getContext('2d');
 
     if (isPresetView) {
-      if (PresetResource.mapImageLoaded && PresetResource.mapImage) {
+      if (PresetResource.mapCanvas) {
+        ctx.imageSmoothingEnabled = false;
+        const srcCanvas = PresetResource.mapCanvas;
+        for (let my = -this.zoomViewHY; my <= this.zoomViewHY; my++) {
+          for (let mx = -this.zoomViewHX; mx <= this.zoomViewHX; mx++) {
+            const tx = (cx + mx) & 255;
+            const ty = (cy + my) & 255;
+            const dstX = (mx + this.zoomViewHX) * 16;
+            const dstY = (my + this.zoomViewHY) * 16;
+            ctx.drawImage(srcCanvas, tx, ty, 1, 1, dstX, dstY, 16, 16);
+          }
+        }
+      } else if (PresetResource.mapImageLoaded && PresetResource.mapImage) {
         ctx.imageSmoothingEnabled = false; // ピクセル補間なしでクッキリ拡大
         const img = PresetResource.mapImage;
         const imgW = img.naturalWidth || img.width || 256;
@@ -6144,9 +6568,9 @@ class WorldMapViewer {
       }
       spriteList.push({ id: 'airship_floating', x: pX, y: pY });
     } else {
-      // 徒歩: 現在タイルが森林マスであれば下半身消去 (ROM未読込時は消去なし)
-      const curTile = this.mapData ? this.mapData[pY * 256 + pX] : 0;
-      const isSubmerged = this.mapData ? this.isForestTile(curTile) : false;
+      // 徒歩: 現在タイルが森林マスであれば下半身消去
+      const curType = this.getTileTypeAt(pX, pY);
+      const isSubmerged = (curType === 'forest');
       spriteList.push({ id: isSubmerged ? 'player_top_only' : 'player', x: pX, y: pY });
     }
 
