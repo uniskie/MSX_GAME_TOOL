@@ -1255,20 +1255,21 @@ const FC_CAMERA_OFFSET = { x: -7, y: -7 };
 const LOCATION_PRESETS = {
   player: [
     { name: "コーネリア（初期）",     pos: { x: 153, y: 164 } },
-    { name: "エルフ城",               pos: { x: 136, y: 226 } },
+    { name: "エルフ城",               pos: { x: 136, y: 222 } },
     { name: "プラボカ",               pos: { x: 210, y: 152 } },
-    { name: "クレセントムーンレイク", pos: { x: 219, y: 220 } },
+    { name: "クレセントムーンレイク", pos: { x: 219, y: 219 } },
   ],
   ship: [
-    { name: "プラボカの港（初期）", pos: { x: 210, y: 153 } },
-    { name: "コーネリアの港",       pos: { x: 152, y: 169 } },
-    { name: "エルフ城の北（内海）", pos: { x: 141, y: 211 } },
-    { name: "エルフ城の港",         pos: { x: 137, y: 227 } },
+    { name: "プラボカの港（初期）",     pos: { x: 210, y: 153 } },
+    { name: "コーネリアの港",           pos: { x: 152, y: 169 } },
+    { name: "エルフ城の北（内海）",     pos: { x: 141, y: 211 } },
+    { name: "エルフ城の港",             pos: { x: 136, y: 227 } },
+    { name: "クレセントムーンレイク東", pos: { x: 246, y: 208 } },
   ],
   airship: [
     { name: "リュカーンの砂漠（初期）", pos: { x: 221, y: 237 } },
     { name: "コーネリア",               pos: { x: 153, y: 165 } },
-    { name: "エルフ城",                 pos: { x: 137, y: 224 } },
+    { name: "エルフ城",                 pos: { x: 136, y: 223 } },
     { name: "プラボカ",                 pos: { x: 208, y: 152 } },
     { name: "クレセントムーンレイク",   pos: { x: 219, y: 220 } },
   ],
@@ -2154,6 +2155,30 @@ class GameDataManager {
     new Uint8Array([0x00,0x00,0x00,0x00,0x01,0x07,0x00,0x05, 0x1F,0x07,0x3F,0x0F,0x06,0x00,0x00,0x00, 0x00,0x04,0x02,0x12,0xA2,0x56,0xEE,0xDC, 0xC0,0xF4,0xFA,0xEA,0x5A,0x26,0x0E,0x1C, 0x17,0x06,0x0F,0x80,0x6F,0xEF,0xEF,0xEF, 0x10,0xF0,0x7F,0x90,0x6F,0xEF,0x2F,0x2F, 0x7C,0xE0,0x85,0x4B,0xC7,0xBF,0x77,0x77, 0x7C,0xFF,0xBD,0x7B,0xC7,0xBF,0x07,0x07, 0x2F,0xAF,0xAF,0xAF,0xAF,0xAF,0xAF,0x5F, 0x2F,0xAF,0xAF,0xAF,0xAF,0xAF,0xAF,0x5F, 0x37,0x4F,0x4E,0x4E,0x4E,0x4C,0x4A,0xB7, 0x07,0x4F,0x4E,0x4E,0x4E,0x4C,0x4A,0xB7])
   ];
 
+  // FC版 PRG-ROM内オフセット定数
+  static FC_OFFSETS = {
+    weapons: 0x30000,
+    armors: 0x30140,
+    expTable: 0x2CFFD,
+    growth: 0x2D094,
+    initialStats: 0x003041,
+    battlePalettes: 0x2C34,           // Bank 15 (Fixed Bank) 内オフセット
+    jobPaletteAssignment: 0x2D33       // Bank 15 (Fixed Bank) 内オフセット
+  };
+
+  // MSX版 BDATA.TBL内オフセット定数
+  static MSX_BDATA_OFFSETS = {
+    weapons: 0x0000,
+    armors: 0x0140,
+    expTable: 0x197D,
+    growth: 0x1A20
+  };
+
+  // MSX版 STARTUP.COM内オフセット定数
+  static MSX_STARTUP_OFFSETS = {
+    initialStats: 0x0BFA
+  };
+
   static romData = {
     loaded: false,
     diffDetected: false,
@@ -2261,10 +2286,11 @@ class GameDataManager {
     this.lastDiffSourceTitle = "FC版 ROM";
 
     const prgStart = this.getPrgStartOffset(rom);
+    const fc = this.FC_OFFSETS;
     const diffReports = { weapons: [], armors: [], exp: [], growth: [], stats: [], palettes: [] };
 
-    // 1. 武器性能データ (Bank 0C: PRG 0x30000, 40個 × 8バイト [Hit%, Atk, Crit%, Elem, 装備フラグ等])
-    const wepOffset = prgStart + 0x30000;
+    // 武器性能データ (Bank 0C: 40個 × 8バイト [Hit%, Atk, Crit%, Elem, 装備フラグ等])
+    const wepOffset = prgStart + fc.weapons;
     if (wepOffset + (40 * 8) <= rom.length) {
       this.romData.weapons = [];
       for (let i = 0; i < 40; i++) {
@@ -2286,8 +2312,8 @@ class GameDataManager {
       console.warn("FC ROM内 武器データ領域が範囲外です:", wepOffset);
     }
 
-    // 2. 防具性能データ (Bank 0C: PRG 0x30140 = NES 0x30150, 40個 × 4バイト [重量(Wt), 防御(Def), 耐性, 特殊])
-    const armOffset = prgStart + 0x30140;
+    // 防具性能データ (Bank 0C: 40個 × 4バイト [重量(Wt), 防御(Def), 耐性, 特殊])
+    const armOffset = prgStart + fc.armors;
     if (armOffset + (40 * 4) <= rom.length) {
       this.romData.armors = [];
       for (let i = 0; i < 40; i++) {
@@ -2309,8 +2335,8 @@ class GameDataManager {
       console.warn("FC ROM内 防具データ領域が範囲外です:", armOffset);
     }
 
-    // 3. 必要経験値テーブル (Bank 0B: PRG 0x2CFFD = NES 0x02D00D, 50レベル × 3バイト)
-    const expOffset = prgStart + 0x2CFFD;
+    // 必要経験値テーブル (Bank 0B: 50レベル × 3バイト)
+    const expOffset = prgStart + fc.expTable;
     if (expOffset + 150 <= rom.length) {
       this.romData.expTable = [];
       for (let lv = 0; lv < 50; lv++) {
@@ -2329,8 +2355,8 @@ class GameDataManager {
       console.warn("FC ROM内 必要EXPデータ領域が範囲外です:", expOffset);
     }
 
-    // 4. 成長テーブル (Bank 0B: PRG 0x2D094 = NES 0x02D0A4, 6ジョブ × 49エントリ × 2バイト)
-    const growthOffset = prgStart + 0x2D094;
+    // 成長テーブル (Bank 0B: 6ジョブ × 49エントリ × 2バイト)
+    const growthOffset = prgStart + fc.growth;
     if (growthOffset + (6 * 49 * 2) <= rom.length) {
       this.romData.growth = [];
       for (let job = 0; job < 6; job++) {
@@ -2360,8 +2386,8 @@ class GameDataManager {
       console.warn("FC ROM内 成長テーブル領域が範囲外です:", growthOffset);
     }
 
-    // 5. 初期能力値データ (Bank 00: PRG 0x003041, 6ジョブ × 16バイト)
-    const statsBase = prgStart + 0x003041;
+    // 初期能力値データ (Bank 00: 6ジョブ × 16バイト)
+    const statsBase = prgStart + fc.initialStats;
     if (statsBase + 96 <= rom.length) {
       this.romData.initialStats = [];
       const statNames = ["HP", "力", "早", "知", "体", "運"];
@@ -2391,9 +2417,9 @@ class GameDataManager {
       console.warn("FC ROM内 初期能力値領域が範囲外です:", statsBase);
     }
 
-    // 6. 戦闘パレット (Bank 0F: PRG 0x3EC34)
+    // 戦闘パレット (Bank 0F)
     const fixedBankOffset = this.getBankOffset(rom, 15);
-    const palTableOffset = fixedBankOffset + 0x2C34;
+    const palTableOffset = fixedBankOffset + fc.battlePalettes;
     if (palTableOffset + 16 <= rom.length) {
       this.romData.battlePalettes = {};
       let palDiff = false;
@@ -2411,8 +2437,8 @@ class GameDataManager {
       if (palDiff) this.romData.diffList.push("戦闘パレット");
     }
 
-    // 7. ジョブ別戦闘パレット割当 (Bank 0F: PRG 0x3ED33)
-    const jobPalOffset = fixedBankOffset + 0x2D33;
+    // ジョブ別戦闘パレット割当 (Bank 0F)
+    const jobPalOffset = fixedBankOffset + fc.jobPaletteAssignment;
     if (jobPalOffset + 12 <= rom.length) {
       const assign = [];
       let assignDiff = false;
@@ -2464,13 +2490,15 @@ class GameDataManager {
 
     const bdata = fs.getFile("BDATA.TBL");
     const startup = fs.getFile("STARTUP.COM");
+    const bdataOffs = this.MSX_BDATA_OFFSETS;
+    const startupOffs = this.MSX_STARTUP_OFFSETS;
     const diffReports = { weapons: [], armors: [], exp: [], growth: [], stats: [] };
 
-    // 1. 武器性能データの抽出 (BDATA.TBL: +0x0000〜, 40個 × 8バイト [Hit%, Atk, Crit%, Elem, 装備フラグ等])
-    if (bdata && bdata.length >= (40 * 8)) {
+    // 武器性能データの抽出 (BDATA.TBL: 40個 × 8バイト [Hit%, Atk, Crit%, Elem, 装備フラグ等])
+    if (bdata && bdata.length >= bdataOffs.weapons + (40 * 8)) {
       this.romData.weapons = [];
       for (let i = 0; i < 40; i++) {
-        const o = i * 8;
+        const o = bdataOffs.weapons + (i * 8);
         const hit = bdata[o];
         const atk = bdata[o + 1];
         const base = BASE_WEAPONS_DATA[i];
@@ -2488,11 +2516,11 @@ class GameDataManager {
       console.warn("BDATA.TBL 武器データ領域不足 (必要: 320バイト)");
     }
 
-    // 2. 防具性能データの抽出 (BDATA.TBL: +0x0140〜, 40個 × 4バイト [重量(Wt), 防御(Def), 耐性, 特殊])
-    if (bdata && bdata.length >= 0x0140 + (40 * 4)) {
+    // 防具性能データの抽出 (BDATA.TBL: 40個 × 4バイト [重量(Wt), 防御(Def), 耐性, 特殊])
+    if (bdata && bdata.length >= bdataOffs.armors + (40 * 4)) {
       this.romData.armors = [];
       for (let i = 0; i < 40; i++) {
-        const o = 0x0140 + (i * 4);
+        const o = bdataOffs.armors + (i * 4);
         const wt = bdata[o];
         const def = bdata[o + 1];
         const base = BASE_ARMORS_DATA[i];
@@ -2510,11 +2538,11 @@ class GameDataManager {
       console.warn("BDATA.TBL 防具データ領域不足 (必要: 0x01E0バイト)");
     }
 
-    // 3. 必要経験値テーブルの抽出 (BDATA.TBL: +0x197D〜, 50レベル × 3バイト リトルエンディアン)
-    if (bdata && bdata.length >= 0x197D + 150) {
+    // 必要経験値テーブルの抽出 (BDATA.TBL: 50レベル × 3バイト リトルエンディアン)
+    if (bdata && bdata.length >= bdataOffs.expTable + 150) {
       this.romData.expTable = [];
       for (let lv = 0; lv < 50; lv++) {
-        const o = 0x197D + (lv * 3);
+        const o = bdataOffs.expTable + (lv * 3);
         const val = bdata[o] | (bdata[o + 1] << 8) | (bdata[o + 2] << 16);
         this.romData.expTable.push(val);
         const stdVal = this.standard.expTable[lv];
@@ -2529,12 +2557,12 @@ class GameDataManager {
       console.warn("BDATA.TBL 必要EXPテーブル領域不足 (必要: 0x1A13バイト)");
     }
 
-    // 4. 成長テーブルの抽出 (BDATA.TBL: +0x1A20〜, 6ジョブ × 49エントリ × 2バイト)
-    if (bdata && bdata.length >= 0x1A20 + (6 * 49 * 2)) {
+    // 成長テーブルの抽出 (BDATA.TBL: 6ジョブ × 49エントリ × 2バイト)
+    if (bdata && bdata.length >= bdataOffs.growth + (6 * 49 * 2)) {
       this.romData.growth = [];
       for (let job = 0; job < 6; job++) {
         const jobGrowth = [];
-        const jobOffset = 0x1A20 + (job * 49 * 2);
+        const jobOffset = bdataOffs.growth + (job * 49 * 2);
         for (let lv = 0; lv < 49; lv++) {
           const o = jobOffset + (lv * 2);
           const statByte = bdata[o];
@@ -2559,13 +2587,13 @@ class GameDataManager {
       console.warn("BDATA.TBL 成長テーブル領域不足 (必要: 0x1C6Cバイト)");
     }
 
-    // 5. 初期能力値データの抽出 (STARTUP.COM: +0x0BFA〜, 6ジョブ × 16バイト)
+    // 初期能力値データの抽出 (STARTUP.COM: 6ジョブ × 16バイト)
     // ※STARTUP.COM 0x0BF9はジョブ0のID、能力値は0x0BFA(HP,力,早,知,体,運)から16バイト周期で配置
-    if (startup && startup.length >= 0x0BFA + 96) {
+    if (startup && startup.length >= startupOffs.initialStats + 96) {
       this.romData.initialStats = [];
       const statNames = ["HP", "力", "早", "知", "体", "運"];
       for (let job = 0; job < 6; job++) {
-        const offset = 0x0BFA + (job * 16);
+        const offset = startupOffs.initialStats + (job * 16);
         const st = [
           startup[offset + 0],
           startup[offset + 1],
@@ -4362,38 +4390,59 @@ class PresetResource {
 }
 
 /**
- * FC版ワールドマップ表示管理クラス
+ * ワールドマップ表示管理クラス
  */
 class WorldMapViewer {
-  // PRG-ROM内オフセット定数 (ヘッダ16バイトを除く純粋なPRGデータ基準)
-  static TILE_ATTRIBUTE_TABLE = 0x0000;             // ワールドマップタイル属性データ (128タイル×2バイト: 256バイト)
-  static MAP_LINEPTR_TABLE = 0x4000;                // 行ごとのポインタテーブル (256行分: 512バイト)
-  static MAP_LINEPTR_OFFSET = -0x4000;              // CPUアドレス($8000〜)からのオフセットへの補正値
-  static TILE_CHARACTER_ASSIGNMENT_TABLE = 0x0100;  // タイルに対するCHR割り当てテーブル開始位置 (512バイト)
-  static TILE_PALETTE_ASSIGNMENT_TABLE = 0x0300;    // 各タイルのパレットセット割り当てテーブル開始位置 (128バイト)
-  static PALETTE_RABLE = 0x0380;                    // ワールドマップパレットデータ本体開始位置 (32バイト)
-  static CHARACTER_PATTERN_TABLE = 0x8000;          // ワールドマップCHRグラフィックデータ開始位置
-  static BATTLE_BACKDROP_ASSIGNMENT_TABLE = 0x3300;  // タイル別戦闘背景割り当てテーブル (128バイト)
-  static MSX_BATTLE_BACKDROP_OFFSET = 0x0BAE;       // MSX版 BATTLE.COM内 戦闘背景割り当てテーブルオフセット
+  // FC版 PRG-ROM内オフセット定数 (ヘッダ16バイトを除くPRGデータ基準)
+  static FC_OFFSETS = {
+    tileAttr: 0x0000,                               // タイル属性データ (128タイル×2バイト: 256バイト)
+    tilePlane: 0x0100,                              // タイルチップ定義 (128タイル×4プレーン: 512バイト)
+    tilePalette: 0x0300,                            // タイル別パレット割当テーブル (128バイト)
+    paletteTable: 0x0380,                           // ワールドマップパレットデータ (32バイト)
+    mapManPalette: 0x03A0,                          // プレイヤーパレット置換データ (2バイト)
+    battleBackdrop: 0x3300,                         // タイル別戦闘背景割当テーブル (128バイト)
+    linePtrTable: 0x4000,                           // ライン先頭ポインタテーブル (256行×2バイト: 512バイト)
+    linePtrBase: -0x4000,                           // CPUアドレス($8000〜)からのオフセット補正値
+    chrPattern: 0x8000,                             // キャラクタパターングラフィックデータ
+    sprPlayer: 0x9000,                              // プレイヤー歩行グラフィック
+    sprAirshipShadow: 0x9C00,                       // 飛空艇の影グラフィック
+    sprBridge: 0x9C40,                              // 北の橋グラフィック
+    sprCanal: 0x9C80,                               // 運河グラフィック
+    sprShip: 0x9E40,                                // 船グラフィック
+    sprAirship: 0x9F80,                             // 飛空艇グラフィック
+    sprCanoe: 0xA000 + 0x40 * 4                     // カヌーグラフィック
+  };
 
-  // スプライトグラフィックPRGオフセット (各16x16px: 4キャラクタ=64バイト)
-  static MAPMANGRAPHIC_OFFSET = 0x9000;             // プレイヤー歩行グラフィック
-  static CANOEGRAPHIC_OFFSET  = 0xA000 + 0x40 * 4;  // カヌーグラフィック
-  static BRIDGEGRAPHIC_OFFSET = 0x9C40;             // コーネリアの北の橋グラフィック
-  static CANALGRAPHIC_OFFSET  = 0x9C80;             // 運河グラフィック
-  static SHIPGRAPHIC_OFFSET   = 0x9E40;             // 船グラフィック
-  static AIRSHIPGRAPHIC_OFFSET= 0x9F80;             // 飛空艇グラフィック
-  static AIRSHIPSHADOWGRAPHIC_OFFSET= 0x9C00;       // 飛空艇の影グラフィック
-  static MAPMANPALETTE_OFFSET = 0x03A0;             // プレイヤーパレット置換オフセット
+  // MSX版 ファイル内オフセット定数
+  static MSX_OFFSETS = {
+    mapPtrBase: 0x8200,                             // MAIN.MAP ポインタ減算基準値
+    mainChr: {
+      tileAttr: 0x0000,                             // タイル属性テーブル (256バイト)
+      tilePlane: 0x0100,                            // タイルチップ定義 4プレーン (512バイト)
+      tilePalette: 0x0300                           // タイル別パレット割当テーブル (128バイト)
+    },
+    battleCom: {
+      battleBackdrop: 0x0BAE                        // タイル別戦闘背景割当テーブル (128バイト)
+    },
+    mspr: {
+      stride: 120,                                  // スプライト1個あたりのサイズ (40バイト×3面)
+      ship: 0x0000,                                 // 船 (4方向×2パターン)
+      airship: 0x03C0,                              // 飛空艇 (4方向×2パターン)
+      canoe: 0x0780,                                // カヌー (4方向×2パターン)
+      airshipShadow: 0x0B40,                        // 飛空艇の影 (1パターン)
+      bridge: 0x0BB8,                               // 北の橋 (1パターン)
+      canal: 0x0C30                                 // 運河 (1パターン)
+    }
+  };
 
   // 固定設置物座標 (絶対タイル座標)
   static COORD_BRIDGE = { x: 152, y: 152 };         // コーネリアの北の橋
   static COORD_CANAL  = { x: 102, y: 164 };         // 運河（海峡）
 
-  static currentMetaTableOffset = this.TILE_CHARACTER_ASSIGNMENT_TABLE;  // 現在のタイル割り当てPRGオフセット
-  static currentChrOffset = this.CHARACTER_PATTERN_TABLE;                // 現在のCHRデータPRGオフセット
+  static currentChrOffset = this.FC_OFFSETS.chrPattern; // 現在のCHRデータPRGオフセット
 
   static tileAttrTable = null;          // タイル属性テーブル (128タイル×2バイト: 256バイト)
+  static tilePlaneTable = null;         // タイルチップ定義プレーン (128タイル×4プレーン: 512バイト)
   static tilePalTable = null;           // タイルパレット割り当てテーブル (128タイル×1バイト: 128バイト)
   static tileBackdropTable = null;      // タイル別戦闘背景割り当てテーブル (128タイル×1バイト: 128バイト)
   static msxPalette = null;             // MSX MAINBG.PIC カラーパレット (16色 RGB)
@@ -4500,6 +4549,7 @@ class WorldMapViewer {
     safe:     13, // 灰
     water:    2,  // 青
     river:    8,  // 水色
+    //river:    2,  // 青
     port:     13, // 灰
     plains:   10, // 緑
     forest:   14, // 暗緑
@@ -4535,15 +4585,6 @@ class WorldMapViewer {
       }
     }
     return tileEventList;
-  }
-
-  /**
-   * ROMのタイル属性テーブル(PRG $0000)とテレポート定義からタイルイベント辞書を生成 (タイルID -> 地名ID)
-   */
-  static generateTileEventList(rom, prgStart) {
-    const attrOffset = prgStart + this.TILE_ATTRIBUTE_TABLE;
-    if (attrOffset + 256 > rom.length) return {};
-    return this.generateTileEventListFromAttr(rom.subarray(attrOffset, attrOffset + 256));
   }
 
   /**
@@ -4688,77 +4729,6 @@ class WorldMapViewer {
   }
 
   /**
-   *  ROMからの点滅対象タイル判定
-   */
-  static isFlashTileFromRom(rom, prgStart, tileId) {
-    if (this.romTileEventList) {
-      return this.romTileEventList[tileId] !== undefined
-        && this.romTileEventList[tileId] !== 0x1F; // リュカーン砂漠を除く
-    }
-
-    const offset = prgStart + this.TILE_ATTRIBUTE_TABLE + (tileId * 2);
-    const d0 = rom[offset];
-    const d1 = rom[offset + 1];
-
-    // テレポート進入マス (d1 & 0x80)
-    if ((d1 & 0x80) !== 0) return true;
-
-    // オアシス入口(キャラバン: d0の上位2ビットが 0x80)
-    if ((d0 & 0xC0) === 0x80) return true;
-
-    return false;
-  }
-
-  /**
-   * ROMのタイル属性およびパレット割り当てから地形タイプを動的に判定
-   */
-  static evaluateTileFromRom(rom, prgStart, tileId) {
-    const tileDataOffset = prgStart + this.TILE_ATTRIBUTE_TABLE;
-    const palAssignOffset = prgStart + this.TILE_PALETTE_ASSIGNMENT_TABLE;
-
-    if (tileDataOffset + 256 > rom.length || palAssignOffset + 128 > rom.length) {
-      return 'plains';
-    }
-
-    const d0 = rom[tileDataOffset + (tileId * 2)];
-    const d1 = rom[tileDataOffset + (tileId * 2) + 1];
-    const pal = rom[palAssignOffset + tileId] & 0x03;
-
-    // テレポートイベントのあるマス（街・城・洞窟などの入口: d1 & 0x80）
-    if ((d1 & 0x80) !== 0) return 'teleport';
-
-    // 完全進入不可（山岳・城の上部・ミラージュの塔の上部・外壁など: d0 & 0x0F === 0x0F）
-    if ((d0 & 0x0F) === 0x0F) return 'wall';
-
-    // 港（船の乗り降り可能ビット d0 & 0x20）
-    if ((d0 & 0x20) !== 0) return 'port';
-
-    // 海洋戦闘かつ船進入可 -> 海
-    if ((d1 & 0x43) === 0x42 && (d0 & 0x04) === 0) return 'water';
-    // 河川戦闘かつカヌー進入可 -> 川
-    if ((d1 & 0x43) === 0x41 && (d0 & 0x02) === 0) return 'river';
-
-    // 森林フラグ
-    if ((d0 & 0x10) !== 0) return 'forest';
-
-    // 旧判定: if ((d1 & 0x43) === 0x00 && (d0 & 0xC0) === 0x00 && pal !== 1) return 'safe';
-    // 平地グラフィックの安全マス（街の門前等）が巻き込まれるため、城内敷石（$3D）のみ判定
-    if (tileId === 0x3D) return 'safe';
-
-    const backdropOffset = prgStart + this.BATTLE_BACKDROP_ASSIGNMENT_TABLE;
-    const backdropId = (backdropOffset + tileId < rom.length) ? (rom[backdropOffset + tileId] & 0x0F) : null;
-
-    // 戦闘背景IDが取得できる場合は0x06で判定、未取得時のみパレット1でフォールバック
-    const isDesert = (backdropId !== null)
-      ? (backdropId === 0x06 || (d0 & 0xC0) === 0xC0)
-      : (pal === 1 || (d0 & 0xC0) === 0xC0);
-    if (isDesert) return 'desert';
-
-    // 上記以外は陸地境界・平原
-    return 'plains';
-  }
-
-  /**
    * 現在の表示モードに応じたイベントマーカー対象タイル判定
    */
   static isFlashTile(tileId, x, y) {
@@ -4766,8 +4736,19 @@ class WorldMapViewer {
       return (x !== undefined && y !== undefined) ? PresetResource.hasPoint(x, y) && PresetResource.getLocId(x, y) !== 0x1F : false;
     }
 
-    const prgStart = GameDataManager.getPrgStartOffset(nesRom);
-    return this.isFlashTileFromRom(nesRom, prgStart, tileId);
+    if (this.romTileEventList) {
+      return this.romTileEventList[tileId] !== undefined
+        && this.romTileEventList[tileId] !== 0x1F; // リュカーン砂漠を除く
+    }
+
+    if (this.tileAttrTable && (tileId * 2 + 1) < this.tileAttrTable.length) {
+      const d0 = this.tileAttrTable[tileId * 2];
+      const d1 = this.tileAttrTable[tileId * 2 + 1];
+      if ((d1 & 0x80) !== 0) return true;
+      if ((d0 & 0xC0) === 0x80) return true;
+    }
+
+    return false;
   }
 
   /**
@@ -4778,10 +4759,7 @@ class WorldMapViewer {
     if (this.tileAttrTable && (tileId * 2) < this.tileAttrTable.length) {
       return (this.tileAttrTable[tileId * 2] & 0x10) !== 0;
     }
-    if (!nesRom) return false;
-    const prgStart = GameDataManager.getPrgStartOffset(nesRom);
-    const offset = prgStart + this.TILE_ATTRIBUTE_TABLE + (tileId * 2);
-    return (offset < nesRom.length) ? (nesRom[offset] & 0x10) !== 0 : false;
+    return false;
   }
 
   /**
@@ -4813,12 +4791,7 @@ class WorldMapViewer {
       return 'plains';
     }
 
-    if (!nesRom || !GameDataManager.romData.loaded) {
-      return 'plains';
-    }
-
-    const prgStart = GameDataManager.getPrgStartOffset(nesRom);
-    return this.evaluateTileFromRom(nesRom, prgStart, tileId);
+    return 'plains';
   }
 
   /**
@@ -4932,20 +4905,22 @@ class WorldMapViewer {
     if (!rom || rom.length < 0x8000) return;
     const prgStart = GameDataManager.getPrgStartOffset(rom);
     const chrOffset = prgStart + this.currentChrOffset;
+    const fc = this.FC_OFFSETS;
 
-    this.tileAttrTable = rom.subarray(prgStart + this.TILE_ATTRIBUTE_TABLE, prgStart + this.TILE_ATTRIBUTE_TABLE + 256);
-    this.tilePalTable = rom.subarray(prgStart + this.TILE_PALETTE_ASSIGNMENT_TABLE, prgStart + this.TILE_PALETTE_ASSIGNMENT_TABLE + 128);
-    this.tileBackdropTable = (prgStart + this.BATTLE_BACKDROP_ASSIGNMENT_TABLE + 128 <= rom.length)
-      ? rom.subarray(prgStart + this.BATTLE_BACKDROP_ASSIGNMENT_TABLE, prgStart + this.BATTLE_BACKDROP_ASSIGNMENT_TABLE + 128)
+    this.tileAttrTable = rom.subarray(prgStart + fc.tileAttr, prgStart + fc.tileAttr + 256);
+    this.tilePlaneTable = rom.subarray(prgStart + fc.tilePlane, prgStart + fc.tilePlane + 512);
+    this.tilePalTable = rom.subarray(prgStart + fc.tilePalette, prgStart + fc.tilePalette + 128);
+    this.tileBackdropTable = (prgStart + fc.battleBackdrop + 128 <= rom.length)
+      ? rom.subarray(prgStart + fc.battleBackdrop, prgStart + fc.battleBackdrop + 128)
       : null;
     this.currentDataSource = 'rom';
 
     // ワールドマップ行ポインタテーブルから256行のRLE圧縮データを展開
     this.mapData = new Uint8Array(256 * 256);
     for (let y = 0; y < 256; y++) {
-      const pIdx = prgStart + this.MAP_LINEPTR_TABLE + (y * 2);
+      const pIdx = prgStart + fc.linePtrTable + (y * 2);
       const ptr = rom[pIdx] | (rom[pIdx + 1] << 8);
-      let readOffset = prgStart + (ptr + this.MAP_LINEPTR_OFFSET);
+      let readOffset = prgStart + (ptr + fc.linePtrBase);
 
       let x = 0;
       while (x < 256 && readOffset < rom.length) {
@@ -4970,11 +4945,11 @@ class WorldMapViewer {
       }
     }
 
-    // ROMのタイル属性からイベント辞書を生成し、マップ全体のSpecialPoint地点を走査
-    this.romTileEventList = this.generateTileEventList(rom, prgStart);
+    // タイル属性からイベント辞書を生成し、マップ全体のSpecialPoint地点を走査
+    this.romTileEventList = this.generateTileEventListFromAttr(this.tileAttrTable);
     this.scanSpecialPoints();
 
-    // ROM内タイル割り当てテーブル、キャラクタパターン、パレットからCHRおよびメタタイルアトラスを生成
+    // CHRおよびメタタイルアトラスを生成
     this.decodeChrAtlas(rom, prgStart, chrOffset);
     this.decodeMetatiles(rom, prgStart, chrOffset);
     this.decodeSprites(rom, prgStart);
@@ -5004,24 +4979,27 @@ class WorldMapViewer {
       return;
     }
 
-    // 1. タイル属性テーブル (256バイト) & パレットテーブル (128バイト)
-    this.tileAttrTable = mainChr.subarray(0, 256);
-    if (mainChr.length >= 0x0380) {
-      this.tilePalTable = mainChr.subarray(0x0300, 0x0380);
+    const msxOffsets = this.MSX_OFFSETS;
+
+    // タイル属性テーブル (256バイト) & タイルチップ定義 (512バイト) & パレット割当テーブル (128バイト)
+    this.tileAttrTable = mainChr.subarray(msxOffsets.mainChr.tileAttr, msxOffsets.mainChr.tileAttr + 256);
+    this.tilePlaneTable = mainChr.subarray(msxOffsets.mainChr.tilePlane, msxOffsets.mainChr.tilePlane + 512);
+    if (mainChr.length >= msxOffsets.mainChr.tilePalette + 128) {
+      this.tilePalTable = mainChr.subarray(msxOffsets.mainChr.tilePalette, msxOffsets.mainChr.tilePalette + 128);
     }
     const battleCom = fs.getFile("BATTLE.COM");
-    if (battleCom && battleCom.length >= this.MSX_BATTLE_BACKDROP_OFFSET + 128) {
-      this.tileBackdropTable = battleCom.subarray(this.MSX_BATTLE_BACKDROP_OFFSET, this.MSX_BATTLE_BACKDROP_OFFSET + 128);
+    if (battleCom && battleCom.length >= msxOffsets.battleCom.battleBackdrop + 128) {
+      this.tileBackdropTable = battleCom.subarray(msxOffsets.battleCom.battleBackdrop, msxOffsets.battleCom.battleBackdrop + 128);
     } else {
       this.tileBackdropTable = null;
     }
     this.currentDataSource = 'msx';
 
-    // 2. 256x256 ワールドマップの展開 (ポインタ値 - 0x8200)
+    // 256x256 ワールドマップの展開 (ポインタ減算基準値: mapPtrBase)
     this.mapData = new Uint8Array(256 * 256);
     for (let y = 0; y < 256; y++) {
       const ptr = mmapVec[y * 2] | (mmapVec[y * 2 + 1] << 8);
-      let readOffset = ptr - 0x8200;
+      let readOffset = ptr - msxOffsets.mapPtrBase;
 
       let x = 0;
       while (x < 256 && readOffset < mainMap.length) {
@@ -5045,21 +5023,21 @@ class WorldMapViewer {
       }
     }
 
-    // 3. タイルイベント辞書の生成とSpecialPoints走査
+    // タイルイベント辞書の生成とSpecialPoints走査
     this.romTileEventList = this.generateTileEventListFromAttr(this.tileAttrTable);
     this.scanSpecialPoints();
 
-    // 4. MAINBG.PIC から 8x8 CHRアトラス (128x128px) を生成
+    // MAINBG.PIC から 8x8 CHRアトラス (128x128px) を生成
     this.decodeMsxChrAtlas(mainbgPic);
 
-    // 5. MAIN.CHR (+0x0100〜) から 16x16 メタタイルアトラス (256x128px) を生成
-    this.decodeMsxMetatiles(mainChr);
+    // タイルチップ定義から 16x16 メタタイルアトラス (256x128px) を生成
+    this.decodeMsxMetatiles();
 
-    // 6. MSPR.SPR からの各種スプライト展開
+    // MSPR.SPR から各種スプライトを展開
     const msprBytes = fs.getFile("MSPR.SPR");
     this.decodeMsxSprites(msprBytes, fs);
 
-    // 7. 平均色の算出
+    // 平均色の算出
     this.calcAverageColors();
 
     this.renderFullWorldMap();
@@ -5100,9 +5078,9 @@ class WorldMapViewer {
   }
 
   /**
-   * MSX版 MAIN.CHR (+0x0100〜) の4プレーン定義から 16x16 メタタイル全128種を256x128pxアトラスへ合成
+   * MSX版 MAIN.CHR の4プレーン定義から 16x16 メタタイル全128種を256x128pxアトラスへ合成
    */
-  static decodeMsxMetatiles(mainChrBytes) {
+  static decodeMsxMetatiles() {
     if (!this.tileAtlasCanvas) {
       this.tileAtlasCanvas = document.createElement('canvas');
       this.tileAtlasCanvas.width = 256;
@@ -5112,12 +5090,14 @@ class WorldMapViewer {
     const ctx = this.tileAtlasCtx;
     ctx.clearRect(0, 0, 256, 128);
 
-    const metaOffset = 0x0100;
+    const plane = this.tilePlaneTable;
+    if (!plane || plane.length < 512) return;
+
     for (let tileId = 0; tileId < 128; tileId++) {
-      const tl = mainChrBytes[metaOffset + 0 + tileId];
-      const tr = mainChrBytes[metaOffset + 128 + tileId];
-      const bl = mainChrBytes[metaOffset + 256 + tileId];
-      const br = mainChrBytes[metaOffset + 384 + tileId];
+      const tl = plane[0 + tileId];
+      const tr = plane[128 + tileId];
+      const bl = plane[256 + tileId];
+      const br = plane[384 + tileId];
 
       const dstTileX = (tileId % 16) * 16;
       const dstTileY = Math.floor(tileId / 16) * 16;
@@ -5142,18 +5122,22 @@ class WorldMapViewer {
     if (!msprBytes) return;
 
     // MSPR.SPR 内オフセット (各120バイト: スプライト3枚合成, 方向: 上0,1 右2,3 下4,5 左6,7)
-    // 船: 0x0000〜 (右向き: パターン2 = 0x00F0)
-    this.sprites.set('ship', MsxSprDecoder.decode16x16(msprBytes, 0x0000 + (2 * 120)));
-    // 飛空艇: 0x03C0〜 (右向き: パターン2 = 0x03C0 + 240 = 0x04B0)
-    this.sprites.set('airship', MsxSprDecoder.decode16x16(msprBytes, 0x03C0 + (2 * 120)));
-    // カヌー: 0x0780〜 (右向き: パターン2 = 0x0780 + 240 = 0x0870)
-    this.sprites.set('canoe', MsxSprDecoder.decode16x16(msprBytes, 0x0780 + (2 * 120)));
-    // 飛空艇の影: 0x0B40
-    this.sprites.set('airship_shadow', MsxSprDecoder.decode16x16(msprBytes, 0x0B40));
-    // 北の橋: 0x0BB8
-    this.sprites.set('bridge', MsxSprDecoder.decode16x16(msprBytes, 0x0BB8));
-    // 海峡(運河): 0x0C30
-    this.sprites.set('canal', MsxSprDecoder.decode16x16(msprBytes, 0x0C30));
+    const o = this.MSX_OFFSETS.mspr;
+    const stride = o.stride;
+    const rightPatternOffset = 2 * stride; // 右向きパターン2
+
+    // 船
+    this.sprites.set('ship', MsxSprDecoder.decode16x16(msprBytes, o.ship + rightPatternOffset));
+    // 飛空艇
+    this.sprites.set('airship', MsxSprDecoder.decode16x16(msprBytes, o.airship + rightPatternOffset));
+    // カヌー
+    this.sprites.set('canoe', MsxSprDecoder.decode16x16(msprBytes, o.canoe + rightPatternOffset));
+    // 飛空艇の影
+    this.sprites.set('airship_shadow', MsxSprDecoder.decode16x16(msprBytes, o.airshipShadow));
+    // 北の橋
+    this.sprites.set('bridge', MsxSprDecoder.decode16x16(msprBytes, o.bridge));
+    // 海峡(運河)
+    this.sprites.set('canal', MsxSprDecoder.decode16x16(msprBytes, o.canal));
 
     // プレイヤー歩行キャラ (JOBS_L1.PIC または MENU_L1.PIC より)
     let playerCanvas = null;
@@ -5194,7 +5178,7 @@ class WorldMapViewer {
     }
     const ctx = this.chrAtlasCtx;
     const imgData = ctx.createImageData(128, 128);
-    const palDataOffset = prgStart + this.PALETTE_RABLE;
+    const palDataOffset = prgStart + this.FC_OFFSETS.paletteTable;
     const commonBg = (palDataOffset + 0x10 < rom.length) ? rom[palDataOffset + 0x10] : 0x0F;
 
     // 現在選択されているパレット（BG0〜3 または SPR0〜3）の開始オフセットを計算
@@ -5284,7 +5268,7 @@ class WorldMapViewer {
   static decodeSprites(rom, prgStart) {
     this.sprites.clear();
     const nesPalette = NES_PALETTE;
-    const palDataOffset = prgStart + this.PALETTE_RABLE;
+    const palDataOffset = prgStart + this.FC_OFFSETS.paletteTable;
 
     // スプライトパレット定義 (PRG $0390〜$039F: 4色×4パレット)
     // 実機PPU仕様: 各スプライトパレットの先頭(色0)は透明
@@ -5304,8 +5288,8 @@ class WorldMapViewer {
     const palSpr2 = getSpritePal(2);
     const palSpr3 = getSpritePal(3);
 
-    // プレイヤー専用パレット置換 (PRG $03A0: MAPMANPALETTE_OFFSET)
-    const mapManPalOffset = prgStart + this.MAPMANPALETTE_OFFSET;
+    // プレイヤー専用パレット置換 (PRG $03A0: mapManPalette)
+    const mapManPalOffset = prgStart + this.FC_OFFSETS.mapManPalette;
     if (mapManPalOffset + 2 <= rom.length) {
       palSpr0[2] = nesPalette[rom[mapManPalOffset + 0] & 0x3F];
       palSpr1[2] = nesPalette[rom[mapManPalOffset + 1] & 0x3F];
@@ -5351,20 +5335,21 @@ class WorldMapViewer {
     };
 
     // 各スプライトのデコード (16x16 オフスクリーンCanvasとして登録)
+    const fc = this.FC_OFFSETS;
     // プレイヤー: 上半身パレット0 / 下半身パレット1
-    this.sprites.set('player',  decode16x16SpriteCanvas(prgStart + this.MAPMANGRAPHIC_OFFSET, palSpr0, palSpr1));
+    this.sprites.set('player',  decode16x16SpriteCanvas(prgStart + fc.sprPlayer, palSpr0, palSpr1));
     // 橋: パレット3
-    this.sprites.set('bridge',  decode16x16SpriteCanvas(prgStart + this.BRIDGEGRAPHIC_OFFSET, palSpr3, palSpr3));
+    this.sprites.set('bridge',  decode16x16SpriteCanvas(prgStart + fc.sprBridge, palSpr3, palSpr3));
     // 運河: パレット3
-    this.sprites.set('canal',   decode16x16SpriteCanvas(prgStart + this.CANALGRAPHIC_OFFSET, palSpr3, palSpr3));
+    this.sprites.set('canal',   decode16x16SpriteCanvas(prgStart + fc.sprCanal, palSpr3, palSpr3));
     // 船: パレット2
-    this.sprites.set('ship',    decode16x16SpriteCanvas(prgStart + this.SHIPGRAPHIC_OFFSET, palSpr2, palSpr2));
+    this.sprites.set('ship',    decode16x16SpriteCanvas(prgStart + fc.sprShip, palSpr2, palSpr2));
     // 飛空艇: パレット2
-    this.sprites.set('airship', decode16x16SpriteCanvas(prgStart + this.AIRSHIPGRAPHIC_OFFSET, palSpr2, palSpr2));
+    this.sprites.set('airship', decode16x16SpriteCanvas(prgStart + fc.sprAirship, palSpr2, palSpr2));
     // カヌー: パレット2
-    this.sprites.set('canoe', decode16x16SpriteCanvas(prgStart + this.CANOEGRAPHIC_OFFSET, palSpr2, palSpr2));
+    this.sprites.set('canoe',   decode16x16SpriteCanvas(prgStart + fc.sprCanoe, palSpr2, palSpr2));
     // 飛空艇影: パレット0
-    this.sprites.set('airship_shadow', decode16x16SpriteCanvas(prgStart + this.AIRSHIPSHADOWGRAPHIC_OFFSET, palSpr0, palSpr0));
+    this.sprites.set('airship_shadow', decode16x16SpriteCanvas(prgStart + fc.sprAirshipShadow, palSpr0, palSpr0));
   }
 
   /**
@@ -5384,22 +5369,22 @@ class WorldMapViewer {
     const imgData = ctx.createImageData(256, 128);
 
     const nesPalette = NES_PALETTE;
-    const metaTableOffset = prgStart + this.currentMetaTableOffset;
-    const palAssignOffset = prgStart + this.TILE_PALETTE_ASSIGNMENT_TABLE;
-    const palDataOffset = prgStart + this.PALETTE_RABLE;
+    const plane = this.tilePlaneTable;
+    const palAssignOffset = prgStart + this.FC_OFFSETS.tilePalette;
+    const palDataOffset = prgStart + this.FC_OFFSETS.paletteTable;
 
-    // パレット共通背景色 (PPU仕様準拠: PALETTE_RABLE + 0x10)
+    // パレット共通背景色 (PPU仕様準拠: paletteTable + 0x10)
     const commonBgColor = (palDataOffset + 0x10 < rom.length) ? rom[palDataOffset + 0x10] : 0x0F;
 
     for (let tileId = 0; tileId < 128; tileId++) {
       let tl, tr, bl, br;
 
-      if (metaTableOffset + 512 <= rom.length) {
+      if (plane && plane.length >= 512) {
         // 128バイトプレーン構造 (左上、右上、左下、右下の順)
-        tl = rom[metaTableOffset + 0 + tileId];
-        tr = rom[metaTableOffset + 128 + tileId];
-        bl = rom[metaTableOffset + 256 + tileId];
-        br = rom[metaTableOffset + 384 + tileId];
+        tl = plane[0 + tileId];
+        tr = plane[128 + tileId];
+        bl = plane[256 + tileId];
+        br = plane[384 + tileId];
       } else {
         tl = tileId; tr = tileId; bl = tileId; br = tileId;
       }
@@ -6350,42 +6335,22 @@ class WorldMapViewer {
       return;
     }
 
-    if (this.currentDataSource === 'msx' && msxDskFs) {
-      const mainChr = msxDskFs.getFile("MAIN.CHR");
-      if (mainChr && mainChr.length >= 0x0300) {
-        const tl = mainChr[0x0100 + 0 + tid].toString(16).toUpperCase().padStart(2, '0');
-        const tr = mainChr[0x0100 + 128 + tid].toString(16).toUpperCase().padStart(2, '0');
-        const bl = mainChr[0x0100 + 256 + tid].toString(16).toUpperCase().padStart(2, '0');
-        const br = mainChr[0x0100 + 384 + tid].toString(16).toUpperCase().padStart(2, '0');
-        const tType = this.getTileType(tid);
-        const notice = ` [${PresetResource.TILE_TYPE_NAMES[tType] || '---'}]`;
-        const romLocId = this.romTileEventList ? this.romTileEventList[tid] : undefined;
-        const loc = (romLocId !== undefined) ? LOCATION_NAMES[romLocId] : '';
-        el.textContent = `$${tid.toString(16).toUpperCase().padStart(2, '0')} [左上:$${tl} 右上:$${tr} 左下:$${bl} 右下:$${br}] ${notice} ${loc}`;
-        return;
-      }
-    }
-
-    if (nesRom) {
-      const prgStart = GameDataManager.getPrgStartOffset(nesRom);
-      const base = prgStart + this.currentMetaTableOffset;
-      const palAssignOffset = prgStart + this.TILE_PALETTE_ASSIGNMENT_TABLE;
-
+    if (this.tilePlaneTable && (tid + 384) < this.tilePlaneTable.length) {
+      const tl = this.tilePlaneTable[0 + tid].toString(16).toUpperCase().padStart(2, '0');
+      const tr = this.tilePlaneTable[128 + tid].toString(16).toUpperCase().padStart(2, '0');
+      const bl = this.tilePlaneTable[256 + tid].toString(16).toUpperCase().padStart(2, '0');
+      const br = this.tilePlaneTable[384 + tid].toString(16).toUpperCase().padStart(2, '0');
       const tType = this.getTileType(tid);
       const notice = ` [${PresetResource.TILE_TYPE_NAMES[tType] || '---'}]`;
-
-      if (base + 512 <= nesRom.length) {
-        const tl = nesRom[base + 0 + tid].toString(16).toUpperCase().padStart(2, '0');
-        const tr = nesRom[base + 128 + tid].toString(16).toUpperCase().padStart(2, '0');
-        const bl = nesRom[base + 256 + tid].toString(16).toUpperCase().padStart(2, '0');
-        const br = nesRom[base + 384 + tid].toString(16).toUpperCase().padStart(2, '0');
-        const pal = (palAssignOffset + tid < nesRom.length) ? (nesRom[palAssignOffset + tid] & 0x03) : 0;
-        const romLocId = this.romTileEventList ? this.romTileEventList[tid] : undefined;
-        const loc = (romLocId !== undefined) ? LOCATION_NAMES[romLocId] : '';
-        el.textContent = `$${tid.toString(16).toUpperCase().padStart(2, '0')} [左上:$${tl} 右上:$${tr} 左下:$${bl} 右下:$${br} Pal:${pal}] ${notice} ${loc}`;
-        return;
-      }
+      const palInfo = (this.currentDataSource === 'rom' && this.tilePalTable && tid < this.tilePalTable.length)
+        ? ` Pal:${this.tilePalTable[tid] & 0x03}`
+        : '';
+      const romLocId = this.romTileEventList ? this.romTileEventList[tid] : undefined;
+      const loc = (romLocId !== undefined) ? LOCATION_NAMES[romLocId] : '';
+      el.textContent = `$${tid.toString(16).toUpperCase().padStart(2, '0')} [左上:$${tl} 右上:$${tr} 左下:$${bl} 右下:$${br}${palInfo}] ${notice} ${loc}`;
+      return;
     }
+
     el.textContent = `$${tid.toString(16).toUpperCase().padStart(2, '0')} (${tid})`;
   }
 
