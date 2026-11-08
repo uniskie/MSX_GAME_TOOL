@@ -2,19 +2,39 @@
 
 本ドキュメントはDSKから取り出したファイルを前提に記述しています。
 
-- DSKからのファイルの取り出し方は
+## MSX版用ツール
 
-  - `SayDosTool.py`
-  - `SayDosTool_specification.md`
+### SayDosTool
 
-  を参照してください。
+MSX版ファイナルファンタジーはSayDosというファイル管理システムと、戦闘用敵キャラクタの直接セクタアクセスを行っています。
 
-- PICファイル（圧縮画像ファイル）の展開方法は
+`SayDosTool.py`はそれらファイルの取り出し＆格納ツールです。
 
-  - `FFPicTool.py`
-  - `FFPicTool_specification.md`
+- [SayDosTool.py](SayDosTool.py)
+- [doc/SayDosTool_specification.md](doc/SayDosTool_specification.md)
 
-  を参照してください。
+### FFPicTool
+
+SayDosToolで取り出したファイルの中にある
+PICファイルはRLE圧縮画像ファイルです。
+
+`FFPicTool.py`は、このPICファイルを展開・圧縮するツールです。
+
+- [FFPicTool.py](FFPicTool.py)
+- [doc/FFPicTool_specification.md](doc/FFPicTool_specification.md)
+
+### FFSprPreview
+
+SayDosToolで取り出したファイルの中にあるSPRファイルはスプライトデータです。
+
+また、BDATA.TBLの末尾にもSPRファイル相当のデータが埋め込まれています。
+
+`FFSprPreview.html`はこのスプライトデータを表示閲覧するツールです。
+画像書き出しにも対応しています。
+
+[FFSprPreview.html](FFSprPreview.html)
+
+`*.SPR` か `BDATA.TBL` かでパレットを自動的に切り替えます。
 
 ## ファイル一覧
 

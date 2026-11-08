@@ -79,14 +79,18 @@
 <p><img src="screenshot.png" alt="screenshot"></p>
 <h2 id="ファイル構成">ファイル構成 </h2>
 <ul>
-<li>ff1_editor.html</li>
-<li>ff1_editor_world_map.js</li>
-<li>ff1_editor_world_sprites.png</li>
+<li><a href="ff1_editor.html">ff1_editor.html</a></li>
+<li><a href="ff1_editor_world_map.js">ff1_editor_world_map.js</a></li>
+<li><a href="ff1_editor_world_sprites.png">ff1_editor_world_sprites.png</a></li>
 </ul>
 <p>※ ff1_editor_world_map.js はローカル環境用の画像データです。ローカル環境ではjsコードから画像のピクセル情報を参照できない為、base64エンコードで用意した画像ファイルです。<br>
-<code>ff1_editor_world_map.png</code> を <code>bmp16_to_js.py</code> で変換しています。</p>
+<a href="ff1_editor_world_map.png">ff1_editor_world_map.png</a> を <a href="bmp16_to_js.py">bmp16_to_js.py</a> で変換しています。</p>
 <p>オンライン環境（サーバ経由）であれば、
-<code>ff1_editor_world_map.js</code> の代わりに <code> ff1_editor_world_map.png</code> があれば問題ありません。</p>
+<a href="ff1_editor_world_map.js">ff1_editor_world_map.js</a> の代わりに <a href="ff1_editor_world_map.png">ff1_editor_world_map.png</a> があれば問題ありません。</p>
+<ul>
+<li>ジョブ画像
+<a href="ff1_editor_class_icon.png">ff1_editor_class_icon.png</a>相当の画像を自分で用意して、<code>ff1_editor_class_chr.png</code>として配置しておくと、ジョブ画像として使用されます。</li>
+</ul>
 <h2 id="簡易ガイド">簡易ガイド </h2>
 <h3 id="名前入力">名前入力 </h3>
 <p>ゲーム中のフォントで使用できる文字を受け付けます。</p>
@@ -98,8 +102,8 @@
 <p>初期状態では簡易的なマップ表示ですが、ROMを読み込ませると正確なマップが表示できます。</p>
 <p>簡易表示の場合</p>
 <ul>
-<li>ff1_editor_world_map.png</li>
-<li>ff1_editor_world_sprites.png</li>
+<li><a href="ff1_editor_world_map.js">ff1_editor_world_map.js</a> または、 <a href="ff1_editor_world_map.png">ff1_editor_world_map.png</a></li>
+<li><a href="ff1_editor_world_sprites.png">ff1_editor_world_sprites.png</a></li>
 </ul>
 <p>を使用して表示します。</p>
 <h3 id="パラメータ自動計算">パラメータ自動計算 </h3>
@@ -120,6 +124,35 @@
 拡大ビューがブロック塗りつぶしタイルではなくゲーム中のような表示になります。</p>
 <p><img src="map_screenshot2.png" alt="map_screenshot2"></p>
 </li>
+</ul>
+<h2 id="エディタ用画像--js変換">エディタ用画像 → js変換 </h2>
+<ul>
+<li>16色BMP --&gt; base64エンコード文字列
+<a href="bmp16_to_js.py">bmp16_to_js.py</a> ...<br>
+<a href="ff1_editor_world_map.bmp">ff1_editor_world_map.bmp</a> を jsソースに変換</li>
+<li>透明/不透明2値 → 1bppパターンデータ
+<a href="class_icon_to_js.py">class_icon_to_js.py</a><br>
+<a href="ff1_editor_class_icon.png">ff1_editor_class_icon.png</a> を jsソースに変換</li>
+</ul>
+<h2 id="参考資料">参考資料 </h2>
+<h3 id="参考fc版-ファイナルファンタジー-解析資料">参考：FC版 ファイナルファンタジー 解析資料 </h3>
+<ul>
+<li>Data Crystal - Final Fantasy<br>
+<a href="https://datacrystal.tcrf.net/wiki/Final_Fantasy">https://datacrystal.tcrf.net/wiki/Final_Fantasy</a></li>
+<li>FFHacksterEX<br>
+<a href="https://ffhacksterex.digitaldreamers.org/">https://ffhacksterex.digitaldreamers.org/</a><br>
+<a href="https://github.com/ffhacksterex/FFHacksterEx/tree/v0.9.8.2-beta">https://github.com/ffhacksterex/FFHacksterEx/tree/v0.9.8.2-beta</a></li>
+<li>HakkinFF1<br>
+<a href="https://hakkinff1.digitaldreamers.org/index.html">https://hakkinff1.digitaldreamers.org/index.html</a></li>
+</ul>
+<h3 id="参考msx版ファイナルファンタジー-解析資料">参考：MSX版ファイナルファンタジー 解析資料 </h3>
+<ul>
+<li>Final Fantasy MSX Performance Patch<br>
+<a href="https://github.com/abekermsx/Final-Fantasy-MSX-Performance-Patch">https://github.com/abekermsx/Final-Fantasy-MSX-Performance-Patch</a></li>
+<li>Final Fantasy MSX2 Gfx De-Compressor<br>
+<a href="https://github.com/romh-acking/final-fantasy-msx2-de-compressor">https://github.com/romh-acking/final-fantasy-msx2-de-compressor</a></li>
+<li>Final Fantasy MSX2 SayDos tool<br>
+<a href="https://github.com/romh-acking/final-fantasy-msx2-say-dos-tool/tree/master">https://github.com/romh-acking/final-fantasy-msx2-say-dos-tool/tree/master</a></li>
 </ul>
 <hr>
 <h1 id="msx版推奨パッチの紹介">MSX版推奨パッチの紹介 </h1>
@@ -232,7 +265,7 @@
 <li><a href="for_FFHackSterEX/FinalFantasy1.values">for_FFHackSterEX/FinalFantasy1.values</a></li>
 </ul>
 <p>をプロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。</p>
-<h4 id="注意事項">注意事項 </h4>
+<h3 id="注意事項">注意事項 </h3>
 <p>ROMファイル名やパスには日本語を使わないでください。エラーになります。</p>
 <hr>
 <h1 id="binary-editor-bz---msx-custom-向け-エンコード定義ファイル">Binary Editor Bz - MSX Custom 向け エンコード定義ファイル </h1>
@@ -247,6 +280,30 @@
 <li>FF1_oped_MSX.def</li>
 </ul>
 <p>をコピー。</p>
+<hr>
+<h1 id="msx版用ツール">MSX版用ツール </h1>
+<h2 id="saydostool">SayDosTool </h2>
+<p>MSX版ファイナルファンタジーはSayDosというファイル管理システムと、戦闘用敵キャラクタの直接セクタアクセスを行っています。</p>
+<p><code>SayDosTool.py</code>はそれらファイルの取り出し＆格納ツールです。</p>
+<ul>
+<li><a href="SayDosTool.py">SayDosTool.py</a></li>
+<li><a href="doc/SayDosTool_specification.md">doc/SayDosTool_specification.md</a></li>
+</ul>
+<h2 id="ffpictool">FFPicTool </h2>
+<p>SayDosToolで取り出したファイルの中にある
+PICファイルはRLE圧縮画像ファイルです。</p>
+<p><code>FFPicTool.py</code>は、このPICファイルを展開・圧縮するツールです。</p>
+<ul>
+<li><a href="FFPicTool.py">FFPicTool.py</a></li>
+<li><a href="doc/FFPicTool_specification.md">doc/FFPicTool_specification.md</a></li>
+</ul>
+<h2 id="ffsprpreview">FFSprPreview </h2>
+<p>SayDosToolで取り出したファイルの中にあるSPRファイルはスプライトデータです。</p>
+<p>また、BDATA.TBLの末尾にもSPRファイル相当のデータが埋め込まれています。</p>
+<p><code>FFSprPreview.html</code>はこのスプライトデータを表示閲覧するツールです。
+画像書き出しにも対応しています。</p>
+<p><a href="FFSprPreview.html">FFSprPreview.html</a></p>
+<p><code>*.SPR</code> か <code>BDATA.TBL</code> かでパレットを自動的に切り替えます。</p>
 
       </div>
       <div class="md-sidebar-toc"><div class="md-toc">
@@ -272,6 +329,20 @@
 </div>
 <div class="md-toc-link-wrapper" data-level="2">
   <a href="#ファミコン版romイメージmsx2版ディスクイメージ-をドロップすると" class="md-toc-link">ファミコン版ROMイメージ/MSX2版ディスクイメージ をドロップすると</a>
+</div>
+</details>
+<div class="md-toc-link-wrapper" data-level="1">
+  <a href="#エディタ用画像--js変換" class="md-toc-link">エディタ用画像 → js変換</a>
+</div>
+<details open="" class="md-toc-details">
+<summary class="md-toc-link-wrapper" data-level="1">
+  <a href="#参考資料" class="md-toc-link">参考資料</a>
+</summary>
+<div class="md-toc-link-wrapper" data-level="2">
+  <a href="#参考fc版-ファイナルファンタジー-解析資料" class="md-toc-link">参考：FC版 ファイナルファンタジー 解析資料</a>
+</div>
+<div class="md-toc-link-wrapper" data-level="2">
+  <a href="#参考msx版ファイナルファンタジー-解析資料" class="md-toc-link">参考：MSX版ファイナルファンタジー 解析資料</a>
 </div>
 </details>
 </details>
@@ -305,19 +376,31 @@
 <div class="md-toc-link-wrapper" data-level="2">
   <a href="#日本版rom用-文字定義ファイル" class="md-toc-link">日本版ROM用 文字定義ファイル</a>
 </div>
-<details open="" class="md-toc-details">
-<summary class="md-toc-link-wrapper" data-level="2">
+<div class="md-toc-link-wrapper" data-level="2">
   <a href="#日本版rom用-アドレス設定ファイル" class="md-toc-link">日本版ROM用 アドレス設定ファイル</a>
-</summary>
-<div class="md-toc-link-wrapper" data-level="3">
+</div>
+<div class="md-toc-link-wrapper" data-level="2">
   <a href="#注意事項" class="md-toc-link">注意事項</a>
 </div>
-</details>
 </details>
 </details>
 <div class="md-toc-link-wrapper" data-level="0">
   <a href="#binary-editor-bz---msx-custom-向け-エンコード定義ファイル" class="md-toc-link">Binary Editor Bz - MSX Custom 向け エンコード定義ファイル</a>
 </div>
+<details open="" class="md-toc-details">
+<summary class="md-toc-link-wrapper" data-level="0">
+  <a href="#msx版用ツール" class="md-toc-link">MSX版用ツール</a>
+</summary>
+<div class="md-toc-link-wrapper" data-level="1">
+  <a href="#saydostool" class="md-toc-link">SayDosTool</a>
+</div>
+<div class="md-toc-link-wrapper" data-level="1">
+  <a href="#ffpictool" class="md-toc-link">FFPicTool</a>
+</div>
+<div class="md-toc-link-wrapper" data-level="1">
+  <a href="#ffsprpreview" class="md-toc-link">FFSprPreview</a>
+</div>
+</details>
 </div>
 </div>
       <a id="sidebar-toc-btn">≡</a>

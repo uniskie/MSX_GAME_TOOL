@@ -14,15 +14,18 @@
 
 ## ファイル構成
 
-- ff1_editor.html
-- ff1_editor_world_map.js
-- ff1_editor_world_sprites.png
+- [ff1_editor.html](ff1_editor.html)
+- [ff1_editor_world_map.js](ff1_editor_world_map.js)
+- [ff1_editor_world_sprites.png](ff1_editor_world_sprites.png)
 
 ※ ff1_editor_world_map.js はローカル環境用の画像データです。ローカル環境ではjsコードから画像のピクセル情報を参照できない為、base64エンコードで用意した画像ファイルです。  
-`ff1_editor_world_map.png` を `bmp16_to_js.py` で変換しています。
+[ff1_editor_world_map.png](ff1_editor_world_map.png) を [bmp16_to_js.py](bmp16_to_js.py) で変換しています。
 
 オンライン環境（サーバ経由）であれば、
-`ff1_editor_world_map.js` の代わりに ` ff1_editor_world_map.png` があれば問題ありません。
+[ff1_editor_world_map.js](ff1_editor_world_map.js) の代わりに [ff1_editor_world_map.png](ff1_editor_world_map.png) があれば問題ありません。
+
+- ジョブ画像
+  [ff1_editor_class_icon.png](ff1_editor_class_icon.png)相当の画像を自分で用意して、`ff1_editor_class_chr.png`として配置しておくと、ジョブ画像として使用されます。
 
 ## 簡易ガイド
 
@@ -44,8 +47,8 @@
 
 簡易表示の場合
 
-- ff1_editor_world_map.png
-- ff1_editor_world_sprites.png
+- [ff1_editor_world_map.js](ff1_editor_world_map.js) または、 [ff1_editor_world_map.png](ff1_editor_world_map.png)
+- [ff1_editor_world_sprites.png](ff1_editor_world_sprites.png)
 
 を使用して表示します。
 
@@ -67,6 +70,36 @@
   拡大ビューがブロック塗りつぶしタイルではなくゲーム中のような表示になります。
 
   ![map_screenshot2](map_screenshot2.png)
+
+## エディタ用画像 → js変換
+
+- 16色BMP --> base64エンコード文字列
+  [bmp16_to_js.py](bmp16_to_js.py) ...  
+  [ff1_editor_world_map.bmp](ff1_editor_world_map.bmp) を jsソースに変換
+- 透明/不透明2値 → 1bppパターンデータ
+  [class_icon_to_js.py](class_icon_to_js.py)  
+  [ff1_editor_class_icon.png](ff1_editor_class_icon.png) を jsソースに変換
+
+## 参考資料
+
+### 参考：FC版 ファイナルファンタジー 解析資料
+
+- Data Crystal - Final Fantasy  
+  <https://datacrystal.tcrf.net/wiki/Final_Fantasy>
+- FFHacksterEX  
+  <https://ffhacksterex.digitaldreamers.org/>  
+  <https://github.com/ffhacksterex/FFHacksterEx/tree/v0.9.8.2-beta>
+- HakkinFF1  
+  <https://hakkinff1.digitaldreamers.org/index.html>
+
+### 参考：MSX版ファイナルファンタジー 解析資料
+
+- Final Fantasy MSX Performance Patch  
+  <https://github.com/abekermsx/Final-Fantasy-MSX-Performance-Patch>
+- Final Fantasy MSX2 Gfx De-Compressor  
+  <https://github.com/romh-acking/final-fantasy-msx2-de-compressor>
+- Final Fantasy MSX2 SayDos tool  
+  <https://github.com/romh-acking/final-fantasy-msx2-say-dos-tool/tree/master>
 
 ---
 
@@ -184,7 +217,7 @@ New ProjectからROMを読み込んで作成されたプロジェクトフォル
 
 をプロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。
 
-#### 注意事項
+### 注意事項
 
    ROMファイル名やパスには日本語を使わないでください。エラーになります。
 
@@ -206,4 +239,38 @@ New ProjectからROMを読み込んで作成されたプロジェクトフォル
 
 をコピー。
 
+---
 
+# MSX版用ツール
+
+## SayDosTool
+
+MSX版ファイナルファンタジーはSayDosというファイル管理システムと、戦闘用敵キャラクタの直接セクタアクセスを行っています。
+
+`SayDosTool.py`はそれらファイルの取り出し＆格納ツールです。
+
+- [SayDosTool.py](SayDosTool.py)
+- [doc/SayDosTool_specification.md](doc/SayDosTool_specification.md)
+
+## FFPicTool
+
+SayDosToolで取り出したファイルの中にある
+PICファイルはRLE圧縮画像ファイルです。
+
+`FFPicTool.py`は、このPICファイルを展開・圧縮するツールです。
+
+- [FFPicTool.py](FFPicTool.py)
+- [doc/FFPicTool_specification.md](doc/FFPicTool_specification.md)
+
+## FFSprPreview
+
+SayDosToolで取り出したファイルの中にあるSPRファイルはスプライトデータです。
+
+また、BDATA.TBLの末尾にもSPRファイル相当のデータが埋め込まれています。
+
+`FFSprPreview.html`はこのスプライトデータを表示閲覧するツールです。
+画像書き出しにも対応しています。
+
+[FFSprPreview.html](FFSprPreview.html)
+
+`*.SPR` か `BDATA.TBL` かでパレットを自動的に切り替えます。
