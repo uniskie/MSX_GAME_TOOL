@@ -102,8 +102,9 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
   }
-  select, button {
+  select, button, input[type="text"] {
     background: #f6f8fa;
     color: var(--text);
     border: 1px solid var(--border);
@@ -115,7 +116,10 @@
     outline: none;
     transition: 0.15s;
   }
-  select:hover, button:hover {
+  input[type="text"] {
+    cursor: text;
+  }
+  select:hover, button:hover, input[type="text"]:focus {
     background: #eef1f4;
     border-color: var(--border-hover);
   }
@@ -126,6 +130,22 @@
   }
   button.primary:hover { background: var(--accent-hover); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .offset-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .offset-group input {
+    width: 60px;
+    text-transform: uppercase;
+    font-family: monospace;
+    text-align: center;
+    padding: 6px 8px;
+  }
 
   main {
     flex: 1;
@@ -213,18 +233,28 @@
 
 <header>
   <div class="header-left">
-    <div class="title">MSX SPR VIEWER</div>
+    <div class="title">MSX FF SPR VIEWER</div>
     <div class="file-badge" id="fileInfo">ファイルを画面にドロップ</div>
     <div class="palette-strip" id="paletteStrip" title="パレット 0〜15"></div>
   </div>
 
   <div class="controls">
+    <div class="offset-group" title="スプライトデータの開始オフセット (16進数最大4桁)">
+      <span>Offset: 0x</span>
+      <input type="text" id="offsetInput" value="0000" maxlength="4" placeholder="0000">
+    </div>
+
+    <select id="paletteSelect" title="使用パレット切り替え">
+      <option value="map" selected>マップ用パレット</option>
+      <option value="battle">戦闘用パレット</option>
+    </select>
+
     <select id="viewMode">
       <option value="set" selected>3つセット重ね合わせ</option>
       <option value="single">個別スプライト (バラ)</option>
     </select>
     <button id="btnOpen">ファイル選択</button>
-    <input type="file" id="fileInput" accept=".spr,.bin,*.*" style="display:none">
+    <input type="file" id="fileInput" accept=".spr,.bin,.tbl,*.*" style="display:none">
     <button class="primary" id="btnExportBMP" disabled>BMP出力</button>
   </div>
 </header>
@@ -238,25 +268,51 @@
 </div>
 
 <script>
-// パレットテーブル定義 (JOBS_L1.json)
-const PALETTE = [
-  { index: 0,  rgb: [109, 109, 109] },
-  { index: 1,  rgb: [0, 0, 0] },
-  { index: 2,  rgb: [36, 36, 255] },
-  { index: 3,  rgb: [255, 255, 255] },
-  { index: 4,  rgb: [255, 182, 146] },
-  { index: 5,  rgb: [255, 36, 36] },
-  { index: 6,  rgb: [255, 146, 0] },
-  { index: 7,  rgb: [219, 73, 182] },
-  { index: 8,  rgb: [73, 146, 255] },
-  { index: 9,  rgb: [146, 219, 255] },
-  { index: 10, rgb: [0, 182, 0] },
-  { index: 11, rgb: [73, 255, 73] },
-  { index: 12, rgb: [219, 219, 36] },
-  { index: 13, rgb: [182, 182, 182] },
-  { index: 14, rgb: [0, 146, 0] },
-  { index: 15, rgb: [182, 255, 255] }
-];
+// パレット定義テーブル
+const PALETTES = {
+  map: {
+    name: "マップ用パレット",
+    colors: [
+      { index: 0,  rgb: [109, 109, 109] },
+      { index: 1,  rgb: [  0,   0,   0] },
+      { index: 2,  rgb: [ 36,  36, 255] },
+      { index: 3,  rgb: [255, 255, 255] },
+      { index: 4,  rgb: [255, 182, 146] },
+      { index: 5,  rgb: [255,  36,  36] },
+      { index: 6,  rgb: [255, 146,   0] },
+      { index: 7,  rgb: [219,  73, 182] },
+      { index: 8,  rgb: [ 73, 146, 255] },
+      { index: 9,  rgb: [146, 219, 255] },
+      { index: 10, rgb: [  0, 182,   0] },
+      { index: 11, rgb: [ 73, 255,  73] },
+      { index: 12, rgb: [219, 219,  36] },
+      { index: 13, rgb: [182, 182, 182] },
+      { index: 14, rgb: [  0, 146,   0] },
+      { index: 15, rgb: [182, 255, 255] }
+    ]
+  },
+  battle: {
+    name: "戦闘用パレット",
+    colors: [
+      { index: 0,  rgb: [  0,   0,   0] },
+      { index: 1,  rgb: [ 32,  80,  96] }, // エフェクト枠 暗 [0, 0, 0]
+      { index: 2,  rgb: [ 64, 128, 160] }, // エフェクト枠 明 [0, 0, 0]
+      { index: 3,  rgb: [255, 255, 255] },
+      { index: 4,  rgb: [255, 182, 146] },
+      { index: 5,  rgb: [255,  36,  36] },
+      { index: 6,  rgb: [255, 182,  36] },
+      { index: 7,  rgb: [219,  73, 182] },
+      { index: 8,  rgb: [ 36, 146, 255] },
+      { index: 9,  rgb: [182,  36,  36] },
+      { index: 10, rgb: [182, 109,  36] },
+      { index: 11, rgb: [146,  36, 109] },
+      { index: 12, rgb: [ 36, 146,  36] },
+      { index: 13, rgb: [ 36, 219,  36] },
+      { index: 14, rgb: [182, 182, 182] },
+      { index: 15, rgb: [ 36,  36, 255] }
+    ]
+  }
+};
 
 /**
  * 単一スプライト管理クラス (40バイト)
@@ -329,8 +385,6 @@ class SpriteSet {
   }
 
   compose() {
-    // MSX版ファイナルファンタジーではOR（CCビット）は使用していない。
-    // 手前プレーン優先（通常のスプライト重ね合わせ：plane0 > plane1 > plane2）
     for (let y = 0; y < 16; y++) {
       for (let x = 0; x < 16; x++) {
         let pixelColor = 0;
@@ -356,6 +410,7 @@ class SpriteSet {
 }
 
 // アプリケーション状態
+let currentBuffer = null;
 let rawSprites = [];
 let spriteSets = [];
 let currentFilename = "";
@@ -370,14 +425,42 @@ const btnOpen = document.getElementById('btnOpen');
 const btnExportBMP = document.getElementById('btnExportBMP');
 const viewMode = document.getElementById('viewMode');
 const paletteStrip = document.getElementById('paletteStrip');
+const offsetInput = document.getElementById('offsetInput');
+const paletteSelect = document.getElementById('paletteSelect');
 
-// パレットカラーバー描画
-PALETTE.forEach(p => {
-  const d = document.createElement('div');
-  d.className = 'palette-cell';
-  d.style.backgroundColor = `rgb(${p.rgb.join(',')})`;
-  paletteStrip.appendChild(d);
-});
+/**
+ * 現在選択されているパレットを取得
+ */
+function getCurrentPalette() {
+  const key = paletteSelect.value;
+  return PALETTES[key] ? PALETTES[key].colors : PALETTES.map.colors;
+}
+
+/**
+ * パレットカラーバー描画
+ */
+function updatePaletteStrip() {
+  paletteStrip.innerHTML = '';
+  const pal = getCurrentPalette();
+  pal.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'palette-cell';
+    d.style.backgroundColor = `rgb(${p.rgb.join(',')})`;
+    d.title = `#${p.index}: rgb(${p.rgb.join(',')})`;
+    paletteStrip.appendChild(d);
+  });
+}
+
+// 初期パレット描画
+updatePaletteStrip();
+
+/**
+ * 現在の入力欄からオフセット（数値）を取得
+ */
+function getStartOffset() {
+  const val = parseInt(offsetInput.value, 16);
+  return isNaN(val) ? 0 : Math.max(0, val);
+}
 
 /**
  * ファイル受付・特殊処理ルーティング
@@ -392,13 +475,23 @@ function handleFile(buffer, filename) {
     return;
   }
 
-  // 通常のSPRファイル読み込み
-  loadBuffer(buffer, filename);
+  // BDATA.TBLの場合は自動的に 0x1C70 かつ 戦闘用パレット、それ以外は 0000 かつ マップ用パレット
+  if (upperNew.includes("BDATA.TBL")) {
+    offsetInput.value = "1C70";
+    paletteSelect.value = "battle";
+  } else {
+    offsetInput.value = "0000";
+    paletteSelect.value = "map";
+  }
+
+  updatePaletteStrip();
+  currentBuffer = buffer;
+  currentFilename = filename || "SPRITES.SPR";
+  loadFromCurrentBuffer();
 }
 
 /**
- * EXTRA2.SPRによるカラーテーブル上書き処理 (1スプライト毎8バイト)
- * 元のカラーテーブルとの差異検出も行う
+ * EXTRA2.SPRによるカラーテーブル上書き処理
  */
 function applyExtra2ColorTable(buffer, filename) {
   const bytes = new Uint8Array(buffer);
@@ -414,12 +507,9 @@ function applyExtra2ColorTable(buffer, filename) {
     }
   }
 
-  // セット合成画像を再生成
   spriteSets.forEach(set => set.compose());
-
   extra2Applied = true;
 
-  // 差異状態ラベルの生成
   let diffLabel = "";
   if (diffCount > 0) {
     diffLabel = `<span class="diff-status has-diff">カラーテーブル差異あり: ${diffCount} / ${count} スプライト変更</span>`;
@@ -427,31 +517,36 @@ function applyExtra2ColorTable(buffer, filename) {
     diffLabel = `<span class="diff-status no-diff">カラーテーブル差異なし (完全一致)</span>`;
   }
 
-  fileInfo.innerHTML = `<b>${currentFilename} + ${filename}</b> (${spriteSets.length}セット / 計${spriteSets.length * 3}スプライト) ${diffLabel}`;
+  const offsetHex = getStartOffset().toString(16).toUpperCase().padStart(4, '0');
+  fileInfo.innerHTML = `<b>${currentFilename} + ${filename}</b> (Offset: 0x${offsetHex}) (${spriteSets.length}セット / 計${spriteSets.length * 3}スプライト) ${diffLabel}`;
   renderGrid();
 }
 
 /**
- * SPRバイナリデータ読み込み
- * 1スプライト = 40バイト (パターン32B + カラー8B)
+ * currentBuffer と現在のオフセットからスプライトをロード
  */
-function loadBuffer(buffer, filename) {
-  const bytes = new Uint8Array(buffer);
+function loadFromCurrentBuffer() {
+  if (!currentBuffer) return;
+
+  const startOffset = getStartOffset();
+  const fullBytes = new Uint8Array(currentBuffer);
+
   rawSprites = [];
   spriteSets = [];
   extra2Applied = false;
 
   const SPRITE_SIZE = 40;
-  const totalSprites = Math.floor(bytes.length / SPRITE_SIZE);
+  const availableBytes = Math.max(0, fullBytes.length - startOffset);
+  const totalSprites = Math.floor(availableBytes / SPRITE_SIZE);
 
   for (let i = 0; i < totalSprites; i++) {
-    const offset = i * SPRITE_SIZE;
-    const pat = bytes.subarray(offset, offset + 32);
-    const col = bytes.subarray(offset + 32, offset + 40);
+    const offset = startOffset + i * SPRITE_SIZE;
+    const pat = fullBytes.subarray(offset, offset + 32);
+    const col = fullBytes.subarray(offset + 32, offset + 40);
     rawSprites.push(new SpriteItem(i, pat, col));
   }
 
-  // 3スプライト1セットの構築（3の倍数を超えた末尾余剰分は無視）
+  // 3スプライト1セットの構築
   const setCount = Math.floor(totalSprites / 3);
   for (let s = 0; s < setCount; s++) {
     const p0 = rawSprites[s * 3];
@@ -460,8 +555,8 @@ function loadBuffer(buffer, filename) {
     spriteSets.push(new SpriteSet(s, p0, p1, p2));
   }
 
-  currentFilename = filename || "SPRITES.SPR";
-  fileInfo.innerHTML = `<b>${currentFilename}</b> (${setCount}セット / 計${setCount * 3}スプライト)`;
+  const offsetHex = startOffset.toString(16).toUpperCase().padStart(4, '0');
+  fileInfo.innerHTML = `<b>${currentFilename}</b> (Offset: 0x${offsetHex}) (${setCount}セット / 計${setCount * 3}スプライト)`;
   btnExportBMP.disabled = (setCount === 0);
 
   renderGrid();
@@ -469,14 +564,13 @@ function loadBuffer(buffer, filename) {
 
 /**
  * スプライトグリッド描画
- * 差異がある場合は DIFF バッジおよび枠線ハイライトを表示
  */
 function renderGrid() {
   spriteGrid.innerHTML = '';
   const isSetMode = (viewMode.value === 'set');
+  const palette = getCurrentPalette();
 
   if (isSetMode) {
-    // 3つセット重ね合わせ表示
     spriteSets.forEach((set) => {
       const card = document.createElement('div');
       card.className = 'sprite-card';
@@ -490,7 +584,7 @@ function renderGrid() {
 
       const canvas = document.createElement('canvas');
       canvas.className = 'checker-bg';
-      canvas.width = 48; // 16px * 3倍表示
+      canvas.width = 48; // 16px * 3倍
       canvas.height = 48;
       const ctx = canvas.getContext('2d');
 
@@ -498,7 +592,7 @@ function renderGrid() {
         for (let x = 0; x < 16; x++) {
           const col = set.getPixel(x, y);
           if (col !== 0) {
-            const rgb = PALETTE[col].rgb;
+            const rgb = palette[col].rgb;
             ctx.fillStyle = `rgb(${rgb.join(',')})`;
             ctx.fillRect(x * 3, y * 3, 3, 3);
           }
@@ -514,7 +608,6 @@ function renderGrid() {
       spriteGrid.appendChild(card);
     });
   } else {
-    // 個別スプライト表示（有効セット分）
     const validCount = spriteSets.length * 3;
     for (let i = 0; i < validCount; i++) {
       const sp = rawSprites[i];
@@ -537,7 +630,7 @@ function renderGrid() {
       for (let y = 0; y < 16; y++) {
         const col = sp.getColor(y);
         if (col === 0) continue;
-        const rgb = PALETTE[col].rgb;
+        const rgb = palette[col].rgb;
         ctx.fillStyle = `rgb(${rgb.join(',')})`;
 
         for (let x = 0; x < 16; x++) {
@@ -559,10 +652,11 @@ function renderGrid() {
 }
 
 /**
- * 横256px 4bitカラーBMP保存
+ * BMP保存
  */
 function exportBMP() {
   const isSetMode = (viewMode.value === 'set');
+  const palette = getCurrentPalette();
   const itemCount = isSetMode ? spriteSets.length : spriteSets.length * 3;
   if (itemCount === 0) return;
 
@@ -600,17 +694,16 @@ function exportBMP() {
   view.setUint32(46, 16, true);
   view.setUint32(50, 16, true);
 
-  // パレットテーブル (BGR0形式)
+  // パレットテーブル (BGR0)
   let pOff = 54;
   for (let i = 0; i < 16; i++) {
-    const rgb = PALETTE[i].rgb;
+    const rgb = palette[i].rgb;
     view.setUint8(pOff++, rgb[2]); // B
     view.setUint8(pOff++, rgb[1]); // G
     view.setUint8(pOff++, rgb[0]); // R
     view.setUint8(pOff++, 0);
   }
 
-  // フレームバッファ展開
   const frame = new Uint8Array(bmpW * bmpH);
 
   if (isSetMode) {
@@ -659,11 +752,31 @@ function exportBMP() {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   const baseName = currentFilename.replace(/\.[^/.]+$/, "");
+  const offsetHex = getStartOffset().toString(16).toUpperCase();
+  const offsetSuffix = (getStartOffset() !== 0) ? `_0x${offsetHex}` : "";
+  const palSuffix = `_${paletteSelect.value}`;
   const suffix = (extra2Applied ? "_EXTRA2" : "") + (isSetMode ? "_sets" : "_single");
-  a.download = baseName + suffix + ".bmp";
+  a.download = baseName + offsetSuffix + palSuffix + suffix + ".bmp";
   a.click();
   URL.revokeObjectURL(a.href);
 }
+
+// パレット選択切り替え
+paletteSelect.addEventListener('change', () => {
+  updatePaletteStrip();
+  renderGrid();
+});
+
+// オフセット入力値制御 & リアルタイム再描画
+offsetInput.addEventListener('input', (e) => {
+  const cleaned = e.target.value.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
+  if (e.target.value !== cleaned) {
+    e.target.value = cleaned;
+  }
+  if (currentBuffer) {
+    loadFromCurrentBuffer();
+  }
+});
 
 // 全画面ドラッグ＆ドロップ制御
 let dragCounter = 0;
