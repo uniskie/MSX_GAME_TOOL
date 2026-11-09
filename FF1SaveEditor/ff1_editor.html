@@ -2257,8 +2257,8 @@ class GameDataManager {
     ])
   ];
 
-  // FC版 PRG-ROM内オフセット定数
-  static FC_OFFSETS = {
+  // FC版 PRG-ROM内オフセット定数 (日本版)
+  static FC_OFFSETS_JP = {
     weapons: 0x30000,
     armors: 0x30140,
     expTable: 0x2CFFD,
@@ -2267,6 +2267,51 @@ class GameDataManager {
     battlePalettes: 0x2C34,         // Bank 15 (Fixed Bank) 内オフセット
     jobPaletteAssignment: 0x2D33    // Bank 15 (Fixed Bank) 内オフセット
   };
+
+  // FC版 PRG-ROM内オフセット定数 (北米版: Bank 0F が -143バイト / -0x8F)
+  static FC_OFFSETS_US = {
+    weapons: 0x30000,
+    armors: 0x30140,
+    expTable: 0x2CFFD,
+    growth: 0x2D094,
+    initialStats: 0x003041,
+    battlePalettes: 0x2BA5,         // Bank 15 (Fixed Bank) 内オフセット
+    jobPaletteAssignment: 0x2CA4    // Bank 15 (Fixed Bank) 内オフセット
+  };
+
+  // 実行時参照用オフセット定数 (初期値は日本版)
+  static FC_OFFSETS = this.FC_OFFSETS_JP;
+  static currentFcRegion = 'jp';
+
+  // ROMのリージョン判定 (JP版 / US版)
+  static detectFcRegion(rom) {
+    const fixedBankOffset = this.getBankOffset(rom, 15);
+
+    // クラス別戦闘パレット割当テーブル (12バイト) の妥当性検査
+    // パレット番号は0〜3の値を取り、プログラムコード配置領域の場合は0x80以上のオペコード等が出現する
+    const isValidAssignment = (bankOff, palOff) => {
+      const start = bankOff + palOff;
+      if (start + 12 > rom.length) return false;
+      for (let i = 0; i < 12; i++) {
+        if (rom[start + i] > 3) return false;
+      }
+      return true;
+    };
+
+    const isJp = isValidAssignment(fixedBankOffset, this.FC_OFFSETS_JP.jobPaletteAssignment);
+    const isUs = isValidAssignment(fixedBankOffset, this.FC_OFFSETS_US.jobPaletteAssignment);
+
+    if (isJp && !isUs) return 'jp';
+    if (!isJp && isUs) return 'us';
+
+    // パレットデータ先頭バイトによるフォールバック (NESカラーコード $00〜$3F の範囲内か)
+    const jpPalVal = rom[fixedBankOffset + this.FC_OFFSETS_JP.battlePalettes];
+    const usPalVal = rom[fixedBankOffset + this.FC_OFFSETS_US.battlePalettes];
+    if (jpPalVal <= 0x3F && usPalVal > 0x3F) return 'jp';
+    if (usPalVal <= 0x3F && jpPalVal > 0x3F) return 'us';
+
+    return 'jp';
+  }
 
   // MSX版 BDATA.TBL内オフセット定数
   static MSX_BDATA_OFFSETS = {
@@ -2299,6 +2344,21 @@ class GameDataManager {
   static classSprites = [];
   static presetClassImage = null;
 
+  // 北米版 (US) 標準成長テーブル (赤魔術士 Lv.21 のMP成長が 0x31)
+  static get standardGrowthUS() {
+    if (!this._standardGrowthUS) {
+      this._standardGrowthUS = this.standard.growth.map((jobList, jIdx) => {
+        return jobList.map((entry, lvIdx) => {
+          if (jIdx === 3 && lvIdx === 19) {
+            return [0x0E, 0x31]; // 赤魔術士 Lv.21: L1/L5/L6 MP上昇
+          }
+          return [entry[0], entry[1]];
+        });
+      });
+    }
+    return this._standardGrowthUS;
+  }
+
   static currentSource = 'standard';
 
   static get activeExpTable() {
@@ -2308,7 +2368,10 @@ class GameDataManager {
     return (this.currentSource === 'rom' && this.romData.initialStats) ? this.romData.initialStats : this.standard.initialStats;
   }
   static get activeGrowth() {
-    return (this.currentSource === 'rom' && this.romData.growth) ? this.romData.growth : this.standard.growth;
+    if (this.currentSource === 'rom' && this.romData.growth) {
+      return this.romData.growth;
+    }
+    return (this.currentFcRegion === 'us') ? this.standardGrowthUS : this.standard.growth;
   }
   static get activePalettes() {
     return (this.romData.battlePalettes) ? this.romData.battlePalettes : this.standard.battlePalettes;
@@ -2378,8 +2441,14 @@ class GameDataManager {
     this.romData.loaded = true;
     this.romData.diffList = [];
     this.romData.diffDetected = false;
+
+    // ROMのリージョン判定およびオフセットテーブルの動的切り替え
+    this.currentFcRegion = this.detectFcRegion(rom);
+    this.FC_OFFSETS = (this.currentFcRegion === 'us') ? this.FC_OFFSETS_US : this.FC_OFFSETS_JP;
+
+    const regionTitle = (this.currentFcRegion === 'us') ? "NES版 ROM (US)" : "FC版 ROM (JP)";
     this.lastDiffFileName = fileName || loadedRomOrDskFileName || "";
-    this.lastDiffSourceTitle = "FC版 ROM";
+    this.lastDiffSourceTitle = regionTitle;
 
     const prgStart = this.getPrgStartOffset(rom);
     const fc = this.FC_OFFSETS;
@@ -2464,7 +2533,8 @@ class GameDataManager {
           const mpByte = rom[o + 1];
           jobGrowth.push([statByte, mpByte]);
 
-          const stdEntry = this.standard.growth[job][lv];
+          const stdGrowthTable = (this.currentFcRegion === 'us') ? this.standardGrowthUS : this.standard.growth;
+          const stdEntry = stdGrowthTable[job][lv];
           if (statByte !== stdEntry[0] || mpByte !== stdEntry[1]) {
             diffReports.growth.push({
               "ジョブ": JOBS[job], "Lv": lv + 2,
@@ -3786,11 +3856,12 @@ function handleLoadedFile(file, forceRole = null) {
       WorldMapViewer.loadFromROM(nesRom);
       
       const romStatusEl = document.getElementById('romStatus');
+      const regionBadge = (GameDataManager.currentFcRegion === 'us') ? ' [US版]' : ' [JP版]';
       if (GameDataManager.romData.diffDetected) {
         const diffStr = GameDataManager.romData.diffList.join(", ");
-        romStatusEl.innerHTML = `【ROM】${file.name} 読込完了 <span class="tag-diff" style="cursor:pointer;" onclick="GameDataManager.showDiffPopup()" title="クリックで差異一覧を表示">改変検知: ${diffStr}</span> [ROM準拠適用中]`;
+        romStatusEl.innerHTML = `【ROM】${file.name}${regionBadge} 読込完了 <span class="tag-diff" style="cursor:pointer;" onclick="GameDataManager.showDiffPopup()" title="クリックで差異一覧を表示">改変検知: ${diffStr}</span> [ROM準拠適用中]`;
       } else {
-        romStatusEl.innerText = `【ROM】${file.name} 読込完了 (標準仕様と一致)`;
+        romStatusEl.innerText = `【ROM】${file.name}${regionBadge} 読込完了 (標準仕様)`;
       }
 
       for (let c = 0; c < 4; c++) renderCharSprite(c);
@@ -3816,7 +3887,7 @@ function handleLoadedFile(file, forceRole = null) {
           const diffStr = GameDataManager.romData.diffList.join(", ");
           romStatusEl.innerHTML = `【DSK】${file.name} 読込完了 <span class="tag-diff" style="cursor:pointer;" onclick="GameDataManager.showDiffPopup()" title="クリックで差異一覧を表示">改変検知: ${diffStr}</span> [DSK準拠適用中]`;
         } else {
-          romStatusEl.innerText = `【DSK】${file.name} 読込完了 (標準仕様と一致)`;
+          romStatusEl.innerText = `【DSK】${file.name} 読込完了 (標準仕様)`;
         }
 
         for (let c = 0; c < 4; c++) renderCharSprite(c);

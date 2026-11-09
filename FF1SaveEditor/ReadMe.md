@@ -71,6 +71,8 @@
 
   ![map_screenshot2](map_screenshot2.png)
 
+- ファミコン版ROMはUS版/JP版両対応（自動判定）です。
+
 ## エディタ用画像 → js変換
 
 - 16色BMP --> base64エンコード文字列
