@@ -4,7 +4,7 @@
 ff1_msx_bugfix_btl.py
 
 MSX2版『ファイナルファンタジー』（マイクロキャビン移植）のDSKイメージに対し、
-戦闘関連の不具合修正（FF1J_Bugfixes 相当）を適用するパッチスクリプト。
+戦闘関連およびフィールド・マップ関連の不具合修正（FF1J_Bugfixes 相当）を適用するパッチスクリプト。
 
 -------------------------------------------------------------------------------
 メモリマップとパッチ配置構成
@@ -43,15 +43,23 @@ BATTLE.COM 実行時におけるメインRAMの配置:
    0x8C66（ファイルオフセット 0x0C67）のクリア長を 0x02FF から 0x022D に縮小し、
    味方・敵バッファ（0x3400〜0x362D）のみを初期化対象とすることで 0x362E 以降を保護。
 
-4. インライン修正:
+4. インライン修正 (BATTLE.COM):
    ・パッチ10: 睡眠麻痺時回避率0化＆攻撃力1.25倍計算 (0x9571〜0x958B, 27バイト枠)
    ・パッチ07: 敵睡眠起床判定の固定確率化 (0xBA08〜0xBA1A, 19バイト枠)
    ・パッチ05: 敵弱点属性の種族属性による上書き解除 (0x9C52〜0x9C57, 6バイト枠)
 
-5. 外部データ修正:
-   ・パッチ08: ヒーラ効果値正常化 (BDATA.TBL 0x02F9)
-   ・パッチ09: シェイラ効果ルーチン正常化 (BDATA.TBL 0x029C)
-   ・パッチ11: ストライ効果ルーチン正常化 (BDATA.TBL 0x0254)
+5. フィールド・会話・調査修正 (SMAP.COM):
+   ・オンラク潜水艇老人のオーブ参照修正 (0x9448: 風0xC214 -> 水0xC213)
+   ・クレセント湖12賢者の土オーブ判定修正 (0x9726: 00H -> 01H)
+   ・4大祭壇の調査メッセージ判定修正 (0x8077〜0x808C: 22バイト枠内ロジック再構成)
+
+6. 配置・マップデータ修正 (EXDATA1.COM / SUB05.MAP / BDATA.TBL):
+   ・コーネリア城1F女性NPCの部屋属性修正 (EXDATA1.COM: 室内01 -> 室外00)
+   ・滝の洞窟コウモリNPC初期Y座標修正 (EXDATA1.COM: 壁Y=3 -> 通路Y=4)
+   ・ガイアの妖精の泉タイル復元 (SUB05.MAP: 38H -> BBH)
+   ・ヒーラ効果値正常化 (BDATA.TBL: 0x02F9)
+   ・シェイラ効果ルーチン正常化 (BDATA.TBL: 0x029C)
+   ・ストライ効果ルーチン正常化 (BDATA.TBL: 0x0254)
 -------------------------------------------------------------------------------
 """
 
@@ -208,6 +216,18 @@ def build_patch_plan() -> List[PatchEntry]:
             hex_to_bytes("0D"),
             hex_to_bytes("0B"),
             "パッチ11: ストライ効果ルーチン修正 (攻撃力+命中率UP -> 攻撃力UPのみ)",
+        )
+    )
+    
+    # パッチ11: セーバー基礎命中率上昇値の修正 (SABR Accuracy Bug)
+    # BDATA.TBL オフセット 0x0390: 命中上昇値 0(00H) から 10(0AH) へ修正
+    patches.append(
+        PatchEntry(
+            "BDATA.TBL",
+            0x0390,
+            hex_to_bytes("00"),
+            hex_to_bytes("0A"),
+            "パッチ11: セーバー基礎命中率上昇値設定 (0 -> 10)",
         )
     )
 
@@ -369,7 +389,6 @@ def build_patch_plan() -> List[PatchEntry]:
     )
 
     # パッチ07: 敵睡眠起床判定の固定確率化 (Enemy Waking Bug / 0xBA08〜0xBA1A, 19B枠)
-    # 最大HP比較を廃止し、乱数取得 (CALL 5085H) で約10% (25/256) の固定確率で起床
     patches.append(
         PatchEntry(
             "BATTLE.COM",
@@ -480,8 +499,6 @@ def build_patch_plan() -> List[PatchEntry]:
     patch13_code = hex_to_bytes("CD 1B 86 CD 4F 86 38 05 CD 7B 86 18 F3 C3 40 85")
 
     # パッチ14: 知性魔法威力反映・改定版 (50バイト: 0x3663〜0x3694)
-    # ・通常攻撃魔法(01H)およびディア系(02H)は INT / 2 を加算
-    # ・ケアル系回復魔法(07H)は原典準拠で2倍の知性ボーナス (INT 全量) を加算
     patch14_code = hex_to_bytes(
         "FD 7E 07 32 06 A2 3A D5 BC D6 80 38 24 47 3A C8 BC B7 20 1D "
         "78 0F 0F C6 12 6F 26 C0 46 3A 03 A2 FE 07 28 07 3D FE 02 30 "
@@ -494,9 +511,6 @@ def build_patch_plan() -> List[PatchEntry]:
     )
 
     # パッチ15: 敵毒ダメージ(2HP)＆リジェネレーション処理 (80バイト: 0x36B0〜0x36FF)
-    # ・生存敵(HP>0)を走査
-    # ・種族属性 bit 7 (0x80) が立っていれば HP + 2 (最大HPでクリッピング)
-    # ・状態異常 bit 2 (0x04) が立っていれば HP - 2 (HP<=0 で消滅ルーチン 0xBB89 呼出)
     patch15_code = hex_to_bytes(
         "DD 21 20 35 01 00 09 DD 6E 04 DD 66 05 7C B5 28 2F DD CB 13 7E "
         "28 0B 23 23 DD 5E 1B DD 56 1C CD F0 80 38 01 EB DD CB 17 56 28 "
@@ -506,17 +520,16 @@ def build_patch_plan() -> List[PatchEntry]:
 
     # 常駐領域B用データブロック連結 (計210バイト == 210バイト枠)
     payload_362e = (
-        patch11_load_code   # 0x362E: 18バイト
-        + patch11_save_code # 0x3640: 19バイト
-        + patch13_code      # 0x3653: 16バイト
-        + patch14_code      # 0x3663: 50バイト
-        + patch16_code      # 0x3695: 27バイト
-        + patch15_code      # 0x36B0: 80バイト
+        patch11_load_code
+        + patch11_save_code
+        + patch13_code
+        + patch14_code
+        + patch16_code
+        + patch15_code
     )
     assert len(payload_362e) == 210, f"常駐Bサイズ不整合: {len(payload_362e)} != 210"
 
     # 常駐領域Bへのフック
-    # パッチ11 読込フック (0x9C0D: JP 0362EH)
     patches.append(
         PatchEntry(
             "BATTLE.COM",
@@ -526,7 +539,6 @@ def build_patch_plan() -> List[PatchEntry]:
             "パッチ11: 味方攻撃力・命中率読込フック (0x9C0D -> 0x362E)",
         )
     )
-    # パッチ11 保存フック (0x9D00: JP 03640H)
     patches.append(
         PatchEntry(
             "BATTLE.COM",
@@ -536,7 +548,6 @@ def build_patch_plan() -> List[PatchEntry]:
             "パッチ11: 味方攻撃力・命中率保存フック (0x9D00 -> 0x3640)",
         )
     )
-    # パッチ13 フック (0x8538: JP 03653H)
     patches.append(
         PatchEntry(
             "BATTLE.COM",
@@ -546,7 +557,6 @@ def build_patch_plan() -> List[PatchEntry]:
             "パッチ13: 複数レベルアップ判定ループフック (0x8538 -> 0x3653)",
         )
     )
-    # パッチ14 フック (0x9AB5: JP 03663H)
     patches.append(
         PatchEntry(
             "BATTLE.COM",
@@ -556,7 +566,6 @@ def build_patch_plan() -> List[PatchEntry]:
             "パッチ14: 知性反映フック・ディア系＆回復2倍対応 (0x9AB5 -> 0x3663)",
         )
     )
-    # パッチ16 フック (0x8964: JP 03695H)
     patches.append(
         PatchEntry(
             "BATTLE.COM",
@@ -566,7 +575,6 @@ def build_patch_plan() -> List[PatchEntry]:
             "パッチ16: モンク素手防御力計算フック (0x8964 -> 0x3695)",
         )
     )
-    # パッチ15 フック (0x8504: JP 036B0H)
     patches.append(
         PatchEntry(
             "BATTLE.COM",
@@ -581,7 +589,6 @@ def build_patch_plan() -> List[PatchEntry]:
     # 5. 起動時転送処理 (0x8004 フック & 0xBD00 ローダー)
     # =========================================================================
 
-    # 0x8000 の LD (.X80C2), SP (4バイト) を保持し、直後の 0x8004 (CALL 7394H) をフック
     patches.append(
         PatchEntry(
             "BATTLE.COM",
@@ -592,8 +599,6 @@ def build_patch_plan() -> List[PatchEntry]:
         )
     )
 
-    # 起動時転送ローダー (0xBD00〜0xBD0D, 14バイト) ＋ パディング (2バイト) ＋ パッチ実体 (210バイト)
-    # 転送サイズ: BC = 00D2H (210バイト)
     loader_bytes = hex_to_bytes("21 10 BD 11 2E 36 01 D2 00 ED B0 C3 94 73 00 00")  # 16バイト
     loader_and_payload = loader_bytes + payload_362e  # 計 226バイト
 
@@ -607,55 +612,144 @@ def build_patch_plan() -> List[PatchEntry]:
         )
     )
 
+    # =========================================================================
+    # 6. SMAP.COM 会話・フラグ・調査判定修正
+    # =========================================================================
+
+    # オンラク潜水艇前の老人のオーブ参照修正 (Dialogue Bug)
+    # RAMアドレス 0x9448 (オフセット 0x1448): 0xC214(風) -> 0xC213(水)
+    patches.append(
+        PatchEntry(
+            "SMAP.COM",
+            0x1448,
+            hex_to_bytes("3A 14 C2"),
+            hex_to_bytes("3A 13 C2"),
+            "会話フラグ: オンラク潜水艇前の老人のオーブ参照修正 (風0xC214 -> 水0xC213)",
+        )
+    )
+
+    # クレセント湖12賢者の土オーブ判定修正 (Circle of Sages Bug)
+    # RAMアドレス 0x9726 (オフセット 0x1726): CP 00H -> CP 01H
+    patches.append(
+        PatchEntry(
+            "SMAP.COM",
+            0x1726,
+            hex_to_bytes("FE 00"),
+            hex_to_bytes("FE 01"),
+            "会話フラグ: クレセント湖12賢者の土オーブ判定修正 (未点灯00H -> 点灯01H)",
+        )
+    )
+
+    # 4大祭壇の調査メッセージ不発の修正 (Nondescript Altars Bug)
+    # RAMアドレス 0x8077〜0x808C (オフセット 0x0077〜0x008C, 22バイト枠)
+    # 火・風の祭壇タイルの固定敵ビット(0x40)による除外を緩和
+    patches.append(
+        PatchEntry(
+            "SMAP.COM",
+            0x0077,
+            hex_to_bytes("3A 59 C2 E6 C0 C0 3A 59 C2 E6 1E FE 0A C8 3A 59 C2 E6 1E FE 02 C8"),
+            hex_to_bytes("3A 59 C2 E6 1E FE 18 30 08 B7 C0 3A 59 C2 E6 C0 C0 00 00 00 00 00"),
+            "調査判定: 4大祭壇の調査メッセージ判定修正 (火・風祭壇の調査判定緩和)",
+        )
+    )
+
+    # =========================================================================
+    # 7. EXDATA1.COM NPC初期配置修正
+    # =========================================================================
+
+    # コーネリア城1Fの見えない女性 (Invisible Lady)
+    # マップID 0x08, エントリ7: オフセット 0x0878 (部屋属性フラグ +0x08)
+    patches.append(
+        PatchEntry(
+            "EXDATA1.COM",
+            0x0878,
+            hex_to_bytes("01"),
+            hex_to_bytes("00"),
+            "NPC配置: コーネリア城1F女性NPCの部屋属性修正 (室内01 -> 室外00)",
+        )
+    )
+
+    # 滝の洞窟の壁コウモリ (Wall Bat)
+    # マップID 0x12, エントリ1: コウモリNPCの初期Y座標修正 (Y=3 -> Y=4)
+    patches.append(
+        PatchEntry(
+            "EXDATA1.COM",
+            0x1213,
+            hex_to_bytes("06"),
+            hex_to_bytes("08"),
+            "NPC配置: 滝の洞窟コウモリNPC初期ピクセルY座標修正 (Y=6 -> Y=8)",
+        )
+    )
+    patches.append(
+        PatchEntry(
+            "EXDATA1.COM",
+            0x121B,
+            hex_to_bytes("03"),
+            hex_to_bytes("04"),
+            "NPC配置: 滝の洞窟コウモリNPC初期タイルY座標修正 (壁Y=3 -> 通路Y=4)",
+        )
+    )
+
+    # =========================================================================
+    # 8. SUB05.MAP マップタイル修正
+    # =========================================================================
+
+    # ガイアの泉タイルの復元 (Gaia Fairy Spring Tile)
+    # 南側から話しかける正面タイル: オフセット 0x00B2 を水際タイル 0x38 から 泉タイル 0xBB へ変更
+    patches.append(
+        PatchEntry(
+            "SUB05.MAP",
+            0x00B2,
+            hex_to_bytes("38"),
+            hex_to_bytes("BB"),
+            "マップタイル: ガイアの妖精の泉タイル復元 (通常タイル38 -> 会話可能泉タイルBB)",
+        )
+    )
+
     return patches
 
 
 def print_memory_map() -> None:
-    """メモリマップおよび常駐アドレス対応表を表示"""
+    """メモリマップおよびパッチ対応表を表示"""
     print("=" * 78)
-    print("【MSX2版 FF1 戦闘不具合修正 メモリ配置・常駐アドレス設計】")
+    print("【MSX2版 FF1 不具合修正 メモリ配置・パッチ構成】")
     print("=" * 78)
-    print("1. 領域の選定根拠とアドレス範囲:")
+    print("1. BATTLE.COM 実行時メモリ設計:")
     print("  ・常駐領域A       : 0xBCDD - 0xBCFB (31バイト / 35バイト枠)")
-    print("                       戦闘ワーク直後の空き領域 (0xBCDD〜0xBCFF)。")
-    print("                       BATTLE.COM 内に直接格納 (転送不要)。パッチ06, 07が常駐。")
+    print("                       戦闘ワーク直後の空き領域。BATTLE.COM 内に直接格納。")
     print("  ・常駐領域B       : 0x362E - 0x36FF (210バイト / 210バイト枠)")
-    print("                       戦闘バッファ直後の領域 (0x362E〜0x36FF)。")
-    print("                       0x8C66 のクリア長縮小 (0x2FF->0x22D) により戦闘中保護。")
-    print("                       パッチ11L, 11S, 13, 14, 16, 15が常駐。")
+    print("                       戦闘バッファ直後の領域。0x8C66 のクリア長縮小により保護。")
     print("  ・インライン領域   : 0x9571 - 0x958B (27バイト枠: パッチ10 回避0化＆1.25倍)")
     print("                       0xBA08 - 0xBA1A (19バイト枠: パッチ07 敵睡眠起床判定)")
     print("                       0x9C52 - 0x9C57 (6バイト枠 : パッチ05 敵弱点属性保護)")
     print("  ・一時格納領域     : 0xBD00 - 0xBDE1 (226バイト)")
-    print("                       BATTLE.COM 末尾。BGM停止状態でロード直後 0x8004 から転送。")
+    print("                       BATTLE.COM 末尾。ロード直後 0x8004 から 0x362E へ転送。")
     print("-" * 78)
-    print("2. 追加ルーチンの配置詳細:")
-    print("  " + pad_str("配置先 (RAM)", 17) + " " + pad_str("サイズ", 8) + " ルーチン名称")
-    print(f"  {'-'*17} {'-'*8} {'-'*48}")
-    print(f"  {pad_str('0xBCDD - 0xBCE8', 17)} {pad_str('12バイト', 8)} パッチ06: アイテム沈黙判定回避")
-    print(f"  {pad_str('0xBCE9 - 0xBCFB', 17)} {pad_str('19バイト', 8)} パッチ07: 敵耐性・命中率保存")
-    print(f"  {pad_str('0x362E - 0x363F', 17)} {pad_str('18バイト', 8)} パッチ11: 味方攻撃力・命中率読込")
-    print(f"  {pad_str('0x3640 - 0x3652', 17)} {pad_str('19バイト', 8)} パッチ11: 味方攻撃力・命中率保存")
-    print(f"  {pad_str('0x3653 - 0x3662', 17)} {pad_str('16バイト', 8)} パッチ13: 複数レベルアップループ")
-    print(f"  {pad_str('0x3663 - 0x3694', 17)} {pad_str('50バイト', 8)} パッチ14: 知性反映 (ディア系・回復2倍)")
-    print(f"  {pad_str('0x3695 - 0x36AF', 17)} {pad_str('27バイト', 8)} パッチ16: モンク素手防御力計算")
-    print(f"  {pad_str('0x36B0 - 0x36FF', 17)} {pad_str('80バイト', 8)} パッチ15: 敵毒(2HP)＆リジェネ処理")
-    print(f"  {pad_str('0x9571 - 0x958B', 17)} {pad_str('27バイト', 8)} パッチ10: 睡眠麻痺時 回避0化 (インライン)")
-    print(f"  {pad_str('0xBA08 - 0xBA1A', 17)} {pad_str('19バイト', 8)} パッチ07: 敵睡眠起床判定 (インライン)")
-    print(f"  {pad_str('0x9C52 - 0x9C57', 17)} {pad_str('6バイト', 8)} パッチ05: 敵弱点属性保護 (インライン)")
+    print("2. 追加ルーチン・フック対応表 (BATTLE.COM):")
+    print("  " + pad_str("フック元", 18) + " " + pad_str("分岐先", 10) + " " + pad_str("種別", 6) + " 対象処理")
+    print(f"  {'-'*18} {'-'*10} {'-'*6} {'-'*40}")
+    print(f"  {pad_str('0x987D (BATTLE)', 18)} {pad_str('0xBCDD', 10)} {pad_str('CALL', 6)} パッチ06: アイテム沈黙チェック回避")
+    print(f"  {pad_str('0x9CA7 (BATTLE)', 18)} {pad_str('0xBCE9', 10)} {pad_str('JP', 6)} パッチ07: 敵耐性・命中率保存")
+    print(f"  {pad_str('0x9C0D (BATTLE)', 18)} {pad_str('0x362E', 10)} {pad_str('JP', 6)} パッチ11: 味方攻撃力・命中率読込")
+    print(f"  {pad_str('0x9D00 (BATTLE)', 18)} {pad_str('0x3640', 10)} {pad_str('JP', 6)} パッチ11: 味方攻撃力・命中率保存")
+    print(f"  {pad_str('0x8538 (BATTLE)', 18)} {pad_str('0x3653', 10)} {pad_str('JP', 6)} パッチ13: 複数レベルアップループ")
+    print(f"  {pad_str('0x9AB5 (BATTLE)', 18)} {pad_str('0x3663', 10)} {pad_str('JP', 6)} パッチ14: 知性反映 (ディア・回復2倍)")
+    print(f"  {pad_str('0x8964 (BATTLE)', 18)} {pad_str('0x3695', 10)} {pad_str('JP', 6)} パッチ16: モンク素手防御力計算")
+    print(f"  {pad_str('0x8504 (BATTLE)', 18)} {pad_str('0x36B0', 10)} {pad_str('JP', 6)} パッチ15: 敵毒＆リジェネ処理")
+    print(f"  {pad_str('0x8004 (BATTLE)', 18)} {pad_str('0xBD00', 10)} {pad_str('CALL', 6)} 起動時転送ローダー呼出 (SP退避後)")
     print("-" * 78)
-    print("3. フック呼び出し対応表:")
-    print("  " + pad_str("フック元アドレス", 22) + " " + pad_str("分岐先", 8) + " " + pad_str("種別", 6) + " 対象処理")
-    print(f"  {'-'*22} {'-'*8} {'-'*6} {'-'*38}")
-    print(f"  {pad_str('0x987D (BATTLE.COM)', 22)} {pad_str('0xBCDD', 8)} {pad_str('CALL', 6)} パッチ06: アイテム沈黙チェック回避")
-    print(f"  {pad_str('0x9CA7 (BATTLE.COM)', 22)} {pad_str('0xBCE9', 8)} {pad_str('JP', 6)} パッチ07: 敵耐性・命中率保存")
-    print(f"  {pad_str('0x9C0D (BATTLE.COM)', 22)} {pad_str('0x362E', 8)} {pad_str('JP', 6)} パッチ11: 味方攻撃力・命中率読込")
-    print(f"  {pad_str('0x9D00 (BATTLE.COM)', 22)} {pad_str('0x3640', 8)} {pad_str('JP', 6)} パッチ11: 味方攻撃力・命中率保存")
-    print(f"  {pad_str('0x8538 (BATTLE.COM)', 22)} {pad_str('0x3653', 8)} {pad_str('JP', 6)} パッチ13: 複数レベルアップループ")
-    print(f"  {pad_str('0x9AB5 (BATTLE.COM)', 22)} {pad_str('0x3663', 8)} {pad_str('JP', 6)} パッチ14: 知性反映 (ディア・回復2倍)")
-    print(f"  {pad_str('0x8964 (BATTLE.COM)', 22)} {pad_str('0x3695', 8)} {pad_str('JP', 6)} パッチ16: モンク素手防御力計算")
-    print(f"  {pad_str('0x8504 (BATTLE.COM)', 22)} {pad_str('0x36B0', 8)} {pad_str('JP', 6)} パッチ15: 敵毒＆リジェネ処理")
-    print(f"  {pad_str('0x8004 (BATTLE.COM)', 22)} {pad_str('0xBD00', 8)} {pad_str('CALL', 6)} 起動時転送ローダー呼出 (SP退避後)")
+    print("3. フィールド・会話・マップ・配置修正一覧:")
+    print("  " + pad_str("対象ファイル", 14) + " " + pad_str("オフセット", 12) + " 修正内容")
+    print(f"  {'-'*14} {'-'*12} {'-'*48}")
+    print(f"  {pad_str('SMAP.COM', 14)} {pad_str('0x1448', 12)} オンラク潜水艇前の老人のオーブ参照修正 (風 -> 水)")
+    print(f"  {pad_str('SMAP.COM', 14)} {pad_str('0x1726', 12)} クレセント湖12賢者の土オーブ判定修正 (00H -> 01H)")
+    print(f"  {pad_str('SMAP.COM', 14)} {pad_str('0x0077', 12)} 4大祭壇の調査メッセージ判定修正 (火・風祭壇)")
+    print(f"  {pad_str('EXDATA1.COM', 14)} {pad_str('0x0878', 12)} コーネリア城1F女性NPCの部屋属性修正 (室内 -> 室外)")
+    print(f"  {pad_str('EXDATA1.COM', 14)} {pad_str('0x1213/1B', 12)} 滝の洞窟コウモリNPC初期Y座標修正 (Y=3 -> Y=4)")
+    print(f"  {pad_str('SUB05.MAP', 14)} {pad_str('0x00B2', 12)} ガイアの妖精の泉タイル復元 (通常水際 -> 泉タイル)")
+    print(f"  {pad_str('BDATA.TBL', 14)} {pad_str('0x0254', 12)} ストライ効果ルーチン修正 (攻撃力UPのみ)")
+    print(f"  {pad_str('BDATA.TBL', 14)} {pad_str('0x029C', 12)} シェイラ効果ルーチン修正 (回避低下)")
+    print(f"  {pad_str('BDATA.TBL', 14)} {pad_str('0x02F9', 12)} ヒーラ効果値適正化 (48 -> 24)")
     print("=" * 78)
 
 
@@ -735,7 +829,7 @@ def main() -> None:
 
     print(f"検出ファイル数: {len(file_map)} 件")
 
-    # メモリマップ表示
+    # メモリマップ・修正概要表示
     print("\n")
     print_memory_map()
     print("\n")

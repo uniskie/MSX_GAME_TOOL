@@ -146,6 +146,29 @@ MSX2版ファイナルファンタジーは
 
 ---
 
+## MSX2版 バトルバグ修正パッチ
+
+[ff1_msx_bugfix_btl.py](ff1_msx_bugfix_btl.py)
+
+※ 実行はpython3.14.6推奨。
+
+```text
+py ff1_msx_bugfix_btl.py 元DSKパス パッチ後DSKパス
+```
+
+**[ファミコン版 FF1J_Bugfixes](doc\FF1J_Bugfixes_jp.md)**相当のパッチを作成中。
+
+- ファミコン版 FF1J_Bugfixes.ips -> <https://www.romhacking.net/hacks/5597/>  
+  (アクセスできない時はFireFoxの組み込みVPNを使うといけたりします。)
+
+MSX2版では既に製品版で対応済みのバグがいくつかあるのと、動作が変更になっている部分もあるので、出来るだけ ファミコン版+FF1J_Bugfixes に近い動作になるようなパッチとしてみました。
+
+過去にその辺の検証をされた方もおられるとは思うので、詳しい情報があったら教えて頂けると嬉しいです。
+
+解析の詳細を知りたい物好きは[doc/ff1_msx_bugfix_btl.md](doc/ff1_msx_bugfix_btl.md) をどうぞ。
+
+---
+
 # ファミコン版用ROMエディタの紹介
 
 ## HakkinFF1

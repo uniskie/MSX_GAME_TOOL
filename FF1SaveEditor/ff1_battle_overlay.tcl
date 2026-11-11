@@ -17,9 +17,10 @@ namespace eval ::ff1_overlay {
     if {[info exists ::env(OPENMSX_USER_DATA)]} {
         #set font_path [file join $::env(OPENMSX_USER_DATA) skins osaka.mono.ttf]
         #set font_path [file join $::env(OPENMSX_USER_DATA) skins misaki_gothic.ttf]
-        set font_path [file join $::env(OPENMSX_USER_DATA) skins HackGen-Regular.ttf]
+        #set font_path [file join $::env(OPENMSX_USER_DATA) skins HackGen-Regular.ttf]
+        set font_path [file join $::env(OPENMSX_USER_DATA) skins BIZUDGothic-Regular.ttf]
     }
-    variable font_size 6
+    variable font_size 5
 
     # 敵フレームのオフセット設定（微調整用）
     variable enemy_offset_x -18   ;# キャラクタの左端に合わせるXオフセット
@@ -32,10 +33,10 @@ namespace eval ::ff1_overlay {
     variable cache_rect_x
     variable cache_rect_y
 
-    # ジョブ英名テーブル
+    # ジョブ名テーブル
     variable jobs {
-        0 "FIGHTER" 1 "THIEF"  2 "MONK"    3 "R.MAGE" 4 "W.MAGE" 5 "B.MAGE"
-        6 "KNIGHT"  7 "NINJA"  8 "MASTER"  9 "R.WIZ"  10 "W.WIZ" 11 "B.WIZ"
+        0 "戦士"  1 "盗賊"  2 "モンク"    3 "赤魔術師"  4 "白魔術師"  5 "黒魔術師"
+        6 "騎士"  7 "忍者"  8 "ｽｰﾊﾟｰﾓﾝｸ"  9 "赤魔導士" 10 "白魔導士" 11 "黒魔導士"
     }
 
     # 16bit リトルエンディアン取得
@@ -58,17 +59,17 @@ namespace eval ::ff1_overlay {
         return 1
     }
 
-    # 状態異常の英字略称
+    # 状態異常の表示名
     proc decode_status {sts} {
         if {$sts == 0} { return "OK" }
         set s ""
-        if {$sts & 0x01} { append s "DTH " }
-        if {$sts & 0x02} { append s "STN " }
-        if {$sts & 0x04} { append s "PSN " }
-        if {$sts & 0x08} { append s "BLD " }
-        if {$sts & 0x10} { append s "PAR " }
-        if {$sts & 0x20} { append s "SLP " }
-        if {$sts & 0x40} { append s "MUT " }
+        if {$sts & 0x01} { append s "死亡" }
+        if {$sts & 0x02} { append s "麻痺" }
+        if {$sts & 0x04} { append s "毒  " }
+        if {$sts & 0x08} { append s "盲目" }
+        if {$sts & 0x10} { append s "混乱" }
+        if {$sts & 0x20} { append s "睡眠" }
+        if {$sts & 0x40} { append s "沈黙" }
         return [string trim $s]
     }
 
@@ -254,7 +255,7 @@ namespace eval ::ff1_overlay {
             set hp_color [get_hp_color $hp $maxhp]
 
             # ジョブとレベル表記
-            set_text_cached "$wname.l1" [format "P%d \[%-7s\] Lv%2d" [expr {$i+1}] $jname $lv] 0xa0e0ffff
+            set_text_cached "$wname.l1" [format "P%d \[%-4s\] Lv%2d" [expr {$i+1}] $jname $lv] 0xa0e0ffff
             set_text_cached "$wname.l2" [format "HP:%3d / %3d" $hp $maxhp] $hp_color
             set_text_cached "$wname.l3" [format "ATK:%2d  DEF:%2d" $atk $def] 0xffffffff
             set_text_cached "$wname.l4" [format "ACC:%2d(%dH) EVA:%2d" $acc $hits $eva] 0xffffffff
