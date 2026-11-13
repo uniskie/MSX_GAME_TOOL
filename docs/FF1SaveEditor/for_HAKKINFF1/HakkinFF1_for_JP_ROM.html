@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HakkinFF1_for_JP_ROM.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+<link rel="stylesheet" href="file://w:\Dat\NES\ROM\_HACK_ROM\FF1\HakkinFF1_Project\.vscode\markdown-pdf-style.css" type="text/css">
+<script src=""></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="hakkinff1-日本版rom対応手順書">HakkinFF1 日本版ROM対応手順書</h1>
+<h2 id="エラー原因の分析とプロジェクト設定ff1dの修正">エラー原因の分析とプロジェクト設定（.ff1d）の修正</h2>
+<p>本資料は、ファミコン（日本版）『ファイナルファンタジー』ROMを <strong>HakkinFF1</strong>で編集する際に発生するエラーの調査結果、および日本版ROMのデータ構造に合わせてプロジェクト設定ファイル（<code>.ff1d</code>）を修正する手順をまとめたものです。</p>
+<ul>
+<li>pythonスクリプト <code>patch_ff1d.py</code> で、プロジェクト設定ファイル（<code>.ff1d</code>）を書き換えて、日本版ROM用アドレス設定に修正出来ます。</li>
+<li>pythonスクリプト <code>ff1d_to_jp.py</code> で、プロジェクト設定ファイル（<code>.ff1d</code>）を書き換えて、ある程度日本語化出来ます。</li>
+</ul>
+<hr>
+<h2 id="1-概要">1. 概要</h2>
+<p><strong>HakkinFF1</strong> で日本版ROMを読み込んだ際、初期設定（北米版基準のアドレス）のままでは以下の問題が発生します。</p>
+<ol>
+<li><strong>画面の起動エラー</strong>:
+「Armor」「Weapons」「Magic」の3画面を開こうとすると <code>IndexOutOfRangeException</code> が発生し、エディタが起動しない。</li>
+<li><strong>データの不整合</strong>:
+クラッシュしない画面であっても、防具の部位判定がズレる、移動中魔法（ケアル等）の設定が未割り当て（<code>--none--</code>）になる、ウィンドウ色や文字テーブルが北米版基準のままになるなどの差異が存在する。</li>
+</ol>
+<p>本書では、これらの原因を整理し、日本版ROM向けに設定ファイルを適合させるための修正項目と適用手順を記述します。</p>
+<hr>
+<h2 id="2-エラー原因の分析">2. エラー原因の分析</h2>
+<h3 id="21-画面起動エラーの要因bank-0f">2.1 画面起動エラーの要因（Bank 0F）</h3>
+<p>Armor、Weapons、Magic の3エディタは、画面上に「各クラスのスプライトアイコン」を着色表示する共通処理を持っています（WeaponsとMagicはパレット選択枠も含みます）。</p>
+<ul>
+<li>エディタは着色に必要なパレット番号（0〜3）を取得するため、Bank 0F の <code>CharBattlePaletteAssignment2</code>（初期値: <code>$3ECB4</code>）を参照します。</li>
+<li>日本版ROMでは Bank 0F 後半のパレット関連コードが北米版より <strong>143バイト後ろ（+0x8F）</strong> に配置されています。</li>
+<li>初期値の <code>$3ECB4</code> を参照すると、パレット番号ではなくプログラムコード（<code>0xF0</code> / 240等）が読み出されます。</li>
+<li>読み出した値をパレット配列のインデックスとしてそのまま参照した結果、配列外アクセス（<code>IndexOutOfRangeException</code>）となり画面の初期化に失敗していました。</li>
+</ul>
+<h3 id="22-防具部位移動中魔法の不整合要因bank-0e">2.2 防具部位・移動中魔法の不整合要因（Bank 0E）</h3>
+<p>Bank 0E のデータ配置も、北米版と日本版でズレが存在します。</p>
+<ul>
+<li><strong>移動中魔法（Outside of Battle）</strong>:
+日本版ROMでは、移動中魔法の判定ルーチンが北米版より <strong>19バイト後ろ（+0x13）</strong> に配置されています。初期設定番地（<code>MgCure: $3AF0A</code> 等）と合致しないため、エディタ側で「未割り当て（<code>--none--</code>）」として処理されていました。</li>
+<li><strong>防具部位（Armor Types）</strong>:
+防具部位テーブル（体16、盾9、兜7、腕8）のアドレスも、初期値（<code>$3BCE1</code>）から <strong>19バイト後ろ（<code>$3BCF4</code>）</strong> に移動しています。</li>
+</ul>
+<hr>
+<h2 id="3-プロジェクト設定ff1dの修正項目">3. プロジェクト設定（.ff1d）の修正項目</h2>
+<p>日本版ROMの配置に適合させるため、<code>.ff1d</code> ファイル内の <code>RomValues</code>（アドレス設定）および <code>TextTables</code>（文字コードテーブル）を修正します。</p>
+<h3 id="31-画面起動エラー回避のための修正bank-0f">3.1 画面起動エラー回避のための修正（Bank 0F）</h3>
+<p>Armor、Weapons、Magic エディタを起動可能にするための必須修正です。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">設定項目名 (<code>Name</code>)</th>
+<th style="text-align:left">北米版（初期値）</th>
+<th style="text-align:left"><strong>日本版 (+143 bytes / +0x8F)</strong></th>
+<th style="text-align:left">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong><code>CharBattlePaletteAssignment2</code></strong></td>
+<td style="text-align:left"><code>$3ECB4</code></td>
+<td style="text-align:left"><strong><code>$3ED43</code></strong></td>
+<td style="text-align:left">クラス別戦闘パレット割り当てテーブル</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>BattlePaletteOffset</code></strong></td>
+<td style="text-align:left"><code>$3EBB5</code></td>
+<td style="text-align:left"><strong><code>$3EC44</code></strong></td>
+<td style="text-align:left">戦闘パレットテーブル本体</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-防具部位および移動中魔法の修正bank-0e">3.2 防具部位および移動中魔法の修正（Bank 0E）</h3>
+<p>防具種別を正しく判定させ、ケアル等の移動中効果を認識・編集可能にするための修正です。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">設定項目名 (<code>Name</code>)</th>
+<th style="text-align:left">北米版（初期値）</th>
+<th style="text-align:left"><strong>日本版 (+19 bytes / +0x13)</strong></th>
+<th style="text-align:left">内容 / 対象</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong><code>ArmorTypeOffset</code></strong></td>
+<td style="text-align:left"><code>$3BCE1</code></td>
+<td style="text-align:left"><strong><code>$3BCF4</code></strong></td>
+<td style="text-align:left">防具部位テーブル</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MagicPermissionsOffset</code></strong></td>
+<td style="text-align:left"><code>$3AD28</code></td>
+<td style="text-align:left"><strong><code>$3AD3B</code></strong></td>
+<td style="text-align:left">クラス別魔法習得制限テーブル</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgCure</code></strong></td>
+<td style="text-align:left"><code>$3AF0A</code></td>
+<td style="text-align:left"><strong><code>$3AF1D</code></strong></td>
+<td style="text-align:left">移動中魔法判定：ケアル</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgCur2</code></strong></td>
+<td style="text-align:left"><code>$3AF11</code></td>
+<td style="text-align:left"><strong><code>$3AF24</code></strong></td>
+<td style="text-align:left">移動中魔法判定：ケアルラ</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgCur3</code></strong></td>
+<td style="text-align:left"><code>$3AF18</code></td>
+<td style="text-align:left"><strong><code>$3AF2B</code></strong></td>
+<td style="text-align:left">移動中魔法判定：ケアルダ</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgCur4</code></strong></td>
+<td style="text-align:left"><code>$3AF1F</code></td>
+<td style="text-align:left"><strong><code>$3AF32</code></strong></td>
+<td style="text-align:left">移動中魔法判定：ケアルガ</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgHeal</code></strong></td>
+<td style="text-align:left"><code>$3AF26</code></td>
+<td style="text-align:left"><strong><code>$3AF39</code></strong></td>
+<td style="text-align:left">移動中魔法判定：ヒール</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgHel2</code></strong></td>
+<td style="text-align:left"><code>$3AF2D</code></td>
+<td style="text-align:left"><strong><code>$3AF40</code></strong></td>
+<td style="text-align:left">移動中魔法判定：ヒーラ</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgHel3</code></strong></td>
+<td style="text-align:left"><code>$3AF34</code></td>
+<td style="text-align:left"><strong><code>$3AF47</code></strong></td>
+<td style="text-align:left">移動中魔法判定：ヒージラ</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgPure</code></strong></td>
+<td style="text-align:left"><code>$3AF3B</code></td>
+<td style="text-align:left"><strong><code>$3AF4E</code></strong></td>
+<td style="text-align:left">移動中魔法判定：ポイゾナ</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgLife</code></strong></td>
+<td style="text-align:left"><code>$3AF42</code></td>
+<td style="text-align:left"><strong><code>$3AF55</code></strong></td>
+<td style="text-align:left">移動中魔法判定：レイズ</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgLif2</code></strong></td>
+<td style="text-align:left"><code>$3AF49</code></td>
+<td style="text-align:left"><strong><code>$3AF5C</code></strong></td>
+<td style="text-align:left">移動中魔法判定：アレイズ</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgWarp</code></strong></td>
+<td style="text-align:left"><code>$3AF50</code></td>
+<td style="text-align:left"><strong><code>$3AF63</code></strong></td>
+<td style="text-align:left">移動中魔法判定：ダテレポ</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgSoft</code></strong></td>
+<td style="text-align:left"><code>$3AF57</code></td>
+<td style="text-align:left"><strong><code>$3AF6A</code></strong></td>
+<td style="text-align:left">移動中魔法判定：ストナ</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MgExit</code></strong></td>
+<td style="text-align:left"><code>$3AF5E</code></td>
+<td style="text-align:left"><strong><code>$3AF71</code></strong></td>
+<td style="text-align:left">移動中魔法判定：テレポ</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-ウィンドウ色および特殊計算の修正bank-0f">3.3 ウィンドウ色および特殊計算の修正（Bank 0F）</h3>
+<p>Bank 0F のシフト（+143バイト）に伴う、表示色およびモンク（BBMA）補正ルーチンの修正です。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">設定項目名 (<code>Name</code>)</th>
+<th style="text-align:left">北米版（初期値）</th>
+<th style="text-align:left"><strong>日本版 (+143 bytes / +0x8F)</strong></th>
+<th style="text-align:left">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong><code>MenuWindowColorOffset</code></strong></td>
+<td style="text-align:left"><code>$3EB3A</code></td>
+<td style="text-align:left"><strong><code>$3EBC9</code></strong></td>
+<td style="text-align:left">メニュー枠色</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>BattleWindowColorOffset</code></strong></td>
+<td style="text-align:left"><code>$3EB3E</code></td>
+<td style="text-align:left"><strong><code>$3EBCD</code></strong></td>
+<td style="text-align:left">戦闘枠色</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>WindowGreyColorOffset</code></strong></td>
+<td style="text-align:left"><code>$3EB48</code></td>
+<td style="text-align:left"><strong><code>$3EBD7</code></strong></td>
+<td style="text-align:left">枠グレー色</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>WindowWhiteColorOffset</code></strong></td>
+<td style="text-align:left"><code>$3EB4D</code></td>
+<td style="text-align:left"><strong><code>$3EBDC</code></strong></td>
+<td style="text-align:left">枠白色</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>ShopBoxPaletteOffset</code></strong></td>
+<td style="text-align:left"><code>$3EB84</code></td>
+<td style="text-align:left"><strong><code>$3EC13</code></strong></td>
+<td style="text-align:left">ショップ枠パレット</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>BbmaClass1UnadjOffset</code></strong></td>
+<td style="text-align:left"><code>$3EED3</code></td>
+<td style="text-align:left"><strong><code>$3EF62</code></strong></td>
+<td style="text-align:left">モンク補正1</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>BbmaClass2UnadjOffset</code></strong></td>
+<td style="text-align:left"><code>$3EED7</code></td>
+<td style="text-align:left"><strong><code>$3EF66</code></strong></td>
+<td style="text-align:left">モンク補正2</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>BbmaClass1ReadjOffset</code></strong></td>
+<td style="text-align:left"><code>$3EEF1</code></td>
+<td style="text-align:left"><strong><code>$3EF80</code></strong></td>
+<td style="text-align:left">モンク再補正1</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>BbmaClass2ReadjOffset</code></strong></td>
+<td style="text-align:left"><code>$3EEF5</code></td>
+<td style="text-align:left"><strong><code>$3EF84</code></strong></td>
+<td style="text-align:left">モンク再補正2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34-文字コードテーブルの修正texttables">3.4 文字コードテーブルの修正（TextTables）</h3>
+<p>日本版ROMの文字コード（0x00〜0xFF）に対応させるため、<code>TextTables</code> 内の <code>StdTable</code> および <code>DteTable</code> を256文字の日本語カナ・記号配列に更新します。</p>
+<hr>
+<h2 id="4-設定の修正手順">4. 設定の修正手順</h2>
+<p>手作業での修正も可能ですが、項目数が多いためパッチスクリプト（<code>patch_ff1d.py</code>）を使用して一括反映することを推奨します。</p>
+<h3 id="41-前提">4.1 前提</h3>
+<ul>
+<li>対象のプロジェクトファイル（例: <code>FinalFantasy1.ff1d</code>）のパスを確認しておくこと。</li>
+<li><strong>HakkinFF1</strong> は終了した状態で実行すること。</li>
+</ul>
+<h3 id="42-実行コマンド">4.2 実行コマンド</h3>
+<p>コマンドプロンプトより、対象の <code>.ff1d</code> ファイルパスを引数に指定してスクリプトを実行します。</p>
+<pre class="hljs"><code><div>python patch_ff1d.py &quot;W:\Dat\NES\ROM\_HACK_ROM\FF1\HakkinFF1_Project\FinalFantasy1\FinalFantasy1.ff1d&quot;
+</div></code></pre>
+<h3 id="43-処理結果の確認">4.3 処理結果の確認</h3>
+<ol>
+<li>元のファイルと同じ場所に <code>.ff1d.bak</code>（バックアップ）が生成されていることを確認します。</li>
+<li>画面上に更新された項目一覧（<code>Kind: Offset</code> の確認ログ）が表示され、エラーなく終了することを確認します。</li>
+<li><strong>HakkinFF1</strong> を起動してプロジェクトを開き、以下を確認します。
+<ul>
+<li>Armor、Weapons、Magic の各エディタが起動すること。</li>
+<li>Magicエディタで「ケアル」を選択した際、Outside of Battle が <code>Cure</code>（Base: 16, Range: 15）と表示されること。</li>
+<li>Armorエディタで防具の部位（Body, Shield, Head, Arms）が正しく表示されること。</li>
+</ul>
+</li>
+</ol>
+<h3 id="44-留意事項">4.4 留意事項</h3>
+<p><strong>HakkinFF1</strong> で新規プロジェクトを作成した直後は、ツール内部のテンプレート（北米版初期値）で <code>.ff1d</code> が再生成されます。日本版ROMで新しくプロジェクトを作成した際は、毎回このパッチ処理を実行する必要があります。</p>
+
+</body>
+</html>

@@ -63,13 +63,14 @@ namespace eval ::ff1_overlay {
     proc decode_status {sts} {
         if {$sts == 0} { return "OK" }
         set s ""
-        if {$sts & 0x01} { append s "死亡" }
-        if {$sts & 0x02} { append s "麻痺" }
-        if {$sts & 0x04} { append s "毒  " }
-        if {$sts & 0x08} { append s "盲目" }
-        if {$sts & 0x10} { append s "混乱" }
-        if {$sts & 0x20} { append s "睡眠" }
-        if {$sts & 0x40} { append s "沈黙" }
+        if {$sts & 0x01} { append s "死" } ;# 死亡
+        if {$sts & 0x02} { append s "石" } ;# 石化
+        if {$sts & 0x04} { append s "毒" } ;# 毒  
+        if {$sts & 0x08} { append s "暗" } ;# 暗闇
+        if {$sts & 0x10} { append s "痺" } ;# 麻痺
+        if {$sts & 0x20} { append s "眠" } ;# 睡眠
+        if {$sts & 0x40} { append s "沈" } ;# 沈黙
+        if {$sts & 0x80} { append s "混" } ;# 混乱
         return [string trim $s]
     }
 
@@ -176,14 +177,14 @@ namespace eval ::ff1_overlay {
             set y [expr {22 + $i * 50}]
             set wname "ff1_osd.p$i"
             osd create rectangle $wname \
-                -x 246 -y $y -w 64 -h 45 \
+                -x 246 -y $y -w 54 -h 35 \
                 -rgba 0x081848E0 -borderrgba 0x5080ffa0 -bordersize 1
 
             create_text_widget "$wname.l1" 3 3  0xa0e0ffff ""
-            create_text_widget "$wname.l2" 3 11 0x80ff80ff ""
-            create_text_widget "$wname.l3" 3 19 0xffffffff ""
-            create_text_widget "$wname.l4" 3 27 0xffffffff ""
-            create_text_widget "$wname.l5" 3 35 0xffd080ff ""
+            create_text_widget "$wname.l2" 3 9 0x80ff80ff ""
+            create_text_widget "$wname.l3" 3 15 0xffffffff ""
+            create_text_widget "$wname.l4" 3 21 0xffffffff ""
+            create_text_widget "$wname.l5" 3 27 0xffd080ff ""
         }
 
         # 敵用ウィジェット (最大9体分: HP, ATK/DEF, ACC/EVA の3行構成)
@@ -191,15 +192,17 @@ namespace eval ::ff1_overlay {
         for {set i 0} {$i < 9} {incr i} {
             set wname "ff1_osd.e$i"
             osd create rectangle $wname \
-                -x 0 -y 0 -w 48 -h 24 \
+                -x 0 -y 0 -w 41 -h 28 \
                 -rgba 0x00000000 -borderrgba 0x00000000 -bordersize 1
 
-            # 行1: HP・状態異常
+            # 行1: HP
             create_text_widget "$wname.l1" 3 2  0x80ff80ff ""
             # 行2: 攻撃力・防御力
-            create_text_widget "$wname.l2" 3 9  0xffffffff ""
+            create_text_widget "$wname.l2" 3 8  0xffffffff ""
             # 行3: 命中率・回避率
-            create_text_widget "$wname.l3" 3 15 0xffffffff ""
+            create_text_widget "$wname.l3" 3 14 0xffffffff ""
+            # 行4: 魔法防御・状態異常
+            create_text_widget "$wname.l4" 3 20 0xffd080ff ""
         }
 
         set created 1
@@ -257,9 +260,9 @@ namespace eval ::ff1_overlay {
             # ジョブとレベル表記
             set_text_cached "$wname.l1" [format "P%d \[%-4s\] Lv%2d" [expr {$i+1}] $jname $lv] 0xa0e0ffff
             set_text_cached "$wname.l2" [format "HP:%3d / %3d" $hp $maxhp] $hp_color
-            set_text_cached "$wname.l3" [format "ATK:%2d  DEF:%2d" $atk $def] 0xffffffff
-            set_text_cached "$wname.l4" [format "ACC:%2d(%dH) EVA:%2d" $acc $hits $eva] 0xffffffff
-            set_text_cached "$wname.l5" [format "MDF:%2d  \[%s\]" $mdef $sts_str] 0xffd080ff
+            set_text_cached "$wname.l3" [format "攻:%2d  防:%2d" $atk $def] 0xffffffff
+            set_text_cached "$wname.l4" [format "命:%2d(%dH) 避:%2d" $acc $hits $eva] 0xffffffff
+            set_text_cached "$wname.l5" [format "魔防:%2d  \[%s\]" $mdef $sts_str] 0xffd080ff
         }
 
         # --- 敵更新 ---
@@ -273,6 +276,7 @@ namespace eval ::ff1_overlay {
                 set_text_cached "$wname.l1" "" 0xffffffff
                 set_text_cached "$wname.l2" "" 0xffffffff
                 set_text_cached "$wname.l3" "" 0xffffffff
+                set_text_cached "$wname.l4" "" 0xffffffff
                 continue
             }
 
@@ -282,6 +286,7 @@ namespace eval ::ff1_overlay {
             set ests  [peek [expr {$ebase + 0x17}]]
             set eeva  [peek [expr {$ebase + 0x08}]]
             set edef  [peek [expr {$ebase + 0x09}]]
+            set emdef [peek [expr {$ebase + 0x11}]]
             set eacc  [peek [expr {$ebase + 0x0B}]]
             set eatk  [peek [expr {$ebase + 0x0C}]]
 
@@ -299,7 +304,7 @@ namespace eval ::ff1_overlay {
             set msx_y [peek [expr {0xBC87 + $i * 2 + 1}]]
 
             # X: キャラクタの左端に合わせて左へオフセット
-            set osd_x [expr {$msx_x + 32 + $enemy_offset_x}]
+            set osd_x [expr {$msx_x + 40 + $enemy_offset_x}]
 
             # Y: 敵キャラの頭上に配置（画面上端からはみ出る場合のみ上部に重ねる）
             set osd_y [expr {$msx_y + 14 + $enemy_offset_y}]
@@ -310,18 +315,21 @@ namespace eval ::ff1_overlay {
 
             set_rect_cached $wname $osd_x $osd_y 1
 
-            # 行1: HP / 最大HP [状態]
+            # 行1: HP / 最大HP
             if {$ests_str ne "OK"} {
-                set_text_cached "$wname.l1" [format "HP:%d/%d\[%s\]" $ehp $emax $ests_str] $ehp_color
+                set_text_cached "$wname.l1" [format "HP:%d/%d" $ehp $emax] $ehp_color
             } else {
                 set_text_cached "$wname.l1" [format "HP:%d/%d" $ehp $emax] $ehp_color
             }
 
             # 行2: 攻撃力・防御力
-            set_text_cached "$wname.l2" [format "ATK:%d DEF:%d" $eatk $edef] 0xffffffff
+            set_text_cached "$wname.l2" [format "攻%d 防%d" $eatk $edef] 0xffffffff
 
             # 行3: 命中率・回避率
-            set_text_cached "$wname.l3" [format "ACC:%d EVA:%d" $eacc $eeva] 0xffffffff
+            set_text_cached "$wname.l3" [format "命%d 避%d" $eacc $eeva] 0xffffffff
+
+            # 行4: 魔法防御 [状態]
+            set_text_cached "$wname.l4" [format "魔防%d \[%s\]" $emdef $ests_str] 0xffd080ff
         }
     }
 
