@@ -57,7 +57,7 @@ class HookCall(NamedTuple):
     file_offset: int
     expected_bytes: bytes
     target_code_id: str
-    call_mode: str          # "CALL", "JP", "POISON_CALL", "LOAD_JP", "P16_CALL", "P07_CALL", "P11S_CALL", "P13_CALL", "ATK_HOOK", "MAG_HOOK"
+    call_mode: str          # "CALL", "JP", "POISON_CALL", "LOAD_JP", "P07_CALL", "P11S_CALL", "P13_CALL", "ATK_HOOK", "MAG_HOOK"
     nop_count: int
     description: str
 
@@ -313,15 +313,26 @@ def build_inline_patches() -> List[InlinePatch]:
     p.append(InlinePatch("BATTLE.COM", 0x0A4E, hex_to_bytes("FE 00"), hex_to_bytes("E6 03"), "パッチ03: 隊列ソート生存判定マスク修正 (比較対象2)"))
     p.append(InlinePatch("BATTLE.COM", 0x0A58, hex_to_bytes("FE 00"), hex_to_bytes("E6 03"), "パッチ03: 隊列ソート生存判定マスク修正 (比較対象1)"))
     p.append(InlinePatch("BATTLE.COM", 0x0322, hex_to_bytes("11"), hex_to_bytes("40"), "パッチ04: 行動順シャッフル回数増加 (17回 -> 64回)"))
-    p.append(InlinePatch("BATTLE.COM", 0x1359, hex_to_bytes("43"), hex_to_bytes("46"), "パッチ05: 味方攻撃時の武器属性バッファ参照修正 (+43H -> +46H)"))
-    p.append(InlinePatch("BATTLE.COM", 0x135F, hex_to_bytes("44"), hex_to_bytes("47"), "パッチ05: 味方攻撃時の武器特効バッファ参照修正 (+44H -> +47H)"))
+
+    # パッチ05: 武器データの+04H(属性)/+05H(特効)を戦闘バッファ+43H/+44Hへ格納し、攻撃読込側は元の+43H/+44Hを使用
+    p.append(InlinePatch(
+        "BATTLE.COM",
+        0x1200,
+        hex_to_bytes("DD 7E 07 FD 77 47 DD 7E 06 FD 77 46"),
+        hex_to_bytes("DD 7E 05 FD 77 44 DD 7E 04 FD 77 43"),
+        "パッチ05: 武器属性(+04H)・特効(+05H)を戦闘バッファ(+43H/+44H)へ格納",
+    ))
     p.append(InlinePatch("BATTLE.COM", 0x13A5, hex_to_bytes("10"), hex_to_bytes("12"), "パッチ05: 敵弱点属性のロード先修正 (+10H -> +12H)"))
     p.append(InlinePatch("BATTLE.COM", 0x13AB, hex_to_bytes("12"), hex_to_bytes("13"), "パッチ05: 敵種族属性のロード先修正 (+12H -> +13H)"))
     p.append(InlinePatch("BATTLE.COM", 0x1537, hex_to_bytes("0C"), hex_to_bytes("0D"), "パッチ05: 暗闇時の特効判定ジャンプ先を調整"))
     p.append(InlinePatch("BATTLE.COM", 0x1544, hex_to_bytes("C9"), hex_to_bytes("00"), "パッチ05: 特効判定到達不能原因のRETを削除"))
     p.append(InlinePatch("BATTLE.COM", 0x1C52, hex_to_bytes("DD 7E 13 32 16 A2"), hex_to_bytes("00 00 00 00 00 00"), "パッチ05: 敵弱点属性の種族属性による上書き解除"))
-    p.append(InlinePatch("BATTLE.COM", 0x07F9, hex_to_bytes("04"), hex_to_bytes("05"), "パッチ12: 魔法防御上昇値の上限判定を緩和 (4 -> 5)"))
-    p.append(InlinePatch("BATTLE.COM", 0x0810, hex_to_bytes("03 02 03 02 01 01 03 02 03 02 01 01"), hex_to_bytes("02 02 01 02 03 03 02 02 04 02 03 03"), "パッチ12: ジョブ別魔法防御成長テーブル更新"))
+
+    # モンク素手処理: 誤ってIX+46Hを参照していた箇所をIY+45H(クリティカル率: 武器あり>=1, 素手==0)参照へ修正
+    p.append(InlinePatch("BATTLE.COM", 0x1228, hex_to_bytes("DD 7E 46"), hex_to_bytes("FD 7E 45"), "パッチ16: モンク素手判定を戦闘バッファクリティカル率(IY+45H)参照へ修正"))
+
+    p.append(InlinePatch("BATTLE.COM", 0x0826, hex_to_bytes("46 DD 86 25 80"), hex_to_bytes("7E DD 86 25 00"), "パッチ12: 魔法防御上昇時のジョブID加算バグ修正"))
+    p.append(InlinePatch("BATTLE.COM", 0x0835, hex_to_bytes("03 02 04 02 02 02 03 02 04 02 02 02"), hex_to_bytes("02 02 01 02 03 03 02 02 04 02 03 03"), "パッチ12: ジョブ別魔法防御成長テーブル更新"))
 
     # パッチ10: 睡眠麻痺時回避率0化＆攻撃力1.25倍計算 (27バイト枠インライン)
     patch10_orig = hex_to_bytes("3A 54 98 E6 30 28 14 2A 6B 98 54 5D CB 3C CB 1D CB 3C CB 1D CD E9 80 32 6B 98 C9")
@@ -348,7 +359,7 @@ def build_hook_codes(auto_target: bool = False) -> List[HookCode]:
     codes: List[HookCode] = []
 
     # -------------------------------------------------------------------------
-    # タイプ1: 固定アドレス配置 (インライン余剰枠 0xBA11〜0xBA1A, 10バイト枠)
+    # タイプ1: 固定アドレス配置 (BATTLE.COM インライン余剰枠 0xBA11〜0xBA1A, 10バイト枠)
     # -------------------------------------------------------------------------
     # パッチ06: アイテム沈黙チェック回避 (8バイト)
     patch06_code = hex_to_bytes("3A C8 BC B7 C0 C3 BC 9A")
@@ -356,7 +367,52 @@ def build_hook_codes(auto_target: bool = False) -> List[HookCode]:
     codes.append(HookCode("P06_MUTE", "BATTLE.COM", patch06_code, "FIXED", 0x3A11, 0xBA11, "パッチ06: アイテム沈黙チェック回避 (8B)"))
 
     # -------------------------------------------------------------------------
-    # タイプ2: 常駐領域A (0xBCDD〜0xBCFF, 35バイト枠)
+    # タイプ1-B: 固定アドレス配置 (MAIN.COM 末尾空き領域 0x7FA9〜0x7FFF, 87バイト枠)
+    # ※ 0x7FA4〜0x7FA8 は OPLL 検出ワークのため保護し、0x7FA9 以降を使用する
+    # -------------------------------------------------------------------------
+    # 開始・ロード後補正ラッパー: CALL 7FB5H; JP 5591H (6バイト)
+    main_init_wrap = hex_to_bytes("CD B5 7F C3 91 55")
+    assert len(main_init_wrap) == 6
+    codes.append(HookCode("MAIN_INIT_W", "MAIN.COM", main_init_wrap, "FIXED", 0x3FA9, 0x7FA9, "パッチ16: 開始後モンク補正ラッパー (6B)"))
+
+    # 戦闘復帰後補正ラッパー: CALL 7FB5H; JP 4E9CH (6バイト)
+    main_btl_wrap = hex_to_bytes("CD B5 7F C3 9C 4E")
+    assert len(main_btl_wrap) == 6
+    codes.append(HookCode("MAIN_BTL_W", "MAIN.COM", main_btl_wrap, "FIXED", 0x3FAF, 0x7FAF, "パッチ16: 戦闘後モンク補正ラッパー (6B)"))
+
+    # モンク素手攻撃力(Lv*2)＆無防具防御力(Lv) 4人分補正サブルーチン (66バイト)
+    # 0x7FB5〜0x7FF6: 装備4枠(+18H..+1BH, +1CH..+1FH)のbit7がすべて0なら素手/無防具として補正
+    main_monk_code = hex_to_bytes(
+        "DD 21 00 C0 06 04 DD 7E 00 FE 02 28 04 FE 08 20 20 "
+        "C5 DD E5 E1 11 18 00 19 CD EE 7F 38 07 DD 7E 26 87 DD 77 20 "
+        "CD EE 7F 38 06 DD 7E 26 DD 77 22 C1 "
+        "11 40 00 DD 19 10 CE C9 "
+        "06 04 AF B6 23 10 FC 07 C9"
+    )
+    assert len(main_monk_code) == 66
+    codes.append(HookCode("MAIN_MONK", "MAIN.COM", main_monk_code, "FIXED", 0x3FB5, 0x7FB5, "パッチ16: MAIN側モンク素手・無防具補正 (66B)"))
+
+    # -------------------------------------------------------------------------
+    # タイプ1-C: 固定アドレス配置 (MENU.COM 末尾空き領域 0xADBA〜0xADFF, 70バイト枠)
+    # -------------------------------------------------------------------------
+    # メニュー攻撃力再計算: 武器合計0(0x8D44==0)かつモンク/スパモンなら Lv*2 (31バイト)
+    menu_atk_code = hex_to_bytes(
+        "3A 44 8D B7 20 0C DD 7E 00 FE 02 28 0C FE 08 28 08 "
+        "AF DD 86 28 DD 77 20 C9 DD 7E 26 87 18 F6"
+    )
+    assert len(menu_atk_code) == 31
+    codes.append(HookCode("MENU_ATK", "MENU.COM", menu_atk_code, "FIXED", 0x2DBA, 0xADBA, "パッチ16: MENU側モンク素手攻撃力 (31B)"))
+
+    # メニュー防御力再計算: 防具合計0(0x8D44==0)かつモンク/スパモンなら Lv (27バイト)
+    menu_def_code = hex_to_bytes(
+        "3A 44 8D B7 20 0C DD 7E 00 FE 02 28 09 FE 08 28 05 "
+        "AF DD 77 22 C9 DD 7E 26 18 F7"
+    )
+    assert len(menu_def_code) == 27
+    codes.append(HookCode("MENU_DEF", "MENU.COM", menu_def_code, "FIXED", 0x2DD9, 0xADD9, "パッチ16: MENU側モンク無防具防御力 (27B)"))
+
+    # -------------------------------------------------------------------------
+    # タイプ2: 常駐領域A (BATTLE.COM 0xBCDD〜0xBCFF, 35バイト枠)
     # -------------------------------------------------------------------------
     # パッチ07: 敵耐性・命中率保存 (16バイト)
     patch07_code = hex_to_bytes("3A 17 A2 DD 77 10 3A 09 A2 DD 77 0B 3A 1B A2 C9")
@@ -369,7 +425,7 @@ def build_hook_codes(auto_target: bool = False) -> List[HookCode]:
     codes.append(HookCode("P11_SAVE", "BATTLE.COM", patch11_save, "RESIDENT_A", None, None, "パッチ11: 味方攻撃力・命中率保存 (16B)"))
 
     # -------------------------------------------------------------------------
-    # タイプ3: 常駐領域B (0x362E〜0x36FF, 210バイト枠)
+    # タイプ3: 常駐領域B (BATTLE.COM 0x362E〜0x36FF, 210バイト枠)
     # -------------------------------------------------------------------------
     # プレイヤー毒2ダメージ計算サブルーチン (11バイト)
     ply_poison_code = hex_to_bytes("2B 7C B5 37 C8 2B 7C B5 C8 23 C9")
@@ -394,13 +450,6 @@ def build_hook_codes(auto_target: bool = False) -> List[HookCode]:
     )
     assert len(patch14_code) == 40
     codes.append(HookCode("P14_INTEL", "BATTLE.COM", patch14_code, "RESIDENT_B", None, None, "パッチ14: 知性威力反映 (40B)"))
-
-    # パッチ16: モンク素手防御力計算 (24バイト)
-    patch16_code = hex_to_bytes(
-        "B7 20 0C DD 7E 00 FE 02 28 09 FE 08 28 05 AF DD 77 22 C9 DD 7E 26 18 F7"
-    )
-    assert len(patch16_code) == 24
-    codes.append(HookCode("P16_MONK", "BATTLE.COM", patch16_code, "RESIDENT_B", None, None, "パッチ16: モンク素手防御力計算 (24B)"))
 
     # パッチ15: 敵リジェネ単体版 (54バイト)
     regen_code = hex_to_bytes(
@@ -450,11 +499,16 @@ def build_hook_calls(auto_target: bool = False) -> List[HookCall]:
     # パッチ14: 知性反映フック (0x1AB5, 7B枠: JP P14_INTEL + NOP 4個)
     calls.append(HookCall("BATTLE.COM", 0x1AB5, hex_to_bytes("FD 7E 07 32 06 A2 C9"), "P14_INTEL", "JP", 4, "パッチ14: 知性反映フック"))
 
-    # パッチ16: モンク素手防御力フック (0x0964, 7B枠: LD A, (.X8913); CALL P16_MONK; RET)
-    calls.append(HookCall("BATTLE.COM", 0x0964, hex_to_bytes("3A 13 89 DD 77 22 C9"), "P16_MONK", "P16_CALL", 0, "パッチ16: モンク防御フック"))
-
     # パッチ15: 敵リジェネフック (0x0504, 5B枠: JP P15_REGEN + NOP 2個)
     calls.append(HookCall("BATTLE.COM", 0x0504, hex_to_bytes("FD E1 DD E1 C9"), "P15_REGEN", "JP", 2, "パッチ15: 敵リジェネフック"))
+
+    # パッチ16: MAIN.COM 開始後・戦闘後モンク補正フック
+    calls.append(HookCall("MAIN.COM", 0x0069, hex_to_bytes("CD 91 55"), "MAIN_INIT_W", "JP", 0, "パッチ16: 開始・ロード後モンク補正フック"))
+    calls.append(HookCall("MAIN.COM", 0x0422, hex_to_bytes("CD 9C 4E"), "MAIN_BTL_W", "JP", 0, "パッチ16: 戦闘復帰後モンク補正フック"))
+
+    # パッチ16: MENU.COM 武器・防具メニュー後モンク補正フック
+    calls.append(HookCall("MENU.COM", 0x0D59, hex_to_bytes("3A 44 8D DD 86 28 DD 77 20 C9"), "MENU_ATK", "JP", 7, "パッチ16: メニュー攻撃力再計算フック"))
+    calls.append(HookCall("MENU.COM", 0x0D95, hex_to_bytes("3A 44 8D DD 77 22 C9"), "MENU_DEF", "JP", 4, "パッチ16: メニュー防御力再計算フック"))
 
     if auto_target:
         # オートターゲット: 味方「たたかう」前フック (0x32F5, 16バイト枠)
@@ -577,12 +631,12 @@ def main() -> None:
     hook_codes = build_hook_codes(auto_target=args.auto_target)
     symbol_table: Dict[str, int] = {}
 
-    # 常駐領域A: メモリアドレス 0xBCDD〜0xBCFF (最大35B)
+    # 常駐領域A: BATTLE.COM メモリアドレス 0xBCDD〜0xBCFF (最大35B)
     resident_a_cur_addr = 0xBCDD
     resident_a_cur_offset = 0x3CDD
     resident_a_limit_addr = 0xBD00
 
-    # 常駐領域B: メモリアドレス 0x362E〜0x36FF (最大210B)
+    # 常駐領域B: BATTLE.COM メモリアドレス 0x362E〜0x36FF (最大210B)
     resident_b_cur_addr = 0x362E
     resident_b_payload = bytearray()
     resident_b_limit_addr = 0x3700
@@ -590,6 +644,10 @@ def main() -> None:
     print(f"\n[Step 3] フックコードの配置とアドレス解決 ({len(hook_codes)} ブロック)...")
 
     for code in hook_codes:
+        if code.target_file not in file_map:
+            print(f"[エラー] ファイル '{code.target_file}' が見つかりません。", file=sys.stderr)
+            sys.exit(1)
+
         start_sec, _ = file_map[code.target_file]
 
         if code.area_type == "FIXED":
@@ -666,6 +724,10 @@ def main() -> None:
     print(f"\n[Step 4] フック元呼び出し命令の生成と書き込み ({len(hook_calls)} 箇所)...")
 
     for call in hook_calls:
+        if call.target_file not in file_map:
+            print(f"[エラー] ファイル '{call.target_file}' が見つかりません。", file=sys.stderr)
+            sys.exit(1)
+
         if call.target_code_id not in symbol_table:
             print(f"[エラー] シンボル '{call.target_code_id}' が解決されていません。", file=sys.stderr)
             sys.exit(1)
@@ -686,8 +748,6 @@ def main() -> None:
             call_bytes = bytes([0x3E, 0x00, 0xC3, target_addr & 0xFF, (target_addr >> 8) & 0xFF, 0x00])
         elif call.call_mode == "P13_CALL":
             call_bytes = bytes([0xCD, 0x4F, 0x86, 0x38, 0x03, 0xCD, target_addr & 0xFF, (target_addr >> 8) & 0xFF])
-        elif call.call_mode == "P16_CALL":
-            call_bytes = bytes([0x3A, 0x13, 0x89, 0xCD, target_addr & 0xFF, (target_addr >> 8) & 0xFF, 0xC9])
         elif call.call_mode == "ATK_HOOK":
             call_bytes = (
                 hex_to_bytes("B7 C0 FD 7E 01 32 D6 BC CD")

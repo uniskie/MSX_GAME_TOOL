@@ -3761,9 +3761,11 @@ function recalculateParameters(c) {
     hitBonus = equippedWep ? equippedWep.hit : 0;
   }
 
-  let baseHit = 5 + (lv * 2);
-  if (job === 0 || job === 6) baseHit = 32 + (lv * 3);
-  const totalHit = baseHit + hitBonus;
+  const HIT_INIT = [10, 5, 5, 7, 5, 5];
+  const HIT_GAIN = [3, 2, 3, 2, 1, 1];
+  const baseJob = job % 6;
+  const baseHit = Math.min(200, HIT_INIT[baseJob] + ((lv - 1) * HIT_GAIN[baseJob]));
+  const totalHit = Math.min(255, baseHit + hitBonus);
 
   let totalDef = 0;
   let totalWt = 0;
@@ -4189,17 +4191,42 @@ function applyUIToSav() {
     savData[base + layout.lvOffset] = lvRaw;
 
     // 武器 (機種ネイティブコードをそのままスロットに書き込み)
+    let equippedWepHit = 0;
     for (let w = 0; w < 4; w++) {
       let id = parseInt(document.getElementById(`c${c}_wep_${w}`).value) || 0;
-      if (id > 0 && document.getElementById(`c${c}_wepEquip_${w}`).checked) id |= 0x80;
+      if (id > 0 && document.getElementById(`c${c}_wepEquip_${w}`).checked) {
+        const wepItem = activeWeaponTable[id];
+        if (wepItem) equippedWepHit += wepItem.hit;
+        id |= 0x80;
+      }
       savData[base + 0x18 + w] = id;
     }
 
     // 防具 (機種ネイティブコードをそのままスロットに書き込み)
+    let equippedArmWt = 0;
     for (let a = 0; a < 4; a++) {
       let id = parseInt(document.getElementById(`c${c}_arm_${a}`).value) || 0;
-      if (id > 0 && document.getElementById(`c${c}_armEquip_${a}`).checked) id |= 0x80;
+      if (id > 0 && document.getElementById(`c${c}_armEquip_${a}`).checked) {
+        const armItem = activeArmorTable[id];
+        if (armItem) equippedArmWt += armItem.wt;
+        id |= 0x80;
+      }
       savData[base + 0x1C + a] = id;
+    }
+
+    // MSX版用: 素パラメータ (+0x28: 力/2, +0x29: 素の命中率, +0x2A: 素の回避率) を保存
+    if (activePlatform === 'msx') {
+      const strVal = savData[base + 0x10];
+      const agiVal = savData[base + 0x11];
+      const hitVal = savData[base + 0x21];
+      const evaVal = savData[base + 0x23];
+      const autoCalc = document.getElementById('autoCalcCheckbox').checked;
+
+      savData[base + 0x28] = Math.min(255, Math.floor(strVal / 2));
+      savData[base + 0x29] = Math.max(0, Math.min(255, hitVal - equippedWepHit));
+      savData[base + 0x2A] = autoCalc
+        ? Math.max(0, Math.min(255, agiVal + 48))
+        : Math.max(0, Math.min(255, evaVal + equippedArmWt));
     }
 
     // 習得魔法 & MP

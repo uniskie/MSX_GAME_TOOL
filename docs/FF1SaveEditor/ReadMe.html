@@ -150,7 +150,8 @@
 <li>
 <p>[地図]ボタンで表示されるワールドマップROM/DSKから読み込んだものに変わり、
 拡大ビューがブロック塗りつぶしタイルではなくゲーム中のような表示になります。</p>
-<p><img src="map_screenshot2.png" alt="map_screenshot2"></p>
+<p><img src="map_screenshot2.png" alt="map_screenshot2">
+<img src="screenshot2.png" alt="screenshot2"></p>
 </li>
 <li>
 <p>ファミコン版ROMはUS版/JP版両対応（自動判定）です。</p>
@@ -185,6 +186,13 @@
 <li>Final Fantasy MSX2 SayDos tool<br>
 <a href="https://github.com/romh-acking/final-fantasy-msx2-say-dos-tool/tree/master">https://github.com/romh-acking/final-fantasy-msx2-say-dos-tool/tree/master</a></li>
 </ul>
+<h2 id="更新履歴">更新履歴</h2>
+<h3 id="ff1_editorhtml">ff1_editor.html</h3>
+<ul>
+<li>2026/11/14<br>
+MSX版セーブデータ保存時、装備画面での再計算時に参照される素パラメータ（<code>+0x28</code>: 力/2、<code>+0x29</code>: 素の命中率、<code>+0x2A</code>: 素の回避率）を同期して書き込むように修正。</li>
+<li>パラメータ自動計算時のジョブ別命中率計算（初期値およびレベルアップごとの成長値）を実機仕様に準拠した式へ修正。</li>
+</ul>
 <hr>
 <h1 id="msx版推奨パッチの紹介">MSX版推奨パッチの紹介</h1>
 <h2 id="final-fantasy-msx-performance-patch">Final Fantasy MSX Performance Patch</h2>
@@ -196,7 +204,54 @@
 基本的に全体が快適になります。</p>
 <p>VDPの処理がボトルネックなので、もともと処理落ちするところはやっぱり処理落ちします。（無改造よりマシですが）</p>
 <hr>
-<h2 id="msx2版-bgm割り当て修正パッチ-自作">MSX2版 BGM割り当て修正パッチ (自作)</h2>
+<h2 id="自作パッチ">自作パッチ</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">パッチファイル（ipsファイル）</th>
+<th style="text-align:left">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><a href="FF1-1-BGM_Fix.ips">FF1-1-BGM_Fix.ips</a></td>
+<td style="text-align:left">BGM割り当て修正</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="FF1-1-BugFix.ips">FF1-1-BugFix.ips</a></td>
+<td style="text-align:left">戦闘&amp;マップバグ修正</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="FF1-1-BugFix_at.ips">FF1-1-BugFix_at.ips</a></td>
+<td style="text-align:left">戦闘&amp;マップバグ修正 + 自動ターゲット</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="FF1-1-BGM_and_BugFix.ips">FF1-1-BGM_and_BugFix.ips</a></td>
+<td style="text-align:left">BGM割り当て修正 + 戦闘&amp;マップバグ修正</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="FF1-1-BGM_and_BugFix_at.ips">FF1-1-BGM_and_BugFix_at.ips</a></td>
+<td style="text-align:left">BGM割り当て修正 + 戦闘&amp;マップバグ修正 + 自動ターゲット</td>
+</tr>
+</tbody>
+</table>
+<h3 id="openmsx用-バトルosdスクリプト">openMSX用 バトルOSDスクリプト</h3>
+<p><a href="ff1_battle_overlay.tcl">ff1_battle_overlay.tcl</a></p>
+<h4 id="使用方法">使用方法</h4>
+<p>ユーザーフォルダ（Windowsであればマイドキュメント/openMSX）の
+<code>share/scripts</code> に <code>ff1_battle_overlay.tcl</code> 配置 して、openMSXを起動。</p>
+<p><code>F10</code>などで出るtcl コンソールから制御します。</p>
+<ul>
+<li>表示 <code>ff1_battle_overlay on</code></li>
+<li>消去 <code>ff1_battle_overlay off</code></li>
+<li>表示切替 <code>ff1_battle_overlay toggle</code></li>
+</ul>
+<p>自分でスクリプトを弄って、実行中に再読み込みさせたい場合は</p>
+<pre class="hljs"><code><div>source $::env(OPENMSX_USER_DATA)/scripts/ff1_battle_overlay.tcl
+</div></code></pre>
+<p>のようにすれば、スクリプトが再読み込み＆再実行されます。</p>
+<p>※ 再読み込みをしてもグローバルな変数などは残ったままなので注意</p>
+<h3 id="msx2版-bgm割り当て修正パッチについて">MSX2版 BGM割り当て修正パッチについて</h3>
 <p><a href="FF1-1-BGM_Fix.ips">FF1-1-BGM_Fix.ips</a></p>
 <p>MSX2版ファイナルファンタジーは
 ダンジョンのBGMがファミコン版と異なる曲が鳴る場所がいくつかあります。</p>
@@ -245,7 +300,7 @@
 </table>
 <p>解析の詳細を知りたい物好きは<a href="doc/ff1_msx_bgm_memo.md">doc/ff1_msx_bgm_memo.md</a> をどうぞ。</p>
 <hr>
-<h2 id="msx2版-バグ修正パッチ-自作">MSX2版 バグ修正パッチ (自作)</h2>
+<h3 id="msx2版-バグ修正パッチについて">MSX2版 バグ修正パッチについて</h3>
 <p><a href="FF1_MSX_BugFix.py">FF1_MSX_BugFix.py</a></p>
 <p>※ 実行はpython3.14.6推奨。</p>
 <pre class="hljs"><code><div>py FF1_MSX_BugFix.py 元DSKパス パッチ後DSKパス
@@ -397,7 +452,7 @@
 </tr>
 <tr>
 <td style="text-align:left">魔法防御の成長値</td>
-<td style="text-align:left">ジョブごとの魔法防御成長率および上限判定（+4以上制限）を適正化</td>
+<td style="text-align:left">ジョブID混入による過剰加算バグを解消し、ジョブごとの魔法防御成長率を適正化</td>
 </tr>
 <tr>
 <td style="text-align:left">複数レベルアップ対応</td>
@@ -412,8 +467,8 @@
 <td style="text-align:left">プレイヤー毒ダメージを2に正常化（最低1残る仕様は維持）し、再生持ち敵のターン回復処理を追加</td>
 </tr>
 <tr>
-<td style="text-align:left">モンクの素手防御力</td>
-<td style="text-align:left">防具なし時のモンク／スーパーモンクの防御力が戦闘後再計算で「レベルと同値」になるよう修正</td>
+<td style="text-align:left">モンクの素手・無防具仕様</td>
+<td style="text-align:left">素手時の攻撃力（Lv×2）・ヒット数2倍・クリティカル（Lv×2）、無防具防御力（Lv）を実装</td>
 </tr>
 <tr>
 <td style="text-align:left">逃走判定</td>
