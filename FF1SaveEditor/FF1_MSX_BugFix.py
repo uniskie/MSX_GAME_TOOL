@@ -4,7 +4,7 @@
 FF1_MSX_BugFix.py
 
 MSX2版『ファイナルファンタジー』(マイクロキャビン移植)のDSKイメージに対し、
-戦闘関連およびフィールド・マップ関連の不具合修正を適用するスクリプト。
+戦闘関連、フィールド・マップ関連およびメッセージの不具合修正を適用するスクリプト。
 
 処理フロー:
   1. インラインパッチ適用 (固定アドレスの修正およびフック配置先余剰枠の00初期化)
@@ -350,6 +350,14 @@ def build_inline_patches() -> List[InlinePatch]:
     # 3. SMAP.COM
     # オンラクの老人(0x97EE)、クレセント湖の賢者(0x96EF)、4大祭壇の調査判定(0x8077)は
     # MSX2版移植時点で修正済みであるため、パッチ対象外とする。
+
+    # 4. メッセージ整合修正 (MENU.COM / MENU.MSG)
+    # MSX2版ではコテージ使用時にHP・MP回復を行ってからセーブ確認へ進むため、文言を実挙動に合わせる (23 Byte)
+    # MENU.COM は 0x26A5(RAM 0xA6A5) に同一メッセージデータを持つため、MENU.COM と MENU.MSG の双方を更新する
+    cottage_orig = hex_to_bytes("C8 C9 8F 8B A5 91 C4 D7 C2 6D 95 9C A8 A7 8C 8F 8B A5 91 AC 96 B2 C5")
+    cottage_new  = hex_to_bytes("C8 C9 9D A8 A7 8C 7B 8F 8B A5 91 95 A8 95 99 C4 D7 C2 6D AC 96 B2 C5")
+    p.append(InlinePatch("MENU.COM", 0x29D7, cottage_orig, cottage_new, "コテージメッセージ修正 (MENU.COM内埋め込みテキスト)"))
+    p.append(InlinePatch("MENU.MSG", 0x0332, cottage_orig, cottage_new, "コテージメッセージ修正 (MENU.MSG)"))
 
     return p
 

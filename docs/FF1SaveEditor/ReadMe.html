@@ -247,7 +247,7 @@ MSX版セーブデータ保存時、装備画面での再計算時に参照さ�
 <li>表示切替 <code>ff1_battle_overlay toggle</code></li>
 </ul>
 <p>自分でスクリプトを弄って、実行中に再読み込みさせたい場合は</p>
-<pre class="hljs"><code><div>source $::env(OPENMSX_USER_DATA)/scripts/ff1_battle_overlay.tcl
+<pre class="hljs"><code><div><span class="hljs-keyword">source</span> <span class="hljs-variable">$::env</span>(OPENMSX_USER_DATA)/scripts/ff1_battle_overlay.tcl
 </div></code></pre>
 <p>のようにすれば、スクリプトが再読み込み＆再実行されます。</p>
 <p>※ 再読み込みをしてもグローバルな変数などは残ったままなので注意</p>
@@ -344,8 +344,8 @@ MSX版セーブデータ保存時、装備画面での再計算時に参照さ�
 <tr>
 <td style="text-align:left">宿・テントのMPセーブ</td>
 <td style="text-align:left">セーブ処理の後にMP回復が行われるため、回復分がセーブされない</td>
-<td style="text-align:left">セーブ前にMP全回復処理が完了しており、回復状態でセーブされる</td>
-<td style="text-align:left">修正不要（元から解消済）</td>
+<td style="text-align:left">セーブ前にMP全回復処理が完了しており、回復状態でセーブされる（コテージの文言のみFC版のまま）</td>
+<td style="text-align:left">処理は修正不要（コテージ文言のみパッチ対応）</td>
 </tr>
 <tr>
 <td style="text-align:left">NPC初期配置ミス</td>
@@ -479,6 +479,10 @@ MSX版セーブデータ保存時、装備画面での再計算時に参照さ�
 <td style="text-align:left">泉南側の水際（X=45〜50, Y=19）を調べた際にメッセージが出るようマップタイル（0x3B）を復元</td>
 </tr>
 <tr>
+<td style="text-align:left">コテージのメッセージ</td>
+<td style="text-align:left">MP回復後にセーブ確認を行うMSX2版の実動作に合わせ、表示文言を実態に沿う内容へ修正</td>
+</tr>
+<tr>
 <td style="text-align:left">オートターゲット（オプション）</td>
 <td style="text-align:left"><code>--auto-target</code> 指定時、味方の攻撃・単体魔法で対象が死亡している場合に生存敵を自動選択</td>
 </tr>
@@ -486,6 +490,11 @@ MSX版セーブデータ保存時、装備画面での再計算時に参照さ�
 </table>
 <p>過去にその辺の検証をされた方もおられるとは思うので、詳しい情報があったら教えて頂けると嬉しいです。</p>
 <p>解析の詳細を知りたい物好きは<a href="doc/ff1_msx_bugfix_btl.md">doc/ff1_msx_bugfix_btl.md</a> をどうぞ。</p>
+<h3 id="パッチ更新履歴">パッチ更新履歴</h3>
+<ul>
+<li>2026/11/15 (<code>FF1_MSX_BugFix.py</code> / バグ修正IPSパッチ)<br>
+コテージ使用時のメッセージがFC版仕様のまま（「ＨＰかいふく！セーブしてまほうかいふくもする？」）となっていたため、MP回復後にセーブ確認を行うMSX2版の実動作に合わせて「ＨＰとまほうをかいふくしました！セーブもする？」へ変更（<code>MENU.COM</code> / <code>MENU.MSG</code>）。</li>
+</ul>
 <hr>
 <h1 id="ファミコン版用romエディタの紹介">ファミコン版用ROMエディタの紹介</h1>
 <h2 id="hakkinff1">HakkinFF1</h2>
