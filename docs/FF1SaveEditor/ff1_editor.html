@@ -1152,7 +1152,7 @@ const KEY_ITEMS = [
 /**
  * 機種別アイテムマスターテーブル（ひな形定義）
  * FC版: 武器(1〜40)と防具(1〜40)でID体系が独立して管理される。
- * MSX版: 全アイテムが一元管理された体系のため、武器・防具で同一のマスターを参照する。
+ * MSX2版: 全アイテムが一元管理された体系のため、武器・防具で同一のマスターを参照する。
  */
 const PLATFORM_WEAPONS = {
   fc: [],
@@ -1201,7 +1201,7 @@ const PLATFORM_ARMORS = {
     PLATFORM_ARMORS.fc.push({ id: i, name: `[未定義 $${i.toString(16).toUpperCase()}]`, category: "unknown", atk: 0, hit: 0, def: (i * 5) & 0xFF, wt: (i * 2) & 0x7F, type: "body", jobs: [] });
   }
 
-  // --- MSX版 共通マスター ---
+  // --- MSX2版 共通マスター ---
   const msxMaster = [];
   msxMaster.push({ id: 0, name: "(なし)", category: "none", atk: 0, hit: 0, def: 0, wt: 0, type: "none", jobs: [0,1,2,3,4,5,6,7,8,9,10,11] });
   for (let i = 0; i < 21; i++) {
@@ -1222,7 +1222,7 @@ const PLATFORM_ARMORS = {
     msxMaster.push({ id: i, name: `[未定義 $${i.toString(16).toUpperCase()}]`, category: "unknown", atk: (i * 3) & 0xFF, hit: (i * 7) & 0xFF, def: (i * 5) & 0xFF, wt: (i * 2) & 0x7F, type: "body", jobs: [] });
   }
 
-  // MSX版では武器と防具のマスター内容が同一
+  // MSX2版では武器と防具のマスター内容が同一
   PLATFORM_WEAPONS.msx = msxMaster;
   PLATFORM_ARMORS.msx = msxMaster;
 })();
@@ -1245,7 +1245,7 @@ function setPlatform(platform) {
  * ワールドマップ主要地点マスターデータ
  * 
  * 基準座標(fc)は絶対タイル座標(0〜255)。
- * MSX版の座標は、カメラ原点オフセット(横16/2 - 1 = 7, 縦12/2 = 6)を減算
+ * MSX2版の座標は、カメラ原点オフセット(横16/2 - 1 = 7, 縦12/2 = 6)を減算
  * ファミコン版のプレイヤー座標は、カメラ原点オフセット(横16/2 - 1 = 7, 縦14/2 = 7)を減算
  * 
  *  ※ MSX2の描画解像度 256x192ドット = 16x12タイル
@@ -1883,7 +1883,7 @@ class MsxSprDecoder {
  * セーブデータ定義
  * +0x0000〜+0x13FF はゲーム実行中のワークRAM（セーブ未実行や電源断で状態が不定となる領域）。
  */
-const SAV_ADDR_MSX = 0x1400;  // MSX版セーブデータ開始アドレス(実行時はRAM 0xC000H〜0xC3FFH)
+const SAV_ADDR_MSX = 0x1400;  // MSX2版セーブデータ開始アドレス(実行時はRAM 0xC000H〜0xC3FFH)
 const SAV_ADDR_FC  = 0x0400;  // FC版セーブデータ開始アドレス
 
 /**
@@ -1891,7 +1891,7 @@ const SAV_ADDR_FC  = 0x0400;  // FC版セーブデータ開始アドレス
  * 
  * ■ 座標仕様の補足:
  * - FC版: ワールドマップ(256x256タイル)上の絶対タイル座標(0〜255)を直接1バイトで保持。
- * - MSX版: 
+ * - MSX2版: 
  *   - 乗り物(1640H〜): 画面解像度(256x192=16x12タイル)の中心表示用カメラ原点として保持。
  *     そのため、FC版絶対座標から画面半径(X-7, Y-6)オフセットした値となる。格納順は[Y, X]。
  *   - プレイヤー(1631H〜): VRAM管理都合で32タイル(8ブロック)単位に上位/下位の2バイト分割。
@@ -2313,7 +2313,7 @@ class GameDataManager {
     return 'jp';
   }
 
-  // MSX版 BDATA.TBL内オフセット定数
+  // MSX2版 BDATA.TBL内オフセット定数
   static MSX_BDATA_OFFSETS = {
     weapons: 0x0000,
     armors: 0x0140,
@@ -2321,7 +2321,7 @@ class GameDataManager {
     growth: 0x1A20
   };
 
-  // MSX版 STARTUP.COM内オフセット定数
+  // MSX2版 STARTUP.COM内オフセット定数
   static MSX_STARTUP_OFFSETS = {
     initialStats: 0x0BFA
   };
@@ -2413,7 +2413,7 @@ class GameDataManager {
         PLATFORM_ARMORS.fc[i + 1].wt = wt;
       }
 
-      // MSX版テーブル (武器: ID 28〜67, 防具: ID 68〜107)
+      // MSX2版テーブル (武器: ID 28〜67, 防具: ID 68〜107)
       if (PLATFORM_WEAPONS.msx[28 + i]) {
         PLATFORM_WEAPONS.msx[28 + i].atk = atk;
         PLATFORM_WEAPONS.msx[28 + i].hit = hit;
@@ -2642,7 +2642,7 @@ class GameDataManager {
     this.romData.diffList = [];
     this.romData.diffDetected = false;
     this.lastDiffFileName = fileName || loadedRomOrDskFileName || "";
-    this.lastDiffSourceTitle = "MSX版 DSK";
+    this.lastDiffSourceTitle = "MSX2版 DSK";
 
     // メニュー画面用キャラクタ画像の展開 (MENU_L1.PIC / MENU_L2.PIC)
     this.msxMenuL1 = null;
@@ -2790,7 +2790,7 @@ class GameDataManager {
 
     this.lastDiffReport = diffReports;
     if (this.romData.diffDetected) {
-      this.printDiffConsoleReport("MSX版 DSK", this.lastDiffFileName, diffReports);
+      this.printDiffConsoleReport("MSX2版 DSK", this.lastDiffFileName, diffReports);
     }
 
     this.romData.diffDetected = (this.romData.diffList.length > 0);
@@ -2941,7 +2941,7 @@ class GameDataManager {
   static buildClassSprites() {
     this.classSprites = [];
 
-    // MSX版 DSKからのメニューキャラ展開
+    // MSX2版 DSKからのメニューキャラ展開
     if (msxDskFs && (this.msxMenuL1 || this.msxMenuL2)) {
       for (let job = 0; job < 12; job++) {
         const picAsset = (job < 6) ? this.msxMenuL1 : this.msxMenuL2;
@@ -3901,7 +3901,7 @@ function handleLoadedFile(file, forceRole = null) {
       loadedSavFileName = file.name;
       setPlatform('msx');
       loadSavToUI();
-      document.getElementById('fileStatus').innerText = `【DSK】MSX版 ユーザーDSK: ${file.name} (${buf.length} bytes)`;
+      document.getElementById('fileStatus').innerText = `【DSK】MSX2版 ユーザーDSK: ${file.name} (${buf.length} bytes)`;
       document.getElementById('exportBtn').disabled = false;
       return;
     }
@@ -3932,7 +3932,7 @@ function loadSavToUI() {
   const playerOffset = (activePlatform === 'msx') ? MSX_CAMERA_OFFSET : FC_CAMERA_OFFSET;
   const vehicleOffset = (activePlatform === 'msx') ? MSX_CAMERA_OFFSET : {x:0, y:0};
 
-  // プレイヤー座標 (MSX版は32タイル分割を8bitへパッキング: 1631H〜1632H=X, 1633H〜1634H=Y)
+  // プレイヤー座標 (MSX2版は32タイル分割を8bitへパッキング: 1631H〜1632H=X, 1633H〜1634H=Y)
   let pX = 0, pY = 0;
   if (activePlatform === 'msx') {
     pX = (savData[layout.playerXBlockAddr] * 32) + savData[layout.playerXOffsetAddr];
@@ -4011,7 +4011,7 @@ function loadSavToUI() {
     document.getElementById(`c${c}_def`).value = savData[base + 0x22];
     document.getElementById(`c${c}_eva`).value = savData[base + 0x23];
 
-    // レベル (FC版: 内部値0=Lv1, MSX版: 内部値そのまま)
+    // レベル (FC版: 内部値0=Lv1, MSX2版: 内部値そのまま)
     const rawLv = savData[base + layout.lvOffset];
     document.getElementById(`c${c}_lv`).value = layout.lvZeroBased ? (rawLv + 1) : rawLv;
 
@@ -4183,7 +4183,7 @@ function applyUIToSav() {
     savData[base + 0x22] = Math.max(0, Math.min(getLimit('combat'), parseInt(document.getElementById(`c${c}_def`).value) || 0));
     savData[base + 0x23] = Math.max(0, Math.min(getLimit('combat'), parseInt(document.getElementById(`c${c}_eva`).value) || 0));
 
-    // レベル (FC版: 内部値0=Lv1, MSX版: 内部値そのまま)
+    // レベル (FC版: 内部値0=Lv1, MSX2版: 内部値そのまま)
     const lv = parseInt(document.getElementById(`c${c}_lv`).value) || 1;
     const lvRaw = layout.lvZeroBased
       ? Math.max(0, Math.min(getLimit('lv') - 1, lv - 1))
@@ -4214,7 +4214,7 @@ function applyUIToSav() {
       savData[base + 0x1C + a] = id;
     }
 
-    // MSX版用: 素パラメータ (+0x28: 力/2, +0x29: 素の命中率, +0x2A: 素の回避率) を保存
+    // MSX2版用: 素パラメータ (+0x28: 力/2, +0x29: 素の命中率, +0x2A: 素の回避率) を保存
     if (activePlatform === 'msx') {
       const strVal = savData[base + 0x10];
       const agiVal = savData[base + 0x11];
@@ -4916,7 +4916,7 @@ class WorldMapViewer {
     sprCanoe: 0xA000 + 0x40 * 4                     // カヌーグラフィック
   };
 
-  // MSX版 ファイル内オフセット定数
+  // MSX2版 ファイル内オフセット定数
   static MSX_OFFSETS = {
     mapPtrBase: 0x8200,                             // MAIN.MAP ポインタ減算基準値
     mainChr: {
@@ -4951,7 +4951,7 @@ class WorldMapViewer {
   static msxPalette = null;             // MSX MAINBG.PIC カラーパレット (16色 RGB)
   static currentDataSource = 'rom';     // 'rom' | 'msx' | 'preset'
 
-  // MSX版 MAINBG.PIC 標準カラーパレット (16色 RGB)
+  // MSX2版 MAINBG.PIC 標準カラーパレット (16色 RGB)
   static MSX_MAINBG_PALETTE = [
     [0, 0, 0],       // 0: 黒
     [0, 0, 0],       // 1: 黒
@@ -5063,7 +5063,7 @@ class WorldMapViewer {
     desert:   0x38  // 薄黄 (砂漠)
   };
 
-    // MSX版 地形ベースカラー (MAINBG.PIC パレットインデックス)
+    // MSX2版 地形ベースカラー (MAINBG.PIC パレットインデックス)
   static MSX_TYPE_COLORS = {
     teleport: 5,  // 赤
     safe:     13, // 灰
@@ -5370,7 +5370,7 @@ class WorldMapViewer {
   /**
    * 運河が開通しているかを判定
    * FC版:  UIチェックON = 運河封鎖 (未開通) のため反転
-   * MSX版: UIチェックON = 運河開通
+   * MSX2版: UIチェックON = 運河開通
    */
   static isCanalOpen() {
     const el = document.getElementById('canalFlag');
@@ -5531,7 +5531,7 @@ class WorldMapViewer {
   }
 
   /**
-   * MSX版 DSKからワールドマップデータ、CHR、メタタイルを展開取得
+   * MSX2版 DSKからワールドマップデータ、CHR、メタタイルを展開取得
    */
   static loadFromMsxDsk(dsk, fs) {
     const mmapVec = fs.getFile("MMAP.VEC");
@@ -5614,7 +5614,7 @@ class WorldMapViewer {
   }
 
   /**
-   * MSX版 MAINBG.PIC から 8x8 キャラクタ全256種を128x128pxの共通アトラスへ展開
+   * MSX2版 MAINBG.PIC から 8x8 キャラクタ全256種を128x128pxの共通アトラスへ展開
    */
   static decodeMsxChrAtlas(mainbgPicBytes) {
     if (!this.chrAtlasCanvas) {
@@ -5643,7 +5643,7 @@ class WorldMapViewer {
   }
 
   /**
-   * MSX版 MAIN.CHR の4プレーン定義から 16x16 メタタイル全128種を256x128pxアトラスへ合成
+   * MSX2版 MAIN.CHR の4プレーン定義から 16x16 メタタイル全128種を256x128pxアトラスへ合成
    */
   static decodeMsxMetatiles() {
     if (!this.tileAtlasCanvas) {
@@ -5681,7 +5681,7 @@ class WorldMapViewer {
   }
 
   /**
-   * MSX版 MSPR.SPR および JOBS_L1.PIC からスプライトを展開して登録
+   * MSX2版 MSPR.SPR および JOBS_L1.PIC からスプライトを展開して登録
    */
   static decodeMsxSprites(msprBytes, fs) {
     if (!msprBytes) return;

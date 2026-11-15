@@ -1,14 +1,17 @@
-# FC版・MSX版対応 ファイナルファンタジーⅠ セーブデータエディタ
+# ファイナルファンタジーⅠ セーブデータエディタ（FC版/MSX2版 両対応）
 
 オンラインから実行：  
 <https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/ff1_editor.html>
 
-- **MSX版** : ユーザーディスクイメージ（DSKファイル）をエディタウィンドウにドロップしてください。
-- **FC版**  : SAVファイルをエディタウィンドウにドロップしてください。
+- **MSX2版** : ユーザーディスクイメージ（`*.DSK`）をエディタウィンドウにドロップしてください。
+- **FC版**  : `*.SAV`ファイルをエディタウィンドウにドロップしてください。
 
-  ※ 注） RetroFreakのSAVファイルなどの、特殊なヘッダがついたセーブデータの場合は、ヘッダを除去したものをドロップしてください。
+  - ※注）  
+   **RetroFreak**のSAVファイルなどの、**特殊なヘッダ**がついたセーブデータの場合は、**ヘッダを除去したもの**をドロップしてください。
+  
+    （気が向いたらRetroFreak用セーブデータの読み書き対応をするかもしれません。） 
 
-編集が終わったら保存ボタンをおすとダウンロードフォルダに編集後のセーブデータが保存されます。
+編集が終わったら**SAVを保存**ボタンをおすとダウンロードフォルダに編集後のセーブデータが保存されます。
 
 ![screenshot](screenshot.png)
 
@@ -18,14 +21,18 @@
 - [ff1_editor_world_map.js](ff1_editor_world_map.js)
 - [ff1_editor_world_sprites.png](ff1_editor_world_sprites.png)
 
-※ ff1_editor_world_map.js はローカル環境用の画像データです。ローカル環境ではjsコードから画像のピクセル情報を参照できない為、base64エンコードで用意した画像ファイルです。  
-[ff1_editor_world_map.png](ff1_editor_world_map.png) を [bmp16_to_js.py](bmp16_to_js.py) で変換しています。
+補足：
 
-オンライン環境（サーバ経由）であれば、
-[ff1_editor_world_map.js](ff1_editor_world_map.js) の代わりに [ff1_editor_world_map.png](ff1_editor_world_map.png) があれば問題ありません。
+- ※ [ff1_editor_world_map.js](ff1_editor_world_map.js) はローカル環境用の画像データです。  
+  ローカル環境ではjsコードから画像のピクセル情報を参照できない為、base64エンコードで用意した画像ファイルです。  
+  [ff1_editor_world_map.png](ff1_editor_world_map.png) を [bmp16_to_js.py](bmp16_to_js.py) で変換しています。
+
+- オンライン環境（サーバ経由）であれば、
+  [ff1_editor_world_map.js](ff1_editor_world_map.js) の代わりに [ff1_editor_world_map.png](ff1_editor_world_map.png) があれば問題ありません。
 
 - ジョブ画像
-  [ff1_editor_class_icon.png](ff1_editor_class_icon.png)相当の画像を自分で用意して、`ff1_editor_class_chr.png`として配置しておくと、ジョブ画像として使用されます。
+  [ff1_editor_class_icon.png](ff1_editor_class_icon.png) 相当の画像を自分で用意して、`ff1_editor_class_chr.png` として配置しておくと、ジョブ画像として使用されます。  
+  デフォルトのアイコンは [ff1_editor_class_icon.png](ff1_editor_class_icon.png) を [class_icon_to_js.py](class_icon_to_js.py) で jsソースに変換して `ff_edoitor.html` に組み込んでいます。
 
 ## 簡易ガイド
 
@@ -74,15 +81,6 @@
 
 - ファミコン版ROMはUS版/JP版両対応（自動判定）です。
 
-## エディタ用画像 → js変換
-
-- 16色BMP --> base64エンコード文字列
-  [bmp16_to_js.py](bmp16_to_js.py) ...  
-  [ff1_editor_world_map.bmp](ff1_editor_world_map.bmp) を jsソースに変換
-- 透明/不透明2値 → 1bppパターンデータ
-  [class_icon_to_js.py](class_icon_to_js.py)  
-  [ff1_editor_class_icon.png](ff1_editor_class_icon.png) を jsソースに変換
-
 ## 参考資料
 
 ### 参考：FC版 ファイナルファンタジー 解析資料
@@ -95,7 +93,7 @@
 - HakkinFF1  
   <https://hakkinff1.digitaldreamers.org/index.html>
 
-### 参考：MSX版ファイナルファンタジー 解析資料
+### 参考：MSX2版ファイナルファンタジー 解析資料
 
 - Final Fantasy MSX Performance Patch  
   <https://github.com/abekermsx/Final-Fantasy-MSX-Performance-Patch>
@@ -109,30 +107,29 @@
 ### ff1_editor.html
 
 - 2026/11/14  
-  MSX版セーブデータ保存時、装備画面での再計算時に参照される素パラメータ（`+0x28`: 力/2、`+0x29`: 素の命中率、`+0x2A`: 素の回避率）を同期して書き込むように修正。
+  MSX2版セーブデータ保存時、装備画面での再計算時に参照される素パラメータ（`+0x28`: 力/2、`+0x29`: 素の命中率、`+0x2A`: 素の回避率）を同期して書き込むように修正。
 - パラメータ自動計算時のジョブ別命中率計算（初期値およびレベルアップごとの成長値）を実機仕様に準拠した式へ修正。
 
 ---
 
-# MSX版推奨パッチの紹介
+# MSX2版推奨パッチの紹介
 
-## Final Fantasy MSX Performance Patch
+## MSX2版ファイナルファンタジー パフォーマンス改善パッチ
 
-<https://github.com/abekermsx/Final-Fantasy-MSX-Performance-Patch>
+[Final Fantasy MSX Performance Patch](https://github.com/abekermsx/Final-Fantasy-MSX-Performance-Patch)
 
-MSX2版がフレームレート制限の解除と速度最適化により、移動が快適になるパッチです。  
+フレームレート制限の解除と速度最適化により、移動が快適になるパッチです。  
 
 MSX2/2+でも大きな効果がありますが、MSX turboRではさらに快適になります。
 場所によっては速すぎて困るケースも？
 
-メッセージウィンドウの表示速度まで高速になるので、会話ウィンドウ開閉時の音に違和感は出ますが、
-基本的に全体が快適になります。
+メッセージの表示速度まで高速になるので、会話ウィンドウ開閉時の音に違和感は出たり、戦闘のメッセージ速度が速くなりすぎたりはしますが、基本的に全体が快適になります。
 
-VDPの処理がボトルネックなので、もともと処理落ちするところはやっぱり処理落ちします。（無改造よりマシですが）
+MSX2版はVDPの処理がボトルネックなので、もともと処理落ちするところはやっぱり処理落ちします。（無改造よりマシですが）
 
 ---
 
-## 自作パッチ
+## MSX2版ファイナルファンタジー向け自作パッチ
 
 | パッチファイル（ipsファイル）                              | 内容                                                   |
 | :--------------------------------------------------------- | :----------------------------------------------------- |
@@ -142,32 +139,7 @@ VDPの処理がボトルネックなので、もともと処理落ちすると�
 | [FF1-1-BGM_and_BugFix.ips](FF1-1-BGM_and_BugFix.ips)       | BGM割り当て修正 + 戦闘&マップバグ修正                  |
 | [FF1-1-BGM_and_BugFix_at.ips](FF1-1-BGM_and_BugFix_at.ips) | BGM割り当て修正 + 戦闘&マップバグ修正 + 自動ターゲット |
 
-### openMSX用 バトルOSDスクリプト
-
-[ff1_battle_overlay.tcl](ff1_battle_overlay.tcl)
-
-#### 使用方法
-
-ユーザーフォルダ（Windowsであればマイドキュメント/openMSX）の
-`share/scripts` に `ff1_battle_overlay.tcl` 配置 して、openMSXを起動。
-
-`F10`などで出るtcl コンソールから制御します。
-
-- 表示 `ff1_battle_overlay on`
-- 消去 `ff1_battle_overlay off`
-- 表示切替 `ff1_battle_overlay toggle`
-
-自分でスクリプトを弄って、実行中に再読み込みさせたい場合は
-
-```tcl
-source $::env(OPENMSX_USER_DATA)/scripts/ff1_battle_overlay.tcl
-```
-
-のようにすれば、スクリプトが再読み込み＆再実行されます。
-
-※ 再読み込みをしてもグローバルな変数などは残ったままなので注意
-
-### MSX2版 BGM割り当て修正パッチについて
+### MSX2版ファイナルファンタジー BGM割り当て修正パッチ
 
 [FF1-1-BGM_Fix.ips](FF1-1-BGM_Fix.ips)
 
@@ -190,7 +162,7 @@ MSX2版ファイナルファンタジーは
 
 ---
 
-### MSX2版 バグ修正パッチについて
+### MSX2版ファイナルファンタジー バグ修正パッチ
 
 [FF1_MSX_BugFix.py](FF1_MSX_BugFix.py)
 
@@ -207,11 +179,11 @@ py FF1_MSX_BugFix.py 元DSKパス パッチ後DSKパス
 
 MSX2版では既に製品版で対応済みのバグがいくつかあるのと、動作が変更になっている部分もあるので、出来るだけ ファミコン版+FF1J_Bugfixes に近い動作になるようなパッチとしてみました。
 
-### MSX版とFC版の主な仕様・バグ状況の違い
+### MSX2版とFC版の主な仕様・バグ状況の違い
 
-移植元であるFC版の既知バグのうち、MSX版で既に解消されている項目および仕様差の比較です。
+移植元であるFC版の既知バグのうち、MSX2版で既に解消されている項目および仕様差の比較です。
 
-| 項目                   | FC版の実態                                                        | MSX版の実態                                                                                  | 本パッチでの対応                             |
+| 項目                   | FC版の実態                                                        | MSX2版の実態                                                                                 | 本パッチでの対応                             |
 | :--------------------- | :---------------------------------------------------------------- | :------------------------------------------------------------------------------------------- | :------------------------------------------- |
 | プロテス（敵使用時）   | 敵プロテス時にROMの初期値を参照し、効果が正しく機能しない         | RAMの敵バッファから正しく参照しており、防御力が正常に上昇                                    | 修正不要（元から解消済）                     |
 | 追加効果（ミス時）     | 物理攻撃が0ヒット（ミス）でも状態異常などの追加効果が発生する     | ヒット数0判定が実装されており、0ヒット時は追加効果不発                                       | 修正不要（元から解消済）                     |
@@ -259,6 +231,225 @@ MSX2版では既に製品版で対応済みのバグがいくつかあるのと�
 
 - 2026/11/15 (`FF1_MSX_BugFix.py` / バグ修正IPSパッチ)  
   コテージ使用時のメッセージがFC版仕様のまま（「ＨＰかいふく！セーブしてまほうかいふくもする？」）となっていたため、MP回復後にセーブ確認を行うMSX2版の実動作に合わせて「ＨＰとまほうをかいふくしました！セーブもする？」へ変更（`MENU.COM` / `MENU.MSG`）。
+
+### おまけ：openMSX用 バトルOSDスクリプト
+
+[ff1_battle_overlay.tcl](ff1_battle_overlay.tcl)
+
+#### 使用方法
+
+ユーザーフォルダ（Windowsであればマイドキュメント/openMSX）の
+`share/scripts` に `ff1_battle_overlay.tcl` 配置 して、openMSXを起動。
+
+`F10`などで出るtcl コンソールから制御します。
+
+- 表示 `ff1_battle_overlay on`
+- 消去 `ff1_battle_overlay off`
+- 表示切替 `ff1_battle_overlay toggle`
+
+自分でスクリプトを弄って、実行中に再読み込みさせたい場合は
+
+```tcl
+source $::env(OPENMSX_USER_DATA)/scripts/ff1_battle_overlay.tcl
+```
+
+のようにすれば、スクリプトが再読み込み＆再実行されます。
+
+※ 再読み込みをしてもグローバルな変数などは残ったままなので注意
+
+---
+
+# MSX2版ファイナルファンタジー用ツール
+
+## FFSayDosTool
+
+`FFSayDosTool.py`はMSX2版FFゲームディスクに収められているファイルの取り出し＆格納ツールです。
+
+MSX2版ファイナルファンタジーはSayDosというファイル管理システムでのファイル操作と、戦闘用敵キャラクタの直接セクタアクセスを行っています。
+
+ゲーム中ではファイルIDに対しての開始・終了セクタリストをメモリにキャッシュしていて、それを参照してセクタアクセスしているようです。
+
+敵キャラグラフィックに関してはファイルIDで管理できる数を超えてしまうため、BATTLE.COM内に独自に敵キャラIDに対応するセクタリストを持っているようです。
+
+- [FFSayDosTool.py](FFSayDosTool.py)
+- [doc/FFSayDosTool_specification.md](doc/FFSayDosTool_specification.md)
+
+## FFPicTool
+
+`FFPicTool.py`は、MSX2版FFのPICファイルを展開・圧縮するツールです。
+
+SayDosToolで取り出したファイルの中にあるPICファイルはRLE圧縮画像ファイルです。  
+そのPICファイルを解凍したり圧縮したりするためのツールです。
+
+- [FFPicTool.py](FFPicTool.py)
+- [doc/FFPicTool_specification.md](doc/FFPicTool_specification.md)
+
+## FFSprPreview
+
+`FFSprPreview.html`はMSX2版ファイナルファンタジーのスプライトデータを表示閲覧するお遊び＆確認用ツールです。  
+画像書き出しにも対応しています。
+
+SayDosToolで取り出したファイルの中にあるSPRファイルはスプライトデータです。
+
+また、BDATA.TBLの末尾にもSPRファイル相当のデータが埋め込まれています。
+
+[FFSprPreview.html](FFSprPreview.html)
+
+`*.SPR` か `BDATA.TBL` かでパレットを自動的に切り替えます。
+
+## ff1_msg_list
+
+DSKやMESSAVE.VEC+MESSAGE.MSGから会話メッセージの一覧を出力するお遊び&確認用ツールです。
+
+```text
+usage: ff1_msg_list.py [-h] [-o OUTPUT] [-f {text,tsv,json}] [--oneline] [--raw-ctrl] [--base-addr BASE_ADDR]
+                       [--vec-offset VEC_OFFSET] [--msg-offset MSG_OFFSET] [--msg-size MSG_SIZE] [--no-vec]
+                       inputs [inputs ...]
+```
+
+詳細は`-h` オプションのヘルプを参照ください。
+
+---
+
+### IPSパッチツール
+
+`ips_manager.py` は IPSパッチをまとめて処理するために作成したpythonスクリプトです。
+
+複数のIPSを順番に合成する場合
+重複時は警告を出し、重複時上書き［後行優先］となっています。
+
+```text
+usage: ips_manager.py [-h] -o OUTPUT [-t TARGET] [--on-conflict {overwrite,keep,abort}] [--no-warn] [--strict-same]
+                      patches [patches ...]
+
+positional arguments:
+  patches               適用・合成するIPSファイル（指定順に処理）
+
+options:
+  -h, --help            show this help message and exit
+  -o, --output OUTPUT   出力ファイルパス
+  -t, --target TARGET   指定時はベースファイルに直接適用して出力（未指定時はIPSとして合成出力）
+  --on-conflict {overwrite,keep,abort}
+                        重複時の動作: overwrite(重複時上書き: 後行優先), keep(重複時無視: 先行優先), abort(エラー中断)
+  --no-warn             重複時の警告メッセージを表示しない
+  --strict-same         同じバイト値の上書きも重複として扱う
+````
+
+詳細は `-h` オプションのヘルプを参照ください。
+
+---
+
+# Binary Editor Bz - MSX Custom 向け エンコード定義ファイル
+
+**Binary Editor Bz - MSX Custom**  
+<https://github.com/uniskie/MSX_MISC_TOOLS/tree/main/BinaryEditorBz_for_MSX>
+
+「ツール」→「カスタムエンコードの編集」でフォルダが開くので、
+そこへ
+
+[for_BzEditor_MSX_Custom/](for_BzEditor_MSX_Custom/) の中にあるファイル
+
+- FF1.def
+- FF1_oped_FC.def
+- FF1_oped_MSX.def
+
+をコピー。
+
+---
+
+# ファミコン版推奨パッチの紹介
+
+詳細は [FF1_FC_Patch_memo.md](FF1_FC_Patch_memo.md)
+
+## Chaos Rush氏によるファイナルファンタジー翻訳版 v1.3用 Final Fantasy J バグ修正パッチ
+
+[FF1J BugFixes](https://www.romhacking.net/hacks/5597/)
+
+IPSファイル： `FF1J_BugFixes.ips`
+
+ドキュメント日本語訳：  [FF1J_FC_Bugfixes_jp.md](FF1J_FC_Bugfixes_jp.md)
+
+海外の有志が製作されたバグ修正パッチ。
+英語翻訳改造パッチ向けに作られたバグフィックス集のうち、
+無改造日本版ROMに当てても問題ない物を集めたパッチとのことです。
+
+日本版で問題が起きる修正パッチは除外してあるため、いくつか未対応のバグもあります。
+
+※ ROBOTチェックが通過できない場合は、プライベートモードやFireFoxの組み込みVPNを試してみてください。
+
+## アキラナオル氏によるファイナルファンタジー用 各種修正&便利パッチ集
+
+[アキラナオルの部屋](https://akiranaoru.web.fc2.com/#ff1)
+
+FF2やDQなど他のゲームのパッチも。
+
+EASY版、海と川のアニメ、コテージ修正、Bダッシュ、自動再ターゲット、メッセージ速度変更
+
+統合版は見た目がファイナルファンタジー3に寄っているので、オリジナルの雰囲気を重視する場合は自分で個別パッチを組み合わせて使用するのがお勧めです。
+
+FF1J_BugFixesに含まれていないパッチが盛りだくさんですが、
+逆に FF1J_BugFixes にあって、こちらに無い物もあるので、やはり組み合わせがお勧めです。
+
+## パッチ合成のお勧め
+
+競合するパッチを除外した組み合わせです。
+
+IPSはROMファイルにパッチを当てて使用しても良いですが、NestopiaやRetroFreakなど、実行時にipsファイルを指定して使用することもできます。
+
+### easyパッチ について
+
+セーブデータはROMファイル名で区別されれます。
+
+通常版とEASY版で
+セーブデータを共用したくない場合
+
+EASYパッチだけを当てた
+`ファイナルファンタジーEASY.NES`
+を作っておくと良いかもしれません。
+
+### FF1J_BugFixes+MinFixPlus
+
+バグ修正を網羅。
+オリジナルの雰囲気重視。
+かつ便利。
+
+- FF1J_BugFixes+MinFix
+  - FF1J_BugFixes [FF1J_FC_Bugfixes_jp.md](FF1J_FC_Bugfixes_jp.md)
+  - FINAL_FANTASY1_COTTAGE
+  - FINAL_FANTASY1_OMISE
+  - FINAL_FANTASY1_KOUGEKI
+- FINAL_FANTASY1_UMI
+- FINAL_FANTASY1_KAIWA
+- FINAL_FANTASY1_STATUS
+- FINAL_FANTASY1_MENU
+- FINAL_FANTASY1_B_DASH
+- FINAL_FANTASY1_SENTOUSPEEDx4
+
+これをEASYパッチと組み合わせて使っています。
+
+`FF1J_BugFixes+MinFixPlus.ips` の作成
+
+````text
+python ips_manager.py F1J_BugFixes.ips FINAL_FANTASY1_COTTAGE.ips FINAL_FANTASY1_OMISE.ips FINAL_FANTASY1_KOUGEKI.ips FINAL_FANTASY1_UMI.ips FINAL_FANTASY1_KAIWA.ips FINAL_FANTASY1_STATUS.ips FINAL_FANTASY1_MENU.ips FINAL_FANTASY1_B_DASH.ips FINAL_FANTASY1_SENTOUSPEEDx4.ips -o FF1J_BugFixes+MinFixPlus.ips
+````
+
+`ファイナルファンタジー.NES` に  
+`FF1J_BugFixes+MinFixPlus.ips` パッチを当てた  
+`FF1J_BugFixes+MinFix.NES` の作成：
+
+````text
+python ips_manager.py -t ファイナルファンタジー.NES FF1J_BugFixes+MinFix.ips -o "ファイナルファンタジー_BugFixes+MinFix.NES"
+````
+
+### Nestopiaでの使用例
+
+1. イージー+FixPlus：  
+   `ファイナルファンタジーEASY.NES`読込→`FF1J_BugFixes+MinFix.ips`読込
+
+2. 通常+FixPlus：  
+   `ファイナルファンタジー.NES`読込→`FF1J_BugFixes+MinFix.ips`読込
+
+※ ROMファイル名でSAVファイルが分かれるので、EASYとノーマルのNESファイルを使用して、IPSを実行時適用にしています。
 
 ---
 
@@ -338,88 +529,3 @@ New ProjectからROMを読み込んで作成されたプロジェクトフォル
 ### 注意事項
 
 ROMファイル名やパスには日本語を使わないでください。エラーになります。
-
----
-
-# Binary Editor Bz - MSX Custom 向け エンコード定義ファイル
-
-**Binary Editor Bz - MSX Custom**  
-<https://github.com/uniskie/MSX_MISC_TOOLS/tree/main/BinaryEditorBz_for_MSX>
-
-「ツール」→「カスタムエンコードの編集」でフォルダが開くので、
-そこへ
-
-[for_BzEditor_MSX_Custom/](for_BzEditor_MSX_Custom/) の中にあるファイル
-
-- FF1.def
-- FF1_oped_FC.def
-- FF1_oped_MSX.def
-
-をコピー。
-
----
-
-# MSX版用ツール
-
-## FFSayDosTool
-
-MSX版ファイナルファンタジーはSayDosというファイル管理システムと、戦闘用敵キャラクタの直接セクタアクセスを行っています。
-
-`FFSayDosTool.py`はそれらファイルの取り出し＆格納ツールです。
-
-- [FFSayDosTool.py](FFSayDosTool.py)
-- [doc/FFSayDosTool_specification.md](doc/FFSayDosTool_specification.md)
-
-## FFPicTool
-
-SayDosToolで取り出したファイルの中にある
-PICファイルはRLE圧縮画像ファイルです。
-
-`FFPicTool.py`は、このPICファイルを展開・圧縮するツールです。
-
-- [FFPicTool.py](FFPicTool.py)
-- [doc/FFPicTool_specification.md](doc/FFPicTool_specification.md)
-
-## FFSprPreview
-
-SayDosToolで取り出したファイルの中にあるSPRファイルはスプライトデータです。
-
-また、BDATA.TBLの末尾にもSPRファイル相当のデータが埋め込まれています。
-
-`FFSprPreview.html`はこのスプライトデータを表示閲覧するツールです。
-画像書き出しにも対応しています。
-
-[FFSprPreview.html](FFSprPreview.html)
-
-`*.SPR` か `BDATA.TBL` かでパレットを自動的に切り替えます。
-
-## ff1_msg_list
-
-DSKやMESSAVE.VEC+MESSAGE.MSGから会話メッセージの一覧を出力するツールです。
-
-```text
-usage: ff1_msg_list.py [-h] [-o OUTPUT] [-f {text,tsv,json}] [--oneline] [--raw-ctrl] [--base-addr BASE_ADDR]
-                       [--vec-offset VEC_OFFSET] [--msg-offset MSG_OFFSET] [--msg-size MSG_SIZE] [--no-vec]
-                       inputs [inputs ...]
-
-MSX版ファイナルファンタジー メッセージリスト出力ツール
-
-positional arguments:
-  inputs                DSKファイル、または MESSAGE.VEC と MESSAGE.MSG の生バイナリ
-
-options:
-  -h, --help            show this help message and exit
-  -o, --output OUTPUT   出力ファイルパス (UTF-8)。省略時は標準出力
-  -f, --format {text,tsv,json}
-                        出力形式 (デフォルト: text)
-  --oneline             text形式でメッセージ内の改行を \n として1行で表示
-  --raw-ctrl            制御コードを <NAME> 等ではなく <02> のような16進表記にする
-  --base-addr BASE_ADDR
-                        MESSAGE.VEC の基準アドレス (デフォルト: 0x8200)
-  --vec-offset VEC_OFFSET
-                        DSK内の MESSAGE.VEC オフセット (デフォルト: 0x6A400)
-  --msg-offset MSG_OFFSET
-                        DSK内の MESSAGE.MSG オフセット (デフォルト: 0x6A600)
-  --msg-size MSG_SIZE   DSK内の MESSAGE.MSG サイズ (デフォルト: 13312)
-  --no-vec              MESSAGE.MSG 単体指定時に同ディレクトリの MESSAGE.VEC を自動参照しない
-```
