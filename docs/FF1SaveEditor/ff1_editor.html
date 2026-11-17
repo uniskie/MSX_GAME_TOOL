@@ -1950,8 +1950,11 @@ const SAVE_LAYOUTS = {
     shipXAddr: SAV_ADDR_FC + 0x0001,       // 船X座標 (1byte: 0〜255)
     shipYAddr: SAV_ADDR_FC + 0x0002,       // 船Y座標 (1byte: 0〜255)
 
-    airshipAddr: SAV_ADDR_FC + 0x0004,     // 飛空艇所持フラグ (0x1F)
-    airshipBitMask: 0x1F,
+    canoeAddr: SAV_ADDR_FC + 0x0012,       // カヌー所持フラグ (0x01) ファミコン版はアイテムフラグと別に存在
+    canoeBitMask: 0x01,
+
+    airshipAddr: SAV_ADDR_FC + 0x0004,     // 飛空艇所持フラグ (0x01)
+    airshipBitMask: 0x01,
     airshipXAddr: SAV_ADDR_FC + 0x0005,    // 飛空艇X座標 (1byte: 0〜255)
     airshipYAddr: SAV_ADDR_FC + 0x0006,    // 飛空艇Y座標 (1byte: 0〜255)
 
@@ -3958,6 +3961,11 @@ function loadSavToUI() {
     document.getElementById(`con_${c.id}`).value = savData[layout.consumableAddr + idx];
   });
   // 重要アイテム (0でなければ所持)
+  if (activePlatform === 'fc') {
+    // ファミコンの場合はカヌーフラグを参照して、カヌーを所持しているかどうかを判定する
+    savData[layout.keyItemAddr + KEY_ITEMS.findIndex(k => k.name === 'カヌー').id ] = 
+      (savData[layout.canoeAddr] & layout.canoeBitMask) === layout.canoeBitMask ? layout.keyItemValue : 0x00;
+  }
   KEY_ITEMS.forEach((k, idx) => {
     document.getElementById(`key_${k.id}`).checked = (savData[layout.keyItemAddr + idx] !== 0x00);
   });
@@ -4144,6 +4152,14 @@ function applyUIToSav() {
   KEY_ITEMS.forEach((k, idx) => {
     savData[layout.keyItemAddr + idx] = document.getElementById(`key_${k.id}`).checked ? layout.keyItemVal : 0x00;
   });
+  if (activePlatform === 'fc') {
+    // ファミコンの場合はカヌーフラグを参照して、カヌーを所持しているかどうかを判定する
+    if (document.getElementById(`key_${KEY_ITEMS.find(k => k.name === 'カヌー').id}`).checked) {
+      savData[layout.canoeAddr] |= layout.canoeBitMask;
+    } else {
+      savData[layout.canoeAddr] &= ~layout.canoeBitMask;
+    }
+  }
 
   // 各キャラクタデータ書き込み
   for (let c = 0; c < 4; c++) {
