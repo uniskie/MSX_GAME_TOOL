@@ -1,6 +1,6 @@
 # ファミコン版ファイナルファンタジー用 パッチ メモ
 
-## Chaos Rush氏によるファイナルファンタジー翻訳版 v1.3用 Final Fantasy J バグ修正パッチ
+## Chaos Rush氏らによるファイナルファンタジー翻訳版 v1.3用 Final Fantasy J バグ修正パッチ
 
 [FF1J BugFixes](https://www.romhacking.net/hacks/5597/)
 
@@ -49,34 +49,32 @@ EASY版、海と川のアニメ、コテージ修正、Bダッシュ、自動再
 | 統合版に含まれないパッチ   | パッチファイル                     | 補足                                                  |
 | :------------------------- | :--------------------------------- | :---------------------------------------------------- |
 | イージー化します。         | `FINAL_FANTASY1_easy.zip`          | レベルアップの経験値を低めに設定。                    |
-| 名前にカタカナ追加         | `FINAL_FANTASY1_KANA.zip` >        |                                                       |
+| 名前にカタカナ追加         | `FINAL_FANTASY1_KANA.zip`          |                                                       |
 | ポーションテスト           | `FINAL_FANTASY1_PORTION.zip`       | ポーションでMPも回復。きんのはりで蘇生。              |
 |                            |                                    | ※ ポーションテストはストライ修正パッチに上書き専用。 |
 | 文字フォントを元に戻す     | `FINAL_FANTASY1_FONT_ORG.zip`      |                                                       |
 | キャラを元のFF1に戻す      | `FINAL_FANTASY1_CHARA_FF1.zip`     |                                                       |
 | 町と城のBGデータを元に戻す | `FINAL_FANTASY1_MACHICHRA_ORG.zip` |                                                       |
 
-
 ただ、統合版はFF3っぽくなりすぎてしまうので、
 オリジナルの雰囲気を重視する場合は個別に必要なパッチを当てていくのがお勧めです。
 
 FF1J_BugFixesに含まれていないパッチが盛りだくさんですが、
-逆に FF1J_BugFixes にあって、こちらに無い物もあるので、やはり組み合わせがお勧めです。
+逆に FF1J_BugFixes にしかない修正もあるので、やはり組み合わせがお勧めです。
 
+## パッチ組み合わせのお勧め
 
-## パッチ組み合わせ お勧め
+FF1J_BugFixesとアキラナオル氏のパッチのうち、競合するパッチを除外した組み合わせをご紹介します。
 
-競合するパッチを除外した組み合わせです。
-
-IPSはROMファイルにパッチを当てて使用しても良いですが、NestopiaやRetroFreakなど、実行時にipsファイルを指定して使用することもできます。
+ipsファイルははROMファイルに当てて使用しても良いですが、NestopiaやRetroFreakなど、実行時にipsファイルを指定して使用することもできます。
 
 ### ips_manager.py
 
-`ips_manager.py` は IPSパッチをまとめて処理するために作成したpythonスクリプトです。
+[ips_manager.py](../ips_manager.py) は
+ROMに複数のパッチをまとめて当てたり、パッチを合成したりできます。
 
-
-複数のIPSを順番に合成する場合
-重複時は警告を出し、重複時上書き［後行優先］となっています。
+複数のIPSを順番に合成する場合、
+重複時は警告+上書き［後行優先］となっています。
 
 ```text
 usage: ips_manager.py [-h] -o OUTPUT [-t TARGET] [--on-conflict {overwrite,keep,abort}] [--no-warn] [--strict-same]
@@ -107,13 +105,11 @@ options:
   --strict-same         同じバイト値の上書きも重複として扱う
 ````
 
-### easyパッチ について
+### EASYパッチ について
 
 セーブデータはROMファイル名で区別されれます。
 
-通常版とEASY版で
-セーブデータを共用したくない場合
-
+通常版とEASY版でセーブデータを共用したくない場合は、  
 EASYパッチだけを当てた
 `ファイナルファンタジーEASY.NES`
 を作っておくと良いかもしれません。
@@ -125,7 +121,7 @@ EASYパッチだけを当てた
 かつ便利。
 
 - FF1J_BugFixes+MinFix
-  - FF1J_BugFixes [FF1J_FC_Bugfixes_jp.md](FF1J_FC_Bugfixes_jp.md)
+  - FF1J_BugFixes （[FF1J_FC_Bugfixes_jp.md](FF1J_FC_Bugfixes_jp.md)）
   - FINAL_FANTASY1_COTTAGE
   - FINAL_FANTASY1_OMISE
   - FINAL_FANTASY1_KOUGEKI
@@ -138,17 +134,18 @@ EASYパッチだけを当てた
 
 これをEASYパッチと組み合わせて使っています。
 
-`FF1J_BugFixes+MinFixPlus.ips` の作成：
+#### `FF1J_BugFixes+MinFixPlus.ips` の作成
 
-````
+````text
 python ips_manager.py F1J_BugFixes.ips FINAL_FANTASY1_COTTAGE.ips FINAL_FANTASY1_OMISE.ips FINAL_FANTASY1_KOUGEKI.ips FINAL_FANTASY1_UMI.ips FINAL_FANTASY1_KAIWA.ips FINAL_FANTASY1_STATUS.ips FINAL_FANTASY1_MENU.ips FINAL_FANTASY1_B_DASH.ips FINAL_FANTASY1_SENTOUSPEEDx4.ips -o FF1J_BugFixes+MinFixPlus.ips
 ````
 
-`FInalFantasy1.NES` に  
-`FF1J_BugFixes+MinFixPlus.ips` パッチを当てた  
-`FF1J_BugFixes+MinFix.NES` の作成：
+#### `FF1J_BugFixes+MinFix.NES` の作成
 
-````
+`FInalFantasy1.NES` に  
+`FF1J_BugFixes+MinFixPlus.ips` パッチを当てます。
+
+````text
 python ips_manager.py -t FinalFantasy1.NES FF1J_BugFixes+MinFix.ips -o FF1J_BugFixes+MinFix.NES
 ````
 
@@ -158,7 +155,7 @@ python ips_manager.py -t FinalFantasy1.NES FF1J_BugFixes+MinFix.ips -o FF1J_BugF
 オリジナルの雰囲気重視。
 便利追加機能は無し。
 
-- FF1J_BugFixes [FF1J_FC_Bugfixes_jp.md](FF1J_FC_Bugfixes_jp.md)
+- FF1J_BugFixes （[FF1J_FC_Bugfixes_jp.md](FF1J_FC_Bugfixes_jp.md)）
 - FINAL_FANTASY1_COTTAGE
 - FINAL_FANTASY1_OMISE
 - FINAL_FANTASY1_KOUGEKI
@@ -167,7 +164,7 @@ python ips_manager.py -t FinalFantasy1.NES FF1J_BugFixes+MinFix.ips -o FF1J_BugF
 
 `FF1J_BugFixes+MinFix.ips` の作成：
 
-````
+````text
 python ips_manager.py FF1J_BugFixes.ips FINAL_FANTASY1_COTTAGE.ips FINAL_FANTASY1_OMISE.ips FINAL_FANTASY1_KOUGEKI.ips -o FF1J_BugFixes+MinFix.ips
 ````
 
@@ -175,13 +172,13 @@ python ips_manager.py FF1J_BugFixes.ips FINAL_FANTASY1_COTTAGE.ips FINAL_FANTASY
 `FF1J_BugFixes+MinFixPlus.ips` パッチを当てた  
 `FF1J_BugFixes+MinFix.NES` の作成：
 
-````
+````text
 python ips_manager.py -t FinalFantasy1.NES FF1J_BugFixes+MinFixPlus.ips -o FF1J_BugFixes+MinFixPlus.NES
 ````
 
 ## アキラナオル氏のパッチ FF1オリジナル重視版
 
-アキラナオル氏のパッチのうち、FF1の見た目を維持することを重視した組み合わせです。
+アキラナオル氏のパッチのみで構成した、FF1の見た目を維持することを重視した組み合わせです。
 
 ### FINAL_FANTASY1_MinFix
 
@@ -205,5 +202,3 @@ python ips_manager.py -t FinalFantasy1.NES FF1J_BugFixes+MinFixPlus.ips -o FF1J_
 - FINAL_FANTASY1_MENU
 - FINAL_FANTASY1_B_DASH
 - FINAL_FANTASY1_SENTOUSPEEDx4
-
-

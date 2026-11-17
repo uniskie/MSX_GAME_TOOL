@@ -174,7 +174,7 @@ namespace eval ::ff1_overlay {
         # 味方用ウィジェット (4人分)
         # MSX画面のステータスウィンドウ（Y=19開始、ピッチ51px、高さ49px）に完全一致
         for {set i 0} {$i < 4} {incr i} {
-            set y [expr {22 + $i * 50}]
+            set y [expr {48 + $i * 48}]
             set wname "ff1_osd.p$i"
             osd create rectangle $wname \
                 -x 246 -y $y -w 54 -h 35 \
@@ -304,7 +304,7 @@ namespace eval ::ff1_overlay {
             set msx_y [peek [expr {0xBC87 + $i * 2 + 1}]]
 
             # X: キャラクタの左端に合わせて左へオフセット
-            set osd_x [expr {$msx_x + 40 + $enemy_offset_x}]
+            set osd_x [expr {$msx_x + 36 + $enemy_offset_x}]
 
             # Y: 敵キャラの頭上に配置（画面上端からはみ出る場合のみ上部に重ねる）
             set osd_y [expr {$msx_y + 14 + $enemy_offset_y}]

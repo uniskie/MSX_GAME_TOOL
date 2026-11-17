@@ -4,7 +4,7 @@
 <https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/ff1_editor.html>
 
 - **MSX2版** : ユーザーディスクイメージ（`*.DSK`）をエディタウィンドウにドロップしてください。
-- **FC版**  : `*.SAV`ファイルをエディタウィンドウにドロップしてください。
+- **ファミコン版（FC版）**  : `*.SAV`ファイルをエディタウィンドウにドロップしてください。
 
   - ※注）  
    **RetroFreak**のSAVファイルなどの、**特殊なヘッダ**がついたセーブデータの場合は、**ヘッダを除去したもの**をドロップしてください。
@@ -65,7 +65,7 @@
 
 テーブルはLV50までなので、上限制限を無効にしても自動計算が有効な時はLV上限が50までとなります。
 
-### ファミコン版ROMイメージ/MSX2版ディスクイメージ をドロップすると
+### FC版ROMイメージ or MSX2版ディスクイメージ をドロップすると？
 
 ちょっとした機能が強化されます。
 
@@ -76,10 +76,7 @@
 - [地図]ボタンで表示されるワールドマップROM/DSKから読み込んだものに変わり、
   拡大ビューがブロック塗りつぶしタイルではなくゲーム中のような表示になります。
 
-  ![map_screenshot2](map_screenshot2.png)
-  ![screenshot2](screenshot2.png)
-
-- ファミコン版ROMはUS版/JP版両対応（自動判定）です。
+- FC版ROMはUS版/JP版両対応（自動判定）です。
 
 ## 参考資料
 
@@ -107,8 +104,8 @@
 ### ff1_editor.html
 
 - 2026/11/17  
-  ファミコン版のカヌー所持フラグを設定し忘れていたので修正。  
-  （MSX2版と違い、ファミコン版はカヌーアイテムフラグと所持フラグが別になっている）
+  FC版のカヌー所持フラグを設定し忘れていたので修正。  
+  （MSX2版と違い、FC版はカヌーアイテムフラグと所持フラグが別になっている）
 
 - 2026/11/14  
   MSX2版セーブデータ保存時、装備画面での再計算時に参照される素パラメータ（`+0x28`: 力/2、`+0x29`: 素の命中率、`+0x2A`: 素の回避率）を同期して書き込むように修正。
@@ -116,7 +113,7 @@
 
 ---
 
-# MSX2版推奨パッチの紹介
+# MSX2版ファイナルファンタジー推奨パッチ
 
 ## MSX2版ファイナルファンタジー パフォーマンス改善パッチ
 
@@ -135,6 +132,8 @@ MSX2版はVDPの処理がボトルネックなので、もともと処理落ち�
 
 ## MSX2版ファイナルファンタジー向け自作パッチ
 
+作成したパッチを合成した各種 ips ファイルです。お好みの物を選んで使用してみてください。
+
 | パッチファイル（ipsファイル）                              | 内容                                                   |
 | :--------------------------------------------------------- | :----------------------------------------------------- |
 | [FF1-1-BGM_Fix.ips](FF1-1-BGM_Fix.ips)                     | BGM割り当て修正                                        |
@@ -143,17 +142,19 @@ MSX2版はVDPの処理がボトルネックなので、もともと処理落ち�
 | [FF1-1-BGM_and_BugFix.ips](FF1-1-BGM_and_BugFix.ips)       | BGM割り当て修正 + 戦闘&マップバグ修正                  |
 | [FF1-1-BGM_and_BugFix_at.ips](FF1-1-BGM_and_BugFix_at.ips) | BGM割り当て修正 + 戦闘&マップバグ修正 + 自動ターゲット |
 
+[WinIPS](https://smblabo.web.fc2.com/) や [ips_manager.py](ips_manager.py) を使用してパッチを当ててください。
+
 ### MSX2版ファイナルファンタジー BGM割り当て修正パッチ
 
 [FF1-1-BGM_Fix.ips](FF1-1-BGM_Fix.ips)
 
 MSX2版ファイナルファンタジーは
-ダンジョンのBGMがファミコン版と異なる曲が鳴る場所がいくつかあります。
+ダンジョンのBGMがFC版と異なる曲が鳴る場所がいくつかあります。
 
-ファミコン版を遊んだ人は、それなりに違和感を感じると思うので、
-ファミコン版準拠のBGM割り当てに修正するパッチを作りました。
+FC版を遊んだ人は、それなりに違和感を感じると思うので、
+FC版準拠のBGM割り当てに修正するパッチを作りました。
 
-| マップ         | MSX2版      | ファミコン版 |
+| マップ         | MSX2版      | FC版 |
 | :------------- | :---------- | :----------- |
 | カオスの神殿   | KAITEI.BGM  | KAOSS.BGM    |
 | 沼の洞窟       | MATOOYA.BGM | RANCHON.BGM  |
@@ -162,7 +163,7 @@ MSX2版ファイナルファンタジーは
 | ラスダン       | KAOSS.BGM   | KAITEI.BGM   |
 | 巨人の洞窟     | KAOSS.BGM   | GURUGU.BGM   |
 
-解析の詳細を知りたい物好きは[doc/ff1_msx_bgm_memo.md](doc/ff1_msx_bgm_memo.md) をどうぞ。
+解析の詳細を知りたい物好きは [doc/ff1_msx_bgm_memo.md](doc/ff1_msx_bgm_memo.md) をどうぞ。
 
 ---
 
@@ -176,18 +177,19 @@ MSX2版ファイナルファンタジーは
 py FF1_MSX_BugFix.py 元DSKパス パッチ後DSKパス
 ```
 
-**[ファミコン版 FF1J_Bugfixes](doc/FF1J_FC_Bugfixes_jp.md)**相当のパッチを作成。
+**[FC版 FF1J_BugFixes](doc/FF1J_FC_Bugfixes_jp.md)**相当のパッチを作成。
 
-- ファミコン版 FF1J_Bugfixes.ips -> <https://www.romhacking.net/hacks/5597/>  
-  (アクセスできない時はFireFoxの組み込みVPNを使うといけたりします。)
+> [!NOTE]
+> FC版 FF1J_BugFixes -> <https://www.romhacking.net/hacks/5597/>  
+> (アクセスできない時はFireFoxの組み込みVPNを使うといけたりします。)
 
-MSX2版では既に製品版で対応済みのバグがいくつかあるのと、動作が変更になっている部分もあるので、出来るだけ ファミコン版+FF1J_Bugfixes に近い動作になるようなパッチとしてみました。
+MSX2版では既に製品版で対応済みのバグがいくつかあるのと、動作が変更になっている部分もあるので、出来るだけ FC版 FF1J_BugFixes に近い動作になるようなパッチとしてみました。
 
 ### MSX2版とFC版の主な仕様・バグ状況の違い
 
 移植元であるFC版の既知バグのうち、MSX2版で既に解消されている項目および仕様差の比較です。
 
-| 項目                   | FC版の実態                                                        | MSX2版の実態                                                                                 | 本パッチでの対応                             |
+| 項目                   | FC版                                                        | MSX2版                                                                                 | 本パッチでの対応                             |
 | :--------------------- | :---------------------------------------------------------------- | :------------------------------------------------------------------------------------------- | :------------------------------------------- |
 | プロテス（敵使用時）   | 敵プロテス時にROMの初期値を参照し、効果が正しく機能しない         | RAMの敵バッファから正しく参照しており、防御力が正常に上昇                                    | 修正不要（元から解消済）                     |
 | 追加効果（ミス時）     | 物理攻撃が0ヒット（ミス）でも状態異常などの追加効果が発生する     | ヒット数0判定が実装されており、0ヒット時は追加効果不発                                       | 修正不要（元から解消済）                     |
@@ -229,7 +231,7 @@ MSX2版では既に製品版で対応済みのバグがいくつかあるのと�
 
 過去にその辺の検証をされた方もおられるとは思うので、詳しい情報があったら教えて頂けると嬉しいです。
 
-解析の詳細を知りたい物好きは[doc/ff1_msx_bugfix_btl.md](doc/ff1_msx_bugfix_btl.md) をどうぞ。
+解析の詳細を知りたい物好きは [doc/FF1_MSX_BugFix.md](doc/FF1_MSX_BugFix.md) をどうぞ。
 
 ### パッチ更新履歴
 
@@ -238,7 +240,8 @@ MSX2版では既に製品版で対応済みのバグがいくつかあるのと�
 
 ### おまけ：openMSX用 バトルOSDスクリプト
 
-[ff1_battle_overlay.tcl](ff1_battle_overlay.tcl)
+[ff1_battle_overlay.tcl](ff1_battle_overlay.tcl)  
+デバッグ用に作成した戦闘パラメータリアルタイム表示OSDスクリプト
 
 #### 使用方法
 
@@ -280,7 +283,7 @@ MSX2版ファイナルファンタジーはSayDosというファイル管理シ�
 
 ## FFPicTool
 
-`FFPicTool.py`は、MSX2版FFのPICファイルを展開・圧縮するツールです。
+[FFPicTool.py](FFPicTool.py) は、MSX2版FFのPICファイルを展開・圧縮するツールです。
 
 SayDosToolで取り出したファイルの中にあるPICファイルはRLE圧縮画像ファイルです。  
 そのPICファイルを解凍したり圧縮したりするためのツールです。
@@ -290,20 +293,24 @@ SayDosToolで取り出したファイルの中にあるPICファイルはRLE圧�
 
 ## FFSprPreview
 
-`FFSprPreview.html`はMSX2版ファイナルファンタジーのスプライトデータを表示閲覧するお遊び＆確認用ツールです。  
+[FFSprPreview.html](FFSprPreview.html) はMSX2版ファイナルファンタジーのスプライトデータを表示閲覧するお遊び＆確認用ツールです。  
 画像書き出しにも対応しています。
 
 SayDosToolで取り出したファイルの中にあるSPRファイルはスプライトデータです。
 
 また、BDATA.TBLの末尾にもSPRファイル相当のデータが埋め込まれています。
 
-[FFSprPreview.html](FFSprPreview.html)
+- [FFSprPreview.html](FFSprPreview.html)
+- オンラインから実行 <https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/FFSprPreview.html>
 
 `*.SPR` か `BDATA.TBL` かでパレットを自動的に切り替えます。
 
 ## ff1_msg_list
 
+[ff1_msg_list.py](ff1_msg_list.py) は、
 DSKやMESSAVE.VEC+MESSAGE.MSGから会話メッセージの一覧を出力するお遊び&確認用ツールです。
+
+- [ff1_msg_list.py](ff1_msg_list.py)
 
 ```text
 usage: ff1_msg_list.py [-h] [-o OUTPUT] [-f {text,tsv,json}] [--oneline] [--raw-ctrl] [--base-addr BASE_ADDR]
@@ -317,10 +324,13 @@ usage: ff1_msg_list.py [-h] [-o OUTPUT] [-f {text,tsv,json}] [--oneline] [--raw-
 
 ### IPSパッチツール
 
-`ips_manager.py` は IPSパッチをまとめて処理するために作成したpythonスクリプトです。
+[ips_manager.py](ips_manager.py) は
+ROMに複数のパッチをまとめて当てたり、パッチを合成したりできます。
 
-複数のIPSを順番に合成する場合
-重複時は警告を出し、重複時上書き［後行優先］となっています。
+複数のIPSを順番に合成する場合、
+重複時は警告+上書き［後行優先］となっています。
+
+- [ips_manager.py](ips_manager.py)
 
 ```text
 usage: ips_manager.py [-h] -o OUTPUT [-t TARGET] [--on-conflict {overwrite,keep,abort}] [--no-warn] [--strict-same]
@@ -361,52 +371,46 @@ options:
 
 ---
 
-# ファミコン版推奨パッチの紹介
+# FC版ファイナルファンタジー推奨パッチ
 
-詳細は [FF1_FC_Patch_memo.md](FF1_FC_Patch_memo.md)
+詳細は [doc/FF1_FC_Patch_memo.md](doc/FF1_FC_Patch_memo.md)
 
-## Chaos Rush氏によるファイナルファンタジー翻訳版 v1.3用 Final Fantasy J バグ修正パッチ
+## FC版ファイナルファンタジー バグ修正パッチ
+Chaos Rush氏らによるファイナルファンタジー翻訳版 v1.3用 Final Fantasy J バグ修正パッチ
 
-[FF1J BugFixes](https://www.romhacking.net/hacks/5597/)
-
-IPSファイル： `FF1J_BugFixes.ips`
-
+配布サイト： [FF1J BugFixes](https://www.romhacking.net/hacks/5597/)  
+IPSファイル： `FF1J_BugFixes.ips`  
 ドキュメント日本語訳：  [FF1J_FC_Bugfixes_jp.md](FF1J_FC_Bugfixes_jp.md)
 
-海外の有志が製作されたバグ修正パッチ。
-英語翻訳改造パッチ向けに作られたバグフィックス集のうち、
-無改造日本版ROMに当てても問題ない物を集めたパッチとのことです。
-
+海外の有志が製作された、無改造日本版ROMに当てても問題ない物を集めたパッチ。  
 日本版で問題が起きる修正パッチは除外してあるため、いくつか未対応のバグもあります。
 
-※ ROBOTチェックが通過できない場合は、プライベートモードやFireFoxの組み込みVPNを試してみてください。
+※ 配布サイトのRobotチェックが通過できない場合は、プライベートモードやFireFoxの組み込みVPNを試してみてください。
 
-## アキラナオル氏によるファイナルファンタジー用 各種修正&便利パッチ集
+## FC版ファイナルファンタジー 利便化パッチ集（高速化・自動ターゲット・海川アニメ等）
 
-[アキラナオルの部屋](https://akiranaoru.web.fc2.com/#ff1)
+アキラナオル氏によるファイナルファンタジー用 各種修正&便利パッチ集
 
-FF2やDQなど他のゲームのパッチも。
+配布サイト： [アキラナオルの部屋](https://akiranaoru.web.fc2.com/#ff1)  
 
-EASY版、海と川のアニメ、コテージ修正、Bダッシュ、自動再ターゲット、メッセージ速度変更
+EASY版パッチ、海と川のアニメ、コテージ修正、Bダッシュ、自動再ターゲット、メッセージ速度変更など、嬉しいパッチが揃っています。
 
 統合版は見た目がファイナルファンタジー3に寄っているので、オリジナルの雰囲気を重視する場合は自分で個別パッチを組み合わせて使用するのがお勧めです。
 
-FF1J_BugFixesに含まれていないパッチが盛りだくさんですが、
-逆に FF1J_BugFixes にあって、こちらに無い物もあるので、やはり組み合わせがお勧めです。
+`FF1J_BugFixes` にあって、こちらに含まれていない修正もあるので、
+`FF1J_BugFixes` とも組み合わせるのがお勧めです。
 
-## パッチ合成のお勧め
+## パッチ組み合わせのお勧め
 
-競合するパッチを除外した組み合わせです。
+FF1J_BugFixesとアキラナオル氏のパッチのうち、競合するパッチを除外した組み合わせをご紹介します。
 
-IPSはROMファイルにパッチを当てて使用しても良いですが、NestopiaやRetroFreakなど、実行時にipsファイルを指定して使用することもできます。
+ipsファイルははROMファイルに当てて使用しても良いですが、NestopiaやRetroFreakなど、実行時にipsファイルを指定して使用することもできます。
 
-### easyパッチ について
+### EASYパッチ について
 
 セーブデータはROMファイル名で区別されれます。
 
-通常版とEASY版で
-セーブデータを共用したくない場合
-
+通常版とEASY版でセーブデータを共用したくない場合は、  
 EASYパッチだけを当てた
 `ファイナルファンタジーEASY.NES`
 を作っておくと良いかもしれません。
@@ -418,7 +422,7 @@ EASYパッチだけを当てた
 かつ便利。
 
 - FF1J_BugFixes+MinFix
-  - FF1J_BugFixes [FF1J_FC_Bugfixes_jp.md](FF1J_FC_Bugfixes_jp.md)
+  - FF1J_BugFixes （[FF1J_FC_Bugfixes_jp.md](FF1J_FC_Bugfixes_jp.md)）
   - FINAL_FANTASY1_COTTAGE
   - FINAL_FANTASY1_OMISE
   - FINAL_FANTASY1_KOUGEKI
@@ -431,15 +435,16 @@ EASYパッチだけを当てた
 
 これをEASYパッチと組み合わせて使っています。
 
-`FF1J_BugFixes+MinFixPlus.ips` の作成
+#### `FF1J_BugFixes+MinFixPlus.ips` の作成
 
 ````text
 python ips_manager.py F1J_BugFixes.ips FINAL_FANTASY1_COTTAGE.ips FINAL_FANTASY1_OMISE.ips FINAL_FANTASY1_KOUGEKI.ips FINAL_FANTASY1_UMI.ips FINAL_FANTASY1_KAIWA.ips FINAL_FANTASY1_STATUS.ips FINAL_FANTASY1_MENU.ips FINAL_FANTASY1_B_DASH.ips FINAL_FANTASY1_SENTOUSPEEDx4.ips -o FF1J_BugFixes+MinFixPlus.ips
 ````
 
+#### `FF1J_BugFixes+MinFix.NES` の作成
+
 `ファイナルファンタジー.NES` に  
-`FF1J_BugFixes+MinFixPlus.ips` パッチを当てた  
-`FF1J_BugFixes+MinFix.NES` の作成：
+`FF1J_BugFixes+MinFixPlus.ips` パッチを当てる
 
 ````text
 python ips_manager.py -t ファイナルファンタジー.NES FF1J_BugFixes+MinFix.ips -o "ファイナルファンタジー_BugFixes+MinFix.NES"
@@ -457,74 +462,70 @@ python ips_manager.py -t ファイナルファンタジー.NES FF1J_BugFixes+Min
 
 ---
 
-# ファミコン版用ROMエディタの紹介
+# FC版ファイナルファンタジーROMエディタの紹介
 
 ## HakkinFF1
 
-<https://HakkinFF1.digitaldreamers.org/index.html>
-
-FFHackSterEXにインスパイアされたROMエディタ。
-
+FFHackSterEXにインスパイアされたROMエディタ。  
 FFHackSterEXでは動かないマップ系機能がこちらでは動きます。
 
-US版と一部データのアドレスが違うため、そのままでは**Armor**、**Weapon**、**Magic**が**日本語版ROMではエラー**になり開くことができませんが、日本語ROM用の設定ファイルに置き換えれば日本版ROMでも使用することができます。
+サイト： <https://HakkinFF1.digitaldreamers.org/index.html>  
+日本版用ファイル： [for_HakkinFF1/](for_HakkinFF1/)
+
+> US版と一部データのアドレスが違うため、そのままでは**Armor**、**Weapon**、**Magic**が**日本語版ROMではエラー**になり開くことができませんが、**日本語ROM用の設定ファイル**に置き換えれば日本版ROMでも使用することができます。
 
 ### 日本版ROM用 文字定義 & アドレス設定
 
 ROMを読み込んで作成されたプロジェクトフォルダにある
-
-- `(プロジェクト名).ff1d`  
-
-に、文字定義やアドレス設定が入っています。
+ `(プロジェクト名).ff1d` に、文字定義やアドレス設定が入っています。
 
 - [for_HakkinFF1/FinalFantasy1.ff1d](for_HakkinFF1/FinalFantasy1.ff1d)
 
-を、プロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。  
-プロジェクトで文字やパラメータが正常に表示されるようになり、**Armor**、**Weapon**、**Magic** エディタも開けるようになります。
+を、プロジェクト名に合わせてリネームし、
+プロジェクトフォルダに上書きしてください。
+
+プロジェクトで文字やパラメータが正常に表示されるようになり、**Armor**、**Weapon**、**Magic** エディタを開けるようになります。
 
 どういった修正がされているのか、詳細を知りたい場合は、[for_HakkinFF1/HakkinFF1_for_JP_ROM.md](for_HakkinFF1/HakkinFF1_for_JP_ROM.md) を参照ください。
 
 ## FFHackSterEX (※非推奨)
 
-<https://ffhacksterex.digitaldreamers.org/>
+**FFHackSter** の後継版です。
 
-**FFHackSter** の後継版です。  
+サイト： <https://ffhacksterex.digitaldreamers.org/>  
+日本版用ファイル： [for_FFHackSterEX/](for_FFHackSterEX/)
 
 こちらはマップのスクロールがスクロールボタン非対応など、UIや操作性は **HakkinFF1** より古いものとなっています。
 
-XP世代のまま開発途中で止まっており、ローカルマップ系機能や幾つかの機能がエラーで落ちます。  
+WindowsXP世代に開発途中で止まっており、ローカルマップ系機能や幾つかの機能がエラーで落ちます。  
 
-[github](https://github.com/ffhacksterex/FFHacksterEx/tree/v0.9.8.2-beta)にあるソースコードを [Visual C++2019 + プラットフォームツールセット Visuall Studio 2017 - Windows XP(v141_xp) でビルド](for_FFHackSterEX/ffhacksterex-0.9.8.2-win64-x64-v141_xp_vs2019.zip)すれば落ちなくなります。
+ランタイムの互換性問題に関しては、[github](https://github.com/ffhacksterex/FFHacksterEx/tree/v0.9.8.2-beta)にあるソースコードを [Visual C++2019 + プラットフォームツールセット Visuall Studio 2017 - Windows XP(v141_xp) でビルド](for_FFHackSterEX/ffhacksterex-0.9.8.2-win64-x64-v141_xp_vs2019.zip)すれば落ちにくくなります。
 
-どうも古いプラットフォームツールセットをVS2022以降でビルドすると発生する問題が関係するように思えますが、英語版ROMだと問題が無かったりするので、良く分かりません。
+古いプラットフォームツールセットをVS2022以降でビルドすると発生する問題が関係するようですが、英語版ROMだと問題が無かったりするので、良く分かりません。
 
 ### 日本版ROM用 文字定義ファイル
 
 US版向けに作られたツールなので、文字コードに対する文字の割り当てがJP版と異なります。
 
-New ProjectからROMを読み込んで作成されたプロジェクトフォルダにある
-
-- `(プロジェクト名).dte.tbl`  
-- `(プロジェクト名).std.tbl`  
-
-に、文字コードに対する文字リストがあります。
+New ProjectからROMを読み込んで作成されたプロジェクトフォルダにある  
+`(プロジェクト名).dte.tbl`  
+`(プロジェクト名).std.tbl`  
+が、文字コードに対する文字リストです。
 
 - [for_FFHackSterEX/FinalFantasy1.dte.tbl](for_FFHackSterEX/FinalFantasy1.dte.tbl)
 - [for_FFHackSterEX/FinalFantasy1.std.tbl](for_FFHackSterEX/FinalFantasy1.std.tbl)
 
-をプロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。  
+をプロジェクト名に合わせてリネームしてプロジェクトフォルダに上書きしてください。
+
 プロジェクトで文字が正常に表示されるようになります。  
 （`●●.dte.tbl` と `●●.std.tbl` は、UTF-8ではなくSJISテキストファイルです。）
 
 ### 日本版ROM用 アドレス設定ファイル
 
-Bank 0E～0FがUS版とJP版で異なるため、アドレス設定を修正しないと不正なデータを読み込んでしまいます。
+Bank 0x0E ～ 0x0F がUS版とJP版では異なるため、アドレス設定を修正しないと不正なデータを読み込んでしまいます。
 
-New ProjectからROMを読み込んで作成されたプロジェクトフォルダにある
-
-- `(プロジェクト名).values`  
-
-に、文字コードに対する文字リストがあります。
+New ProjectからROMを読み込んで作成されたプロジェクトフォルダにある  
+`(プロジェクト名).values` に、各データのアドレス設定などが書かれています。
 
 - [for_FFHackSterEX/FinalFantasy1.values](for_FFHackSterEX/FinalFantasy1.values)
 
