@@ -94,7 +94,7 @@
 <li>
 <p>※ <a href="ff1_editor_world_map.js">ff1_editor_world_map.js</a> はローカル環境用の画像データです。<br>
 ローカル環境ではjsコードから画像のピクセル情報を参照できない為、base64エンコードで用意した画像ファイルです。<br>
-<a href="ff1_editor_world_map.png">ff1_editor_world_map.png</a> を <a href="bmp16_to_js.py">bmp16_to_js.py</a> で変換しています。</p>
+<a href="ff1_editor_world_map.bmp">ff1_editor_world_map.bmp</a> を <a href="bmp16_to_js.py">bmp16_to_js.py</a> で変換しています。</p>
 </li>
 <li>
 <p>オンライン環境（サーバ経由）であれば、
@@ -103,7 +103,7 @@
 <li>
 <p>ジョブ画像
 <a href="ff1_editor_class_icon.png">ff1_editor_class_icon.png</a> 相当の画像を自分で用意して、<code>ff1_editor_class_chr.png</code> として配置しておくと、ジョブ画像として使用されます。<br>
-デフォルトのアイコンは <a href="ff1_editor_class_icon.png">ff1_editor_class_icon.png</a> を <a href="class_icon_to_js.py">class_icon_to_js.py</a> で jsソースに変換して <code>ff_edoitor.html</code> に組み込んでいます。</p>
+デフォルトのアイコンは <a href="ff1_editor_class_icon.png">ff1_editor_class_icon.png</a> を <a href="class_icon_to_js.py">class_icon_to_js.py</a> で jsソースに変換して <code>ff1_editor.html</code> に組み込んでいます。</p>
 </li>
 </ul>
 <h2 id="簡易ガイド">簡易ガイド </h2>
@@ -456,34 +456,49 @@ FC版準拠のBGM割り当てに修正するパッチを作りました。</p>
 <td style="text-align:left">オートターゲット（オプション）</td>
 <td style="text-align:left"><code>--auto-target</code> 指定時、味方の攻撃・単体魔法で対象が死亡している場合に生存敵を自動選択</td>
 </tr>
+<tr>
+<td style="text-align:left">起動時フリーエリア判定</td>
+<td style="text-align:left">起動時の CTRL キー判定を、フリーエリアの上限 HIMEM (<code>0xFC4A</code>) が <code>0xDE86</code> 以上かを見る判定へ置換</td>
+</tr>
 </tbody>
 </table>
 <p>過去にその辺の検証をされた方もおられるとは思うので、詳しい情報があったら教えて頂けると嬉しいです。</p>
 <p>解析の詳細を知りたい物好きは <a href="doc/FF1_MSX_BugFix.md">doc/FF1_MSX_BugFix.md</a> をどうぞ。</p>
 <h3 id="パッチ更新履歴">パッチ更新履歴 </h3>
 <ul>
-<li>2026/11/15 (<code>FF1_MSX_BugFix.py</code> / バグ修正IPSパッチ)<br>
-コテージ使用時のメッセージがFC版仕様のまま（「ＨＰかいふく！セーブしてまほうかいふくもする？」）となっていたため、MP回復後にセーブ確認を行うMSX2版の実動作に合わせて「ＨＰとまほうをかいふくしました！セーブもする？」へ変更（<code>MENU.COM</code> / <code>MENU.MSG</code>）。</li>
+<li>
+<p>2026/11/19 (<code>FF1_MSX_BugFix.py</code>)<br>
+起動時の CTRL キー判定をフリーエリア判定へ置換するパッチを追加。フリーエリアの上限 HIMEM (<code>0xFC4A</code>) が <code>0xDE86</code> 以上かを確認し、不足時は元のメッセージを表示して停止する（ブートブロック）。</p>
+</li>
+<li>
+<p>2026/11/15 (<code>FF1_MSX_BugFix.py</code> / バグ修正IPSパッチ)<br>
+コテージ使用時のメッセージがFC版仕様のまま（「ＨＰかいふく！セーブしてまほうかいふくもする？」）となっていたため、MP回復後にセーブ確認を行うMSX2版の実動作に合わせて「ＨＰとまほうをかいふくしました！セーブもする？」へ変更（<code>MENU.COM</code> / <code>MENU.MSG</code>）。</p>
+</li>
 </ul>
 <h3 id="おまけopenmsx用-バトルosdスクリプト">おまけ：openMSX用 バトルOSDスクリプト </h3>
-<p><a href="ff1_battle_overlay.tcl">ff1_battle_overlay.tcl</a><br>
+<p><a href="_ff1_battle_overlay.tcl">_ff1_battle_overlay.tcl</a><br>
 デバッグ用に作成した戦闘パラメータリアルタイム表示OSDスクリプト</p>
 <h4 id="使用方法">使用方法 </h4>
 <p>ユーザーフォルダ（Windowsであればマイドキュメント/openMSX）の
-<code>share/scripts</code> に <code>ff1_battle_overlay.tcl</code> 配置 して、openMSXを起動。</p>
+<code>share/scripts</code> に <code>_ff1_battle_overlay.tcl</code> 配置 して、openMSXを起動。</p>
 <p><code>F10</code>などで出るtcl コンソールから制御します。</p>
+<p>頭に<code>_</code>(アンダースコア)がついたファイルは自動で読み込まれないので、まず読み込ませます。</p>
+<pre data-role="codeBlock" data-info="tcl" class="language-tcl tcl"><code><span class="token keyword keyword-source">source</span> $<span class="token variable">::env</span><span class="token punctuation">(</span>OPENMSX_USER_DATA<span class="token punctuation">)</span><span class="token operator">/</span>scripts<span class="token operator">/</span>_ff1_battle_overlay.tcl
+</code></pre><p>読み込むとコマンドが使えるようになるので、</p>
 <ul>
 <li>表示 <code>ff1_battle_overlay on</code></li>
 <li>消去 <code>ff1_battle_overlay off</code></li>
 <li>表示切替 <code>ff1_battle_overlay toggle</code></li>
 </ul>
-<p>自分でスクリプトを弄って、実行中に再読み込みさせたい場合は</p>
-<pre data-role="codeBlock" data-info="tcl" class="language-tcl tcl"><code><span class="token keyword keyword-source">source</span> $<span class="token variable">::env</span><span class="token punctuation">(</span>OPENMSX_USER_DATA<span class="token punctuation">)</span><span class="token operator">/</span>scripts<span class="token operator">/</span>ff1_battle_overlay.tcl
-</code></pre><p>のようにすれば、スクリプトが再読み込み＆再実行されます。</p>
+<p>で制御します。</p>
+<p>実行中にスクリプトを弄って再読み込みさせたい場合は、再度</p>
+<pre data-role="codeBlock" data-info="tcl" class="language-tcl tcl"><code><span class="token keyword keyword-source">source</span> $<span class="token variable">::env</span><span class="token punctuation">(</span>OPENMSX_USER_DATA<span class="token punctuation">)</span><span class="token operator">/</span>scripts<span class="token operator">/</span>_ff1_battle_overlay.tcl
+</code></pre><p>を実行してください。<br>
+再読み込みされます。</p>
 <p>※ 再読み込みをしてもグローバルな変数などは残ったままなので注意</p>
 <hr>
 <h1 id="msx2版ファイナルファンタジー用ツール">MSX2版ファイナルファンタジー用ツール </h1>
-<h2 id="ffsaydostool">FFSayDosTool </h2>
+<h2 id="ffsaydosファイルマネージャ">FFSayDosファイルマネージャ </h2>
 <p><code>FFSayDosTool.py</code>はMSX2版FFゲームディスクに収められているファイルの取り出し＆格納ツールです。</p>
 <p>MSX2版ファイナルファンタジーはSayDosというファイル管理システムでのファイル操作と、戦闘用敵キャラクタの直接セクタアクセスを行っています。</p>
 <p>ゲーム中ではファイルIDに対しての開始・終了セクタリストをメモリにキャッシュしていて、それを参照してセクタアクセスしているようです。</p>
@@ -492,7 +507,7 @@ FC版準拠のBGM割り当てに修正するパッチを作りました。</p>
 <li><a href="FFSayDosTool.py">FFSayDosTool.py</a></li>
 <li><a href="doc/FFSayDosTool_specification.md">doc/FFSayDosTool_specification.md</a></li>
 </ul>
-<h2 id="ffpictool">FFPicTool </h2>
+<h2 id="画像圧縮展開ツール">画像圧縮展開ツール </h2>
 <p><a href="FFPicTool.py">FFPicTool.py</a> は、MSX2版FFのPICファイルを展開・圧縮するツールです。</p>
 <p>SayDosToolで取り出したファイルの中にあるPICファイルはRLE圧縮画像ファイルです。<br>
 そのPICファイルを解凍したり圧縮したりするためのツールです。</p>
@@ -500,7 +515,7 @@ FC版準拠のBGM割り当てに修正するパッチを作りました。</p>
 <li><a href="FFPicTool.py">FFPicTool.py</a></li>
 <li><a href="doc/FFPicTool_specification.md">doc/FFPicTool_specification.md</a></li>
 </ul>
-<h2 id="ffsprpreview">FFSprPreview </h2>
+<h2 id="スプライトプレビューツール">スプライトプレビューツール </h2>
 <p><a href="FFSprPreview.html">FFSprPreview.html</a> はMSX2版ファイナルファンタジーのスプライトデータを表示閲覧するお遊び＆確認用ツールです。<br>
 画像書き出しにも対応しています。</p>
 <p>SayDosToolで取り出したファイルの中にあるSPRファイルはスプライトデータです。</p>
@@ -510,7 +525,7 @@ FC版準拠のBGM割り当てに修正するパッチを作りました。</p>
 <li>オンラインから実行 <a href="https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/FFSprPreview.html">https://uniskie.github.io/MSX_GAME_TOOL/FF1SaveEditor/FFSprPreview.html</a></li>
 </ul>
 <p><code>*.SPR</code> か <code>BDATA.TBL</code> かでパレットを自動的に切り替えます。</p>
-<h2 id="ff1_msg_list">ff1_msg_list </h2>
+<h2 id="メッセージ抽出ツール">メッセージ抽出ツール </h2>
 <p><a href="ff1_msg_list.py">ff1_msg_list.py</a> は、
 DSKやMESSAVE.VEC+MESSAGE.MSGから会話メッセージの一覧を出力するお遊び&amp;確認用ツールです。</p>
 <ul>
@@ -564,7 +579,7 @@ options:
 <p>Chaos Rush氏らによるファイナルファンタジー翻訳版 v1.3用 Final Fantasy J バグ修正パッチ</p>
 <p>配布サイト： <a href="https://www.romhacking.net/hacks/5597/">FF1J BugFixes</a><br>
 IPSファイル： <code>FF1J_BugFixes.ips</code><br>
-ドキュメント日本語訳：  <a href="FF1J_FC_Bugfixes_jp.md">FF1J_FC_Bugfixes_jp.md</a></p>
+ドキュメント日本語訳：  <a href="doc/FF1J_FC_Bugfixes_jp.md">FF1J_FC_Bugfixes_jp.md</a></p>
 <p>海外の有志が製作された、無改造日本版ROMに当てても問題ない物を集めたパッチ。<br>
 日本版で問題が起きる修正パッチは除外してあるため、いくつか未対応のバグもあります。</p>
 <p>※ 配布サイトのRobotチェックが通過できない場合は、プライベートモードやFireFoxの組み込みVPNを試してみてください。</p>
@@ -577,9 +592,9 @@ IPSファイル： <code>FF1J_BugFixes.ips</code><br>
 <code>FF1J_BugFixes</code> とも組み合わせるのがお勧めです。</p>
 <h2>パッチ組み合わせのお勧め</h2>
 <p>FF1J_BugFixesとアキラナオル氏のパッチのうち、競合するパッチを除外した組み合わせをご紹介します。</p>
-<p>ipsファイルははROMファイルに当てて使用しても良いですが、NestopiaやRetroFreakなど、実行時にipsファイルを指定して使用することもできます。</p>
+<p>ipsファイルはROMファイルに当てて使用しても良いですが、<strong>Nestopia</strong> や <strong>RetroFreak</strong> など、実行時に ipsファイルを指定して使用することもできます。</p>
 <h3>EASYパッチ について</h3>
-<p>セーブデータはROMファイル名で区別されれます。</p>
+<p>セーブデータはROMファイル名で区別されます。</p>
 <p>通常版とEASY版でセーブデータを共用したくない場合は、<br>
 EASYパッチだけを当てた
 <code>ファイナルファンタジーEASY.NES</code>
@@ -591,7 +606,7 @@ EASYパッチだけを当てた
 <ul>
 <li>FF1J_BugFixes+MinFix
 <ul>
-<li>FF1J_BugFixes （<a href="FF1J_FC_Bugfixes_jp.md">FF1J_FC_Bugfixes_jp.md</a>）</li>
+<li>FF1J_BugFixes （<a href="doc/FF1J_FC_Bugfixes_jp.md">FF1J_FC_Bugfixes_jp.md</a>）</li>
 <li>FINAL_FANTASY1_COTTAGE</li>
 <li>FINAL_FANTASY1_OMISE</li>
 <li>FINAL_FANTASY1_KOUGEKI</li>
@@ -606,28 +621,28 @@ EASYパッチだけを当てた
 </ul>
 <p>これをEASYパッチと組み合わせて使っています。</p>
 <h4><code>FF1J_BugFixes+MinFixPlus.ips</code> の作成</h4>
-<pre data-role="codeBlock" data-info="text" class="language-text text"><code>python ips_manager.py F1J_BugFixes.ips FINAL_FANTASY1_COTTAGE.ips FINAL_FANTASY1_OMISE.ips FINAL_FANTASY1_KOUGEKI.ips FINAL_FANTASY1_UMI.ips FINAL_FANTASY1_KAIWA.ips FINAL_FANTASY1_STATUS.ips FINAL_FANTASY1_MENU.ips FINAL_FANTASY1_B_DASH.ips FINAL_FANTASY1_SENTOUSPEEDx4.ips -o FF1J_BugFixes+MinFixPlus.ips
+<pre data-role="codeBlock" data-info="text" class="language-text text"><code>python ips_manager.py FF1J_BugFixes.ips FINAL_FANTASY1_COTTAGE.ips FINAL_FANTASY1_OMISE.ips FINAL_FANTASY1_KOUGEKI.ips FINAL_FANTASY1_UMI.ips FINAL_FANTASY1_KAIWA.ips FINAL_FANTASY1_STATUS.ips FINAL_FANTASY1_MENU.ips FINAL_FANTASY1_B_DASH.ips FINAL_FANTASY1_SENTOUSPEEDx4.ips -o FF1J_BugFixes+MinFixPlus.ips
 </code></pre><h4><code>FF1J_BugFixes+MinFix.NES</code> の作成</h4>
 <p><code>ファイナルファンタジー.NES</code> に<br>
-<code>FF1J_BugFixes+MinFixPlus.ips</code> パッチを当てる</p>
+<code>FF1J_BugFixes+MinFixPlus.ips</code> パッチを当てる。</p>
 <pre data-role="codeBlock" data-info="text" class="language-text text"><code>python ips_manager.py -t ファイナルファンタジー.NES FF1J_BugFixes+MinFix.ips -o "ファイナルファンタジー_BugFixes+MinFix.NES"
 </code></pre><h3>Nestopiaでの使用例</h3>
 <ol>
 <li>
 <p>イージー+FixPlus：<br>
-<code>ファイナルファンタジーEASY.NES</code>読込→<code>FF1J_BugFixes+MinFix.ips</code>読込</p>
+<code>ファイナルファンタジーEASY.NES</code> 読込 → <code>FF1J_BugFixes+MinFix.ips</code> 読込</p>
 </li>
 <li>
 <p>通常+FixPlus：<br>
-<code>ファイナルファンタジー.NES</code>読込→<code>FF1J_BugFixes+MinFix.ips</code>読込</p>
+<code>ファイナルファンタジー.NES</code> 読込 → <code>FF1J_BugFixes+MinFix.ips</code> 読込</p>
 </li>
 </ol>
 <p>※ ROMファイル名でSAVファイルが分かれるので、EASYとノーマルのNESファイルを使用して、IPSを実行時適用にしています。</p>
 <hr>
 <h1>FC版ファイナルファンタジーROMエディタの紹介</h1>
 <h2>HakkinFF1</h2>
-<p>FFHackSterEXにインスパイアされたROMエディタ。<br>
-FFHackSterEXでは動かないマップ系機能がこちらでは動きます。</p>
+<p><strong>HakkinFF1</strong> は <strong>FFHackSterEX</strong> にインスパイアされたROMエディタです。<br>
+<strong>FFHackSterEX</strong> では動かないマップ系機能がこちらでは動きます。</p>
 <p>サイト： <a href="https://HakkinFF1.digitaldreamers.org/index.html">https://HakkinFF1.digitaldreamers.org/index.html</a><br>
 日本版用ファイル： <a href="for_HakkinFF1/">for_HakkinFF1/</a></p>
 <blockquote>
@@ -637,19 +652,19 @@ FFHackSterEXでは動かないマップ系機能がこちらでは動きます�
 <p>ROMを読み込んで作成されたプロジェクトフォルダにある
 <code>(プロジェクト名).ff1d</code> に、文字定義やアドレス設定が入っています。</p>
 <ul>
-<li><a href="for_HakkinFF1/FinalFantasy1.ff1d">for_HakkinFF1/FinalFantasy1.ff1d</a></li>
+<li><a href="for_HAKKINFF1/FinalFantasy1.ff1d">for_HAKKINFF1/FinalFantasy1.ff1d</a></li>
 </ul>
 <p>を、プロジェクト名に合わせてリネームし、
 プロジェクトフォルダに上書きしてください。</p>
 <p>プロジェクトで文字やパラメータが正常に表示されるようになり、<strong>Armor</strong>、<strong>Weapon</strong>、<strong>Magic</strong> エディタを開けるようになります。</p>
 <p>どういった修正がされているのか、詳細を知りたい場合は、<a href="for_HakkinFF1/HakkinFF1_for_JP_ROM.md">for_HakkinFF1/HakkinFF1_for_JP_ROM.md</a> を参照ください。</p>
 <h2>FFHackSterEX (※非推奨)</h2>
-<p><strong>FFHackSter</strong> の後継版です。</p>
+<p><strong>FFHackSterEX</strong> は 古の <strong>FFHackSter</strong> を復活させることを目指したものだそうです。</p>
 <p>サイト： <a href="https://ffhacksterex.digitaldreamers.org/">https://ffhacksterex.digitaldreamers.org/</a><br>
 日本版用ファイル： <a href="for_FFHackSterEX/">for_FFHackSterEX/</a></p>
-<p>こちらはマップのスクロールがスクロールボタン非対応など、UIや操作性は <strong>HakkinFF1</strong> より古いものとなっています。</p>
-<p>WindowsXP世代に開発途中で止まっており、ローカルマップ系機能や幾つかの機能がエラーで落ちます。</p>
-<p>ランタイムの互換性問題に関しては、<a href="https://github.com/ffhacksterex/FFHacksterEx/tree/v0.9.8.2-beta">github</a>にあるソースコードを <a href="for_FFHackSterEX/ffhacksterex-0.9.8.2-win64-x64-v141_xp_vs2019.zip">Visual C++2019 + プラットフォームツールセット Visuall Studio 2017 - Windows XP(v141_xp) でビルド</a>すれば落ちにくくなります。</p>
+<p>こちらはWindowsXP世代に開発途中で止まっており、マップのスクロールがスクロールボタン非対応など、UIや操作性は <strong>HakkinFF1</strong> より古いものとなっています。</p>
+<p>また、ローカルマップ系機能や幾つかの機能がエラーで落ちます。</p>
+<p>ランタイムの互換性問題に関しては、<a href="https://github.com/ffhacksterex/FFHacksterEx/tree/v0.9.8.2-beta">github</a> にあるソースコードを <a href="for_FFHackSterEX/ffhacksterex-0.9.8.2-win64-x64-v141_xp_vs2019.zip">Visual C++2019 + プラットフォームツールセット Visuall Studio 2017 - Windows XP(v141_xp) でビルド</a>すれば落ちにくくなります。</p>
 <p>古いプラットフォームツールセットをVS2022以降でビルドすると発生する問題が関係するようですが、英語版ROMだと問題が無かったりするので、良く分かりません。</p>
 <h3>日本版ROM用 文字定義ファイル</h3>
 <p>US版向けに作られたツールなので、文字コードに対する文字の割り当てがJP版と異なります。</p>
@@ -665,7 +680,7 @@ FFHackSterEXでは動かないマップ系機能がこちらでは動きます�
 <p>プロジェクトで文字が正常に表示されるようになります。<br>
 （<code>●●.dte.tbl</code> と <code>●●.std.tbl</code> は、UTF-8ではなくSJISテキストファイルです。）</p>
 <h3>日本版ROM用 アドレス設定ファイル</h3>
-<p>Bank 0x0E ～ 0x0F がUS版とJP版では異なるため、アドレス設定を修正しないと不正なデータを読み込んでしまいます。</p>
+<p>Bank <code>0x0E</code> ～ <code>0x0F</code> がUS版とJP版では異なるため、アドレス設定を修正しないと不正なデータを読み込んでしまいます。</p>
 <p>New ProjectからROMを読み込んで作成されたプロジェクトフォルダにある<br>
 <code>(プロジェクト名).values</code> に、各データのアドレス設定などが書かれています。</p>
 <ul>
@@ -762,17 +777,17 @@ FFHackSterEXでは動かないマップ系機能がこちらでは動きます�
   <a href="#msx2版ファイナルファンタジー用ツール" class="md-toc-link">MSX2版ファイナルファンタジー用ツール</a>
 </summary>
 <div class="md-toc-link-wrapper" data-level="1">
-  <a href="#ffsaydostool" class="md-toc-link">FFSayDosTool</a>
+  <a href="#ffsaydosファイルマネージャ" class="md-toc-link">FFSayDosファイルマネージャ</a>
 </div>
 <div class="md-toc-link-wrapper" data-level="1">
-  <a href="#ffpictool" class="md-toc-link">FFPicTool</a>
+  <a href="#画像圧縮展開ツール" class="md-toc-link">画像圧縮展開ツール</a>
 </div>
 <div class="md-toc-link-wrapper" data-level="1">
-  <a href="#ffsprpreview" class="md-toc-link">FFSprPreview</a>
+  <a href="#スプライトプレビューツール" class="md-toc-link">スプライトプレビューツール</a>
 </div>
 <details open="" class="md-toc-details">
 <summary class="md-toc-link-wrapper" data-level="1">
-  <a href="#ff1_msg_list" class="md-toc-link">ff1_msg_list</a>
+  <a href="#メッセージ抽出ツール" class="md-toc-link">メッセージ抽出ツール</a>
 </summary>
 <div class="md-toc-link-wrapper" data-level="2">
   <a href="#ipsパッチツール" class="md-toc-link">IPSパッチツール</a>

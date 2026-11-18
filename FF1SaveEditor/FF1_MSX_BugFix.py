@@ -11,6 +11,7 @@ MSX2版『ファイナルファンタジー』(マイクロキャビン移植)�
   2. マップパッチ適用 (SUB05.MAPを展開し、ガイアの泉タイルを置換して再圧縮格納)
   3. フックコード配置 (配置先が00であることを検証し、各配置アドレスを自動解決)
   4. フック元書き換え (解決されたアドレスに基づき CALL/JP 命令等を生成して書き込み)
+  5. ブートブロック修正 (起動時CTRLキー判定をフリーエリア判定へ置換)
 """
 
 import argparse
@@ -290,6 +291,43 @@ def patch_gaia_fairy_spring(disk_data: bytearray, file_map: Dict[str, Tuple[int,
         f"  [適用] マップタイル: ガイアの妖精の泉タイル復元 "
         f"(SUB05.MAP 展開 -> X=45〜50, Y=19 をタイル0x3Bへ置換 -> 再圧縮 {len(recompressed)}/{max_bytes} バイト)"
     )
+
+
+def patch_startup_freearea_check(disk_data: bytearray) -> None:
+    """
+    ブートブロック (DSK オフセット 0x0419, RAM 0x8019) の起動時判定ルーチン (33バイト) を、
+    HIMEM (0xFC4A) が 0xDE86 以上であるかを見るフリーエリア判定へ置換する。
+    ブートブロックは SayDos のファイルではないため、DSK 内の固定オフセットを直接書き換える。
+    置換前のルーチンは、製品版の CTRLキー判定と、Performance Patch が置き換えた
+    ログインベクタ判定 (BDOS _LOGIN で有効ドライブが1台かを確認する) の両方に対応する。
+    どちらの版でも失敗時の処理 (メッセージ表示と停止) は共通のため、置換後のバイト列は同一でよい。
+    """
+    dsk_offset = 0x0419
+    orig_variants = [
+        # 製品版: SNSMAT で CTRLキーを判定
+        hex_to_bytes("3E 06 DD E5 FD E5 FD 2A C0 FC DD 21 41 01 CD 1C 00 FD E1 DD E1 CB 4F C8 21 3A 80 CD D9 80 C3 6D 81"),
+        # Performance Patch 版: ログインベクタ判定 (末尾12バイトは製品版ルーチンの残存部分)
+        hex_to_bytes("0E 18 CD 7D F3 7C B7 20 03 7D 3D C8 21 3A 80 CD D9 80 C3 6D 81 CB 4F C8 21 3A 80 CD D9 80 C3 6D 81"),
+    ]
+    patch_bytes = hex_to_bytes("2A 4A FC 11 86 DE B7 ED 52 D0 21 3A 80 CD D9 80 C3 6D 81") + b"\x00" * 14
+
+    actual = bytes(disk_data[dsk_offset : dsk_offset + len(patch_bytes)])
+    if actual == patch_bytes:
+        print("  [適用済み] パッチ17: 起動時フリーエリア判定 (CTRLキー判定をHIMEM判定へ置換)")
+        return
+
+    if actual not in orig_variants:
+        print(
+            f"[エラー] パッチ17: ブートブロックの期待値が一致しません (DSK オフセット: 0x{dsk_offset:06X})\n"
+            f"    期待値 (製品版): {orig_variants[0].hex(' ').upper()}\n"
+            f"    期待値 (Performance Patch 版): {orig_variants[1].hex(' ').upper()}\n"
+            f"    実際値: {actual.hex(' ').upper()}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    disk_data[dsk_offset : dsk_offset + len(patch_bytes)] = patch_bytes
+    print("  [適用] パッチ17: 起動時フリーエリア判定 (CTRLキー判定をHIMEM判定へ置換)")
 
 
 # -----------------------------------------------------------------------------
@@ -792,6 +830,12 @@ def main() -> None:
 
         disk_data[dsk_offset : dsk_offset + len(call_bytes)] = call_bytes
         print(f"  [フック] {call.description} -> 0x{target_addr:04X} [{len(call_bytes):2d}B]")
+
+    # -------------------------------------------------------------------------
+    # Step 5: ブートブロックの修正 (起動時フリーエリア判定)
+    # -------------------------------------------------------------------------
+    print("\n[Step 5] ブートブロックの修正 (起動時フリーエリア判定)...")
+    patch_startup_freearea_check(disk_data)
 
     # -------------------------------------------------------------------------
     # 出力
