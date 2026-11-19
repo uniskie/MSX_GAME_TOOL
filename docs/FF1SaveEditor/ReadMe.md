@@ -178,10 +178,11 @@ py FF1_MSX_BugFix.py 元DSKパス パッチ後DSKパス
 ```
 
 ※ Performance Patch と併用する場合の注意：  
-Performance Patch も起動時の判定（ブートブロック `0x8019`）を、ログインベクタで有効ドライブが1台かを見る判定へ置き換えています。本パッチのフリーエリア判定は同じ場所を置き換えるため、併用する場合は Performance Patch を先に当ててから本パッチを実行してください。Performance Patch の IPS を後から当てると、元のバイトを確認せずに上書きされるため、フリーエリア判定が消えてログインベクタ判定に戻ります。  
-なお、ログインベクタ判定はドライブの台数を見るもので、フリーエリアの大きさ自体は確認していません。
+Performance Patch も起動時の判定（ブートブロック `0x8019`）を、ログインベクタで有効な論理ドライブが1台かを見る判定へ置き換えています。本パッチのフリーエリア判定は同じ場所を置き換えるため、併用する場合は Performance Patch を先に当ててから本パッチを実行してください。Performance Patch の IPS を後から当てると、元のバイトを確認せずに上書きされるため、フリーエリア判定が消えて論理ドライブ数判定に戻ります。（つまり、フリーエリアが十分な通常環境でもCTRLを押しながら起動する以前の動作に戻ります。）
 
 **[FC版 FF1J_BugFixes](doc/FF1J_FC_Bugfixes_jp.md)**相当のパッチを作成。
+
+此方はデバッグ検証のためにチェックや検査をしながらパッチを当てるために作ったものなので、ipsファイルを利用してもパッチは当てられます。
 
 > [!NOTE]
 > FC版 FF1J_BugFixes -> <https://www.romhacking.net/hacks/5597/>  
@@ -498,7 +499,7 @@ python ips_manager.py -t ファイナルファンタジー.NES FF1J_BugFixes+Min
 ROMを読み込んで作成されたプロジェクトフォルダにある
  `(プロジェクト名).ff1d` に、文字定義やアドレス設定が入っています。
 
-- [for_HAKKINFF1/FinalFantasy1.ff1d](for_HAKKINFF1/FinalFantasy1.ff1d)
+- [for_HakkinFF1/FinalFantasy1.ff1d](for_HakkinFF1/FinalFantasy1.ff1d)
 
 を、プロジェクト名に合わせてリネームし、
 プロジェクトフォルダに上書きしてください。
@@ -518,7 +519,7 @@ ROMを読み込んで作成されたプロジェクトフォルダにある
 
 また、ローカルマップ系機能や幾つかの機能がエラーで落ちます。  
 
-ランタイムの互換性問題に関しては、[github](https://github.com/ffhacksterex/FFHacksterEx/tree/v0.9.8.2-beta) にあるソースコードを [Visual C++2019 + プラットフォームツールセット Visuall Studio 2017 - Windows XP(v141_xp) でビルド](for_FFHackSterEX/ffhacksterex-0.9.8.2-win64-x64-v141_xp_vs2019.zip)すれば落ちにくくなります。
+ランタイムの互換性問題に関しては、[github](https://github.com/ffhacksterex/FFHacksterEx/tree/v0.9.8.2-beta) にあるソースコードを [Visual C++2019 + プラットフォームツールセット Visual Studio 2017 - Windows XP(v141_xp) でビルド](for_FFHackSterEX/ffhacksterex-0.9.8.2-win64-x64-v141_xp_vs2019.zip)すれば落ちにくくなります。
 
 古いプラットフォームツールセットをVS2022以降でビルドすると発生する問題が関係するようですが、英語版ROMだと問題が無かったりするので、良く分かりません。
 
