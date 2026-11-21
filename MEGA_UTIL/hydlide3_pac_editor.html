@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ハイドライド3 PACセーブデータエディタ V0.4</title>
+<style>
+  :root{
+    --blue:#1b3fae; --blue-dark:#122a75; --ink:#1c2333; --mut:#5b6579;
+    --border:#dde3f0; --bg:#eef1f8; --err:#c62828; --ok:#2e7d32;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:linear-gradient(135deg,#0a1e5e,#1b3fae);color:#fff;padding:18px 22px}
+  header h1{margin:0;font-size:21px;letter-spacing:.04em}
+  header p{margin:5px 0 0;font-size:12.5px;opacity:.85;max-width:920px;line-height:1.6}
+  main{max-width:1180px;margin:0 auto;padding:18px 16px 28px}
+  #drop{border:2px dashed #9db1e4;border-radius:12px;background:#fff;padding:20px;text-align:center;color:var(--mut);cursor:pointer;transition:border-color .15s,background .15s}
+  #drop:hover{border-color:var(--blue)}
+  #drop.drag{background:#e3ebff;border-color:var(--blue)}
+  #drop .big{font-size:15px;font-weight:700;color:var(--blue-dark);margin-bottom:4px}
+  .toprow{display:flex;gap:12px;align-items:center}
+  .toprow #drop{flex:1}
+  #downloadBtn{white-space:nowrap}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:14px 0 10px;box-shadow:0 1px 3px rgba(20,30,80,.06)}
+  .toolbar .info{font-size:13px;color:var(--mut)}
+  .toolbar select{width:auto}
+  button{font:inherit;cursor:pointer;border-radius:7px;border:1px solid var(--blue);background:var(--blue);color:#fff;padding:8px 20px;font-weight:700;box-shadow:0 1px 3px rgba(20,30,120,.25)}
+  button:hover:not(:disabled){background:#2650c9}
+  button:disabled{background:#aab4d4;border-color:#aab4d4;cursor:not-allowed;box-shadow:none}
+  select,input[type=text],input[type=number]{font:inherit;padding:6px 8px;border:1px solid #a9badd;border-radius:6px;background:#fff;color:var(--ink)}
+  select:focus,input:focus{outline:2px solid #b9ccff;outline-offset:0;border-color:var(--blue)}
+  input.err,select.err{border-color:var(--err);background:#fdecea}
+  input[readonly]{background:#f2f5fc;color:var(--mut)}
+  .layout{display:grid;grid-template-columns:252px 1fr;gap:16px;align-items:start}
+  @media(max-width:820px){.layout{grid-template-columns:1fr}}
+  .charlist{display:flex;flex-direction:column;gap:8px}
+  .char{border:1px solid var(--border);border-left:6px solid #b9c6e6;border-radius:10px;background:#fff;padding:10px 12px;cursor:pointer;text-align:left;width:100%;color:var(--ink);font-weight:400;box-shadow:none}
+  .char:hover{border-color:#9db1e4;background:#f7faff}
+  .char.sel{border-left-color:var(--blue);background:#eaf0ff;box-shadow:0 1px 4px rgba(0,0,90,.15)}
+  .char .nm{font-size:16px;font-weight:700}
+  .char .sub{font-size:12px;color:var(--mut);margin-top:2px}
+  .badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;margin-left:6px;vertical-align:middle}
+  .badge.ok{background:#e2f2e4;color:var(--ok)}
+  .badge.dirty{background:#fff3d6;color:#8a6d00}
+  .badge.bad{background:#fdecea;color:var(--err)}
+  section.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 16px 16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(20,30,80,.05)}
+  section.card h2{margin:0 0 12px;font-size:15px;color:var(--blue-dark);border-left:4px solid var(--blue);padding-left:8px}
+  /* 入力欄は中身の桁数に合わせた幅で、横に流して並べる */
+  .rows{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:flex-end}
+  .fld{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .fld label{font-size:12px;color:var(--mut);white-space:nowrap}
+  .fld label .rng{color:#98a2b8;font-size:11px}
+  .n3 input[type=number]{width:5.6em}
+  .n5 input[type=number]{width:7.2em}
+  .n8 input[type=number]{width:9.8em}
+  #f_name{width:25em;max-width:100%}
+  #f_gold{width:8.6em}
+  /* 能力値は他の欄と同じくラベルを上にし、列の幅を揃える */
+  #statGrid{display:grid;grid-template-columns:repeat(auto-fill,6.2em);gap:10px 14px}
+  #statGrid input[type=number]{width:5.6em}
+  .itemTables{display:flex;gap:16px;align-items:flex-start}
+  .itemTables table{flex:1;min-width:0}
+  @media(max-width:1080px){.itemTables{flex-direction:column}.itemTables table{width:100%}}
+  table.items{width:100%;border-collapse:collapse;font-size:13px}
+  table.items th,table.items td{padding:3px 5px;border-bottom:1px solid var(--border)}
+  table.items th{font-size:12px;color:var(--mut);text-align:left;background:#f2f5fc}
+  table.items tbody tr:nth-child(even){background:#f8faff}
+  table.items td.no{width:30px;color:#98a2b8;text-align:right}
+  table.items td.cnt{width:92px}
+  table.items td.use{width:58px;text-align:center}
+  table.items select{width:100%}
+  table.items input[type=number]{width:5.6em}
+  table.items input[type=checkbox]{width:17px;height:17px;vertical-align:middle}
+  .msg{font-size:13px;margin:8px 0;min-height:1.2em}
+  .msg.err{color:var(--err)}
+  .msg.ok{color:var(--ok)}
+  footer{font-size:12px;color:#77808f;margin:18px 0 8px;line-height:1.7}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>ハイドライド3 PACセーブデータエディタ</h1>
+  <p>FMPAC / PAC のバックアップファイル(.pac)を開いて、ハイドライド3のキャラクターデータを編集します。処理はすべてこのブラウザの中で行われ、ファイルが外部に送信されることはありません。</p>
+</header>
+<main>
+  <div class="toprow">
+    <div id="drop">
+      <div class="big">.pac ファイルをここにドロップ、またはクリックして選択</div>
+      <div>対応形式: 先頭が「PAC2 BACKUP DATA」の 8206 バイトのファイル (openMSX の fmpac.pac など)</div>
+      <input type="file" id="fileInput" accept=".pac" class="hidden">
+    </div>
+    <button id="downloadBtn" disabled>編集した .pac を保存</button>
+  </div>
+  <div class="msg" id="loadMsg"></div>
+
+  <div id="editor" class="hidden">
+    <div class="toolbar">
+      <span class="info" id="fileInfo"></span>
+      <span class="info" id="blockInfo"></span>
+    </div>
+    <div class="msg err" id="errMsg"></div>
+    <div class="layout">
+      <div>
+        <div class="charlist" id="charList"></div>
+        <footer>
+          キャラクターを選ぶと右側にデータが表示されます。<br>
+          保存するとき、4人分すべてのチェックサムを再計算して書き込みます。ブロック1以外の中身は変更しません。
+        </footer>
+      </div>
+      <div id="formArea">
+        <section class="card">
+          <h2>基本</h2>
+          <div class="rows">
+            <div class="fld"><label>名前 <span class="rng">ゲーム内フォント16バイトまで (かな・英数)</span></label><input type="text" id="f_name"></div>
+            <div class="fld n3"><label>レベル <span class="rng">0〜255</span></label><input type="number" id="f_level" min="0" max="255"></div>
+            <div class="fld"><label>職業</label><select id="f_class"></select></div>
+            <div class="fld"><label>妖精フラグ</label><select id="f_fairy"><option value="0">0: なし</option><option value="1">1: あり</option></select></div>
+            <div class="fld"><label>怪物フラグ</label><select id="f_monster"><option value="0">0: なし</option><option value="1">1: 怪物</option></select></div>
+            <div class="fld"><label>ゲームクリア済み</label><select id="f_savior"><option value="0">0: 未クリア</option><option value="1">1: クリア済み</option></select></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>体力・魔力</h2>
+          <div class="rows">
+            <div class="fld n5"><label>体力 (現在) <span class="rng">0〜65535</span></label><input type="number" id="f_lifeCur" min="0" max="65535"></div>
+            <div class="fld n5"><label>体力 (最大) <span class="rng">0〜65535</span></label><input type="number" id="f_lifeMax" min="0" max="65535"></div>
+            <div class="fld n5"><label>危険体力 <span class="rng">0〜65535</span></label><input type="number" id="f_lifeDng" min="0" max="65535"></div>
+            <div class="fld n5"><label>魔力 (現在) <span class="rng">0〜65535</span></label><input type="number" id="f_mpCur" min="0" max="65535"></div>
+            <div class="fld n5"><label>魔力 (最大) <span class="rng">0〜65535</span></label><input type="number" id="f_mpMax" min="0" max="65535"></div>
+            <div class="fld n3"><label>魔法レベル <span class="rng">0〜12</span></label><input type="number" id="f_magicLv" min="0" max="12"></div>
+            <div class="fld n8"><label>経験値 <span class="rng">0〜16777215</span></label><input type="number" id="f_exp" min="0" max="16777215"></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>能力値 (現在 / 基本、各 0〜255)</h2>
+          <div id="statGrid"></div>
+        </section>
+
+        <section class="card">
+          <h2>装備</h2>
+          <div class="rows">
+            <div class="fld"><label>武器</label><select id="f_weapon"></select></div>
+            <div class="fld"><label>鎧</label><select id="f_armor"></select></div>
+            <div class="fld"><label>盾</label><select id="f_shield"></select></div>
+            <div class="fld"><label>兜</label><select id="f_helmet"></select></div>
+            <div class="fld n3"><label>直接攻撃距離 <span class="rng">0〜255</span></label><input type="number" id="f_dirLen" min="0" max="255"></div>
+            <div class="fld n3"><label>飛び道具距離 <span class="rng">0〜255</span></label><input type="number" id="f_flyLen" min="0" max="255"></div>
+            <div class="fld n3"><label>弾の種類 <span class="rng">0〜255</span></label><input type="number" id="f_bullet" min="0" max="255"></div>
+            <div class="fld n3"><label>連射攻撃ウェイト <span class="rng">0〜255 (0で最速連射)</span></label><input type="number" id="f_rapidWait" min="0" max="255"></div>
+          </div>
+          <div class="msg err" id="equipMsg"></div>
+        </section>
+
+        <section class="card">
+          <h2>重量・コイン</h2>
+          <div class="rows">
+            <div class="fld n5"><label>持てる重量 <span class="rng">0〜65535</span></label><input type="number" id="f_wHave" min="0" max="65535"></div>
+            <div class="fld n5"><label>使いこなす重量 <span class="rng">0〜65535</span></label><input type="number" id="f_wMaster" min="0" max="65535"></div>
+            <div class="fld n5"><label>道具の総重量 <span class="rng">0〜65535</span></label><input type="number" id="f_wAll" min="0" max="65535"></div>
+            <div class="fld n3"><label>$10硬貨 <span class="rng">0〜255枚</span></label><input type="number" id="f_c10" min="0" max="255"></div>
+            <div class="fld n3"><label>$100硬貨 <span class="rng">0〜255枚</span></label><input type="number" id="f_c100" min="0" max="255"></div>
+            <div class="fld n3"><label>$1000硬貨 <span class="rng">0〜255枚</span></label><input type="number" id="f_c1000" min="0" max="255"></div>
+            <div class="fld"><label>合計金額</label><input type="text" id="f_gold" readonly></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>所持品 (20種類まで)</h2>
+          <div class="itemTables">
+            <table class="items">
+              <thead><tr><th></th><th>アイテム</th><th>個数</th><th>使用中</th></tr></thead>
+              <tbody id="itemBody1"></tbody>
+            </table>
+            <table class="items">
+              <thead><tr><th></th><th>アイテム</th><th>個数</th><th>使用中</th></tr></thead>
+              <tbody id="itemBody2"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <footer>
+    使い方: .pac ファイルを開く → ブロック1のキャラクターを選んで編集 → 「編集した .pac を保存」で書き出す。<br>
+    元のファイルは上書きされません。書き出したファイルは、元のファイル名で保存されます。エミュレータの所定の場所に置き直して使ってください。
+  </footer>
+</main>
+<script>
+"use strict";
+// ===== 定数データ =====
+// ゲーム内フォント (コード 0x20-0xFD)。資料「英数・仮名フォント(共通)」の並び
+const FONT = [
+  " !\"#$%&'()*+,-./0123456789:;<=>?",
+  "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[¥]^_",
+  "`abcdefghijklmnopqrstuvwxyz{|}~-",
+  "♠♥♣♦○●をぁぃぅぇぉゃゅょっ",
+  "❼あいうえおかきくけこさしすせそ",
+  "Ⅲ。「」、・ヲァィゥェォャュョッ",
+  "ーアイウエオカキクケコサシスセソ",
+  "タチツテトナニヌネノハヒフヘホマ",
+  "ミムメモヤユヨラリルレロワン゛゜",
+  "たちつてとなにぬねのはひふへほま",
+  "みむめもやゆよらりるれろわん"
+].join("");
+const CLASSES = [
+  ["戦士","Fighter"],["強盗","Robber"],["僧侶","Priest"],["修道士","Monk"],
+  ["強者","Warrior"],["盗賊","Thief"],["僧正","Bishop"],["僧正","Bishop"],["英雄","Hero"]
+];
+const ITEMS_JP = ["ナイフ","短剣","長剣","聖なる剣","銀の剣","炎の剣","光の剣","スリング","やり","小型の弓","偉大な弓","こん棒","オノ","戦闘用のオノ","革の服","鎖かたびら","鋼製のヨロイ","銀製のヨロイ","魔法のヨロイ","妖精のヨロイ","盾","精神の盾","鋼製の盾","命の盾","妖精の盾","かぶと","和風かぶと","星飾りのかぶと","妖精のかぶと","体力回復剤","解毒剤","薬草","+3体力回復剤","+5体力回復剤","完全体力回復剤","ソーマの杯","まやかしの薬","両替機","神の十字架","戦士の石","キャンプの道具","真夜中の目","魔法のお守り","食料","ランプ","オイル","スーパーオイル","$10硬貨","$100硬貨","$1000硬貨","VIPカード","ニベあんクリーム","熱田神宮のお守り","由美ちゃん人形","T&Eパック","おどレーター","漬物の石","太陽のオイル","ドラゴンの牙","ジムの巻物","暗証カード","雲の石","角笛","バラリスの像","出口のお守り","宇宙コンパス","宇宙服","次元のお守り","聖水"];
+const ITEMS_EN = ["Dagger","Short Sword","Long Sword","Holy Sword","Silver Sword","Fire Sword","Laser Sword","Sling","Spear","Little Bow","Great Bow","Club","Axe","Battle Axe","Leather Suit","Chain Armor","Steel Armor","Silver Armor","Magic Armor","Fairy Armor","Shield","Mind Shield","Steel Shield","Life Shield","Fairy Shield","Helmet","Yamatec","Star Helmet","Fairy Helmet","Heal","Antidote","Herb","+3 Heal","+5 Heal","Max Heal","Cup of Soma","Phony Medicine","Gold Exchanger","Cross of God","Stone of Fighter","Tool of Camp","Midnight Eye","Amulet of Magic","Food","Lamp","Oil","Super Oil","$10-Coin","$100-Coin","$1000-Coin","VIP Card","Cream of NIBEA'N","Amulet of ATSUTA","Doll of YUMI","T&E Package","Odo-Later","Stone of Pickles","Sun-Oil","Fang of Dragon","JIM's Scroll","ID-Card","Stone of Cloud","Bugle","Idol of VARALYS","Amulet of Exit","Space Compass","Space Suit","Amulet of DM","Holy water"];
+function itemLabel(id){ return ITEMS_JP[id] + " (" + ITEMS_EN[id] + ")"; }
+
+// 能力値の並び [表示名, 現在値オフセット, 基本値オフセット]
+const STATS = [
+  ["腕力",0x1C,0x1D],["攻撃値",0x25,0x26],["防御値",0x27,0x28],
+  ["機敏さ",0x29,0x2A],["器用さ",0x2C,0x2D],["教養",0x2E,0x2F],
+  ["幸運",0x30,0x31],["魅力",0x32,0x33]
+];
+// 単独の数値フィールド [要素id, オフセット, バイト数, 最小, 最大]
+const NUMFIELDS = [
+  ["f_level",0x12,1,0,255],["f_lifeCur",0x16,2,0,65535],["f_lifeMax",0x14,2,0,65535],
+  ["f_lifeDng",0x18,2,0,65535],["f_mpCur",0x20,2,0,65535],["f_mpMax",0x1E,2,0,65535],
+  ["f_magicLv",0x24,1,0,12],["f_exp",0x35,3,0,16777215],
+  ["f_dirLen",0x97,1,0,255],["f_flyLen",0x98,1,0,255],["f_bullet",0x99,1,0,255],
+  ["f_rapidWait",0xB8,1,0,255],
+  ["f_wHave",0x3E,2,0,65535],["f_wMaster",0x40,2,0,65535],["f_wAll",0x42,2,0,65535],
+  ["f_c10",0x83,1,0,255],["f_c100",0x84,1,0,255],["f_c1000",0x85,1,0,255]
+];
+// 装備 [要素id, オフセット, アイテムID範囲の開始, 終了, K]
+// アイテムID = 格納値 + K (格納値 0 = 装備なし)。武器: K=-1 / 鎧: K=13 / 盾: K=19 / 兜: K=24
+// (炎の剣 ID5 → 武器の格納値 6、妖精の盾 ID24 → 盾の格納値 5、妖精のかぶと ID28 → 兜の格納値 4)
+const EQUIPS = [
+  ["f_weapon",0x93,0,13,-1],["f_armor",0x94,14,19,13],
+  ["f_shield",0x95,20,24,19],["f_helmet",0x96,25,28,24]
+];
+
+// ===== 状態 =====
+let origBytes = null;   // 読み込んだファイル全体
+let fileName = "";
+let workBlock = null;   // 編集中ブロックの 1024 バイト (Uint8Array)
+let curBlock = 0;       // 選択中ブロック (0-6)
+let curChar = 0;        // 選択中キャラクター (0-3)
+let errorCount = 0;
+
+const $ = id => document.getElementById(id);
+function recBase(){ return curChar * 256; }
+function getVal(off, size){
+  let v = 0;
+  for (let i = size - 1; i >= 0; i--) v = v * 256 + workBlock[recBase() + off + i];
+  return v;
+}
+function setVal(off, size, v){
+  for (let i = 0; i < size; i++){ workBlock[recBase() + off + i] = v % 256; v = Math.floor(v / 256); }
+}
+function checksum(recIdx){
+  const b = recIdx * 256; let s = 0;
+  for (let i = 0; i < 255; i++) s += workBlock[b + i];
+  return (s + 0x4A) & 0xFF;
+}
+function checksumOk(recIdx){ return checksum(recIdx) === workBlock[recIdx * 256 + 255]; }
+
+// ===== 名前の変換 =====
+function decodeName(recIdx){
+  const b = recIdx * 256; let out = "";
+  for (let i = 0; i < 16; i++){
+    const c = workBlock[b + i];
+    if (c === 0) break;
+    out += (c >= 0x20 && c <= 0xFD && FONT[c - 0x20]) ? FONT[c - 0x20] : "?";
+  }
+  return out;
+}
+const HW = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝｧｨｩｪｫｬｭｮｯ";
+const FW = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワンァィゥェォャュョッ";
+const DAKU = {"ガ":"カ゛","ギ":"キ゛","グ":"ク゛","ゲ":"ケ゛","ゴ":"コ゛","ザ":"サ゛","ジ":"シ゛","ズ":"ス゛","ゼ":"セ゛","ゾ":"ソ゛","ダ":"タ゛","ヂ":"チ゛","ヅ":"ツ゛","デ":"テ゛","ド":"ト゛","バ":"ハ゛","ビ":"ヒ゛","ブ":"フ゛","ベ":"ヘ゛","ボ":"ホ゛","パ":"ハ゜","ピ":"ヒ゜","プ":"フ゜","ペ":"ヘ゜","ポ":"ホ゜","ヴ":"ウ゛","が":"か゛","ぎ":"き゛","ぐ":"く゛","げ":"け゛","ご":"こ゛","ざ":"さ゛","じ":"し゛","ず":"す゛","ぜ":"せ゛","ぞ":"そ゛","だ":"た゛","ぢ":"ち゛","づ":"つ゛","で":"て゛","ど":"と゛","ば":"は゛","び":"ひ゛","ぶ":"ふ゛","べ":"へ゛","ぼ":"ほ゛","ぱ":"は゜","ぴ":"ひ゜","ぷ":"ふ゜","ぺ":"へ゜","ぽ":"ほ゜"};
+function encodeName(str){
+  // 半角カナ→全角、濁点分解をしてから、フォント表で引く
+  let norm = "";
+  for (const ch of str){
+    const hi = HW.indexOf(ch);
+    norm += (hi >= 0) ? FW[hi] : ch;
+  }
+  let bytes = [];
+  for (const ch of norm){
+    const parts = DAKU[ch] ? DAKU[ch] : ch;
+    for (const p of parts){
+      if (p === "\\") { bytes.push(0x5C); continue; }
+      const idx = FONT.indexOf(p);
+      if (idx < 0) return { error: "「" + p + "」はゲーム内フォントに無い文字です" };
+      bytes.push(idx + 0x20);
+    }
+  }
+  if (bytes.length > 16) return { error: "名前が16バイトを超えています (" + bytes.length + "バイト)" };
+  return { bytes };
+}
+
+// ===== 装備と所持品の連動 =====
+function findItemSlot(itemId){
+  for (let i = 0; i < 20; i++) if (getVal(0x47 + i * 3, 1) === itemId) return i;
+  return -1;
+}
+function findEmptySlot(){
+  for (let i = 0; i < 20; i++) if (getVal(0x47 + i * 3, 1) === 0xFF) return i;
+  return -1;
+}
+// 装備の変更をデータへ反映する。成功したら null、できなければエラーメッセージを返す。
+// 変更の場合: 前の装備品と新しい装備品で所持品を置き換える。
+//   両方とも所持品にあれば位置を入れ替え、新しい装備品が所持品に無ければ
+//   前の装備品の枠へ新しい装備品を入れる (前の装備品は所持品から無くなる)。
+// 未装備から装備する場合: 所持品へ追加する (空きが無ければエラー)。
+// 装備を外した場合: アイテムは所持品に残し、使用中だけ外す。
+function applyEquip(off, K, newStored){
+  const oldStored = getVal(off, 1);
+  if (newStored === oldStored) return null;
+  const oldItem = oldStored === 0 ? -1 : oldStored + K;
+  const newItem = newStored === 0 ? -1 : newStored + K;
+  if (newItem >= 0){
+    const slotB = findItemSlot(newItem);
+    if (oldItem >= 0 && oldItem !== newItem){
+      // 変更: 置き換え
+      const slotA = findItemSlot(oldItem);
+      if (slotA >= 0 && slotB >= 0){
+        for (let j = 0; j < 3; j++){
+          const t = getVal(0x47 + slotA * 3 + j, 1);
+          setVal(0x47 + slotA * 3 + j, 1, getVal(0x47 + slotB * 3 + j, 1));
+          setVal(0x47 + slotB * 3 + j, 1, t);
+        }
+      } else if (slotA >= 0){
+        setVal(0x47 + slotA * 3, 1, newItem);
+        setVal(0x48 + slotA * 3, 1, 1);
+        setVal(0x49 + slotA * 3, 1, 1);
+      } else if (slotB < 0){
+        const slot = findEmptySlot();
+        if (slot < 0) return "所持品に空きがないため、「" + itemLabel(newItem) + "」を装備できません。所持品を空けてから装備してください。";
+        setVal(0x47 + slot * 3, 1, newItem);
+        setVal(0x48 + slot * 3, 1, 1);
+      }
+    } else if (slotB < 0){
+      // 未装備からの装備: 追加
+      const slot = findEmptySlot();
+      if (slot < 0) return "所持品に空きがないため、「" + itemLabel(newItem) + "」を装備できません。所持品を空けてから装備してください。";
+      setVal(0x47 + slot * 3, 1, newItem);
+      setVal(0x48 + slot * 3, 1, 1);
+    }
+    const s = findItemSlot(newItem);
+    if (s >= 0){
+      if (getVal(0x48 + s * 3, 1) === 0) setVal(0x48 + s * 3, 1, 1);
+      setVal(0x49 + s * 3, 1, 1);
+    }
+  }
+  if (oldItem >= 0 && oldItem !== newItem){
+    const os = findItemSlot(oldItem);
+    if (os >= 0) setVal(0x49 + os * 3, 1, 0);
+  }
+  setVal(off, 1, newStored);
+  return null;
+}
+
+// ===== 画面の組み立て =====
+function buildStaticParts(){
+  // 職業コンボ
+  const cs = $("f_class");
+  CLASSES.forEach((c, i) => {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = i + ": " + c[0] + " (" + c[1] + ")";
+    cs.appendChild(o);
+  });
+  // 能力値グリッド
+  const grid = $("statGrid");
+  for (const [label, oc, ob] of STATS){
+    for (const [suffix, off] of [[" (現在)", oc], [" (基本)", ob]]){
+      const d = document.createElement("div"); d.className = "fld";
+      d.innerHTML = "<label>" + label + suffix + "</label>";
+      const inp = document.createElement("input");
+      inp.type = "number"; inp.min = 0; inp.max = 255;
+      inp.dataset.off = off; inp.dataset.size = 1;
+      inp.className = "numin";
+      d.appendChild(inp); grid.appendChild(d);
+    }
+  }
+  // 装備コンボ (option の value は格納値そのもの)
+  for (const [id, off, first, last, K] of EQUIPS){
+    const sel = $(id);
+    const none = document.createElement("option");
+    none.value = 0; none.textContent = "（なし）"; sel.appendChild(none);
+    for (let it = first; it <= last; it++){
+      const o = document.createElement("option");
+      o.value = it - K; o.textContent = itemLabel(it);
+      sel.appendChild(o);
+    }
+    sel.dataset.off = off;
+  }
+  // 所持品テーブル
+  const tb1 = $("itemBody1"), tb2 = $("itemBody2");
+  for (let i = 0; i < 20; i++){
+    const tr = document.createElement("tr");
+    const tdNo = document.createElement("td"); tdNo.className = "no"; tdNo.textContent = i + 1;
+    const tdSel = document.createElement("td");
+    const sel = document.createElement("select"); sel.className = "itemSel"; sel.dataset.idx = i;
+    const empty = document.createElement("option");
+    empty.value = 255; empty.textContent = "（空欄）"; sel.appendChild(empty);
+    ITEMS_JP.forEach((_, id) => {
+      const o = document.createElement("option");
+      o.value = id; o.textContent = id + ": " + itemLabel(id);
+      sel.appendChild(o);
+    });
+    tdSel.appendChild(sel);
+    const tdCnt = document.createElement("td"); tdCnt.className = "cnt";
+    const cnt = document.createElement("input");
+    cnt.type = "number"; cnt.min = 0; cnt.max = 255; cnt.className = "itemCnt"; cnt.dataset.idx = i;
+    tdCnt.appendChild(cnt);
+    const tdUse = document.createElement("td"); tdUse.className = "use";
+    const use = document.createElement("input");
+    use.type = "checkbox"; use.className = "itemUse"; use.dataset.idx = i;
+    tdUse.appendChild(use);
+    tr.append(tdNo, tdSel, tdCnt, tdUse);
+    (i < 10 ? tb1 : tb2).appendChild(tr);
+  }
+}
+
+// 戦士の石 (アイテムID 39) と連射攻撃ウェイト (+B8) の連動。
+// ゲームでは、戦士の石を装備 (使用中) するとウェイトは 0 になり、
+// 戦士の石をすべて捨てる (所持品から無くなる) と 10 に戻る。
+// 石が所持品にあるが使用中でない場合のゲームの動きは分からないので、その場合は値を変えない。
+function syncRapidWait(){
+  let has = false, inUse = false;
+  for (let i = 0; i < 20; i++){
+    if (getVal(0x47 + i * 3, 1) === 39){
+      has = true;
+      if (getVal(0x49 + i * 3, 1) !== 0) inUse = true;
+    }
+  }
+  if (inUse) setVal(0xB8, 1, 0);
+  else if (!has) setVal(0xB8, 1, 10);
+  $("f_rapidWait").value = getVal(0xB8, 1);
+}
+
+// ===== 表示の更新 =====
+function refreshCharList(){
+  const list = $("charList"); list.innerHTML = "";
+  for (let i = 0; i < 4; i++){
+    const b = i * 256;
+    const empty = workBlock.slice(b, b + 256).every(v => v === 0xFF);
+    const btn = document.createElement("button");
+    btn.className = "char" + (i === curChar ? " sel" : "");
+    const nm = empty ? "（データなし）" : (decodeName(i) || "（名前なし）");
+    const lv = workBlock[b + 0x12], cl = workBlock[b + 0x13];
+    const life = workBlock[b + 0x16] + workBlock[b + 0x17] * 256;
+    const lifeMax = workBlock[b + 0x14] + workBlock[b + 0x15] * 256;
+    let badge;
+    if (empty) badge = "";
+    else if (checksumOk(i)) badge = "<span class=\"badge ok\">チェックサム OK</span>";
+    else badge = "<span class=\"badge dirty\">保存時に再計算</span>";
+    btn.innerHTML = "<div class=\"nm\">" + (i + 1) + ". " + nm + badge + "</div>" +
+      "<div class=\"sub\">Lv " + lv + " / " + (CLASSES[cl] ? CLASSES[cl][0] : "職業" + cl) +
+      " / 体力 " + life + "/" + lifeMax + "</div>";
+    btn.addEventListener("click", () => { curChar = i; refreshCharList(); fillForm(); });
+    list.appendChild(btn);
+  }
+}
+function fillForm(){
+  $("f_name").value = decodeName(curChar);
+  $("f_name").classList.remove("err");
+  for (const [id, off, size] of NUMFIELDS) $(id).value = getVal(off, size);
+  document.querySelectorAll(".numin").forEach(inp => {
+    inp.value = getVal(Number(inp.dataset.off), 1);
+    inp.classList.remove("err");
+  });
+  setSelect($("f_class"), getVal(0x13, 1));
+  $("f_fairy").value = getVal(0x3B, 1) ? 1 : 0;
+  $("f_monster").value = getVal(0x3C, 1) ? 1 : 0;
+  $("f_savior").value = getVal(0xFC, 1) ? 1 : 0;
+  for (const [id, off] of EQUIPS) setSelect($(id), getVal(off, 1));
+  $("equipMsg").textContent = "";
+  refreshItemForm();
+  updateGold();
+  validateAll();
+}
+function refreshItemForm(){
+  document.querySelectorAll(".itemSel").forEach(sel => {
+    const i = Number(sel.dataset.idx);
+    sel.value = getVal(0x47 + i * 3, 1);
+  });
+  document.querySelectorAll(".itemCnt").forEach(inp => {
+    const i = Number(inp.dataset.idx);
+    inp.value = getVal(0x48 + i * 3, 1);
+    inp.classList.remove("err");
+  });
+  document.querySelectorAll(".itemUse").forEach(chk => {
+    const i = Number(chk.dataset.idx);
+    chk.checked = getVal(0x49 + i * 3, 1) !== 0;
+  });
+}
+function setSelect(sel, v){
+  // 選択肢に無い値のときは一時的な選択肢を足して、その値を保持する
+  sel.value = v;
+  if (sel.value !== String(v)){
+    const o = document.createElement("option");
+    o.value = v; o.textContent = "（不明な値: " + v + "）";
+    sel.appendChild(o);
+    sel.value = v;
+  }
+}
+function updateGold(){
+  $("f_gold").value = "$" + (getVal(0x83,1) * 10 + getVal(0x84,1) * 100 + getVal(0x85,1) * 1000).toLocaleString();
+}
+function validateAll(){
+  errorCount = document.querySelectorAll("input.err, select.err").length;
+  $("downloadBtn").disabled = errorCount > 0;
+  $("errMsg").textContent = errorCount > 0 ? ("入力エラーが " + errorCount + " 件あります。範囲内の値に直してください。") : "";
+}
+
+// ===== 入力イベント =====
+function bindEvents(){
+  for (const [id, off, size, min, max] of NUMFIELDS){
+    $(id).addEventListener("input", e => {
+      const v = Number(e.target.value);
+      const bad = e.target.value === "" || !Number.isInteger(v) || v < min || v > max;
+      e.target.classList.toggle("err", bad);
+      if (!bad){ setVal(off, size, v); if (id === "f_c10" || id === "f_c100" || id === "f_c1000") updateGold(); refreshBadgeOnly(); }
+      validateAll();
+    });
+  }
+  document.querySelectorAll(".numin").forEach(inp => {
+    inp.addEventListener("input", e => {
+      const v = Number(e.target.value);
+      const bad = e.target.value === "" || !Number.isInteger(v) || v < 0 || v > 255;
+      e.target.classList.toggle("err", bad);
+      if (!bad) setVal(Number(e.target.dataset.off), 1, v);
+      validateAll();
+    });
+  });
+  $("f_name").addEventListener("input", e => {
+    const r = encodeName(e.target.value);
+    if (r.error){ e.target.classList.add("err"); }
+    else {
+      e.target.classList.remove("err");
+      const b = recBase();
+      for (let i = 0; i < 16; i++) workBlock[b + i] = i < r.bytes.length ? r.bytes[i] : 0;
+      refreshCharList();
+    }
+    validateAll();
+  });
+  $("f_class").addEventListener("change", e => { setVal(0x13, 1, Number(e.target.value)); refreshCharList(); });
+  $("f_fairy").addEventListener("change", e => setVal(0x3B, 1, Number(e.target.value)));
+  $("f_monster").addEventListener("change", e => setVal(0x3C, 1, Number(e.target.value)));
+  $("f_savior").addEventListener("change", e => setVal(0xFC, 1, Number(e.target.value)));
+  for (const [id, off, , , K] of EQUIPS){
+    $(id).addEventListener("change", e => {
+      const err = applyEquip(off, K, Number(e.target.value));
+      if (err){
+        $("equipMsg").textContent = err;
+        setSelect(e.target, getVal(off, 1)); // 装備は変わっていないので表示を戻す
+      } else {
+        $("equipMsg").textContent = "";
+        refreshItemForm();
+        refreshCharList();
+      }
+    });
+  }
+  document.querySelectorAll(".itemSel").forEach(sel => {
+    sel.addEventListener("change", e => {
+      const i = Number(e.target.dataset.idx);
+      setVal(0x47 + i * 3, 1, Number(e.target.value));
+      syncRapidWait();
+    });
+  });
+  document.querySelectorAll(".itemCnt").forEach(inp => {
+    inp.addEventListener("input", e => {
+      const i = Number(e.target.dataset.idx);
+      const v = Number(e.target.value);
+      const bad = e.target.value === "" || !Number.isInteger(v) || v < 0 || v > 255;
+      e.target.classList.toggle("err", bad);
+      if (!bad) setVal(0x48 + i * 3, 1, v);
+      validateAll();
+    });
+  });
+  document.querySelectorAll(".itemUse").forEach(chk => {
+    chk.addEventListener("change", e => {
+      const i = Number(e.target.dataset.idx);
+      setVal(0x49 + i * 3, 1, e.target.checked ? 1 : 0);
+      syncRapidWait();
+    });
+  });
+  $("downloadBtn").addEventListener("click", download);
+}
+function refreshBadgeOnly(){ refreshCharList(); }
+
+// ===== ファイル読み込み =====
+function blockScore(bytes, blk){
+  // そのブロックがハイドライド3のデータらしいか: チェックサム一致数と使用済み判定
+  const base = 16 + blk * 1024;
+  let ok = 0, used = 0;
+  for (let i = 0; i < 4; i++){
+    const b = base + i * 256;
+    let s = 0, allFF = true;
+    for (let j = 0; j < 255; j++){ s += bytes[b + j]; if (bytes[b + j] !== 0xFF) allFF = false; }
+    if (!allFF) used++;
+    if (((s + 0x4A) & 0xFF) === bytes[b + 255]) ok++;
+  }
+  return { ok, used };
+}
+function loadBlock(blk){
+  curBlock = blk; curChar = 0;
+  workBlock = origBytes.slice(16 + blk * 1024, 16 + blk * 1024 + 1024);
+  const sc = blockScore(origBytes, blk);
+  $("blockInfo").textContent = "ブロック1 (固定): チェックサム一致 " + sc.ok + "/4";
+  refreshCharList();
+  fillForm();
+}
+function openFile(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    const bytes = new Uint8Array(reader.result);
+    const head = String.fromCharCode(...bytes.slice(0, 16));
+    const msg = $("loadMsg");
+    if (bytes.length !== 8206 || head !== "PAC2 BACKUP DATA"){
+      msg.className = "msg err";
+      msg.textContent = "対応形式ではありません (サイズ " + bytes.length + " バイト)。先頭が「PAC2 BACKUP DATA」の 8206 バイトのファイルを選んでください。";
+      return;
+    }
+    origBytes = bytes; fileName = file.name;
+    msg.className = "msg ok";
+    msg.textContent = "読み込みました: " + file.name;
+    $("fileInfo").textContent = file.name + " (" + bytes.length + " バイト)";
+    $("editor").classList.remove("hidden");
+    loadBlock(0); // ハイドライド3のデータはブロック1固定
+  };
+  reader.readAsArrayBuffer(file);
+}
+function download(){
+  if (errorCount > 0) return;
+  // 4人分のチェックサムを再計算
+  for (let i = 0; i < 4; i++) workBlock[i * 256 + 255] = checksum(i);
+  const out = origBytes.slice();
+  out.set(workBlock, 16 + curBlock * 1024);
+  const blob = new Blob([out], { type: "application/octet-stream" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = fileName || "fmpac.pac";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  refreshCharList();
+}
+
+// ===== 起動 =====
+buildStaticParts();
+bindEvents();
+const drop = $("drop"), fi = $("fileInput");
+drop.addEventListener("click", () => fi.click());
+fi.addEventListener("change", () => { if (fi.files[0]) openFile(fi.files[0]); });
+["dragover", "dragenter"].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("drag"); }));
+["dragleave", "drop"].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("drag"); }));
+document.addEventListener("drop", e => {
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) openFile(f);
+});
+</script>
+</body>
+</html>

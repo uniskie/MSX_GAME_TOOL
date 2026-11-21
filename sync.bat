@@ -11,6 +11,9 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 
+copy /y "index.html" "docs\"
+copy /y "MEGA_UTIL\hydlide3_pac_editor.html" "docs\"
+
 echo.
 echo 同期処理が正常に完了しました。
 rem キー入力でいつでもスキップして閉じられる、通常のtimeoutに戻します
