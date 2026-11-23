@@ -60,9 +60,19 @@
   - バンク13: 直前のバイトが「16bit値をオペランドに取るZ80命令」のオペコードである
               箇所のみを対象とする。
 
+任意のバグ修正について:
+  --fix-window-bug を指定すると、後期ロットへの変換とは別に、前期・後期の
+  両ロットにあるバグを1件修正する。既定では適用しない。
+  - 足元で品物を見つけたときに所持品がいっぱいだと表示されるウィンドウが
+    画面左端にはみ出して表示が乱れるバグ。ウィンドウ描画ルーチンへ渡す
+    左位置の指定 (バンク9、4446H の LD BC,055EH) を LD BC,045EH に変え、
+    ウィンドウの左位置を 5 から 4 にする。幅は変えない。変更はこの
+    1バイトのみで、適用すると出力は後期ROMとこの1バイトだけ異なる。
+
 使い方:
   python3 make_msx2_late.py 前期.ROM [出力.ROM]
   python3 make_msx2_late.py 前期.ROM 出力.ROM --verify 後期.ROM
+  python3 make_msx2_late.py 前期.ROM 出力.ROM --fix-window-bug
 """
 
 import struct
@@ -665,6 +675,33 @@ def patch_bank15(rom, kb_entry, kb_reader, kb_call_target):
 
 
 # ================================================================
+# 任意のバグ修正: 足元イベントのウィンドウはみ出し (--fix-window-bug)
+# ================================================================
+def fix_window_bug(rom):
+    """所持品がいっぱいのときに足元で品物を見つけたときの表示で使うウィンドウの左位置を補正する。
+
+    バンク9の 4446H にある LD BC,055EH の即値が、ウィンドウ描画ルーチン
+    (MSX1版: A7FEH、MSX2版: AB61H) へ渡す「左位置 5、上位置 5EH」を指定している。
+    幅はバンク9の 4449H にある LD DE,1326H で 19 が指定されている。左位置 5 と
+    幅 19 の組み合わせではウィンドウの右端が 22 列目になり、1 行 22 列 (0〜21 列) で
+    アドレスを計算する画面描画の範囲をはみ出すため、右端の列が次の行の先頭列と
+    同じアドレスへ描かれ、画面左端が乱れる。
+    幅を 18 に変えても右端は 21 列目に収まるが、幅は変えない。表示する文字は、
+    アイテム名 (最大8文字) とシステムメッセージ $EF (9文字) を合わせた 1 行目が
+    最大で 17 文字あり、ウィンドウの内側は幅 19 で 17 列のため、幅を減らすと
+    文字がウィンドウからはみ出す。左位置を 4 に変えると、積み重ねできるアイテムを
+    表示する処理 (4491H) のウィンドウと同じ左位置と幅の組み合わせになる。
+    このバグは前期・後期の両ロットにあるため、後期ロットへの変換とは別に、
+    オプション指定時のみ適用する。
+    """
+    off = 9 * BANK + 0x448
+    assert rom[off] == 0x05, "ウィンドウの左位置の指定 (LD BC,055EH の即値) が想定と一致しません"
+    rom[off] = 0x04
+    print("\n  [バグ修正: 足元イベントのウィンドウ左位置]\n"
+          "    - LD BC,055EH -> LD BC,045EH (ウィンドウの左位置 5 -> 4)")
+
+
+# ================================================================
 # 実行
 # ================================================================
 CREDITS_BANK = 7
@@ -677,7 +714,7 @@ KB_CALL_TARGET = 0xACAF
 BANK13_THRESHOLD = 0x5B6C             # バンク13の挿入位置。これ以降のアドレスを指す参照に 6 を加算する
 
 
-def run(data):
+def run(data, fix_window=False):
     rom = bytearray(data)
     assert len(rom) == ROM_SIZE, "512KBのROMイメージではありません"
     print("[msx2] パッチを適用します")
@@ -698,11 +735,14 @@ def run(data):
     patch_bank9_10_splices(rom, BEF5_CALL, BD91_CALL)
     patch_bank13_splice(rom)
     patch_bank15(rom, KB_ENTRY, KB_READER, KB_CALL_TARGET)
+    if fix_window:
+        fix_window_bug(rom)
     return bytes(rom)
 
 
 def main(argv):
     verify_path = None
+    fix_window = False
     rest = argv[1:]
     pos = []
     i = 0
@@ -711,6 +751,9 @@ def main(argv):
         if a == "--verify":
             verify_path = rest[i + 1]
             i += 2
+        elif a == "--fix-window-bug":
+            fix_window = True
+            i += 1
         else:
             pos.append(a)
             i += 1
@@ -718,7 +761,7 @@ def main(argv):
         print(__doc__)
         return 1
     src = open(pos[0], "rb").read()
-    out = run(src)
+    out = run(src, fix_window)
     if len(pos) >= 2:
         open(pos[1], "wb").write(out)
         print(f"\n出力完了: {pos[1]}")
