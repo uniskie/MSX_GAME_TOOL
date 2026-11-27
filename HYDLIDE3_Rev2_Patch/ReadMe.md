@@ -1,32 +1,36 @@
 # ハイドライド3 後期ロット解析
 
+- 2026/11/28
+  - ゲームテキスト取り出しスクリプト `extract_hydlide3_strings.py` を 追加
+  - `make_msx?_late.py` から `make_msx?_rev2.py` に ファイル名を変更
+
 ## ROM
 
 | MSX2版 ロット | ファイル名   | サイズ | SHA-1                                    |
 | :-----------: | :----------- | :----- | :--------------------------------------- |
-|     前期      | HYD3MSX2.ROM | 512KB  | F182D4785E3EED00292F7FF4795C9DCC6C990A0A |
-|     後期      | HYD3MSX2.ROM | 512KB  | 391D07C3772F7245B2C11236F67929C9E499E56F |
+|     前期      | `HYD3MSX2.ROM` | 512KB  | F182D4785E3EED00292F7FF4795C9DCC6C990A0A |
+|     後期      | `HYD3MSX2.ROM` | 512KB  | 391D07C3772F7245B2C11236F67929C9E499E56F |
 
 |     MSX1版 ロット     | ファイル名     | サイズ | SHA-1                                      |
 | :-------------------: | :------------- | :----- | :----------------------------------------- |
-|         前期          | HYD3MSX1.ROM   | 512KB  | 74E9EA381E2FED07D989D1056002DE5737125AAF   |
-| 後期 (*実存ではない*) | *HYD3M1V2.ROM* | 512KB  | *07ED9425E0BCE94D2799C35D5924C545DAB0271B* |
+|         前期          | `HYD3MSX1.ROM`   | 512KB  | 74E9EA381E2FED07D989D1056002DE5737125AAF   |
+| 後期 (*実存ではない*) | *`HYD3M1V2.ROM`* | 512KB  | *07ED9425E0BCE94D2799C35D5924C545DAB0271B* |
 
 ### 後期ロットROM化パッチプログラム
 
-- [make_msx1_late.py](make_msx1_late.py) : MSX1版前期ROMを後期相当に変換するパッチプログラム
-- [make_msx2_late.py](make_msx2_late.py) : MSX2版前期ROMを後期ROMに変換するパッチプログラム
+- [make_msx1_rev2.py](make_msx1_rev2.py) : MSX1版前期ROMを後期相当に変換するパッチプログラム
+- [make_msx2_rev2.py](make_msx2_rev2.py) : MSX2版前期ROMを後期ROMに変換するパッチプログラム
 
 使用例） MSX1用
 
 ```text
-python .\make_msx1_late.py "HYD3MSX1.ROM" "HYD3MSX1_REV2.ROM"
+python .\make_msx1_rev2.py "HYD3MSX1.ROM" "HYD3MSX1_REV2.ROM"
 ```
 
 使用例） MSX2用
 
 ```text
-python .\make_msx2_late.py "HYD3MSX2.ROM" "HYD3MSX2_REV2.ROM"
+python .\make_msx2_rev2.py "HYD3MSX2.ROM" "HYD3MSX2_REV2.ROM"
 ```
 
 両プログラムには、任意指定のオプション `--fix-window-bug` があります。前期・後期の両ロットにある、足元で品物を見つけたときに所持品がいっぱいだと表示されるウィンドウが画面左端にはみ出して表示が乱れるバグを、1バイトだけ変更して修正します（バンク9、4446H の LD BC,055EH を LD BC,045EH に変更し、ウィンドウの左位置を 5 から 4 にします。幅は変更しません）。既定では適用されず、指定した場合のみこの変更が適用されます。（その場合、出力は後期ロットとこの1バイトだけ異なります。）バグの内容は 5 章に記載しています。
@@ -34,17 +38,29 @@ python .\make_msx2_late.py "HYD3MSX2.ROM" "HYD3MSX2_REV2.ROM"
 使用例） MSX1用
 
 ```text
-python .\make_msx1_late.py "HYD3MSX1.ROM" "HYD3MSX1_REV2_FIX.ROM" --fix-window-bug
+python .\make_msx1_rev2.py "HYD3MSX1.ROM" "HYD3MSX1_REV2_FIX.ROM" --fix-window-bug
 ```
 
 使用例） MSX2用
 
 ```text
-python .\make_msx2_late.py "HYD3MSX2.ROM" "HYD3MSX2_REV2_FIX.ROM" --fix-window-bug
+python .\make_msx2_rev2.py "HYD3MSX2.ROM" "HYD3MSX2_REV2_FIX.ROM" --fix-window-bug
 ```
 
-
 本ドキュメントでは、MSX2版後期ロットの解析結果（1〜3章・付録A〜D）およびMSX1版への適用方法（4章・付録E）を記載しています。5章は、後期ロットでも修正されていないバグについてです。
+
+### おまけ：ゲームテキスト取り出しスクリプト
+
+[extract_hydlide3_strings.py](extract_hydlide3_strings.py)
+
+ゲーム中の会話メッセージやシステムメッセージ文字列をmarkdownファイルとjsonファイルに書き出します。  
+前期ロット、後期ロットでのアドレスが違いにも対応します。
+
+使用例）
+
+```text
+python extract_hydlide3_strings.py HYD3MSX1.ROM
+```
 
 ## 概要
 
@@ -328,7 +344,7 @@ kb_new:
 
 ## 4. MSX1版への適用
 
-`make_msx1_late.py` は、MSX1版前期ROMを後期相当に変換するパッチプログラムです。
+`make_msx1_rev2.py` は、MSX1版前期ROMを後期相当に変換するパッチプログラムです。
 
 - 検証機能（`--profile msx2`）: 同一の変換ロジックをMSX2版前期ROMに適用した場合、MSX2版特有のディスパッチテーブル境界跨ぎによるバンク14全体ずれを除き、他の全バンクがMSX2版後期ROMとバイト単位で一致します。
 - MSX1版で変更されるバンクは 5, 9, 10, 11, 13, 14, 15, 38, 39, 40, 41 です。スタッフロールはMSX1版ではバンク5にあります。
@@ -629,3 +645,9 @@ kb_new:
 01C6 01C8 01CA 01CC 01CE 01D0 01DA 01DE 01E0 01E2
 01E4 01E6
 ```
+
+## 更新
+
+- 2026/11/28  
+  - ゲームテキスト取り出しスクリプト `extract_hydlide3_strings.py` を 追加
+  - `make_msx?_late.py` から `make_msx?_rev2.py` に ファイル名を変更

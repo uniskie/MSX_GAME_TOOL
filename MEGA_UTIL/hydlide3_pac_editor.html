@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ハイドライド3 PACセーブデータエディタ V0.4</title>
+<title>ハイドライド3 PACセーブデータエディタ V0.5</title>
 <style>
   :root{
     --blue:#1b3fae; --blue-dark:#122a75; --ink:#1c2333; --mut:#5b6579;
@@ -169,6 +169,16 @@
         </section>
 
         <section class="card">
+          <h2>イベントフラグ</h2>
+          <div class="rows">
+            <div class="fld"><label>出口のお守り受取済</label><select id="f_exAmulet"><option value="0">0: 未受取</option><option value="1">1: 受取済</option></select></div>
+            <div class="fld"><label>T&amp;Eパック使用済</label><select id="f_tePack"><option value="0">0: 未使用</option><option value="1">1: 使用済</option></select></div>
+            <div class="fld"><label>エレベータースイッチ</label><select id="f_elevator"><option value="0">0: 停止</option><option value="1">1: 稼働</option></select></div>
+            <div class="fld"><label>ジムの巻物使用済</label><select id="f_palace"><option value="0">0: 未使用</option><option value="1">1: 使用済</option></select></div>
+          </div>
+        </section>
+
+        <section class="card">
           <h2>所持品 (20種類まで)</h2>
           <div class="itemTables">
             <table class="items">
@@ -229,6 +239,11 @@ const NUMFIELDS = [
   ["f_rapidWait",0xB8,1,0,255],
   ["f_wHave",0x3E,2,0,65535],["f_wMaster",0x40,2,0,65535],["f_wAll",0x42,2,0,65535],
   ["f_c10",0x83,1,0,255],["f_c100",0x84,1,0,255],["f_c1000",0x85,1,0,255]
+];
+// フラグ (0 / 1) [要素id, オフセット]
+const FLAGS = [
+  ["f_fairy",0x3B],["f_monster",0x3C],["f_savior",0xFC],
+  ["f_exAmulet",0x8C],["f_tePack",0x8F],["f_elevator",0x90],["f_palace",0x92]
 ];
 // 装備 [要素id, オフセット, アイテムID範囲の開始, 終了, K]
 // アイテムID = 格納値 + K (格納値 0 = 装備なし)。武器: K=-1 / 鎧: K=13 / 盾: K=19 / 兜: K=24
@@ -470,9 +485,7 @@ function fillForm(){
     inp.classList.remove("err");
   });
   setSelect($("f_class"), getVal(0x13, 1));
-  $("f_fairy").value = getVal(0x3B, 1) ? 1 : 0;
-  $("f_monster").value = getVal(0x3C, 1) ? 1 : 0;
-  $("f_savior").value = getVal(0xFC, 1) ? 1 : 0;
+  for (const [id, off] of FLAGS) $(id).value = getVal(off, 1) ? 1 : 0;
   for (const [id, off] of EQUIPS) setSelect($(id), getVal(off, 1));
   $("equipMsg").textContent = "";
   refreshItemForm();
@@ -545,9 +558,9 @@ function bindEvents(){
     validateAll();
   });
   $("f_class").addEventListener("change", e => { setVal(0x13, 1, Number(e.target.value)); refreshCharList(); });
-  $("f_fairy").addEventListener("change", e => setVal(0x3B, 1, Number(e.target.value)));
-  $("f_monster").addEventListener("change", e => setVal(0x3C, 1, Number(e.target.value)));
-  $("f_savior").addEventListener("change", e => setVal(0xFC, 1, Number(e.target.value)));
+  for (const [id, off] of FLAGS){
+    $(id).addEventListener("change", e => { setVal(off, 1, Number(e.target.value)); refreshCharList(); });
+  }
   for (const [id, off, , , K] of EQUIPS){
     $(id).addEventListener("change", e => {
       const err = applyEquip(off, K, Number(e.target.value));
