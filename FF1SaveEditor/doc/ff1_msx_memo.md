@@ -4,7 +4,7 @@
 
 ## MSX2版用ツール
 
-### SayDosTool
+### [SayDosTool](../SayDosTool.py)
 
 ゲームディスクのディスクイメージ（DSKファイル）から、ファイルを取り出したり、格納したりするツールです。
 
@@ -21,7 +21,7 @@ MSX2版ファイナルファンタジーはブート時のメッセージによ�
 
 各機能の詳細は `-h` オプションでヘルプを表示してください。
 
-### FFPicTool
+### [FFPicTool](../FFPicTool.py)
 
 SayDosToolで取り出したファイルの中には、拡張子がPICのファイルが含まれています。
 
@@ -45,7 +45,7 @@ PICファイルはRLE圧縮された画像ファイルです。
 - `+0x10` - `+0x2F`（32 Byte）: V9938用16色パレットデータ（1色あたり2 Byte）
 - `+0x30` 以降: RLE圧縮された画像データ本体
 
-### FFSprPreview
+### [FFSprPreview](../FFSprPreview.html)
 
 SayDosToolで取り出したファイルの中には拡張子SPRのファイルが含まれます。
 

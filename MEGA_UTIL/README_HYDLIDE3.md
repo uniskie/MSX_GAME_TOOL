@@ -1,5 +1,18 @@
 ﻿# ハイドライド3 MSX1版/MSX2版 用ツール
 
+- ディスクイメージ：[MEGA-UTL.dsk](MEGA-UTL.dsk)
+- [Files](https://github.com/uniskie/MSX_GAME_TOOL/tree/main/MEGA_UTIL/FILES/)
+- [SourceFiles](https://github.com/uniskie/MSX_GAME_TOOL/tree/main/MEGA_UTIL/SRC/)
+
+## なんのこと？
+
+処理乗っ取り系のツールなので、  
+ROMカートリッジを挿さずに電源にBASICを起動し、  
+BASICプログラムを実行後、  
+該当ROMカートリッジを《後挿し》して使用します。  
+
+（スロットは1か2で、拡張スロットも対応しています。）  
+
 ``` basic
 RUN "HYDLIDE3.BAS"⏎
 ```

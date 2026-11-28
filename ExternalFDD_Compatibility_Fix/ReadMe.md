@@ -1,10 +1,12 @@
-# External FDD Compatibility Fix
+# きゃんきゃんバニースペリオールを外付けFDDで動かすツール
 
-内蔵FDD以外から起動できないゲームのためのツールです。
+## [External FDD Compatibility Fix](extFdd_fix.dsk)
+
+[extFdd_fix.dsk](extFdd_fix.dsk)
 
 きゃんきゃんバニースペリオール用ですが、
-もしかしたら
-他のゲームにも有効かもしれません。（未確認）
+もしかしたら他の
+内蔵FDD以外から起動できないゲームでも有効かもしれません。（未確認）
 
 ## 使用方法
 
@@ -40,6 +42,8 @@
 ゲームディスクにパッチを当てなくて済むので安全ですね。
 
 ## 処理概要
+
+[src/bootsec.asm](src/bootsec.asm)
 
 1. ページ1をRAMに明示的に変更
 2. メッセージを出してキー入力待ち

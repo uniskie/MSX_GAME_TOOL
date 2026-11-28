@@ -67,11 +67,11 @@ Each is available in OPLL and PSG versions.
 - `RuneWorth_B.dsk` ... Game Disk B Disk-image
 - `bincut2.exe`
   ... Binary Cutter  
-  ..... https://nezplug.sourceforge.net/  
-  ..... https://www.purose.net/befis/download/nezplug/oldsite.shtml
+  ..... <https://nezplug.sourceforge.net/>  
+  ..... <https://www.purose.net/befis/download/nezplug/oldsite.shtml>
 - `AILZ80ASM.exe`
   ... useful Z80 Assembler
-  ..... https://github.com/AILight/AILZ80ASM
+  ..... <https://github.com/AILight/AILZ80ASM>
 
 Please prepare these yourself and place them all in the same folder.
 
@@ -79,11 +79,11 @@ Please prepare these yourself and place them all in the same folder.
 
 ### MDT Extraction Batch File
 
-- `RuneWorth_extract_mdt.bat`
+- [`RuneWorth_extract_mdt.bat`](RuneWorth_extract_mdt.bat)
 
 ### List of required files
 
-- `RuneWorth_extract_mdt.bat`
+- [`RuneWorth_extract_mdt.bat`](RuneWorth_extract_mdt.bat)
 - `RuneWorth_S.dsk`
 - `RuneWorth_A.dsk`
 - `RuneWorth_B.dsk`
@@ -91,7 +91,7 @@ Please prepare these yourself and place them all in the same folder.
 
 ### Execute extraction
 
-Place all files in the same folder and run `RuneWorth_extract_mdt.bat`.
+Place all files in the same folder and run [`RuneWorth_extract_mdt.bat`](RuneWorth_extract_mdt.bat).
 
 It will be created subfolder `RuneWorh_mdt` and extract mdt file. 
 
@@ -105,7 +105,7 @@ You can listen to it at the following sites:
 
 Included in the [Undead Line BGM Tool Set in the June 1995 issue of MSXFAN](#undead-line-bgm-collection--mml-development-kit).
 
-When extracting mdt files with `RuneWorth_extract_mdt.bat`,
+When extracting mdt files with [`RuneWorth_extract_mdt.bat`](RuneWorth_extract_mdt.bat),
 the batch files `PLAY-P.BAT` and `PLAY-O.BAT` for previewing are also generated.
 
 `PLAY-P.BAT` is for PSG Musics,
@@ -118,16 +118,16 @@ the batch files `PLAY-P.BAT` and `PLAY-O.BAT` for previewing are also generated.
 
 ### KSS creation batch file
 
-`RuneWorth_kss_maker.bat`
+[`RuneWorth_kss_maker.bat`](RuneWorth_kss_maker.bat)
 
-Place all files in the same folder and run `RuneWorth_kss_maker.bat`.
+Place all files in the same folder and run [`RuneWorth_kss_maker.bat`](RuneWorth_kss_maker.bat).
 
 If successful, `Rune Worth (MSX).kss` should be created.
 
 ### List of required files
 
-- `RuneWorth_kss_maker.bat`
-- `RuneWorth_kss_head.bin`
+- [`RuneWorth_kss_maker.bat`](RuneWorth_kss_maker.bat)
+- [`RuneWorth_kss_head.bin`](RuneWorth_kss_head.bin)
 - `RuneWorth_S.dsk`
 - `RuneWorth_A.dsk`
 - `RuneWorth_B.dsk`
@@ -163,8 +163,8 @@ Please place the playlist in the same folder as `Rune Worth (MSX).kss`.
 
 - WINAMP
 
-  - MSXPlug(in_msx) is required.
-    https://github.com/digital-sound-antiques/in_msx  
+  - MSXPlug(in_msx) is required.  
+    <https://github.com/digital-sound-antiques/in_msx>  
   - use pls either m3u or m3u8 files.
 
 - foobar2000
@@ -174,11 +174,11 @@ Please place the playlist in the same folder as `Rune Worth (MSX).kss`.
 
   - Requires GameEmuPlayer(foo_gep) plugin or NPNEZ(foo_npnez) plugin.
   
-    - GameEmuPlayer(foo_gep)
-      https://www.foobar2000.org/components/view/foo_gep  
+    - GameEmuPlayer(foo_gep)  
+      <https://www.foobar2000.org/components/view/foo_gep>
 
-    - NPNEZ(foo_npnez)
-      https://ux.getuploader.com/foobar2000/
+    - NPNEZ(foo_npnez)  
+      <https://ux.getuploader.com/foobar2000/>  
       You will need npnez.dll, which is included with nezplug++.
 	  Place it in the same location as foo_npnez.dll.
       (See the included documentation for details.)
@@ -214,10 +214,10 @@ It covers a wide range of Japanese games and provides complete analysis informat
 
 This may be useful if you want to extract music data from Japanese MSX games.
 
-http://dmpsoft.s17.xrea.com/hoot/
+<http://dmpsoft.s17.xrea.com/hoot/>
 
 黒羽製作所(Kurohane Seisakusho) has information on many Japanese-made MSX games.  
-https://kurohane.net/
+<https://kurohane.net/>
 
 ## "Undead Line" BGM Collection & MML Development Kit
 
@@ -226,7 +226,7 @@ https://kurohane.net/
 
 UNDEAD.LZH contains MML compiler, DOS command line player, MML, and BGM binaries.
 
-> ** Extract mdt: [RuneWorth_extract_mdt.bat](#extracting-mdt-files-for-playing-on-msx)
+> ** Extract mdt: [RuneWorth_extract_mdt.bat](RuneWorth_extract_mdt.bat)
 
 ### MML Compiler
 
@@ -267,29 +267,29 @@ UNDEAD.LZH contains MML compiler, DOS command line player, MML, and BGM binaries
 
 MML for PSG
 
-| File         | Contents                 |
-|--------------|-------------------------|
-| OP1-P.PSG    | Opening                 |
-| OPEN-P.PSG   | Opening                 |
-| MENU1-P.PSG  | Title                   |
-| MENU2-P.PSG  | Character, stage select |
-| DEMO-P.PSG   | Intermediate demo       |
-| BGM1-P.PSG   | FOREST stage            |
-| BGM2-P.PSG   | CEMETERY stage          |
-| BGM3-P.PSG   | RUINS stage             |
-| BGM4-P.PSG   | ROCKS stage             |
-| BGM5-P.PSG   | CAVERN stage            |
-| BGM6-P.PSG   | DUNGEON stage           |
-| BGM7-P.PSG   | FORTRESS stage          |
-| BOSS1-P.PSG  | Boss                    |
-| BOSS2-P.PSG  | Final boss              |
-| CLEAR-P.PSG  | Stage clear             |
-| OVER-P.PSG   | Game over               |
+| File        | Contents                |
+| :---------- | :---------------------- |
+| OP1-P.PSG   | Opening                 |
+| OPEN-P.PSG  | Opening                 |
+| MENU1-P.PSG | Title                   |
+| MENU2-P.PSG | Character, stage select |
+| DEMO-P.PSG  | Intermediate demo       |
+| BGM1-P.PSG  | FOREST stage            |
+| BGM2-P.PSG  | CEMETERY stage          |
+| BGM3-P.PSG  | RUINS stage             |
+| BGM4-P.PSG  | ROCKS stage             |
+| BGM5-P.PSG  | CAVERN stage            |
+| BGM6-P.PSG  | DUNGEON stage           |
+| BGM7-P.PSG  | FORTRESS stage          |
+| BOSS1-P.PSG | Boss                    |
+| BOSS2-P.PSG | Final boss              |
+| CLEAR-P.PSG | Stage clear             |
+| OVER-P.PSG  | Game over               |
 
 MML for OPLL
 
 | File         | Contents                   |
-|--------------|----------------------------|
+| :----------- | :------------------------- |
 | OP1-O.OPL    | Opening                    |
 | OPEN-O.OPL   | Opening                    |
 | MENU1.OPL    | Title                      |
@@ -364,24 +364,24 @@ data1	$dc,$ba,$86,$41,$11,$11,$11,
 
 ##### Special MML symbols
 
-| MML symbol       | function |
-|------------------|----------|
-| [ _1 ]0 _2 ]1 _3 | loop（_1→_2→_1→_3）|
+| MML symbol       | function                                                                        |
+| :--------------- | :------------------------------------------------------------------------------ |
+| [ _1 ]0 _2 ]1 _3 | loop（_1→_2→_1→_3）                                                          |
 | (n)              | If you enclose the note length in parentheses, it will be in 1/60 second units. |
-| @ (@ only)       | Wait until all channels are available |
-| $n               | Use PSG voixce #n  |
-| @n               | Use OPLL voice #n  |
-| un               | Write OPLL user tone data |
-| {label}          | Subroutine call |
-| /label/          | Melody subroutine label |
-| \|label\|        | Rhythm subroutine label |
-| %                | Return from subroutine |
-| ;                | Exit |
-| i                | Detune |
-| M                | Vibrato (parameter unknown) |
-| p                | Portamento? |
-| -                | Comment out symbol |
-| *                | Mysterious command |
+| @ (@ only)       | Wait until all channels are available                                           |
+| $n               | Use PSG voixce #n                                                               |
+| @n               | Use OPLL voice #n                                                               |
+| un               | Write OPLL user tone data                                                       |
+| {label}          | Subroutine call                                                                 |
+| /label/          | Melody subroutine label                                                         |
+| |label|          | Rhythm subroutine label                                                         |
+| %                | Return from subroutine                                                          |
+| ;                | Exit                                                                            |
+| i                | Detune                                                                          |
+| M                | Vibrato (parameter unknown)                                                     |
+| p                | Portamento?                                                                     |
+| -                | Comment out symbol                                                              |
+| *                | Mysterious command                                                              |
 
 - When using a user tone,
   you write the user tone data
@@ -390,9 +390,9 @@ data1	$dc,$ba,$86,$41,$11,$11,$11,
 
 ## Source Code: Binaries for KSS headers
 
-- `RuneWorth_kss_head.asm`  
+- [`RuneWorth_kss_head.asm`](RuneWorth_kss_head.asm)  
 
-  `RuneWorth_kss_head.bin` source file. 
+  [`RuneWorth_kss_head.bin`](RuneWorth_kss_head.bin) source file. 
   Assembled with AILZ80ASM.
 
 ## Acknowledgment

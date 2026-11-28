@@ -1,13 +1,13 @@
 # ファミリーコンピュータ版 ファイナルファンタジーのマップとBGMの仕様
 
-ROM内部解析データおよび逆アセンブル参照  
-https://github.com/Entroper/FF1Disassembly
+ROM内部解析データ
+<https://github.com/Entroper/FF1Disassembly>
 
 Final Fantasy/RAM map:  
-https://datacrystal.tcrf.net/wiki/Final_Fantasy/RAM_map
+<https://datacrystal.tcrf.net/wiki/Final_Fantasy/RAM_map>
 
 Final Fantasy/ROM map:  
-https://datacrystal.tcrf.net/wiki/Final_Fantasy/ROM_map
+<https://datacrystal.tcrf.net/wiki/Final_Fantasy/ROM_map>
 
 ---
 

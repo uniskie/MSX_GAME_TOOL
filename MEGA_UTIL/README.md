@@ -5,11 +5,13 @@
  ハイドライド３、ガリウスの迷宮、パロディウス、F1-SPIRIT  
  対応の状態セーブロードツール（MSX実機向け）
 
-DISK IMAGE -> [MEGA-UTL.dsk](MEGA-UTL.dsk)
+- ディスクイメージ：[MEGA-UTL.dsk](MEGA-UTL.dsk)
+- [Files](https://github.com/uniskie/MSX_GAME_TOOL/tree/main/MEGA_UTIL/FILES/)
+- [SourceFiles](https://github.com/uniskie/MSX_GAME_TOOL/tree/main/MEGA_UTIL/SRC/)
 
 ## ブラウザで動作するツール
 
-- [MSX1/2版 ハイドライドⅢ PACセーブデータエディタ        ](https://uniskie.github.io/MSX_GAME_TOOL/hydlide3_pac_editor.html       ) / [ [src](hydlide3_pac_editor.html       ) ]
+- [MSX1/2版 ハイドライド3 PACセーブデータエディタ](https://uniskie.github.io/MSX_GAME_TOOL/hydlide3_pac_editor.html       ) / [ [src](hydlide3_pac_editor.html       ) ]
 
 ## 変更履歴  
 
@@ -65,7 +67,7 @@ DISK IMAGE -> [MEGA-UTL.dsk](MEGA-UTL.dsk)
 以下のゲームの状態保存・復帰などを出来るようにするツールです。  
 
 - `HYDLIDE3.BAS`  
-  ...「ハイドライドⅢ」補助ツール  
+  ...「ハイドライド3」補助ツール  
 
 - `GALIOUS.BAS`  
   ...「ガリウスの迷宮」補助ツール  
@@ -92,7 +94,7 @@ ROMカートリッジを挿さずに電源にBASICを起動し、
 ## その他ツール  
 
 - `HYD3CHAR.BAS`  
-  ...「ハイドライドⅢ」セーブデータ改造ツール  
+  ...「ハイドライド3」セーブデータ改造ツール  
 
 - `GAL-MUS.BAS`  
   ...「ガリウスの迷宮」JUKE-BOX (サウンドテスト)  
@@ -156,8 +158,8 @@ PAUSEがある機種はを押した状態で挿すと比較的安全ですが、
 - MSX-DOS1/MSX-DOS2対応  
 - 要：RAM64KB  
 
-※ MSX1版ハイドライドⅢの場合はMSX1対応（※要RAM 64KB)  
-※ MSX2版ハイドライドⅢの場合はMSX2以上（※要VRAM128KB）  
+※ MSX1版ハイドライド3の場合はMSX1対応（※要RAM 64KB)  
+※ MSX2版ハイドライド3の場合はMSX2以上（※要VRAM128KB）  
 ※ターボRの場合、ゲーム中は一時的にZ80に戻ります。  
 
 - 拡張ポーズは[STOP]キーです。  

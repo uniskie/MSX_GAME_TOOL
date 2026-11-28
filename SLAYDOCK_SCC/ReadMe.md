@@ -1,6 +1,10 @@
-# SLAYDOCK_SCC
+# スーパーレイドック(MSX版)追加機能。ディスク版にしたりSCC音源を鳴らしたり。
 
-スーパーレイドック(MSX版)用のユーティリティです
+ディスクイメージ：[SLAYDOCK_SCC.dsk](SLAYDOCK_SCC.dsk)
+- [Files](https://github.com/uniskie/MSX_GAME_TOOL/tree/main/SLAYDOCK_SCC/FILES/)
+- [SourceFiles](https://github.com/uniskie/MSX_GAME_TOOL/tree/main/SLAYDOCK_SCC/SRC/)
+- おまけ：[Super LAYDOCK No damage patch (ips)](./ips/)
+
 
 機能:
 - ROMカートリッジ無しでディスク版として動作させる
@@ -100,7 +104,7 @@ SRCフォルダにアセンブラソースコードが添付してあります�
 添付のソースコードはtniasm v0.45用に変換してあります。
 
 tniASM v0.45 [2 November 2011, final freeware Z80/R800/GBZ80 version]  
-http://www.tni.nl/products/tniasm.html
+<http://www.tni.nl/products/tniasm.html>
 
 ## その他
 

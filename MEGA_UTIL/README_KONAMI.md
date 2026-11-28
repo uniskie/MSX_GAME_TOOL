@@ -1,19 +1,30 @@
 ﻿# KONAMI向けツール  説明書
 
+- ディスクイメージ：[MEGA-UTL.dsk](MEGA-UTL.dsk)
+- [Files](https://github.com/uniskie/MSX_GAME_TOOL/tree/main/MEGA_UTIL/FILES/)
+- [SourceFiles](https://github.com/uniskie/MSX_GAME_TOOL/tree/main/MEGA_UTIL/SRC/)
+
 -----------------------------------------------------------------------------
 
-ゲームにクイックセーブ＆ミニチート&サウンドプレイヤーを追加
+# 何？
+
+処理乗っ取り系のツールなので、  
+ROMカートリッジを挿さずに電源にBASICを起動し、  
+各種BASICプログラムを実行後、  
+該当ROMカートリッジを《後挿し》して使用します。  
+
+### ゲームにクイックセーブ＆ミニチート&サウンドプレイヤーを追加
 
 - `GRADIUS2.BAS` ... グラディウス2  
 - `F1SPIRIT.BAS` ... F-1 SPIRIT  
 - `PARODIUS.BAS` ... パロディウス  
 - `GALIOUS.BAS`  ... ガリウスの迷宮  
 
-ゲームにクイックセーブのみ追加
+### ゲームにクイックセーブのみ追加
 
 - `KONAMI.BAS`   ... コナミMSX1ソフト(RAM8KB)汎用  
 
-サウンドプレイヤー単体
+### サウンドプレイヤー単体
 
 - `GRA2-MUS.BAS` ... グラディウス2  
 - `F1SP-MUS.BAS` ... F-1 SPIRIT  
@@ -21,7 +32,7 @@
 - `GAL-MUS.BAS`  ... ガリウスの迷宮  
 - `SAVE-MUS.BAS` ... *.OBJファイルの作成
 
-サウンドプレイヤー(JUKE-BOX)対応ROM
+## サウンドプレイヤー(JUKE-BOX)対応ROM
 
 ```
 Bytes   SHA1                                     Name

@@ -1,5 +1,12 @@
-﻿# YS2EDIT_MSX2
- Ys2 Message Editor for MSX2
+﻿# Ys2 Message Editor for MSX2
+
+※ 公開するより遥か以前から長らくメンテしていません。
+
+ディスクイメージ: [YS2Edit.dsk](YS2Edit.dsk)
+
+[SourceFiles](https://github.com/uniskie/MSX_GAME_TOOL/tree/main/YS2EDIT_MSX2/src/)
+
+[ys2_extract SourceFiles](https://github.com/uniskie/MSX_GAME_TOOL/tree/main/YS2EDIT_MSX2/ys2_extract_src/)
 
 ## これはなに？
 
@@ -12,8 +19,6 @@
 MSX2以上/MSXDOS1/MSXDOS2モード対応
 ターボRなら高速モードで動作可能です。
 （基本がBASICで組まれていて遅いのでターボRがお勧めです）
-
-
 
 ## 注意事項
 
@@ -34,22 +39,23 @@ MSX2以上/MSXDOS1/MSXDOS2モード対応
 Windows等でもツールは作れるのではないかと思います。
 Windows上で編集するツール作った方が快適に弄れると思います。
 
-
 ## 起動
 
 DSKイメージをBlueMSXやOpenMSXやWebMSXにセットするか、
 FDDに書き出して実機にセット。
 
+```basic
 RUN"YS2MEDIT"
+```
 
 エディターの画面がでたら、イース2のプログラムディスクやデータディスクに入れ替えてください。
 
-|コマンド|内容 |
-|--|--|
-|1.READ  | 指定したセクタを読み込みます。24セクタ単位です。|
-|2.WRITE | 読み込み済みのデータを書き戻します。|
-|3.EDIT  | 読み込んだデータを表示・編集します。|
-|4.DIR   | イースファイルシステムのファイルリストを読み込んで表示します。<br>ファイルを選択すると該当セクタを読み込んでEDIT画面へ移動します|
+| コマンド | 内容                                                                                                                             |
+| :------- | :------------------------------------------------------------------------------------------------------------------------------- |
+| 1.READ   | 指定したセクタを読み込みます。24セクタ単位です。                                                                                 |
+| 2.WRITE  | 読み込み済みのデータを書き戻します。                                                                                             |
+| 3.EDIT   | 読み込んだデータを表示・編集します。                                                                                             |
+| 4.DIR    | イースファイルシステムのファイルリストを読み込んで表示します。<br>ファイルを選択すると該当セクタを読み込んでEDIT画面へ移動します |
 
 - ※ Y/Nの入力を求められたときは、かなを解除してください。
 
@@ -106,76 +112,76 @@ RETURNを押すと通常入力モードに戻ります。
 実験用。
 
 - DiskExplorer  
-    https://hp.vector.co.jp/authors/VA013937/editdisk/index.html  
+    <https://hp.vector.co.jp/authors/VA013937/editdisk/index.html>  
     dskイメージを開き、ファイルを出し入れするツール  
 
 - MSXVIEWer  
-    https://www.minagi.jp/2004/05/20/msxviewer/  
+    <https://www.minagi.jp/2004/05/20/msxviewer/>  
     BASやSC5ファイルを表示するツール  
     BASファイルをTXT形式に変換保存もできます。  
 
     *(※半角ひらがなやグラフィック文字は全角に変換されます。)*
 
-    MSXBASIC上で ``SAVE"ファイル名",A`` としてもテキスト形式で保存できます。
+    MSXBASIC上で `SAVE"ファイル名",A` としてもテキスト形式で保存できます。
 
 
 
 ---
 ## ■ DSKイメージ内のファイル解説
 
-- MSX2ASM  
+- [MSX2ASM](src/MSX2ASM)  
     ...MSX2 Simple ASM  
     （バックアップ活用テクニック PART16掲載。POCO氏制作「アセンブルシステム」）  
 
-- YS2MEDIT  
+- [YS2MEDIT](src/YS2MEDIT)  
     ...エディタの起動プログラム。RUN"YS2MEDIT"で実行。  
 
-- YS2MMAIN.BAS  
+- [YS2MMAIN.BAS](YS2MMAIN.BAS)  
     ...エディタ本体。YS2MEDITから起動される。  
 
-- YS2MEDIT.BIN  
+- [YS2MEDIT.BIN](src/YS2MEDIT.BIN)  
     ...エディタ機械語部＋エディタ補助データ。  
 
     YS2MEDITで読み込まれる。  
     tniAsmでYS2MEDIT.ASMをアセンブルした物。  
 
-- YS2MEDIT.BOF  
-    ...YS2MEDIT.BINと同等の物。  
+- [YS2MEDIT.BOF](src/YS2MEDIT.BOF)  
+    ...[YS2MEDIT.BIN](src/YS2MEDIT.BIN)と同等の物。  
 
-    MSX2ASMでYS2MEDIT.ASFをアセンブルした物。  
+    MSX2ASMで[YS2MEDIT.ASF](src/YS2MEDIT.ASF)をアセンブルした物。  
     現在は不要。  
 
     MSX本体でアセンブルしたい場合はこちらを使用する形になる。  
     
     こちらを使用したい場合は、  
-    YS2MEDITのBLOAD"YS2MEDIT.BIN",RをBLOAD"YS2MEDIT.BOF",Rに変更するか、  
-    YS2MEDIT.BOFをYS2MEDIT.BINにリネームする。  
+    `YS2MEDIT` の `BLOAD"YS2MEDIT.BIN",R` を `BLOAD"YS2MEDIT.BOF",R` に変更するか、  
+    `YS2MEDIT.BOF` を `YS2MEDIT.BIN` にリネームする。  
 
-- YS2MEDIT.ASF  
+- [YS2MEDIT.ASF](YS2MEDIT.ASF)  
     ...機械語部分の機械語ソースファイル。  
 
     MSX2ASMでアセンブルする場合はこちらを使用する。  
     （tniASMでアセンブルする場合は不要）  
 
     アセンブル方法：
-    - RUN"MSX2ASM"→自動で再起動→_ASM("YS2MEDIT")でアセンブル
-    - →N,Pを聴かれたら、
-    - RETURNキーで途中表示
-    - Nで途中表示なし
-    - Pで途中経過をプリンタ出力
+    - `RUN"MSX2ASM"`→自動で再起動→`_ASM("YS2MEDIT")`でアセンブル
+    - →`N,P`を聴かれたら、
+    - `RETURN`キーで途中表示
+    - `N`で途中表示なし
+    - `P`で途中経過をプリンタ出力
     - ビルドに成功するとセーブするか聞かれるので、
-    セーブするならY。セーブしないならそれ以外を入力
+    セーブするなら`Y`。セーブしないならそれ以外を入力
 
-    アセンブルされたバイナリファイルは"YS2MEDIT.BOF"として保存される  
+    アセンブルされたバイナリファイルは`"YS2MEDIT.BOF"`として保存される  
 
 ---
 ## ■ その他ファイル解説
 
-- SRC\YSEMEDIT.ASM  
+- [src\YSEMEDIT.ASM](src/YSEMEDIT.ASM)  
     ...YS2MEDIT.BINのソースファイル  
 
     tniASMでアセンブルできます。  
-    アセンブルしたらYS2MEDIT.BINが出来るので  
+    アセンブルしたら`YS2MEDIT.BIN`が出来るので  
     DSKイメージ（または実FDD）の中にコピーしてください。  
 
 ---

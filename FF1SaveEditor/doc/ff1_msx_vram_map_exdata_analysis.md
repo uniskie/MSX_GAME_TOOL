@@ -1,4 +1,4 @@
-# MSX版 ファイナルファンタジー VRAM構造・マップ描画・EXDATA詳細解析
+# MSX2版 ファイナルファンタジー VRAM構造・マップ描画・EXDATA詳細解析
 
 本書は、MSX2版『ファイナルファンタジー』における主要モジュール（`MAIN.COM`、`SMAP.COM`、`BATTLE.COM`）のVRAMメモリ配置、マップ描画アーキテクチャ、および `EXDATA1.COM`／`EXDATA2.COM` のデータ構造について調査・解析した技術資料です。
 

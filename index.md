@@ -2,7 +2,7 @@
 
 ### MSX/MSX2版ハイドライド3用
 
-- [MSX1/2版 ハイドライドⅢ PACセーブデータエディタ](./MEGA_UTIL/hydlide3_pac_editor.html)
+- [MSX1/2版 ハイドライド3 PACセーブデータエディタ](./MEGA_UTIL/hydlide3_pac_editor.html)
 
 ### FC版/MSX2版ファイナルファンタジー用
 
@@ -38,3 +38,9 @@
 {% endif %}
 {% endfor %}
 {% endif %}
+
+## リポジトリ
+
+<https://github.com/uniskie/MSX_GAME_TOOL/tree/main>
+
+by uniskie 2002-2026

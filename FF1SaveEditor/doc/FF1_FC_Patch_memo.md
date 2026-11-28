@@ -4,6 +4,8 @@
 
 [FF1J BugFixes](https://www.romhacking.net/hacks/5597/)
 
+[FF1J_FC_Bugfixes_jp.md](FF1J_FC_Bugfixes_jp.md)
+
 IPSファイル： `FF1J_BugFixes.ips`
 
 日本語版ドキュメント：  [FF1J_FC_Bugfixes_jp.md](FF1J_FC_Bugfixes_jp.md)
@@ -68,7 +70,7 @@ FF1J_BugFixesとアキラナオル氏のパッチのうち、競合するパッ�
 
 ipsファイルははROMファイルに当てて使用しても良いですが、NestopiaやRetroFreakなど、実行時にipsファイルを指定して使用することもできます。
 
-### ips_manager.py
+### [ips_manager.py](../ips_manager.py)
 
 [ips_manager.py](../ips_manager.py) は
 ROMに複数のパッチをまとめて当てたり、パッチを合成したりできます。

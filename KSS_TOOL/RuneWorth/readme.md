@@ -64,11 +64,11 @@
 - `RuneWorth_B.dsk` ... ゲームディスク B ディスクイメージ
 - `bincut2.exe`
   ... バイナリ切り出しツール。  
-  ..... https://nezplug.sourceforge.net/  
-  ..... https://www.purose.net/befis/download/nezplug/oldsite.shtml
+  ..... <https://nezplug.sourceforge.net/>  
+  ..... <https://www.purose.net/befis/download/nezplug/oldsite.shtml>
 - `AILZ80ASM.exe`
   ... 便利な Z80 Assembler
-  ..... https://github.com/AILight/AILZ80ASM
+  ..... <https://github.com/AILight/AILZ80ASM>
 
 これらはご自分で用意し、すべて同じフォルダにおいてください。
 
@@ -76,11 +76,11 @@
 
 ### MDT切り出しバッチファイル
 
-- `RuneWorth_extract_mdt.bat`
+- [`RuneWorth_extract_mdt.bat`](RuneWorth_extract_mdt.bat)
 
 ### 必須ファイル一覧
 
-- `RuneWorth_extract_mdt.bat`
+- [`RuneWorth_extract_mdt.bat`](RuneWorth_extract_mdt.bat)
 - `RuneWorth_S.dsk`
 - `RuneWorth_A.dsk`
 - `RuneWorth_B.dsk`
@@ -100,7 +100,7 @@
 
 で試聴できます。
 
-`RuneWorth_extract_mdt.bat`でmdtファイル切り出す時に、
+[`RuneWorth_extract_mdt.bat`](RuneWorth_extract_mdt.bat) でmdtファイル切り出す時に、
 試聴用バッチファイル `PLAY-P.BAT`、`PLAY-O.BAT`も生成します。
 
 `PLAY-P.BAT`がPSG曲用、
@@ -113,14 +113,14 @@
 
 ### KSS作成バッチファイル
 
-`RuneWorth_kss_maker.bat`
+[`RuneWorth_kss_maker.bat`](RuneWorth_kss_maker.bat)
 
-全てのファイルを同じフォルダに置いたら `RuneWorth_kss_maker.bat` を実行してください。
+全てのファイルを同じフォルダに置いたら [`RuneWorth_kss_maker.bat`](RuneWorth_kss_maker.bat) を実行してください。
 
 ### 必須ファイル一覧
 
-- `RuneWorth_kss_maker.bat`
-- `RuneWorth_kss_head.bin`
+- [`RuneWorth_kss_maker.bat`](RuneWorth_kss_maker.bat)
+- [`RuneWorth_kss_head.bin`](RuneWorth_kss_head.bin)
 - `RuneWorth_S.dsk`
 - `RuneWorth_A.dsk`
 - `RuneWorth_B.dsk`
@@ -137,12 +137,12 @@ KSSだけだと楽曲情報がなくて扱いづらいので、プレイリス�
 プレイリスト
 
 - サントラに近い順番 / FM音源全曲→PSG音源全曲の順
-  - Rune Worth (MSX).m3u
-  - Rune Worth (MSX).m3u8
+  - [Rune Worth (MSX).m3u](Rune Worth (MSX).m3u)
+  - [Rune Worth (MSX).m3u8](Rune Worth (MSX).m3u8)
 
 - データの出現順のもの（FM音源とPSG音源が交互に並んでいる）
-  - Rune Worth (MSX) RAW.m3u
-  - Rune Worth (MSX) RAW.m3u8
+  - [Rune Worth (MSX) RAW.m3u](Rune Worth (MSX) RAW.m3u)
+  - [Rune Worth (MSX) RAW.m3u8](Rune Worth (MSX) RAW.m3u8)
 
 `Rune Worth (MSX).kss`と同じフォルダに置いてください。
 
@@ -155,13 +155,13 @@ KSSだけだと楽曲情報がなくて扱いづらいので、プレイリス�
 - WINAMP
 
   - kss対応のMSXPlug(in_msx)が必要です。  
-    https://github.com/digital-sound-antiques/in_msx  
+    <https://github.com/digital-sound-antiques/in_msx>  
 
   - plsファイルを開いてください。   
     m3uだと文字化けします。  
     m3u8でも良いのですが、動作が不安定です。
     
-    ちなみに、plsファイルはSHIFT_JISのm3uファイルから
+    ちなみに、plsファイルはSHIFT_JISのm3uファイルから  
     [m3u2pls.exe](https://www.purose.net/befis/download/nezplug/oldsite.shtml)
     で、変換できます。
 
@@ -173,11 +173,11 @@ KSSだけだと楽曲情報がなくて扱いづらいので、プレイリス�
   - KSSファイルの再生にはGameEmuPlayer(foo_gep)プラグインか、  
     NPNEZ(foo_npnez)プラグインが必要です。  
   
-    - GameEmuPlayer(foo_gep)
-      https://www.foobar2000.org/components/view/foo_gep  
+    - GameEmuPlayer(foo_gep)  
+      <https://www.foobar2000.org/components/view/foo_gep>
 
-    - NPNEZ(foo_npnez)
-      https://ux.getuploader.com/foobar2000/
+    - NPNEZ(foo_npnez)  
+      <https://ux.getuploader.com/foobar2000/>  
       別途nezplug++同梱のnpnez.dllが必要。  
       foo_npnez.dllと同じ場所に置く。
       詳細は付属のドキュメント参照。
@@ -221,12 +221,12 @@ hootはKSSと同じように、ゲームの音楽データを抽出してサウ�
 有志の手でほぼすべての国内PCゲームから音楽データを抽出するための厖大な量の解析データが集まっています。
 
 > hoot公式ページ  
-> http://dmpsoft.s17.xrea.com/hoot/
+> <http://dmpsoft.s17.xrea.com/hoot/>
 
 例えば、ルーンワースと同じ音源ドライバーを使用しているサイオブレード、レイドック2、アンデッドラインの抽出情報も存在します。
 
 > MSX用ゲームの多くは [黒羽製作所]さんのページに掲載されています。  
-> https://kurohane.net/hoot/
+> <https://kurohane.net/hoot/>
 
 ## アンデッドラインBGM集&MML開発キット
 
@@ -237,7 +237,7 @@ hootはKSSと同じように、ゲームの音楽データを抽出してサウ�
 MSX-DOSコマンドライン用MMLコンパイラとプレイヤー、MMLテキストファイル、BGMバイナリのセット一式です。
 
 > mdt切り出しツール  
-> RuneWorth_extract_mdt.bat
+> [RuneWorth_extract_mdt.bat](RuneWorth_extract_mdt.bat)
   
 
 ### MMLコンパイラ  
@@ -401,9 +401,9 @@ data1	$dc,$ba,$86,$41,$11,$11,$11,
 
 ## おまけ：KSSヘッダのソースコード
 
-- `RuneWorth_kss_head.asm`  
+- [`RuneWorth_kss_head.asm`](RuneWorth_kss_head.asm)
 
-  `RuneWorth_kss_head.bin`のソースファイル。  
+  [`RuneWorth_kss_head.bin`](RuneWorth_kss_head.bin) のソースファイル。  
   AILZ80ASMでアセンブルします。
 
 ## 謝辞

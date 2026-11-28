@@ -1,7 +1,9 @@
-﻿## 概要
+﻿# MSXFAN 1992年10月号 付録ディスク#13収録 MSX2版ハイドライド用 置き換え画像作成＆実行セット
+
+## 概要
 
 MSXFAN 1992年10月号 付録ディスク#13収録 の  
-MSX2用イドライド用置き換え画像作成＆実行セット
+MSX2 VRAM128KB版ハイドライド用 置き換え画像作成＆実行セット
 
 DISK IMAGE -> [MSXFAN13_HYDLIDE_PATCH.dsk](MSXFAN13_HYDLIDE_PATCH.dsk)
 
@@ -28,20 +30,20 @@ MSXFAN 1992年10月号 付録ディスク#13 から
 9. VRAM-2.XV8
 
 パッチ差分画像
-1. TITLEMD.SC8
-2. VRAM-2MD.SC8
+1. [TITLEMD.SC8](TITLEMD.SC8)
+2. [VRAM-2MD.SC8](VRAM-2MD.SC8)
 
 SC8保存&パッチ当てプログラム
-1. MAKESC8.XB
+1. [MAKESC8.XB](MAKESC8.XB)
 
 ### 実行手順
 
 1. 上記の必要なファイルを用意する
-2. ```RUN"INIT.XB"```を実行してBASIC拡張する
-3. ```RUN"SAVESC8.XB"```を実行する
+2. `RUN"INIT.XB"`を実行してBASIC拡張する
+3. `RUN"SAVESC8.XB"`を実行する
 
 ファイルが作成されたら、MSXをリセットし、
- ```RUN"HYDLIDE.BAS```でゲームが実行できるようになります。
+ `RUN"HYDLIDE.BAS`でゲームが実行できるようになります。
 
 ### 生成されるファイル
 
@@ -50,7 +52,9 @@ SC8保存&パッチ当てプログラム
 3. TITLEM.SC8 ... 妖精がまるわたろうに変更されたタイトル画像BSAVEファイル
 4. VRAM-2M.SC8 ... フォントが変更されたゲーム用画像BSAVEファイル
 
-### MAKESC8.XB
+### [MAKESC8.XB](MAKESC8.XB)
+
+オリジナルの画像データと差分を合成します。
 
 ```
 1 ' SAVE to SC8
@@ -78,8 +82,11 @@ SC8保存&パッチ当てプログラム
 23 BSAVE "VRAM-2M.SC8",0,&HD3FF,S
 ```
 
+合成する差分画像の元データ：
+- [TITLEMD.png](TITLEMD.png)
+- [VRAM-2MS.png](VRAM-2MS.png)
 
-## オリジナルの```"GAME.XB"```
+## オリジナルの`"GAME.XB"`
 
 (INIT.XBを実行してBASIC拡張してから実行する)
 
@@ -98,7 +105,7 @@ SC8保存&パッチ当てプログラム
 110 RETURN
 ```
 
-## 書き換え版```"HYDLIDE.BAS"```
+## 書き換え版"[HYDLIDE.BAS](HYDLIDE.BAS)"
 
 (INIT.XBのBASIC拡張を使用しない)
 
@@ -119,11 +126,14 @@ SC8保存&パッチ当てプログラム
 ```
 
 改変版タイトル画像も使いたい場合、  
-お好みで74行の  
+お好みで74行のコメントアウトを解除してください。  
+
 ```
 74 'SETPAGE,0:BLOAD"TITLEM.SC8",S
 ```
-コメントアウトを解除してください。  
+
+↓
+
 ```
 74 SETPAGE,0:BLOAD"TITLEM.SC8",S
 ```

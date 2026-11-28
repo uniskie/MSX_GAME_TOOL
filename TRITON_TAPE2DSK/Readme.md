@@ -5,36 +5,43 @@
 - ※ゲーム状態のセーブ・ロードはカセットテープが必要
 - ※（カセットテープが使えない場合は、メモリセーブ・ロードで頑張る）
 
+ディスクイメージ: [TRITON_T.dsk](TRITON_T.dsk)
+
+[SourceFiles](https://github.com/uniskie/MSX_GAME_TOOL/tree/main/TRITON_TAPE2DSK/SRC/)
+
 ## セット内容
 
-- TRITON.BAS	...BASIC上からローダーを実行する
-- TRITREAD.BIN ...TRITON.BASで使用するマシン語バイナリ
+- [TRITON.BAS](SRC/TRITON.BAS)	...BASIC上からローダーを実行する
+- [TRITREAD.BIN](SRC/TRITREAD.BIN) ...TRITON.BASで使用するマシン語バイナリ
 
-extract_cas.exe ... CASファイルから個別のファイルを取り出すツール
+- [extract_cas.exe](extract_cas.exe) ... CASファイルから個別のファイルを取り出すツール
 
 ### ソースファイル
-- TRITREAD.ASM ...マシン語部分ソースファイル（メイン）
-- FILEIO.ASM ...マシン語部分ソースファイル（ファイルアクセス系）
-- CHGSLT.ASM ...マシン語部分ソースファイル（スロット変更：ページ0切り替えのため）
+- [TRITREAD.ASM](SRC/TRITREAD.ASM) ...マシン語部分ソースファイル（メイン）
+- [FILEIO.ASM](SRC/FILEIO.ASM) ...マシン語部分ソースファイル（ファイルアクセス系）
+- [CHGSLT.ASM](SRC/CHGSLT.ASM) ...マシン語部分ソースファイル（スロット変更：ページ0切り替えのため）
 
 ### おまけ
-- TRIREAD_v0.ASM ... 旧版（遅い）：マシン語部分ソースファイル（メイン）
-- TRIOLD.BAS ... 旧版（遅い）：BASICからローダーを実行する
-- TRIOLD.BIN ...旧版（遅い）：TRITON.BASで使用するマシン語バイナリ
+- [TRIREAD_v0.ASM](SRC/TRIREAD_v0.ASM) ... 旧版（遅い）：マシン語部分ソースファイル（メイン）
+- [TRIOLD.BAS](SRC/TRIOLD.BAS) ... 旧版（遅い）：BASICからローダーを実行する
+- [TRIOLD.BIN](SRC/TRIOLD.BIN) ...旧版（遅い）：TRITON.BASで使用するマシン語バイナリ
 
 ## データの準備
 
 1. テープの音をWAVファイルに保存
-2. なんでもピーガーかMSX CasToolsでWAVファイルからCASファイルに変換
-3. extract_cas.exeでCASファイルの中身を取り出す
-   	（TRITON.BIN、custom_0.DATが取り出せる）
-4. custom_0.DATをGAMEDATA.DATにリネーム
-5. TRITON.BAS、TRITREAD.BIN、TRITON.BIN、GAMEDATA.DATをディスク（イメージ）に保存
+2. **なんでもピーガー**か**MSX CasTools**でWAVファイルからCASファイルに変換
+3. `extract_cas.exe`でCASファイルの中身を取り出す
+   	（`TRITON.BIN`、`custom_0.DAT`が取り出せる）
+4. `custom_0.DAT`を`GAMEDATA.DAT`にリネーム
+5. `TRITON.BAS`、`TRITREAD.BIN`、`TRITON.BIN`、`GAMEDATA.DAT`をディスク（イメージ）に保存
 
 ## 使い方
 
 MSX DISK BASIC上から
+
+```basic
 RUN"TRITON.BAS"
+```
 
 ## 懸念事項
 
@@ -42,16 +49,16 @@ RUN"TRITON.BAS"
 トリトーンテープ版がその範囲が00やFFhでクリアされていることを期待した処理だった場合に、何処かで問題が出るかもしれません。
 
 ROM版にはMSX2以降だとラスボスで停止するバグがあるので、少し心配です。  
-https://www.msx.org/ja/news/software/ja/tritorn-fix-rom-torito-n-bagu-patuti  
+<https://www.msx.org/ja/news/software/ja/tritorn-fix-rom-torito-n-bagu-patuti>  
 → ”具体的にはE453hの内容の下一桁がFhだとエラーが起きるようです。”
 
 ## その他
 
 マシン語ファイルは、tniASMで、TRITREAD.ASMをアセンブルしています。  
-http://www.tni.nl/products/tniasm.html
+<http://www.tni.nl/products/tniasm.html>
 
 extract_cas.exeのソースファイルはこちらです。  
-https://app.box.com/s/vv0jxijfad0ld43356djvty5b6xpq8pv
+<https://github.com/uniskie/EXTRACT_MSX_CAS>
 
 ## その他解説
 

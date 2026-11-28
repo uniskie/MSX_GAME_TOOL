@@ -1,4 +1,4 @@
-# MSX イーグルファイター © CASIO / 1985
+# MSX イーグルファイター (©CASIO / 1985) 紹介と操作変更パッチ
 
 ![](img/Eagle%20Fighter%20Title.png)
 
